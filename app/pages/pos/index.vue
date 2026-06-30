@@ -48,6 +48,7 @@ import { useAddons } from '@/composables/useAddons'
 import { useDiscounts } from '@/composables/useDiscounts'
 import { useSales } from '@/composables/useSales'
 import { usePrint } from '@/composables/usePrint'
+import Calculator from '@/components/pos/Calculator.vue'
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -1028,11 +1029,12 @@ const paymentMethodIcon = (method: string) => {
         <div class="shrink-0 flex flex-col gap-0 border-t bg-background">
 
           <!-- Order total -->
-          <div class="flex items-center justify-between px-4 py-3 border-b">
+          <div class="flex items-center justify-between px-4 py-3 border-b gap-2">
             <span class="text-sm text-muted-foreground">
               {{ totalItemCount }} item{{ totalItemCount !== 1 ? 's' : '' }}
             </span>
             <span class="text-2xl font-bold tabular-nums">{{ formatCurrency(cartTotal) }}</span>
+            <Calculator />
           </div>
 
           <!-- Payment lines -->

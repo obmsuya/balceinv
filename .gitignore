@@ -24,3 +24,8 @@ logs
 !.env.example
 
 /app/generated/prisma
+
+# Documentation
+STEPS.md
+CLAUDE.md
+GOAL.md
