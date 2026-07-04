@@ -8,9 +8,13 @@ interface User {
   company_id: number
 }
 
+const isTauri = () => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
 export const useAuth = () => {
   const config = useRuntimeConfig()
   const baseUrl = config.public.apiBase
+  const { $apiFetch } = useNuxtApp()
+  const { setToken, clearTokens } = useSecureStorage()
 
   const user = useState<User | null>('auth:user', () => null)
   const userPermissions = useState<any[]>('perms:user', () => [])
@@ -27,7 +31,7 @@ export const useAuth = () => {
   const login = async (credentials: { email: string; password: string }) => {
     isLoading.value = true
     try {
-      const res = await $fetch<{ success: boolean; data?: { user: User }; message: string }>(
+      const res = await $fetch<{ success: boolean; data?: { user: User; access_token: string; refresh_token: string }; message: string }>(
         `${baseUrl}/api/auth/login`,
         { method: 'POST', body: credentials, credentials: 'include' }
       )
@@ -36,10 +40,14 @@ export const useAuth = () => {
         user.value = res.data.user
         if (typeof globalThis !== 'undefined') localStorage.setItem('user', JSON.stringify(res.data.user))
 
+        if (isTauri()) {
+          await setToken('access_token', res.data.access_token)
+          await setToken('refresh_token', res.data.refresh_token)
+        }
+
         try {
-          const permRes = await $fetch<{ success: boolean; data: any[] }>(
+          const permRes = await ($apiFetch as typeof $fetch)<{ success: boolean; data: any[] }>(
             `${baseUrl}/api/permissions/user/${res.data.user.id}`,
-            { credentials: 'include' }
           )
           if (permRes.success) userPermissions.value = permRes.data ?? []
         } catch {}
@@ -58,12 +66,13 @@ export const useAuth = () => {
   const logout = async () => {
     isLoading.value = true
     try {
-      await $fetch(`${baseUrl}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+      await ($apiFetch as typeof $fetch)(`${baseUrl}/api/auth/logout`, { method: 'POST' })
     } catch {}
     finally {
       user.value = null
       userPermissions.value = []
       if (typeof globalThis !== 'undefined') localStorage.removeItem('user')
+      if (isTauri()) await clearTokens()
       isLoading.value = false
       toast.success('Signed out successfully')
       await navigateTo('/login')
@@ -96,9 +105,8 @@ export const useAuth = () => {
 
   const checkSetup = async () => {
     try {
-      const res = await $fetch<{ success: boolean; data?: { configured: boolean } }>(
+      const res = await ($apiFetch as typeof $fetch)<{ success: boolean; data?: { configured: boolean } }>(
         `${baseUrl}/api/setup/status`,
-        { credentials: 'include' }
       )
       return res.data?.configured ?? false
     } catch {

@@ -10,6 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-stronghold": "^2.4.0",
     "@libsql/client": "^0.15.15",
     "@sparticuz/chromium": "^133.0.0",
     "@tailwindcss/vite": "^4.1.17",
