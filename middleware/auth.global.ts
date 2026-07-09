@@ -56,9 +56,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (sessionRestored) return
 
   try {
-    // Shared with the $apiFetch 401 interceptor (frontend/app/plugins/auth.ts)
-    // so a route-navigation refresh and an in-flight API call never race
-    // against the backend's single-use rotating refresh token.
     await ($refreshSession as () => Promise<void>)()
     const restoredAfterRefresh = await fetchMe()
     if (restoredAfterRefresh) return

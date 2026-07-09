@@ -1,14 +1,13 @@
 import { toast } from 'vue-sonner'
 
 export interface LicenseStatus {
-  success: boolean
   licensed: boolean
   expires_at?: string
   days_remaining?: number
   is_grace_period?: boolean
+  is_trial?: boolean
   plan?: number
   max_devices?: number
-  message?: string
 }
 
 export interface LicensePackage {
@@ -32,8 +31,10 @@ interface ApiResponse<T> {
 }
 
 export const useLicense = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
-  const { $apiFetch } = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
+  const apiBaseUrl = runtimeConfig.public.apiBase
+  const nuxtApp = useNuxtApp()
+  const apiFetch = nuxtApp.$apiFetch as typeof $fetch
 
   const licenseStatus = useState<LicenseStatus | null>('license:status', () => null)
   const licensePackages = useState<LicensePackage[]>('license:packages', () => [])
@@ -44,17 +45,15 @@ export const useLicense = () => {
   const fetchLicenseStatus = async (): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<LicenseStatus>>(`${apiBase}/api/license/status`, {
+      const response = await apiFetch<ApiResponse<LicenseStatus>>(`${apiBaseUrl}/api/license/status`, {
         credentials: 'include'
       })
-      licenseStatus.value = res.data || null
+      licenseStatus.value = response.data ?? null
     } catch {
-      if (!licenseStatus.value) {
-        licenseStatus.value = {
-          success: false,
-          licensed: false,
-          is_grace_period: false
-        }
+      licenseStatus.value = {
+        licensed: false,
+        is_grace_period: false,
+        is_trial: false
       }
     } finally {
       loading.value = false
@@ -64,46 +63,55 @@ export const useLicense = () => {
   const fetchPackages = async (): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<LicensePackage[]>>(`${apiBase}/api/license/packages`, {
+      const response = await apiFetch<ApiResponse<LicensePackage[]>>(`${apiBaseUrl}/api/license/packages`, {
         credentials: 'include'
       })
-      licensePackages.value = res.data || []
+      licensePackages.value = response.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch packages')
+      toast.error(error?.data?.message || 'Could not load subscription packages')
     } finally {
       loading.value = false
     }
   }
 
   const fetchLastPackage = async (): Promise<void> => {
-    if (!licenseStatus.value?.plan || licensePackages.value.length === 0) {
+    const currentPlan = licenseStatus.value?.plan
+    if (!currentPlan || licensePackages.value.length === 0) {
       lastPackage.value = null
       return
     }
 
-    const match = licensePackages.value.find(pkg => pkg.days_granted === licenseStatus.value!.plan)
-    lastPackage.value = match || null
+    let matchingPackage: LicensePackage | null = null
+    for (const candidatePackage of licensePackages.value) {
+      if (candidatePackage.days_granted === currentPlan) {
+        matchingPackage = candidatePackage
+      }
+    }
+    lastPackage.value = matchingPackage
   }
 
   const payForLicense = async (input: LicensePaymentInput): Promise<ApiResponse<any>> => {
     try {
-      const res = await $apiFetch<ApiResponse<any>>(`${apiBase}/api/license/pay`, {
+      const response = await apiFetch<ApiResponse<any>>(`${apiBaseUrl}/api/license/pay`, {
         method: 'POST',
         body: input,
         credentials: 'include'
       })
-      return res
+      return response
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Payment failed')
+      toast.error(error?.data?.message || 'Payment could not be started')
       throw error
     }
   }
 
   const pollUntilLicensed = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-      let elapsed = 0
+      const pollTimeoutMilliseconds = 90000
+      const pollIntervalMilliseconds = 4000
+      let elapsedMilliseconds = 0
+
       const interval = setInterval(async () => {
-        elapsed += 4000
+        elapsedMilliseconds += pollIntervalMilliseconds
         await fetchLicenseStatus()
 
         if (licenseStatus.value?.licensed === true) {
@@ -112,11 +120,11 @@ export const useLicense = () => {
           return
         }
 
-        if (elapsed >= 90000) {
+        if (elapsedMilliseconds >= pollTimeoutMilliseconds) {
           clearInterval(interval)
           reject(new Error('Polling timeout'))
         }
-      }, 4000)
+      }, pollIntervalMilliseconds)
     })
   }
 
@@ -124,17 +132,29 @@ export const useLicense = () => {
     bannerDismissed.value = true
   }
 
-  const isHardLocked = computed(() => {
-    if (!licenseStatus.value) return false
-    return !licenseStatus.value.licensed && !licenseStatus.value.is_grace_period
+  const isLicensed = computed(() => {
+    return licenseStatus.value?.licensed === true
+  })
+
+  const isTrial = computed(() => {
+    return licenseStatus.value?.is_trial === true
   })
 
   const isInGracePeriod = computed(() => {
     return licenseStatus.value?.is_grace_period === true
   })
 
+  const isHardLocked = computed(() => {
+    if (!licenseStatus.value) return false
+    return !isLicensed.value && !isInGracePeriod.value
+  })
+
   const showGraceBanner = computed(() => {
     return isInGracePeriod.value && !bannerDismissed.value
+  })
+
+  const showTrialBanner = computed(() => {
+    return isLicensed.value && isTrial.value && !bannerDismissed.value
   })
 
   return {
@@ -143,9 +163,12 @@ export const useLicense = () => {
     lastPackage,
     bannerDismissed,
     loading,
+    isLicensed,
+    isTrial,
     isHardLocked,
     isInGracePeriod,
     showGraceBanner,
+    showTrialBanner,
     fetchLicenseStatus,
     fetchPackages,
     fetchLastPackage,
