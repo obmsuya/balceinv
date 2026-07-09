@@ -2,10 +2,9 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
-import { ArrowLeft, CheckCircle, Smartphone } from 'lucide-vue-next'
+import { ArrowLeft, CheckCircle, Smartphone, Loader2 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
@@ -23,8 +22,11 @@ import {
 } from '@/components/ui/select'
 import type { LicensePackage } from '@/composables/useLicense'
 
+type PaymentFlowStep = 'select-package' | 'enter-details' | 'awaiting-confirmation' | 'success' | 'failed'
+type MobileProvider = 'Mpesa' | 'Tigo' | 'Airtel' | 'Halopesa' | 'Azampesa'
+
 const props = defineProps<{
-  paymentFlowStep: 'select-package' | 'enter-details' | 'awaiting-confirmation' | 'success' | 'failed'
+  paymentFlowStep: PaymentFlowStep
   selectedPackage: LicensePackage | null
   lastPackage: LicensePackage | null
   licensePackages: LicensePackage[]
@@ -34,22 +36,23 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  selectPackage: [pkg: LicensePackage]
+  selectPackage: [licensePackage: LicensePackage]
   goBack: []
   togglePackageList: []
-  submit: [values: { phone: string; provider: 'Mpesa' | 'Tigo' | 'Airtel' | 'Halopesa' | 'Azampesa' }]
+  submit: [values: { phone: string; provider: MobileProvider }]
   retry: []
   goToDetails: []
 }>()
 
 const formatCurrency = (value: string | number): string => {
-  const number = typeof value === 'number' ? value : Number.parseFloat(value.replace(/[^0-9.]/g, ''))
-  if (Number.isNaN(number)) return ''
-  return new Intl.NumberFormat('en-TZ', {
+  const numericValue = typeof value === 'number' ? value : Number.parseFloat(value.replace(/[^0-9.]/g, ''))
+  if (Number.isNaN(numericValue)) return ''
+  const currencyFormatter = new Intl.NumberFormat('en-TZ', {
     style: 'currency',
     currency: 'TZS',
     minimumFractionDigits: 0,
-  }).format(number)
+  })
+  return currencyFormatter.format(numericValue)
 }
 
 const formSchema = toTypedSchema(z.object({
@@ -62,60 +65,61 @@ const form = useForm({ validationSchema: formSchema })
 const onSubmit = form.handleSubmit((values) => {
   emit('submit', values)
 })
+
+const selectPackage = (licensePackage: LicensePackage) => {
+  emit('selectPackage', licensePackage)
+}
 </script>
 
 <template>
-  <div v-if="paymentFlowStep === 'select-package'" class="space-y-4">
-    <div v-if="lastPackage && !showAllPackages" class="space-y-4">
-      <Card class="border-primary cursor-pointer hover:border-primary" @click="emit('selectPackage', lastPackage)">
-        <CardHeader>
-          <CardTitle class="text-base">{{ lastPackage.name }}</CardTitle>
-        </CardHeader>
-        <CardContent class="space-y-2">
-          <p class="text-2xl font-bold">{{ formatCurrency(lastPackage.price) }}</p>
-          <p class="text-sm text-muted-foreground">{{ lastPackage.days_granted }} days · up to {{ lastPackage.max_devices }} device(s)</p>
-        </CardContent>
-      </Card>
+  <div v-if="paymentFlowStep === 'select-package'" class="space-y-3">
+    <div v-if="lastPackage && !showAllPackages" class="space-y-3">
+      <button
+        type="button"
+        class="w-full text-left rounded-lg border-2 border-primary bg-primary/5 p-4 transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        @click="selectPackage(lastPackage)"
+      >
+        <p class="font-semibold">{{ lastPackage.name }}</p>
+        <p class="mt-1 text-2xl font-bold">{{ formatCurrency(lastPackage.price) }}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{{ lastPackage.days_granted }} days · up to {{ lastPackage.max_devices }} device(s)</p>
+      </button>
 
-      <Button variant="default" class="w-full" @click="emit('selectPackage', lastPackage)">
-        Renew {{ lastPackage.name }}
-      </Button>
-
-      <button class="text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-center py-2" @click="emit('togglePackageList')">
+      <button
+        type="button"
+        class="w-full text-center py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        @click="emit('togglePackageList')"
+      >
         Choose a different package
       </button>
     </div>
 
     <div v-else class="grid gap-3">
-      <Card
-        v-for="pkg in licensePackages"
-        :key="pkg.id"
-        class="cursor-pointer border hover:border-primary transition-colors"
-        @click="emit('selectPackage', pkg)"
+      <button
+        v-for="licensePackage in licensePackages"
+        :key="licensePackage.id"
+        type="button"
+        class="w-full text-left rounded-lg border p-4 transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        @click="selectPackage(licensePackage)"
       >
-        <CardHeader>
-          <CardTitle class="text-base">{{ pkg.name }}</CardTitle>
-        </CardHeader>
-        <CardContent class="space-y-2">
-          <p class="text-2xl font-bold">{{ formatCurrency(pkg.price) }}</p>
-          <p class="text-sm text-muted-foreground">{{ pkg.days_granted }} days · up to {{ pkg.max_devices }} device(s)</p>
-        </CardContent>
-      </Card>
+        <p class="font-semibold">{{ licensePackage.name }}</p>
+        <p class="mt-1 text-2xl font-bold">{{ formatCurrency(licensePackage.price) }}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{{ licensePackage.days_granted }} days · up to {{ licensePackage.max_devices }} device(s)</p>
+      </button>
     </div>
   </div>
 
   <div v-else-if="paymentFlowStep === 'enter-details'" class="space-y-4">
-    <Button variant="ghost" size="sm" class="mb-2" @click="emit('goBack')">
-      <ArrowLeft class="h-4 w-4 mr-2" />
+    <Button variant="ghost" size="sm" class="-ml-2" @click="emit('goBack')">
+      <ArrowLeft class="mr-2 h-4 w-4" />
       Back
     </Button>
 
-    <div class="bg-muted rounded-lg p-3 flex justify-between items-center">
+    <div class="flex items-center justify-between rounded-lg bg-muted p-3">
       <span class="text-sm">{{ selectedPackage?.name }}</span>
-      <span class="font-bold">{{ formatCurrency(selectedPackage?.price || '0') }}</span>
+      <span class="font-bold">{{ formatCurrency(selectedPackage?.price ?? '0') }}</span>
     </div>
 
-    <form @submit="onSubmit" class="space-y-4">
+    <form class="space-y-4" @submit="onSubmit">
       <FormField v-slot="{ componentField }" name="phone">
         <FormItem>
           <FormLabel>Phone number</FormLabel>
@@ -150,18 +154,19 @@ const onSubmit = form.handleSubmit((values) => {
       </FormField>
 
       <Button type="submit" class="w-full" :disabled="isSubmittingPayment">
-        {{ isSubmittingPayment ? 'Processing...' : `Pay ${formatCurrency(selectedPackage?.price || '0')}` }}
+        <Loader2 v-if="isSubmittingPayment" class="mr-2 h-4 w-4 animate-spin" />
+        {{ isSubmittingPayment ? 'Processing' : `Pay ${formatCurrency(selectedPackage?.price ?? '0')}` }}
       </Button>
     </form>
   </div>
 
   <div v-else-if="paymentFlowStep === 'awaiting-confirmation'" class="space-y-4 py-6">
-    <div class="flex flex-col items-center gap-4">
+    <div class="flex flex-col items-center gap-4 text-center">
       <Smartphone class="h-12 w-12 text-muted-foreground animate-pulse" />
-      <div class="text-center space-y-2">
-        <h3 class="font-semibold text-lg">Check your phone</h3>
+      <div class="space-y-2">
+        <h3 class="text-lg font-semibold">Check your phone</h3>
         <p class="text-sm text-muted-foreground">
-          Enter your MNO PIN to confirm the payment of <span class="font-semibold">{{ formatCurrency(selectedPackage?.price || '0') }}</span>.
+          Enter your MNO PIN to confirm the payment of <span class="font-semibold">{{ formatCurrency(selectedPackage?.price ?? '0') }}</span>.
         </p>
         <p class="text-xs text-muted-foreground">
           Sent to {{ form.values.phone }}
@@ -171,20 +176,18 @@ const onSubmit = form.handleSubmit((values) => {
   </div>
 
   <div v-else-if="paymentFlowStep === 'success'" class="space-y-4 py-6">
-    <div class="flex flex-col items-center gap-4">
+    <div class="flex flex-col items-center gap-4 text-center">
       <CheckCircle class="h-12 w-12 text-primary" />
-      <div class="text-center space-y-2">
-        <h3 class="font-semibold text-lg">Payment received</h3>
-        <p class="text-sm text-muted-foreground">
-          Thank you — your subscription is active.
-        </p>
+      <div class="space-y-2">
+        <h3 class="text-lg font-semibold">Payment received</h3>
+        <p class="text-sm text-muted-foreground">Thank you — your subscription is active.</p>
       </div>
     </div>
   </div>
 
   <div v-else-if="paymentFlowStep === 'failed'" class="space-y-4">
     <div class="space-y-2">
-      <h3 class="font-semibold text-lg">Payment was not successful</h3>
+      <h3 class="text-lg font-semibold">Payment was not successful</h3>
       <p class="text-sm text-muted-foreground">{{ lastErrorMessage }}</p>
     </div>
 
