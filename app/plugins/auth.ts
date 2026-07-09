@@ -80,5 +80,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   })
 
-  return { provide: { apiFetch } }
+  return { provide: { apiFetch, refreshSession: doRefresh } }
 })

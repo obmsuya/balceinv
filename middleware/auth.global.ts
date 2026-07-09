@@ -6,8 +6,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const config = useRuntimeConfig()
   const baseUrl = config.public.apiBase
-  const { $apiFetch } = useNuxtApp()
-  const { getToken, setToken } = useSecureStorage()
+  const { $apiFetch, $refreshSession } = useNuxtApp()
+  const { getToken } = useSecureStorage()
 
   const user = useState<{ id: number; name: string; email: string; role: string; company_id: number } | null>('auth:user')
   const userPermissions = useState<Array<{ id: number; resource: string; action: string }>>('perms:user', () => [])
@@ -56,22 +56,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (sessionRestored) return
 
   try {
-    if (isTauri()) {
-      const refreshToken = await getToken('refresh_token')
-      const refreshRes = await $fetch<{ data?: { access_token: string; refresh_token: string } }>(
-        `${baseUrl}/api/auth/refresh`,
-        { method: 'POST', headers: { Authorization: `Bearer ${refreshToken}` } },
-      )
-      if (refreshRes.data) {
-        await setToken('access_token', refreshRes.data.access_token)
-        await setToken('refresh_token', refreshRes.data.refresh_token)
-      }
-    } else {
-      await $fetch(`${baseUrl}/api/auth/refresh`, {
-        method: 'POST' as const,
-        credentials: 'include' as const,
-      })
-    }
+    // Shared with the $apiFetch 401 interceptor (frontend/app/plugins/auth.ts)
+    // so a route-navigation refresh and an in-flight API call never race
+    // against the backend's single-use rotating refresh token.
+    await ($refreshSession as () => Promise<void>)()
     const restoredAfterRefresh = await fetchMe()
     if (restoredAfterRefresh) return
   } catch { }
