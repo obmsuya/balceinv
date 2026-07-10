@@ -346,8 +346,8 @@ const handleSavePermissions = async () => {
   height: 16px;
   min-width: 16px;
   border-radius: 4px;
-  border: 1.5px solid hsl(var(--border));
-  background: hsl(var(--background));
+  border: 1.5px solid var(--border);
+  background: var(--background);
   cursor: pointer;
   position: relative;
   transition: background 0.12s, border-color 0.12s;
@@ -355,8 +355,8 @@ const handleSavePermissions = async () => {
 }
 
 .perm-box:checked {
-  background: hsl(var(--primary));
-  border-color: hsl(var(--primary));
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .perm-box:checked::after {

@@ -802,7 +802,7 @@ const paymentMethodIcon = (method: string) => {
 
         <!-- Product grid -->
         <ScrollArea class="flex-1">
-          <div class="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div class="p-4 grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
             <button
               v-for="product in filteredProducts"
               :key="product.id"
@@ -848,8 +848,8 @@ const paymentMethodIcon = (method: string) => {
               </div>
 
               <!-- Info -->
-              <div class="p-2 w-full flex flex-col gap-0.5">
-                <p class="text-sm font-semibold truncate leading-tight">{{ product.name }}</p>
+              <div class="p-3 w-full flex flex-col gap-1">
+                <p class="text-sm font-semibold line-clamp-2 leading-tight">{{ product.name }}</p>
                 <p class="text-xs text-muted-foreground font-mono truncate">{{ product.sku }}</p>
                 <p class="text-sm font-bold mt-0.5 text-primary">{{ formatCurrency(product.price) }}</p>
               </div>

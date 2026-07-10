@@ -14,6 +14,10 @@ import {
   Mail,
   Volume2,
   TestTube,
+  RefreshCw,
+  DownloadCloud,
+  CheckCircle2,
+  RotateCw,
 } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -156,10 +160,24 @@ const loadForms = () => {
 }
 const { user } = useAuth()
 const { fetchUserPermissions } = usePermissions()
+
+// ─── Updates ─────────────────────────────────────────────────────────────────
+const {
+  status: updateStatus,
+  currentVersion,
+  latestVersion,
+  errorMessage: updateError,
+  fetchCurrentVersion,
+  checkForUpdate,
+  downloadAndInstall,
+  relaunchApp,
+} = useUpdater()
+
 onMounted(async () => {
   if (user.value) await fetchUserPermissions(user.value.id)
   await fetchSettings()
   loadForms()
+  await fetchCurrentVersion()
 })
 
 // Re-populate whenever settings refreshes (e.g. after a save returns the updated record)
@@ -286,6 +304,9 @@ const efdBadgeLabel = computed(() => {
         </TabsTrigger>
         <TabsTrigger value="notifications">
           <Bell class="size-4 mr-2" />Notifications
+        </TabsTrigger>
+        <TabsTrigger value="updates">
+          <RefreshCw class="size-4 mr-2" />Updates
         </TabsTrigger>
       </TabsList>
 
@@ -676,6 +697,62 @@ const efdBadgeLabel = computed(() => {
             {{ savingNotifications ? 'Saving…' : 'Save Notification Settings' }}
           </Button>
         </div>
+      </TabsContent>
+
+      <!-- ══════════════════════════════════════════════ -->
+      <!-- UPDATES                                        -->
+      <!-- ══════════════════════════════════════════════ -->
+      <TabsContent value="updates" class="flex flex-col gap-4 mt-4">
+        <Card>
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base">App Version</CardTitle>
+            <CardDescription>Balce Inventory desktop app · updates are pulled from GitHub releases</CardDescription>
+          </CardHeader>
+          <CardContent class="flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm">Current version</p>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ currentVersion || '—' }}</p>
+              </div>
+              <Badge v-if="updateStatus === 'up-to-date'" variant="secondary">
+                <CheckCircle2 class="size-3 mr-1" />Up to date
+              </Badge>
+              <Badge v-else-if="updateStatus === 'available'" variant="default">
+                Update available: {{ latestVersion }}
+              </Badge>
+            </div>
+
+            <p v-if="updateStatus === 'error'" class="text-sm text-destructive">{{ updateError }}</p>
+
+            <div class="flex gap-2">
+              <Button
+                v-if="updateStatus !== 'downloaded'"
+                variant="outline"
+                :disabled="updateStatus === 'checking' || updateStatus === 'downloading'"
+                @click="checkForUpdate()"
+              >
+                <RefreshCw class="size-4 mr-2" :class="updateStatus === 'checking' ? 'animate-spin' : ''" />
+                {{ updateStatus === 'checking' ? 'Checking…' : 'Check for Updates' }}
+              </Button>
+
+              <Button
+                v-if="updateStatus === 'available'"
+                :disabled="updateStatus !== 'available'"
+                @click="downloadAndInstall"
+              >
+                <DownloadCloud class="size-4 mr-2" />Download Update
+              </Button>
+
+              <Button v-if="updateStatus === 'downloading'" disabled>
+                <DownloadCloud class="size-4 mr-2 animate-pulse" />Downloading…
+              </Button>
+
+              <Button v-if="updateStatus === 'downloaded'" @click="relaunchApp">
+                <RotateCw class="size-4 mr-2" />Relaunch to Update
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
   </div>
