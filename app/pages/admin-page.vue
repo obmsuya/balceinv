@@ -295,7 +295,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
-  background: hsl(var(--background));
+  background: var(--background);
   opacity: 0;
   transform: translateX(20px);
   transition: opacity 0.55s ease 0.1s, transform 0.55s ease 0.1s;
@@ -314,9 +314,9 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.08);
-  border: 1px solid hsl(var(--primary) / 0.18);
+  color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, transparent);
+  border: 1px solid color-mix(in oklch, var(--primary) 18%, transparent);
   margin-bottom: 0.7rem;
 }
 
@@ -325,12 +325,12 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   margin: 0 0 0.3rem;
 }
 .form-head p {
   font-size: 0.84rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   margin: 0;
 }
 
@@ -342,11 +342,11 @@ const onSubmit = form.handleSubmit(async (values) => {
   gap: 0.75rem;
   margin: 1.5rem 0 1rem;
 }
-.or-row span { flex: 1; height: 1px; background: hsl(var(--border)); }
+.or-row span { flex: 1; height: 1px; background: var(--border); }
 .or-row em {
   font-size: 0.72rem;
   font-style: normal;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   white-space: nowrap;
 }
 
@@ -357,14 +357,14 @@ const onSubmit = form.handleSubmit(async (values) => {
   width: 100%;
   height: 40px;
   border-radius: calc(var(--radius) - 2px);
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
   font-size: 0.84rem;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   text-decoration: none;
   transition: background 0.15s;
 }
-.ghost-btn:hover { background: hsl(var(--accent)); }
+.ghost-btn:hover { background: var(--accent); }
 
 .spin {
   display: inline-block;
