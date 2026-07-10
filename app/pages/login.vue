@@ -276,14 +276,14 @@ const onSubmit = form.handleSubmit(async (values) => {
   background: none;
   border: none;
   cursor: pointer;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   display: flex;
   align-items: center;
   padding: 0;
   transition: color 0.15s;
   z-index: 1;
 }
-.eye-btn:hover { color: hsl(var(--foreground)); }
+.eye-btn:hover { color: var(--foreground); }
 
 .form-side {
   flex: 1;
@@ -291,7 +291,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
-  background: hsl(var(--background));
+  background: var(--background);
   opacity: 0;
   transform: translateX(20px);
   transition: opacity 0.55s ease 0.1s, transform 0.55s ease 0.1s;
@@ -305,10 +305,10 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   margin: 0 0 0.3rem;
 }
-.form-head p { font-size: 0.84rem; color: hsl(var(--muted-foreground)); margin: 0; }
+.form-head p { font-size: 0.84rem; color: var(--muted-foreground); margin: 0; }
 
 .fields { display: flex; flex-direction: column; gap: 1.1rem; }
 
@@ -321,11 +321,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 .ghost-link {
   font-size: 0.74rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
 }
-.ghost-link:hover { color: hsl(var(--foreground)); }
+.ghost-link:hover { color: var(--foreground); }
 
 .bottom-links {
   margin-top: 1.75rem;
@@ -338,9 +338,9 @@ const onSubmit = form.handleSubmit(async (values) => {
 .setup-link {
   font-size: 0.84rem;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   text-decoration: none;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
   border-radius: calc(var(--radius) - 2px);
   width: 100%;
   height: 40px;
@@ -349,15 +349,15 @@ const onSubmit = form.handleSubmit(async (values) => {
   justify-content: center;
   transition: background 0.15s;
 }
-.setup-link:hover { background: hsl(var(--accent)); }
+.setup-link:hover { background: var(--accent); }
 
 .dev-link {
   font-size: 0.75rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
 }
-.dev-link:hover { color: hsl(var(--foreground)); }
+.dev-link:hover { color: var(--foreground); }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }

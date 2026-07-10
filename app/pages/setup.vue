@@ -449,7 +449,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   align-items: center;
   justify-content: center;
   padding: 3rem 2rem;
-  background: hsl(var(--background));
+  background: var(--background);
   opacity: 0;
   transform: translateX(20px);
   transition: opacity 0.55s ease 0.1s, transform 0.55s ease 0.1s;
@@ -467,12 +467,12 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   margin: 0 0 0.3rem;
 }
 .form-head p {
   font-size: 0.84rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   margin: 0;
 }
 
@@ -485,7 +485,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 .optional {
   font-size: 0.72rem;
   font-weight: 400;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
 }
 
 .back-btn {
@@ -493,18 +493,18 @@ const onSubmit = form.handleSubmit(async (values) => {
   border: none;
   padding: 0;
   font-size: 0.8rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   cursor: pointer;
   text-align: left;
   transition: color 0.15s;
 }
-.back-btn:hover { color: hsl(var(--foreground)); }
+.back-btn:hover { color: var(--foreground); }
 .back-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .login-row {
   margin-top: 1.75rem;
   font-size: 0.82rem;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   text-align: center;
   display: flex;
   align-items: center;
@@ -515,7 +515,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 .ghost-link {
   font-size: 0.82rem;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   text-decoration: none;
   transition: opacity 0.15s;
 }

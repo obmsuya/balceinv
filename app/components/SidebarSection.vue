@@ -55,13 +55,13 @@ defineProps<{
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   text-decoration: none;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   font-size: 0.875rem;
   transition: background-color 0.2s;
 }
 
 .sidebar-menu-item:hover {
-  background-color: hsl(var(--accent));
+  background-color: var(--accent);
 }
 
 .sidebar-menu-item.collapsed {
@@ -74,7 +74,7 @@ defineProps<{
 }
 
 .sidebar-menu-item.router-link-active {
-  background-color: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
+  background-color: var(--accent);
+  color: var(--accent-foreground);
 }
 </style>
