@@ -36,6 +36,15 @@ const {
   loadSoundSetting,
 } = useNotifications();
 
+const { status: updateStatus, checkForUpdate } = useUpdater();
+
+const handleCheckForUpdates = async () => {
+  await checkForUpdate();
+  if (updateStatus.value === 'available') {
+    navigateTo('/settings');
+  }
+};
+
 const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 
 const user = ref<{
@@ -328,6 +337,9 @@ onUnmounted(() => {
             </DropdownMenuItem>
             <DropdownMenuItem @click="$router.push('/profile')">
               Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
+              {{ updateStatus === 'checking' ? 'Checking for updates…' : 'Check for Updates' }}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleLogout" class="text-destructive">
