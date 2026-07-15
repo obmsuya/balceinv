@@ -539,7 +539,7 @@ const getProductName = (productId: number | null): string => {
                 Turn off to pause this offer without deleting it
               </p>
             </div>
-            <Switch v-model:checked="formData.is_active" />
+            <Switch v-model="formData.is_active" />
           </div>
         </div>
 

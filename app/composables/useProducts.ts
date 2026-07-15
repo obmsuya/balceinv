@@ -50,6 +50,8 @@ interface UploadResult {
   errors: Array<{ sku: string; error: string }>
 }
 
+const isTauri = () => process.client && '__TAURI_INTERNALS__' in window
+
 export const useProducts = () => {
   const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
@@ -230,9 +232,32 @@ export const useProducts = () => {
     }
   }
 
-  const downloadTemplate = (): void => {
-    window.open(`${apiBase}/api/products/template`, '_blank')
-    toast.success('Template downloaded')
+  const downloadTemplate = async (): Promise<void> => {
+    if (!isTauri()) {
+      toast.error('Template download is only available in the desktop app')
+      return
+    }
+
+    try {
+      const fileBytes = await $apiFetch<ArrayBuffer>(`${apiBase}/api/products/template`, {
+        credentials: 'include' as const,
+        responseType: 'arrayBuffer' as const,
+      })
+
+      const { save } = await import('@tauri-apps/plugin-dialog')
+      const savePath = await save({
+        defaultPath: 'products_template.xlsx',
+        filters: [{ name: 'Excel Workbook', extensions: ['xlsx'] }],
+      })
+      if (!savePath) return // user cancelled the dialog — not an error
+
+      const { writeFile } = await import('@tauri-apps/plugin-fs')
+      await writeFile(savePath, new Uint8Array(fileBytes))
+
+      toast.success('Template downloaded')
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to download template')
+    }
   }
 
   const fetchLowStock = async (): Promise<void> => {

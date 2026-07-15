@@ -40,6 +40,7 @@ export const useLicense = () => {
   const licensePackages = useState<LicensePackage[]>('license:packages', () => [])
   const lastPackage = useState<LicensePackage | null>('license:last-package', () => null)
   const bannerDismissed = useState<boolean>('license:banner-dismissed', () => false)
+  const hardwareId = useState<string | null>('license:hardware-id', () => null)
   const loading = ref(false)
 
   const fetchLicenseStatus = async (): Promise<void> => {
@@ -57,6 +58,20 @@ export const useLicense = () => {
       }
     } finally {
       loading.value = false
+    }
+  }
+
+  // GET /api/license/hardware-id replies {success, hardware_id} directly,
+  // not the {data, message} envelope the other license endpoints use.
+  const fetchHardwareId = async (): Promise<void> => {
+    try {
+      const response = await apiFetch<{ success: boolean; hardware_id?: string }>(
+        `${apiBaseUrl}/api/license/hardware-id`,
+        { credentials: 'include' }
+      )
+      hardwareId.value = response.hardware_id ?? null
+    } catch {
+      hardwareId.value = null
     }
   }
 
@@ -162,6 +177,7 @@ export const useLicense = () => {
     licensePackages,
     lastPackage,
     bannerDismissed,
+    hardwareId,
     loading,
     isLicensed,
     isTrial,
@@ -172,6 +188,7 @@ export const useLicense = () => {
     fetchLicenseStatus,
     fetchPackages,
     fetchLastPackage,
+    fetchHardwareId,
     payForLicense,
     pollUntilLicensed,
     dismissBanner,
