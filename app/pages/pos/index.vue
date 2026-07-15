@@ -198,7 +198,7 @@ const customerDisplayEnabled = ref(false)
 
 const filteredProducts = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return []
+  if (!query) return products.value
   return products.value
     .filter(
       product =>
@@ -855,14 +855,14 @@ const paymentMethodIcon = (method: string) => {
               </div>
             </button>
 
-            <!-- No query yet — prompt the cashier -->
+            <!-- Catalog genuinely empty (no products yet, or still loading) -->
             <div
               v-if="!searchQuery.trim() && filteredProducts.length === 0"
               class="col-span-full py-16 text-center text-muted-foreground"
             >
               <Barcode class="size-10 mx-auto mb-3 opacity-25" />
-              <p class="text-sm font-medium">Scan a barcode or search by name</p>
-              <p class="text-xs mt-1 opacity-60">Products will appear here</p>
+              <p class="text-sm font-medium">No products yet</p>
+              <p class="text-xs mt-1 opacity-60">Add products to start selling</p>
             </div>
 
             <!-- Query with no match -->
