@@ -47,6 +47,13 @@ interface Settings {
   show_tax_on_receipt: boolean
   show_barcodes_on_receipt: boolean
 
+  printer_enabled: boolean
+  printer_port: string
+  printer_model: string
+  printer_baud_rate: number
+  printer_paper_width: number
+  open_cash_drawer: boolean
+
   updated_by: number | null
   created_at: string
   updated_at: string
@@ -86,6 +93,13 @@ interface UpdateSettingsInput {
   print_receipt_automatically?: boolean
   show_tax_on_receipt?: boolean
   show_barcodes_on_receipt?: boolean
+  // printer hardware → settings table
+  printer_enabled?: boolean
+  printer_port?: string
+  printer_model?: string
+  printer_baud_rate?: number
+  printer_paper_width?: number
+  open_cash_drawer?: boolean
 }
 
 interface ApiResponse<T> {

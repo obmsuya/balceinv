@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Menu, Bell, Volume2, VolumeX } from 'lucide-vue-next';
+import { Menu, Bell, Volume2, VolumeX, Fingerprint } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +44,16 @@ const handleCheckForUpdates = async () => {
   if (updateStatus.value === 'available') {
     navigateTo('/settings');
   }
+};
+
+// Hardware ID — needed for support calls (licensing is tied to it), so it
+// lives in the user menu rather than as a headline header element.
+const { hardwareId, fetchHardwareId } = useLicense();
+
+const copyHardwareId = async () => {
+  if (!hardwareId.value) return;
+  await navigator.clipboard.writeText(hardwareId.value);
+  toast.success('Hardware ID copied');
 };
 
 const sidebarCollapsed = useState('sidebar-collapsed', () => false);
@@ -168,6 +179,8 @@ onMounted(() => {
     loadSoundSetting();
     fetchNotificationCount();
     setupNotificationPolling();
+
+    fetchHardwareId();
   }
 });
 
@@ -340,6 +353,16 @@ onUnmounted(() => {
             </DropdownMenuItem>
             <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
               {{ updateStatus === 'checking' ? 'Checking for updates…' : 'Check for Updates' }}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
+              <span class="flex items-center gap-2 text-xs text-muted-foreground">
+                <Fingerprint class="h-3 w-3" />
+                Hardware ID
+              </span>
+              <span class="font-mono text-xs truncate w-full">
+                {{ hardwareId ? hardwareId.slice(0, 16) + '…' : 'Loading…' }}
+              </span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleLogout" class="text-destructive">

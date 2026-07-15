@@ -8,6 +8,15 @@ interface PrinterStatus {
   auto_print: boolean
 }
 
+export interface DetectedPrinter {
+  port: string
+  is_usb: boolean
+  vendor_id: string
+  product_id: string
+  manufacturer: string
+  product: string
+}
+
 interface ApiResponse<T> {
   success: boolean
   message: string
@@ -21,6 +30,9 @@ export const usePrint = () => {
   const printerEnabled = ref(false)
   const autoPrint = ref(false)
   const statusLoaded = ref(false)
+  const devices = ref<DetectedPrinter[]>([])
+  const scanning = ref(false)
+  const testingPort = ref(false)
 
   const fetchPrinterStatus = async (): Promise<void> => {
     try {
@@ -56,11 +68,52 @@ export const usePrint = () => {
     }
   }
 
+  const fetchDevices = async (): Promise<void> => {
+    scanning.value = true
+    try {
+      const response = await $apiFetch<ApiResponse<DetectedPrinter[]>>(
+        `${apiBase}/api/print/devices`,
+        { credentials: 'include' as const },
+      )
+      devices.value = response.data ?? []
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Could not scan for printers')
+    } finally {
+      scanning.value = false
+    }
+  }
+
+  const testPrint = async (port: string): Promise<boolean> => {
+    testingPort.value = true
+    try {
+      await $apiFetch<ApiResponse<null>>(
+        `${apiBase}/api/print/test`,
+        {
+          method: 'POST' as const,
+          body: { port },
+          credentials: 'include' as const,
+        },
+      )
+      toast.success('Test print sent')
+      return true
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Test print failed — check the connection')
+      return false
+    } finally {
+      testingPort.value = false
+    }
+  }
+
   return {
     printerEnabled,
     autoPrint,
     statusLoaded,
+    devices,
+    scanning,
+    testingPort,
     fetchPrinterStatus,
     printReceipt,
+    fetchDevices,
+    testPrint,
   }
 }

@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useSettings } from '~/composables/useSettings'
+import { usePrint } from '~/composables/usePrint'
 
 definePageMeta({ layout: 'default' })
 
@@ -64,17 +65,21 @@ const systemForm = ref({
 })
 
 // ─── Hardware form ──────────────────────────────────────────────────────────
-// changeCounterEnabled and printerEnabled are UI-only toggles (no backend field yet).
-// The three receipt booleans do map to settings table columns.
+// changeCounterEnabled has no backend field yet (see CardDescription below).
+// Everything else — including printerEnabled/printerPort/printerModel — maps
+// straight to settings table columns and is sent in saveHardware().
 const hardwareForm = ref({
   changeCounterEnabled: false,
   printerEnabled: false,
-  printerPort: 'USB',
+  printerPort: '',
   printerModel: '',
   print_receipt_automatically: false,
   show_tax_on_receipt: true,
   show_barcodes_on_receipt: false,
 })
+
+// ─── Printer detection ───────────────────────────────────────────────────────
+const { devices: detectedPrinters, scanning, testingPort, fetchDevices, testPrint } = usePrint()
 
 // ─── EFD form ───────────────────────────────────────────────────────────────
 // Source: settings.* (settings table)
@@ -154,6 +159,9 @@ const loadForms = () => {
   hardwareForm.value.print_receipt_automatically = s.print_receipt_automatically ?? false
   hardwareForm.value.show_tax_on_receipt = s.show_tax_on_receipt ?? true
   hardwareForm.value.show_barcodes_on_receipt = s.show_barcodes_on_receipt ?? false
+  hardwareForm.value.printerEnabled = s.printer_enabled ?? false
+  hardwareForm.value.printerPort = s.printer_port ?? ''
+  hardwareForm.value.printerModel = s.printer_model ?? ''
 
   // Show current logo if one was already uploaded
   if (c.logo) logoPreview.value = c.logo
@@ -178,6 +186,7 @@ onMounted(async () => {
   await fetchSettings()
   loadForms()
   await fetchCurrentVersion()
+  await fetchDevices()
 })
 
 // Re-populate whenever settings refreshes (e.g. after a save returns the updated record)
@@ -223,8 +232,8 @@ const saveSystem = async () => {
 }
 
 // ─── Save: Hardware ──────────────────────────────────────────────────────────
-// changeCounterEnabled and printerEnabled are local UI state only.
-// Only the three mapped receipt booleans are sent to the backend.
+// changeCounterEnabled has no backend field yet — everything else here,
+// including the printer fields, is sent and actually persists.
 const saveHardware = async () => {
   savingHardware.value = true
   try {
@@ -232,6 +241,9 @@ const saveHardware = async () => {
       print_receipt_automatically: hardwareForm.value.print_receipt_automatically,
       show_tax_on_receipt: hardwareForm.value.show_tax_on_receipt,
       show_barcodes_on_receipt: hardwareForm.value.show_barcodes_on_receipt,
+      printer_enabled: hardwareForm.value.printerEnabled,
+      printer_port: hardwareForm.value.printerPort,
+      printer_model: hardwareForm.value.printerModel,
     })
   } finally {
     savingHardware.value = false
@@ -478,7 +490,7 @@ const efdBadgeLabel = computed(() => {
                 <CardTitle class="text-base">Change Counter</CardTitle>
                 <CardDescription class="mt-0.5">Calculates and shows change owed to the customer at checkout</CardDescription>
               </div>
-              <Switch v-model:checked="hardwareForm.changeCounterEnabled" />
+              <Switch v-model="hardwareForm.changeCounterEnabled" />
             </div>
           </CardHeader>
           <CardContent v-if="hardwareForm.changeCounterEnabled">
@@ -496,28 +508,61 @@ const efdBadgeLabel = computed(() => {
                 <CardTitle class="text-base">Thermal Receipt Printer</CardTitle>
                 <CardDescription class="mt-0.5">Connect a USB or network thermal printer</CardDescription>
               </div>
-              <Switch v-model:checked="hardwareForm.printerEnabled" />
+              <Switch v-model="hardwareForm.printerEnabled" />
             </div>
           </CardHeader>
           <CardContent v-if="hardwareForm.printerEnabled" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <div class="flex items-center justify-between">
+                <Label>Detected Printers</Label>
+                <Button variant="ghost" size="sm" :disabled="scanning" @click="fetchDevices">
+                  <RefreshCw class="size-3.5 mr-1.5" :class="{ 'animate-spin': scanning }" />
+                  {{ scanning ? 'Scanning…' : 'Refresh' }}
+                </Button>
+              </div>
+
+              <div v-if="detectedPrinters.length === 0" class="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
+                No USB or serial printer detected. Plug it in and click Refresh — or enter a network/Bluetooth address manually below.
+              </div>
+              <div v-else class="flex flex-col gap-1.5">
+                <button
+                  v-for="device in detectedPrinters"
+                  :key="device.port"
+                  type="button"
+                  class="flex items-center justify-between rounded-md border px-3 py-2 text-left transition-colors hover:bg-accent"
+                  :class="hardwareForm.printerPort === device.port ? 'border-primary bg-primary/5' : ''"
+                  @click="hardwareForm.printerPort = device.port"
+                >
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-sm font-medium truncate">{{ device.product || device.port }}</span>
+                    <span class="text-xs text-muted-foreground font-mono">{{ device.port }}</span>
+                  </div>
+                  <CheckCircle2 v-if="hardwareForm.printerPort === device.port" class="size-4 text-primary shrink-0" />
+                </button>
+              </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="connection-type">Connection Type</Label>
-                <Select v-model="hardwareForm.printerPort">
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USB">USB</SelectItem>
-                    <SelectItem value="Network">Network (LAN)</SelectItem>
-                    <SelectItem value="Bluetooth">Bluetooth</SelectItem>
-                    <SelectItem value="Serial">Serial Port</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label for="printer-port">Port <span class="text-muted-foreground text-xs">(pick above, or enter a network/Bluetooth address)</span></Label>
+                <Input id="printer-port" v-model="hardwareForm.printerPort" placeholder="e.g. COM3, /dev/ttyUSB0, or 192.168.1.50" />
               </div>
               <div class="flex flex-col gap-1.5">
                 <Label for="printer-model">Printer Model <span class="text-muted-foreground text-xs">(optional)</span></Label>
                 <Input id="printer-model" v-model="hardwareForm.printerModel" placeholder="e.g. Epson TM-T20III" />
               </div>
             </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              class="self-start"
+              :disabled="!hardwareForm.printerPort || testingPort"
+              @click="testPrint(hardwareForm.printerPort)"
+            >
+              <TestTube class="size-4 mr-2" />
+              {{ testingPort ? 'Printing…' : 'Test Print' }}
+            </Button>
 
             <Separator />
 
@@ -528,21 +573,21 @@ const efdBadgeLabel = computed(() => {
                   <p class="text-sm">Print automatically after sale</p>
                   <p class="text-xs text-muted-foreground">No prompt — prints immediately on completion</p>
                 </div>
-                <Switch v-model:checked="hardwareForm.print_receipt_automatically" />
+                <Switch v-model="hardwareForm.print_receipt_automatically" />
               </div>
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm">Show tax on receipt</p>
                   <p class="text-xs text-muted-foreground">Display VAT as a separate line item</p>
                 </div>
-                <Switch v-model:checked="hardwareForm.show_tax_on_receipt" />
+                <Switch v-model="hardwareForm.show_tax_on_receipt" />
               </div>
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm">Print barcodes on receipt</p>
                   <p class="text-xs text-muted-foreground">Include product barcodes below line items</p>
                 </div>
-                <Switch v-model:checked="hardwareForm.show_barcodes_on_receipt" />
+                <Switch v-model="hardwareForm.show_barcodes_on_receipt" />
               </div>
             </div>
           </CardContent>
@@ -570,7 +615,7 @@ const efdBadgeLabel = computed(() => {
                 </CardTitle>
                 <CardDescription class="mt-0.5">Connect to TRA's EFD system for fiscal receipt compliance</CardDescription>
               </div>
-              <Switch v-model:checked="efdForm.efd_enabled" />
+              <Switch v-model="efdForm.efd_enabled" />
             </div>
           </CardHeader>
           <CardContent v-if="efdForm.efd_enabled" class="flex flex-col gap-4">
@@ -621,7 +666,7 @@ const efdBadgeLabel = computed(() => {
                 <Volume2 class="size-4 text-muted-foreground" />
                 <p class="text-sm">Enable notification sounds</p>
               </div>
-              <Switch v-model:checked="notificationForm.alert_sound_enabled" />
+              <Switch v-model="notificationForm.alert_sound_enabled" />
             </div>
           </CardContent>
         </Card>
@@ -637,7 +682,7 @@ const efdBadgeLabel = computed(() => {
                 <p class="text-sm">Low stock alert</p>
                 <p class="text-xs text-muted-foreground">Triggers when quantity falls below the threshold</p>
               </div>
-              <Switch v-model:checked="notificationForm.alert_on_low_stock" />
+              <Switch v-model="notificationForm.alert_on_low_stock" />
             </div>
             <div v-if="notificationForm.alert_on_low_stock" class="flex flex-col gap-1.5 max-w-xs">
               <Label for="low-stock-threshold">Low Stock Threshold (units)</Label>
@@ -651,7 +696,7 @@ const efdBadgeLabel = computed(() => {
                 <p class="text-sm">Out of stock alert</p>
                 <p class="text-xs text-muted-foreground">Triggers when a product reaches zero units</p>
               </div>
-              <Switch v-model:checked="notificationForm.alert_on_out_of_stock" />
+              <Switch v-model="notificationForm.alert_on_out_of_stock" />
             </div>
 
             <Separator />
@@ -661,7 +706,7 @@ const efdBadgeLabel = computed(() => {
                 <p class="text-sm">Dead stock alert</p>
                 <p class="text-xs text-muted-foreground">Items with no sales movement over a set period</p>
               </div>
-              <Switch v-model:checked="notificationForm.alert_on_dead_stock" />
+              <Switch v-model="notificationForm.alert_on_dead_stock" />
             </div>
             <div v-if="notificationForm.alert_on_dead_stock" class="flex flex-col gap-1.5 max-w-xs">
               <Label for="dead-stock-period">Dead Stock Period (days)</Label>
@@ -677,7 +722,7 @@ const efdBadgeLabel = computed(() => {
                 <CardTitle class="text-base">Email Notifications</CardTitle>
                 <CardDescription>Receive stock alerts by email in addition to in-app</CardDescription>
               </div>
-              <Switch v-model:checked="notificationForm.email_notifications_enabled" />
+              <Switch v-model="notificationForm.email_notifications_enabled" />
             </div>
           </CardHeader>
           <CardContent v-if="notificationForm.email_notifications_enabled">
