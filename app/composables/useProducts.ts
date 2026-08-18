@@ -260,6 +260,29 @@ export const useProducts = () => {
     }
   }
 
+  const createImageUploadSession = async (): Promise<{ token: string; upload_url: string } | undefined> => {
+    try {
+      const response = await $apiFetch<ApiResponse<{ token: string; upload_url: string }>>(
+        `${apiBase}/api/products/image-session`,
+        { method: 'POST' as const, credentials: 'include' as const },
+      )
+      return response.data
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Could not start phone upload')
+      throw error
+    }
+  }
+
+  // Polled every couple seconds while the QR code is shown — no toast here,
+  // the polling loop decides what a "not found" (expired) response means.
+  const getImageUploadStatus = async (token: string): Promise<{ status: 'pending' | 'done'; image?: string }> => {
+    const response = await $apiFetch<ApiResponse<{ status: 'pending' | 'done'; image?: string }>>(
+      `${apiBase}/api/products/image-session/${token}`,
+      { credentials: 'include' as const },
+    )
+    return response.data
+  }
+
   const fetchLowStock = async (): Promise<void> => {
     loading.value = true
     try {
@@ -286,6 +309,8 @@ export const useProducts = () => {
     createProduct,
     updateProduct,
     updateProductImage,
+    createImageUploadSession,
+    getImageUploadStatus,
     deleteProduct,
     uploadExcel,
     downloadTemplate,

@@ -11,8 +11,10 @@ import {
   GitBranch,
   Puzzle,
   Trash2,
+  Smartphone,
 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import QRCode from 'qrcode'
 import { createColumns } from '@/components/products/columns'
 import DataTable from '@/components/products/DataTable.vue'
 import { Button } from '@/components/ui/button'
@@ -58,6 +60,8 @@ const {
   createProduct,
   updateProduct,
   updateProductImage,
+  createImageUploadSession,
+  getImageUploadStatus,
   deleteProduct,
   uploadExcel,
   downloadTemplate,
@@ -169,6 +173,57 @@ const removeImage = () => {
   imageFile.value = null
   if (imageInputRef.value) imageInputRef.value.value = ''
 }
+
+// ── Phone upload — the default way to add a product photo, since POS
+// machines have no camera and the cashier's phone does. ────────────────────
+const showPhoneUploadDialog = ref(false)
+const phoneUploadQRCode = ref<string | null>(null)
+const phoneUploadStatusText = ref('')
+let phoneUploadPollInterval: ReturnType<typeof setInterval> | null = null
+let phoneUploadToken: string | null = null
+
+const stopPhoneUploadPolling = () => {
+  if (phoneUploadPollInterval) clearInterval(phoneUploadPollInterval)
+  phoneUploadPollInterval = null
+}
+
+const startPhoneUpload = async () => {
+  phoneUploadQRCode.value = null
+  phoneUploadStatusText.value = 'Waiting for photo…'
+  showPhoneUploadDialog.value = true
+
+  const session = await createImageUploadSession().catch(() => null)
+  if (!session) {
+    showPhoneUploadDialog.value = false
+    return
+  }
+  phoneUploadToken = session.token
+  phoneUploadQRCode.value = await QRCode.toDataURL(session.upload_url, { width: 240, margin: 1 })
+
+  phoneUploadPollInterval = setInterval(async () => {
+    if (!phoneUploadToken) return
+    try {
+      const result = await getImageUploadStatus(phoneUploadToken)
+      if (result.status === 'done' && result.image) {
+        imagePreview.value = result.image
+        imageFile.value = null
+        stopPhoneUploadPolling()
+        showPhoneUploadDialog.value = false
+        toast.success('Photo received from phone')
+      }
+    } catch {
+      stopPhoneUploadPolling()
+      phoneUploadStatusText.value = 'This code expired. Close and try again.'
+    }
+  }, 2000)
+}
+
+const cancelPhoneUpload = () => {
+  stopPhoneUploadPolling()
+  showPhoneUploadDialog.value = false
+}
+
+onUnmounted(stopPhoneUploadPolling)
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(async () => {
@@ -721,6 +776,10 @@ const lowStockCount = computed(() =>
                     class="hidden"
                     @change="onImageFileChange"
                   />
+                  <Button variant="default" size="sm" type="button" @click="startPhoneUpload">
+                    <Smartphone class="mr-2 h-4 w-4" />
+                    Scan with Phone
+                  </Button>
                   <Button variant="outline" size="sm" type="button" @click="imageInputRef?.click()">
                     <Upload class="mr-2 h-4 w-4" />
                     Choose Image
@@ -736,7 +795,7 @@ const lowStockCount = computed(() =>
                     <X class="mr-2 h-4 w-4" />
                     Remove
                   </Button>
-                  <p class="text-xs text-muted-foreground">PNG, JPG or WebP · max 2 MB</p>
+                  <p class="text-xs text-muted-foreground">Scan opens the camera on your phone</p>
                 </div>
               </div>
             </div>
@@ -1008,6 +1067,27 @@ const lowStockCount = computed(() =>
             <Upload class="mr-2 h-4 w-4" />
             Import
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog v-model:open="showPhoneUploadDialog">
+      <DialogContent class="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>Scan with your phone</DialogTitle>
+          <DialogDescription>
+            Open your phone's camera app and scan this code to take the product photo.
+          </DialogDescription>
+        </DialogHeader>
+        <div class="flex flex-col items-center gap-3 py-2">
+          <div class="size-60 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+            <img v-if="phoneUploadQRCode" :src="phoneUploadQRCode" alt="QR code" class="size-full" />
+            <Skeleton v-else class="size-full" />
+          </div>
+          <p class="text-sm text-muted-foreground">{{ phoneUploadStatusText }}</p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="cancelPhoneUpload">Cancel</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
