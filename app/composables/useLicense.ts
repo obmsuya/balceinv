@@ -114,7 +114,7 @@ export const useLicense = () => {
       })
       return response
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Payment could not be started')
+      toast.error(error?.data?.error || error?.data?.message || 'Payment could not be started')
       throw error
     }
   }

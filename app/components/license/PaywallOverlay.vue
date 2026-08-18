@@ -118,7 +118,7 @@ const handleSubmit = async (values: { phone: string; provider: MobileProvider })
     }
   } catch (error: any) {
     paymentFlowStep.value = 'failed'
-    lastErrorMessage.value = error?.data?.message || 'Payment failed. Please try again.'
+    lastErrorMessage.value = error?.data?.error || error?.data?.message || 'Payment failed. Please try again.'
   } finally {
     isSubmittingPayment.value = false
   }
