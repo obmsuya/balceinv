@@ -277,7 +277,7 @@ export const useProducts = () => {
   // the polling loop decides what a "not found" (expired) response means.
   const getImageUploadStatus = async (token: string): Promise<{ status: 'pending' | 'done'; image?: string }> => {
     const response = await $apiFetch<ApiResponse<{ status: 'pending' | 'done'; image?: string }>>(
-      `${apiBase}/api/products/image-session/${token}`,
+      `${apiBase}/api/image-session/${token}`,
       { credentials: 'include' as const },
     )
     return response.data
