@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Menu, Bell, Volume2, VolumeX, Fingerprint } from 'lucide-vue-next';
+import { Menu, Bell, Volume2, VolumeX, Fingerprint, RefreshCw } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -81,6 +81,13 @@ const getInitials = (name: string): string => {
     .join('')
     .toUpperCase()
     .slice(0, 2);
+};
+
+// Reloads the whole app — the fastest way to guarantee every page's data
+// (cart, license status, product list, etc.) is current after something
+// external changed it, e.g. a payment confirming out-of-band.
+const hardRefresh = () => {
+  window.location.reload();
 };
 
 const handleLogout = async () => {
@@ -225,6 +232,16 @@ onUnmounted(() => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <!-- Hard Refresh -->
+        <Button
+          variant="ghost"
+          size="icon"
+          @click="hardRefresh"
+          title="Refresh"
+        >
+          <RefreshCw class="h-5 w-5" />
+        </Button>
 
         <!-- Sound Toggle -->
         <Button
