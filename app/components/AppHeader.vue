@@ -37,7 +37,7 @@ const {
   loadSoundSetting,
 } = useNotifications();
 
-const { status: updateStatus, checkForUpdate } = useUpdater();
+const { status: updateStatus, latestVersion, checkForUpdate } = useUpdater();
 
 const handleCheckForUpdates = async () => {
   await checkForUpdate();
@@ -188,6 +188,16 @@ onMounted(() => {
     setupNotificationPolling();
 
     fetchHardwareId();
+
+    // Silent background check so an update surfaces without the cashier
+    // having to know to look in Settings.
+    checkForUpdate(true).then(() => {
+      if (updateStatus.value === 'available') {
+        toast.info(`Update available: v${latestVersion.value}`, {
+          action: { label: 'View', onClick: () => navigateTo('/settings') },
+        });
+      }
+    });
   }
 });
 
