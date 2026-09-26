@@ -155,8 +155,8 @@ export const useBackup = () => {
 
     const { save } = await import('@tauri-apps/plugin-dialog')
     const savePath = await save({
-      defaultPath: `balce-backup-${todayBackupDate()}.db.gz`,
-      filters: [{ name: 'Balce backup', extensions: ['gz'] }],
+      defaultPath: `pos-backup-${todayBackupDate()}.db.gz`,
+      filters: [{ name: 'POS backup', extensions: ['gz'] }],
     })
     if (!savePath) return
 
@@ -186,14 +186,14 @@ export const useBackup = () => {
     const pickedPath = await open({
       multiple: false,
       directory: false,
-      filters: [{ name: 'Balce backup', extensions: ['gz'] }],
+      filters: [{ name: 'POS backup', extensions: ['gz'] }],
     })
     return typeof pickedPath === 'string' ? pickedPath : null
   }
 
   const restartToFinishRestore = async (): Promise<void> => {
     if (!isTauri()) {
-      toast.success('Backup ready. Close and reopen Balce to finish restoring.')
+      toast.success('Backup ready. Close and reopen the POS to finish restoring.')
       await fetchStatus()
       return
     }

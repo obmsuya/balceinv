@@ -767,7 +767,7 @@ const efdBadgeLabel = computed(() => {
         <Card>
           <CardHeader class="pb-3">
             <CardTitle class="text-base">App Version</CardTitle>
-            <CardDescription>Balce Inventory desktop app · updates are pulled from GitHub releases</CardDescription>
+            <CardDescription>New versions are checked automatically</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
@@ -791,7 +791,7 @@ const efdBadgeLabel = computed(() => {
             >
               <p class="font-medium">Version {{ latestVersion }} is ready to install</p>
               <p class="text-muted-foreground mt-0.5">
-                A backup is saved on this PC first. Balce then closes and reopens by itself. Your sales, products and settings are kept.
+                A backup is saved on this PC first. The POS then closes and reopens by itself. Your sales, products and settings are kept.
               </p>
             </div>
 
@@ -809,7 +809,7 @@ const efdBadgeLabel = computed(() => {
                   :style="updateStatus === 'downloading' && downloadProgress !== null ? { width: `${downloadProgress}%` } : undefined"
                 />
               </div>
-              <p class="text-xs text-muted-foreground">Keep Balce open. It will restart by itself when the update is installed.</p>
+              <p class="text-xs text-muted-foreground">Keep the POS open. It will restart by itself when the update is installed.</p>
             </div>
 
             <div class="flex gap-2">

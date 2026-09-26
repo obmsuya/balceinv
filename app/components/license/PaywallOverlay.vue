@@ -201,7 +201,7 @@ const retryPayment = async () => {
     <Card v-if="currentUserCanManageBilling" class="w-full max-w-md">
       <CardHeader>
         <CardTitle>Your subscription has expired</CardTitle>
-        <CardDescription>Choose a plan to keep using BALCE.</CardDescription>
+        <CardDescription>Choose a plan to keep using the POS.</CardDescription>
       </CardHeader>
       <CardContent>
         <PaymentFlow
@@ -225,7 +225,7 @@ const retryPayment = async () => {
     <Card v-else class="w-full max-w-md">
       <CardHeader>
         <CardTitle>Subscription expired</CardTitle>
-        <CardDescription>Ask your business owner or admin to renew the subscription to keep using BALCE.</CardDescription>
+        <CardDescription>Ask your business owner or admin to renew the subscription to keep using the POS.</CardDescription>
       </CardHeader>
     </Card>
   </div>

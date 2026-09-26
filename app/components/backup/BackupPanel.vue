@@ -117,7 +117,7 @@ watch(isOnline, (online) => {
       <TriangleAlert class="size-5 text-amber-600 shrink-0" />
       <div class="flex-1 text-sm">
         <p class="font-medium">A restore is waiting to be applied</p>
-        <p class="text-muted-foreground">Restart Balce now. Anything recorded before the restart will be replaced by the backup.</p>
+        <p class="text-muted-foreground">Restart the POS now. Anything recorded before the restart will be replaced by the backup.</p>
       </div>
       <Button size="sm" @click="restartToFinishRestore">
         <RotateCcw class="size-4 mr-2" />Restart now
@@ -344,7 +344,7 @@ watch(isOnline, (online) => {
           <AlertDialogDescription class="flex flex-col gap-2">
             <span>All data on this PC will be replaced. Sales recorded after this backup was made will no longer show.</span>
             <span v-if="!isUndo">Your current data is kept first, so you can undo this with Undo last restore.</span>
-            <span>Balce will restart and you will need to sign in again.</span>
+            <span>The POS will restart and you will need to sign in again.</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -362,7 +362,7 @@ watch(isOnline, (online) => {
     >
       <RefreshCw class="size-8 animate-spin text-primary" />
       <p class="text-sm font-medium">Preparing your backup…</p>
-      <p class="text-xs text-muted-foreground">Do not close Balce</p>
+      <p class="text-xs text-muted-foreground">Do not close the POS</p>
     </div>
   </div>
 </template>
