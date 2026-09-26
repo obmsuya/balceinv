@@ -6,6 +6,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const { getToken, setToken } = useSecureStorage()
 
   let refreshPromise: Promise<void> | null = null
+  let licenseRecheck: Promise<void> | null = null
 
   const doRefresh = (): Promise<void> => {
     if (refreshPromise !== null) return refreshPromise
@@ -76,6 +77,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       if (response.status === 401 && !isAuthEndpoint) {
         await doRefresh()
+      }
+
+      if (response.status === 402 && !licenseRecheck) {
+        licenseRecheck = nuxtApp
+          .runWithContext(() => useLicense().fetchLicenseStatus())
+          .finally(() => { licenseRecheck = null })
       }
     },
   })
