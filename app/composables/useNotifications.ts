@@ -73,7 +73,11 @@ export const useNotifications = () => {
 
       if (res.success) {
         const oldCount = notificationCount.value;
-        notifications.value = res.data;
+        notifications.value = (res.data ?? []).map((alert: any) => ({
+          ...alert,
+          product_name: alert.product?.name || "Unknown product",
+          product_sku: alert.product?.sku || "-",
+        }));
         notificationCount.value = res.data.filter(
           (n: Notification) => !n.is_seen,
         ).length;
