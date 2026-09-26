@@ -116,7 +116,7 @@ const totalItemCount = computed(() => {
           <i class="sq sq-3" />
           <i class="sq sq-4" />
         </div>
-        <span class="brand-name">BALCE</span>
+        <span class="brand-name">POS</span>
       </div>
 
       <div class="header-center">

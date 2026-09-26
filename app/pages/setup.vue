@@ -97,7 +97,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <i class="s1"/><i class="s2"/>
             <i class="s3"/><i class="s4"/>
           </div>
-          <span>BALCE</span>
+          <span>POS</span>
         </div>
 
         <div class="pitch">
@@ -129,7 +129,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
       </div>
 
-      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} BALCE · POS &amp; Inventory</p>
+      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} POS &amp; Inventory</p>
 
       <div class="rings" aria-hidden="true">
         <div/><div/><div/>
