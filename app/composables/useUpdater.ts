@@ -30,8 +30,13 @@ export const useUpdater = () => {
       return
     }
 
-    status.value = 'checking'
-    errorMessage.value = ''
+    const updateIsInProgress = ['downloading', 'installing', 'downloaded'].includes(status.value)
+    if (updateIsInProgress) return
+
+    if (!silent) {
+      status.value = 'checking'
+      errorMessage.value = ''
+    }
 
     try {
       const { check } = await import('@tauri-apps/plugin-updater')
@@ -48,9 +53,10 @@ export const useUpdater = () => {
         if (!silent) toast.success('You are on the latest version')
       }
     } catch (error: any) {
+      if (silent) return
       status.value = 'error'
       errorMessage.value = error?.message ?? 'Could not check for updates'
-      if (!silent) toast.error(errorMessage.value)
+      toast.error(errorMessage.value)
     }
   }
 
