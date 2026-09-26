@@ -177,6 +177,7 @@ const {
   currentVersion,
   latestVersion,
   errorMessage: updateError,
+  downloadProgress,
   fetchCurrentVersion,
   checkForUpdate,
   downloadAndInstall,
@@ -778,31 +779,50 @@ const efdBadgeLabel = computed(() => {
 
             <p v-if="updateStatus === 'error'" class="text-sm text-destructive">{{ updateError }}</p>
 
+            <div
+              v-if="updateStatus === 'available'"
+              class="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm"
+            >
+              <p class="font-medium">Version {{ latestVersion }} is ready to install</p>
+              <p class="text-muted-foreground mt-0.5">
+                A backup is saved on this PC first. Balce then closes and reopens by itself. Your sales, products and settings are kept.
+              </p>
+            </div>
+
+            <div v-if="updateStatus === 'downloading' || updateStatus === 'installing'" class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>{{ updateStatus === 'downloading' ? 'Downloading update…' : 'Saving a backup and installing…' }}</span>
+                <span v-if="updateStatus === 'downloading' && downloadProgress !== null" class="tabular-nums text-muted-foreground">
+                  {{ downloadProgress }}%
+                </span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  class="h-full rounded-full bg-primary transition-[width] duration-300"
+                  :class="updateStatus === 'installing' || downloadProgress === null ? 'w-full animate-pulse' : ''"
+                  :style="updateStatus === 'downloading' && downloadProgress !== null ? { width: `${downloadProgress}%` } : undefined"
+                />
+              </div>
+              <p class="text-xs text-muted-foreground">Keep Balce open. It will restart by itself when the update is installed.</p>
+            </div>
+
             <div class="flex gap-2">
               <Button
-                v-if="updateStatus !== 'downloaded'"
+                v-if="updateStatus !== 'downloaded' && updateStatus !== 'downloading' && updateStatus !== 'installing'"
                 variant="outline"
-                :disabled="updateStatus === 'checking' || updateStatus === 'downloading'"
+                :disabled="updateStatus === 'checking'"
                 @click="checkForUpdate()"
               >
                 <RefreshCw class="size-4 mr-2" :class="updateStatus === 'checking' ? 'animate-spin' : ''" />
                 {{ updateStatus === 'checking' ? 'Checking…' : 'Check for Updates' }}
               </Button>
 
-              <Button
-                v-if="updateStatus === 'available'"
-                :disabled="updateStatus !== 'available'"
-                @click="downloadAndInstall"
-              >
-                <DownloadCloud class="size-4 mr-2" />Download Update
-              </Button>
-
-              <Button v-if="updateStatus === 'downloading'" disabled>
-                <DownloadCloud class="size-4 mr-2 animate-pulse" />Downloading…
+              <Button v-if="updateStatus === 'available'" @click="downloadAndInstall">
+                <DownloadCloud class="size-4 mr-2" />Update and restart
               </Button>
 
               <Button v-if="updateStatus === 'downloaded'" @click="relaunchApp">
-                <RotateCw class="size-4 mr-2" />Relaunch to Update
+                <RotateCw class="size-4 mr-2" />Restart to finish
               </Button>
             </div>
           </CardContent>
