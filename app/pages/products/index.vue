@@ -46,7 +46,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Product, ProductAddon } from '@/composables/useProducts'
 import { useAuth } from '@/composables/useAuth'
 import { usePermissions } from '@/composables/usePermissions'
-import { useCatalog } from '@/composables/useCatalog'
+import type { CatalogProduct } from '@/composables/useCatalog'
+import CatalogPicker from '@/components/catalog/CatalogPicker.vue'
 import { useAddons } from '@/composables/useAddons'
 
 const { user } = useAuth()
@@ -69,7 +70,6 @@ const {
 } = useProducts()
 
 const { addons, fetchAddons, createAddon, deleteAddon } = useAddons()
-const { catalog, loading: catalogLoading, fetchCatalog, searchCatalog } = useCatalog()
 
 // ── Dialog visibility ─────────────────────────────────────────────────────
 const showProductDialog = ref(false)
@@ -90,11 +90,6 @@ const uploadFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 const imageFile = ref<File | null>(null)
 const imageInputRef = ref<HTMLInputElement | null>(null)
-
-// ── Catalog panel ─────────────────────────────────────────────────────────
-const showCatalogPanel = ref(false)
-const catalogSearch = ref('')
-const filteredCatalog = ref<typeof catalog.value>([])
 
 // ── Addon form ────────────────────────────────────────────────────────────
 const newAddonName = ref('')
@@ -241,19 +236,7 @@ watch(() => route.query.view, async (viewProductId) => {
 }, { immediate: true })
 
 // ── Catalog ───────────────────────────────────────────────────────────────
-const toggleCatalogPanel = async () => {
-  showCatalogPanel.value = !showCatalogPanel.value
-  if (showCatalogPanel.value && catalog.value.length === 0) {
-    await fetchCatalog()
-    filteredCatalog.value = catalog.value
-  }
-}
-
-watch(catalogSearch, async value => {
-  filteredCatalog.value = await searchCatalog(value)
-})
-
-const prefillFromCatalog = (item: typeof catalog.value[number]) => {
+const prefillFromCatalog = (item: CatalogProduct) => {
   formData.value.name = item.name
   formData.value.category = item.category ?? ''
   formData.value.unit = item.unit
@@ -262,8 +245,6 @@ const prefillFromCatalog = (item: typeof catalog.value[number]) => {
   metadataFields.value = item.metadata
     ? Object.entries(item.metadata).map(([key, value]) => ({ key, value: String(value) }))
     : []
-  showCatalogPanel.value = false
-  catalogSearch.value = ''
 }
 
 // ── Columns ───────────────────────────────────────────────────────────────
@@ -304,7 +285,6 @@ const columns = computed(() =>
         : []
 
       selectedProduct.value = product
-      showCatalogPanel.value = false
       showProductDialog.value = true
 
       await fetchAddons(product.id)
@@ -370,8 +350,6 @@ const openCreateDialog = () => {
   }
 
   metadataFields.value = []
-  showCatalogPanel.value = false
-  catalogSearch.value = ''
   showProductDialog.value = true
 }
 
@@ -700,52 +678,7 @@ const lowStockCount = computed(() =>
           <!-- ── Details tab ──────────────────────────────────────────── -->
           <TabsContent value="details" class="flex flex-col gap-4 mt-4">
 
-            <!-- Catalog picker — new products only -->
-            <template v-if="!isEditing && !isAddingVariant">
-              <div class="flex items-center justify-between">
-                <p class="text-sm text-muted-foreground">Already in your catalog?</p>
-                <Button variant="outline" size="sm" type="button" @click="toggleCatalogPanel">
-                  {{ showCatalogPanel ? 'Hide Catalog' : 'Pick from Catalog' }}
-                </Button>
-              </div>
-
-              <div
-                v-if="showCatalogPanel"
-                class="rounded-lg border bg-muted/30 p-3 flex flex-col gap-2"
-              >
-                <Input v-model="catalogSearch" placeholder="Search catalog..." />
-                <div class="max-h-44 overflow-y-auto flex flex-col gap-1">
-                  <div v-if="catalogLoading" class="flex flex-col gap-1">
-                    <Skeleton v-for="i in 3" :key="i" class="h-12 w-full" />
-                  </div>
-                  <p
-                    v-else-if="filteredCatalog.length === 0"
-                    class="text-center text-sm text-muted-foreground py-4"
-                  >
-                    No items found
-                  </p>
-                  <button
-                    v-else
-                    v-for="item in filteredCatalog"
-                    :key="item.id"
-                    type="button"
-                    class="w-full text-left px-3 py-2 rounded-md hover:bg-accent transition-colors"
-                    @click="prefillFromCatalog(item)"
-                  >
-                    <div class="flex items-center justify-between">
-                      <span class="text-sm font-medium">{{ item.name }}</span>
-                      <Badge variant="outline">{{ item.unit }}</Badge>
-                    </div>
-                    <p class="text-xs text-muted-foreground mt-0.5">
-                      {{ [item.category, item.sub_category].filter(Boolean).join(' · ') }}
-                      {{ item.default_price ? `· TZS ${item.default_price.toLocaleString()}` : '' }}
-                    </p>
-                  </button>
-                </div>
-              </div>
-
-              <Separator v-if="showCatalogPanel" />
-            </template>
+            <CatalogPicker v-if="!isEditing && !isAddingVariant" @pick="prefillFromCatalog" />
 
             <!-- Variant context banner -->
             <div
