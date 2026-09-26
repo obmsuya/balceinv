@@ -57,6 +57,7 @@ const {
   loading,
   selectedProduct,
   fetchProducts,
+  fetchProduct,
   createProduct,
   updateProduct,
   updateProductImage,
@@ -230,6 +231,14 @@ onMounted(async () => {
   if (user.value) await fetchUserPermissions(user.value.id)
   await fetchProducts()
 })
+
+const route = useRoute()
+
+watch(() => route.query.view, async (viewProductId) => {
+  if (!viewProductId) return
+  const product = await fetchProduct(Number(viewProductId))
+  if (product) showDetailsDialog.value = true
+}, { immediate: true })
 
 // ── Catalog ───────────────────────────────────────────────────────────────
 const toggleCatalogPanel = async () => {
