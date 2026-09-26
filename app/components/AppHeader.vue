@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { Menu, Bell, Volume2, VolumeX, Fingerprint, RefreshCw } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { Icon } from '@iconify/vue';
@@ -32,6 +32,7 @@ const {
   hasUnread,
   soundEnabled,
   fetchNotificationCount,
+  fetchNotifications,
   markAsSeen,
   toggleSound,
   loadSoundSetting,
@@ -66,6 +67,10 @@ const user = ref<{
 
 const showNotificationPopover = ref(false);
 const notificationInterval = ref<NodeJS.Timeout | null>(null);
+
+watch(showNotificationPopover, (isOpen) => {
+  if (isOpen) fetchNotifications();
+});
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -123,10 +128,10 @@ const formatNotificationTime = (date: Date): string => {
  * Get notification message
  */
 const getNotificationMessage = (notification: any): string => {
-  if (notification.alertType === 'out') {
-    return `${notification.productName} is out of stock`;
+  if (notification.alert_type === 'out') {
+    return `${notification.product_name} is out of stock`;
   }
-  return `${notification.productName} is low (${notification.currentQuantity} left)`;
+  return `${notification.product_name} is low (${notification.current_quantity} left)`;
 };
 
 /**
@@ -135,7 +140,7 @@ const getNotificationMessage = (notification: any): string => {
 const handleNotificationClick = async (notification: any) => {
   await markAsSeen(notification.id);
   showNotificationPopover.value = false;
-  navigateTo(`/products/${notification.productId}`);
+  navigateTo({ path: '/products', query: { view: notification.product_id } });
 };
 
 /**
@@ -309,11 +314,11 @@ onUnmounted(() => {
                   <div class="flex items-start gap-3">
                     <div 
                       class="rounded-full p-2 shrink-0 mt-1"
-                      :class="notification.alertType === 'out' ? 'bg-destructive/10' : 'bg-yellow-500/10'"
+                      :class="notification.alert_type === 'out' ? 'bg-destructive/10' : 'bg-yellow-500/10'"
                     >
                       <Bell 
                         class="h-4 w-4" 
-                        :class="notification.alertType === 'out' ? 'text-destructive' : 'text-yellow-600'"
+                        :class="notification.alert_type === 'out' ? 'text-destructive' : 'text-yellow-600'"
                       />
                     </div>
                     
@@ -322,16 +327,16 @@ onUnmounted(() => {
                         {{ getNotificationMessage(notification) }}
                       </p>
                       <p class="text-xs text-muted-foreground">
-                        {{ formatNotificationTime(notification.createdAt) }}
+                        {{ formatNotificationTime(notification.created_at) }}
                       </p>
                     </div>
 
                     <Badge 
                       variant="outline"
                       class="shrink-0"
-                      :class="notification.alertType === 'out' ? 'border-destructive text-destructive' : 'border-yellow-600 text-yellow-600'"
+                      :class="notification.alert_type === 'out' ? 'border-destructive text-destructive' : 'border-yellow-600 text-yellow-600'"
                     >
-                      {{ notification.alertType === 'out' ? 'Out' : 'Low' }}
+                      {{ notification.alert_type === 'out' ? 'Out' : 'Low' }}
                     </Badge>
                   </div>
                 </button>
