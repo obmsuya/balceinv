@@ -198,8 +198,11 @@ const customerDisplayEnabled = ref(false)
 
 const filteredProducts = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return products.value
-  return products.value
+  const imageFirst = [...products.value].sort(
+    (first, second) => Number(Boolean(second.image)) - Number(Boolean(first.image)),
+  )
+  if (!query) return imageFirst
+  return imageFirst
     .filter(
       product =>
         product.name.toLowerCase().includes(query) ||
