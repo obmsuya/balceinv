@@ -22,7 +22,10 @@ export interface BackupStatus {
   last_cloud_error: string
   restore_pending: boolean
   local_backups: LocalBackup[]
+  before_restore_copy: LocalBackup | null
 }
+
+export const beforeRestoreBackupName = 'before-restore'
 
 export type RestoreSource = 'local' | 'cloud' | 'file'
 
@@ -202,9 +205,6 @@ export const useBackup = () => {
   const restoreBackup = async (source: RestoreSource, target: string): Promise<boolean> => {
     activeAction.value = 'restore'
     try {
-      const restoringTodaysCopyOnThisPC = source === 'local' && target === todayBackupDate()
-      if (!restoringTodaysCopyOnThisPC) await saveBackupOnThisPC()
-
       await $apiFetch(`${apiBase}${restoreEndpoints[source]}`, {
         method: 'POST' as const,
         body: source === 'file' ? { path: target } : { date: target },
