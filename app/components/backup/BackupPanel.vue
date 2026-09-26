@@ -57,12 +57,7 @@ const beforeRestoreCopy = computed(() => status.value?.before_restore_copy ?? nu
 const todayBackupDate = new Date().toLocaleDateString('en-CA')
 
 const pendingRestore = ref<{ source: RestoreSource; target: string; label: string } | null>(null)
-const showRestoreDialog = computed({
-  get: () => pendingRestore.value !== null,
-  set: (isOpen: boolean) => {
-    if (!isOpen) pendingRestore.value = null
-  },
-})
+const showRestoreDialog = ref(false)
 
 const formatBackupDate = (backupDate: string): string =>
   new Date(`${backupDate}T00:00:00`).toLocaleDateString(undefined, {
@@ -91,6 +86,7 @@ const restoreLabel = (source: RestoreSource, target: string): string => {
 
 const askToRestore = (source: RestoreSource, target: string) => {
   pendingRestore.value = { source, target, label: restoreLabel(source, target) }
+  showRestoreDialog.value = true
 }
 
 const askToRestoreFromFile = async () => {
@@ -101,7 +97,7 @@ const askToRestoreFromFile = async () => {
 const confirmRestore = async () => {
   if (!pendingRestore.value) return
   const { source, target } = pendingRestore.value
-  pendingRestore.value = null
+  showRestoreDialog.value = false
   await restoreBackup(source, target)
 }
 
