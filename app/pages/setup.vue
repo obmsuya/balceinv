@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { businessTypes } from '~/utils/businessTypes'
 
 definePageMeta({ layout: false })
 
@@ -27,16 +28,6 @@ const { setup, checkSetup, isLoading } = useAuth()
 
 const mounted = ref(false)
 const step = ref<1 | 2>(1)
-
-const businessTypes = [
-  { value: 'pharmacy',    label: 'Pharmacy' },
-  { value: 'supermarket', label: 'Supermarket' },
-  { value: 'retail',      label: 'Retail Store' },
-  { value: 'hardware',    label: 'Hardware Store' },
-  { value: 'wholesale',   label: 'Wholesaler' },
-  { value: 'winehouse',   label: 'Wine & Spirits' },
-  { value: 'beauty',      label: 'Beauty & Cosmetics' },
-]
 
 const formSchema = toTypedSchema(z.object({
   business_name:  z.string().min(2, 'Business name is required'),
