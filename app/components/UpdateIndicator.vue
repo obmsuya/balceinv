@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, RefreshCw, Sparkles } from 'lucide-vue-next'
+import { Download, Sparkles } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -47,7 +47,7 @@ onUnmounted(() => {
 watch(latestVersion, (newVersion, previousVersion) => {
   const newUpdateWasFound = newVersion && newVersion !== previousVersion && status.value === 'available'
   if (!newUpdateWasFound) return
-  toast.info(`Balce ${newVersion} is available`, {
+  toast.info(`POS ${newVersion} is available`, {
     action: { label: 'See update', onClick: () => { showUpdatePanel.value = true } },
   })
 })
@@ -60,18 +60,34 @@ const startUpdate = async () => {
 <template>
   <Popover v-if="indicatorIsVisible" v-model:open="showUpdatePanel">
     <PopoverTrigger as-child>
-      <button
-        type="button"
-        class="group inline-flex h-8 items-center gap-2 rounded-full border border-primary/30 bg-primary/10 pl-2.5 pr-3 text-xs font-medium text-foreground transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      <Button
+        variant="ghost"
+        size="icon"
+        class="relative"
+        :title="indicatorLabel"
         :aria-label="indicatorLabel"
       >
-        <span v-if="!updateIsRunning" class="relative flex size-2">
+        <svg v-if="updateIsRunning" viewBox="0 0 24 24" class="absolute inset-1.5 -rotate-90" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="none" stroke-width="2.5" class="stroke-muted" />
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            fill="none"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            pathLength="100"
+            class="stroke-primary transition-[stroke-dasharray] duration-300"
+            :class="status === 'installing' || downloadProgress === null ? 'animate-pulse' : ''"
+            :stroke-dasharray="`${status === 'downloading' && downloadProgress !== null ? downloadProgress : 100} 100`"
+          />
+        </svg>
+        <Download class="h-5 w-5" :class="updateIsRunning ? 'scale-75 text-primary' : ''" />
+        <span v-if="!updateIsRunning" class="absolute top-1.5 right-1.5 flex size-2.5">
           <span class="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
-          <span class="relative inline-flex size-2 rounded-full bg-primary" />
+          <span class="relative inline-flex size-2.5 rounded-full border-2 border-background bg-primary" />
         </span>
-        <RefreshCw v-else class="size-3.5 animate-spin text-primary" />
-        <span class="hidden sm:inline tabular-nums">{{ indicatorLabel }}</span>
-      </button>
+      </Button>
     </PopoverTrigger>
 
     <PopoverContent align="end" class="w-80 p-0 overflow-hidden">
@@ -80,7 +96,7 @@ const startUpdate = async () => {
           <Sparkles class="size-4 text-primary" />
         </div>
         <div class="min-w-0">
-          <p class="text-sm font-semibold">Balce {{ latestVersion }} is ready</p>
+          <p class="text-sm font-semibold">Version {{ latestVersion }} is ready</p>
           <p v-if="currentVersion" class="text-xs text-muted-foreground mt-0.5">You are on {{ currentVersion }}</p>
         </div>
       </div>
@@ -94,13 +110,13 @@ const startUpdate = async () => {
           />
         </div>
         <p class="text-xs text-muted-foreground">
-          {{ status === 'installing' ? 'Saving a backup and installing. Balce will reopen by itself.' : 'Downloading. You can keep working.' }}
+          {{ status === 'installing' ? 'Saving a backup and installing. The POS will reopen by itself.' : 'Downloading. You can keep working.' }}
         </p>
       </div>
 
       <template v-else>
         <p class="px-4 pb-4 text-xs text-muted-foreground leading-relaxed">
-          Usually takes a minute or two. A backup is saved first, then Balce closes and reopens by itself. Your sales, products and settings are kept.
+          Usually takes a minute or two. A backup is saved first, then the POS closes and reopens by itself. Your sales, products and settings are kept.
         </p>
         <div class="flex justify-end gap-2 border-t bg-muted/30 px-4 py-3">
           <Button variant="ghost" size="sm" @click="showUpdatePanel = false">Later</Button>
