@@ -106,7 +106,7 @@ export const useUpdater = () => {
       status.value = 'downloaded'
       await relaunchApp()
     } catch (error: any) {
-      status.value = 'error'
+      status.value = pendingUpdate ? 'available' : 'error'
       errorMessage.value = error?.message ?? String(error ?? 'Update failed')
       toast.error('Update failed', { description: errorMessage.value })
       if (backendWasStopped) await relaunchApp()
