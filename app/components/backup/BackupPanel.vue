@@ -188,6 +188,7 @@ watch(isOnline, (online) => {
                 <p v-else-if="cloudBackups[0]" class="text-sm text-muted-foreground">
                   Latest cloud copy: {{ formatBackupDate(cloudBackups[0].date) }}
                 </p>
+                <p v-else-if="cloudListError" class="text-sm text-muted-foreground">Cloud can't be reached right now</p>
                 <p v-else class="text-sm text-muted-foreground">No cloud copy yet</p>
                 <p v-if="status.last_cloud_error" class="text-xs text-destructive mt-1 line-clamp-2">
                   Last upload failed: {{ status.last_cloud_error }}. Retrying automatically.
