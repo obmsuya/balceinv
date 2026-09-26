@@ -197,14 +197,14 @@ const displayedNotifications = computed(() => {
     <Tabs v-model="activeTab" class="w-full">
       <TabsList class="grid w-full grid-cols-2 mb-6">
         <TabsTrigger value="unread" class="relative">
-          <Bell class="h-4 w-4 mr-2" />
+          <Bell />
           Unread
-          <Badge v-if="notificationCount > 0" class="ml-2" variant="destructive">
+          <Badge v-if="notificationCount > 0" variant="destructive">
             {{ notificationCount }}
           </Badge>
         </TabsTrigger>
         <TabsTrigger value="all">
-          <BellOff class="h-4 w-4 mr-2" />
+          <BellOff />
           All Notifications
         </TabsTrigger>
       </TabsList>
