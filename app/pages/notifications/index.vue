@@ -124,7 +124,7 @@ const handleToggleSound = () => {
 };
 
 const navigateToProduct = (productId: number) => {
-  navigateTo(`/products/${productId}`);
+  navigateTo({ path: '/products', query: { view: productId } });
 };
 
 const setupAutoRefresh = () => {
