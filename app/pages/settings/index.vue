@@ -184,6 +184,12 @@ const {
   relaunchApp,
 } = useUpdater()
 
+const route = useRoute()
+const activeSettingsTab = ref(String(route.query.tab ?? 'business'))
+watch(() => route.query.tab, (requestedTab) => {
+  if (requestedTab) activeSettingsTab.value = String(requestedTab)
+})
+
 onMounted(async () => {
   if (user.value) await fetchUserPermissions(user.value.id)
   await fetchSettings()
@@ -303,7 +309,7 @@ const efdBadgeLabel = computed(() => {
       <div v-for="i in 4" :key="i" class="h-28 rounded-lg bg-muted animate-pulse" />
     </div>
 
-    <Tabs v-else default-value="business">
+    <Tabs v-else v-model="activeSettingsTab">
       <TabsList>
         <TabsTrigger value="business">
           <Building2 />Business
