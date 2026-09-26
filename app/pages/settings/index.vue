@@ -305,25 +305,25 @@ const efdBadgeLabel = computed(() => {
     <Tabs v-else default-value="business">
       <TabsList>
         <TabsTrigger value="business">
-          <Building2 class="size-4 mr-2" />Business
+          <Building2 />Business
         </TabsTrigger>
         <TabsTrigger value="system">
-          <Settings2 class="size-4 mr-2" />System
+          <Settings2 />System
         </TabsTrigger>
         <TabsTrigger value="hardware">
-          <Printer class="size-4 mr-2" />Hardware
+          <Printer />Hardware
         </TabsTrigger>
         <TabsTrigger value="efd">
-          <Wifi class="size-4 mr-2" />EFD
+          <Wifi />EFD
         </TabsTrigger>
         <TabsTrigger value="notifications">
-          <Bell class="size-4 mr-2" />Notifications
+          <Bell />Notifications
         </TabsTrigger>
         <TabsTrigger value="backup">
-          <DatabaseBackup class="size-4 mr-2" />Backup
+          <DatabaseBackup />Backup
         </TabsTrigger>
         <TabsTrigger value="updates">
-          <RefreshCw class="size-4 mr-2" />Updates
+          <RefreshCw />Updates
         </TabsTrigger>
       </TabsList>
 
