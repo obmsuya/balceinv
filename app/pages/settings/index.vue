@@ -18,6 +18,7 @@ import {
   DownloadCloud,
   CheckCircle2,
   RotateCw,
+  DatabaseBackup,
 } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -37,6 +38,7 @@ import {
 } from '@/components/ui/select'
 import { useSettings } from '~/composables/useSettings'
 import { usePrint } from '~/composables/usePrint'
+import BackupPanel from '@/components/backup/BackupPanel.vue'
 
 definePageMeta({ layout: 'default' })
 
@@ -316,6 +318,9 @@ const efdBadgeLabel = computed(() => {
         </TabsTrigger>
         <TabsTrigger value="notifications">
           <Bell class="size-4 mr-2" />Notifications
+        </TabsTrigger>
+        <TabsTrigger value="backup">
+          <DatabaseBackup class="size-4 mr-2" />Backup
         </TabsTrigger>
         <TabsTrigger value="updates">
           <RefreshCw class="size-4 mr-2" />Updates
@@ -747,6 +752,10 @@ const efdBadgeLabel = computed(() => {
       <!-- ══════════════════════════════════════════════ -->
       <!-- UPDATES                                        -->
       <!-- ══════════════════════════════════════════════ -->
+      <TabsContent value="backup" class="mt-4">
+        <BackupPanel />
+      </TabsContent>
+
       <TabsContent value="updates" class="flex flex-col gap-4 mt-4">
         <Card>
           <CardHeader class="pb-3">
