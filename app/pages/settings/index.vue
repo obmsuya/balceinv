@@ -39,6 +39,7 @@ import {
 import { useSettings } from '~/composables/useSettings'
 import { usePrint } from '~/composables/usePrint'
 import BackupPanel from '@/components/backup/BackupPanel.vue'
+import TeamCatalogDialog from '@/components/catalog/TeamCatalogDialog.vue'
 
 definePageMeta({ layout: 'default' })
 
@@ -183,6 +184,21 @@ const {
   downloadAndInstall,
   relaunchApp,
 } = useUpdater()
+
+const teamToolsTapsNeeded = 7
+const teamToolsTapWindowMilliseconds = 2500
+const showTeamTools = ref(false)
+let versionTapCount = 0
+let lastVersionTapAt = 0
+
+const onVersionTap = () => {
+  const now = Date.now()
+  versionTapCount = now - lastVersionTapAt > teamToolsTapWindowMilliseconds ? 1 : versionTapCount + 1
+  lastVersionTapAt = now
+  if (versionTapCount < teamToolsTapsNeeded) return
+  versionTapCount = 0
+  showTeamTools.value = true
+}
 
 const route = useRoute()
 const activeSettingsTab = ref(String(route.query.tab ?? 'business'))
@@ -773,7 +789,7 @@ const efdBadgeLabel = computed(() => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm">Current version</p>
-                <p class="text-xs text-muted-foreground mt-0.5">{{ currentVersion || '—' }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5 select-none" @click="onVersionTap">{{ currentVersion || '—' }}</p>
               </div>
               <Badge v-if="updateStatus === 'up-to-date'" variant="secondary">
                 <CheckCircle2 class="size-3 mr-1" />Up to date
@@ -835,5 +851,7 @@ const efdBadgeLabel = computed(() => {
         </Card>
       </TabsContent>
     </Tabs>
+
+    <TeamCatalogDialog v-model:open="showTeamTools" />
   </div>
 </template>
