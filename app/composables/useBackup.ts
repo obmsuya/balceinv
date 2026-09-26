@@ -231,6 +231,7 @@ export const useBackup = () => {
     fetchStatus,
     fetchCloudBackups,
     refresh,
+    saveBackupOnThisPC,
     backupNow,
     exportToFile,
     pickBackupFile,
