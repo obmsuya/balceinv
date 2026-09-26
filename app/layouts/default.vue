@@ -12,7 +12,7 @@
       >
         <slot />
       </main>
-      <Toaster />
+      <Toaster v-if="!isHardLocked" />
     </div>
     <AppFooter />
   </div>
@@ -24,10 +24,12 @@ import { Toaster } from '@/components/ui/sonner'
 import PaywallOverlay from '@/components/license/PaywallOverlay.vue'
 import { useAuth } from '~/composables/useAuth'
 import { usePermissions } from '~/composables/usePermissions'
+import { useLicense } from '~/composables/useLicense'
 
 const sidebarCollapsed = useState('sidebar-collapsed', () => false)
 const { user } = useAuth()
 const { fetchUserPermissions } = usePermissions()
+const { isHardLocked } = useLicense()
 
 onMounted(async () => {
   if (user.value?.id) {
