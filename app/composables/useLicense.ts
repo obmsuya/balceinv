@@ -1,13 +1,17 @@
-import { toast } from 'vue-sonner'
+import type { MobileMoneyProvider } from '~/utils/mobileMoney'
+
+export type LockReason = '' | 'missing' | 'expired' | 'clock'
 
 export interface LicenseStatus {
   licensed: boolean
   expires_at?: string
   days_remaining?: number
+  grace_days_remaining?: number
   is_grace_period?: boolean
   is_trial?: boolean
   plan?: number
   max_devices?: number
+  lock_reason?: LockReason
 }
 
 export interface LicensePackage {
@@ -20,15 +24,31 @@ export interface LicensePackage {
 
 export interface LicensePaymentInput {
   phone: string
-  provider: 'Mpesa' | 'Tigo' | 'Airtel' | 'Halopesa' | 'Azampesa'
+  provider: MobileMoneyProvider
   package_id: number
+}
+
+export type PaymentWaitResult = 'paid' | 'timeout' | 'cancelled'
+
+export interface PaymentWaitHandle {
+  cancelled: boolean
 }
 
 interface ApiResponse<T> {
   success: boolean
   message?: string
+  error?: string
   data?: T
 }
+
+const expiringSoonDays = 7
+const paymentPollIntervalMilliseconds = 5000
+const paymentWaitLimitMilliseconds = 120000
+
+const wait = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
+
+export const readLicenseError = (error: any, fallback: string): string =>
+  error?.data?.error || error?.data?.message || fallback
 
 export const useLicense = () => {
   const runtimeConfig = useRuntimeConfig()
@@ -38,8 +58,9 @@ export const useLicense = () => {
 
   const licenseStatus = useState<LicenseStatus | null>('license:status', () => null)
   const licensePackages = useState<LicensePackage[]>('license:packages', () => [])
-  const lastPackage = useState<LicensePackage | null>('license:last-package', () => null)
-  const bannerDismissed = useState<boolean>('license:banner-dismissed', () => false)
+  const packagesError = useState<string>('license:packages-error', () => '')
+  const packagesLoading = useState<boolean>('license:packages-loading', () => false)
+  const paymentDialogOpen = useState<boolean>('license:payment-dialog-open', () => false)
   const hardwareId = useState<string | null>('license:hardware-id', () => null)
   const loading = ref(false)
 
@@ -51,18 +72,21 @@ export const useLicense = () => {
       })
       licenseStatus.value = response.data ?? null
     } catch {
-      licenseStatus.value = {
-        licensed: false,
-        is_grace_period: false,
-        is_trial: false
-      }
+      return
     } finally {
       loading.value = false
     }
   }
 
-  // GET /api/license/hardware-id replies {success, hardware_id} directly,
-  // not the {data, message} envelope the other license endpoints use.
+  const refreshLicense = async (): Promise<LicenseStatus | null> => {
+    const response = await apiFetch<ApiResponse<LicenseStatus>>(`${apiBaseUrl}/api/license/refresh`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+    licenseStatus.value = response.data ?? licenseStatus.value
+    return licenseStatus.value
+  }
+
   const fetchHardwareId = async (): Promise<void> => {
     try {
       const response = await apiFetch<{ success: boolean; hardware_id?: string }>(
@@ -76,121 +100,102 @@ export const useLicense = () => {
   }
 
   const fetchPackages = async (): Promise<void> => {
-    loading.value = true
+    packagesLoading.value = true
+    packagesError.value = ''
     try {
       const response = await apiFetch<ApiResponse<LicensePackage[]>>(`${apiBaseUrl}/api/license/packages`, {
         credentials: 'include'
       })
-      licensePackages.value = response.data ?? []
+      licensePackages.value = [...(response.data ?? [])].sort((first, second) => first.days_granted - second.days_granted)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load subscription packages')
+      packagesError.value = readLicenseError(error, 'Could not load the plans. Check the internet connection.')
     } finally {
-      loading.value = false
+      packagesLoading.value = false
     }
   }
 
-  const fetchLastPackage = async (): Promise<void> => {
-    const currentPlan = licenseStatus.value?.plan
-    if (!currentPlan || licensePackages.value.length === 0) {
-      lastPackage.value = null
-      return
-    }
+  const currentPackage = computed<LicensePackage | null>(() => {
+    const currentPlanDays = licenseStatus.value?.plan
+    if (!currentPlanDays || licenseStatus.value?.is_trial) return null
+    return licensePackages.value.find(licensePackage => licensePackage.days_granted === currentPlanDays) ?? null
+  })
 
-    let matchingPackage: LicensePackage | null = null
-    for (const candidatePackage of licensePackages.value) {
-      if (candidatePackage.days_granted === currentPlan) {
-        matchingPackage = candidatePackage
+  const payForLicense = async (input: LicensePaymentInput): Promise<void> => {
+    const response = await apiFetch<ApiResponse<unknown>>(`${apiBaseUrl}/api/license/pay`, {
+      method: 'POST',
+      body: input,
+      credentials: 'include'
+    })
+    if (response?.success === false) {
+      throw { data: { error: response.error || response.message || 'The payment could not be started.' } }
+    }
+  }
+
+  const waitForPayment = async (
+    statusBeforePayment: LicenseStatus | null,
+    waitHandle: PaymentWaitHandle,
+  ): Promise<PaymentWaitResult> => {
+    const expiryBeforePayment = statusBeforePayment?.expires_at
+    const wasTrialBeforePayment = statusBeforePayment?.is_trial === true
+    const wasLicensedBeforePayment = statusBeforePayment?.licensed === true
+    const waitDeadline = Date.now() + paymentWaitLimitMilliseconds
+
+    while (Date.now() < waitDeadline) {
+      await wait(paymentPollIntervalMilliseconds)
+      if (waitHandle.cancelled) return 'cancelled'
+
+      try {
+        const latestStatus = await refreshLicense()
+        const subscriptionChanged =
+          latestStatus?.licensed === true &&
+          (!wasLicensedBeforePayment ||
+            (wasTrialBeforePayment && latestStatus.is_trial !== true) ||
+            latestStatus.expires_at !== expiryBeforePayment)
+        if (subscriptionChanged) return 'paid'
+      } catch {
+        continue
       }
     }
-    lastPackage.value = matchingPackage
+    return 'timeout'
   }
 
-  const payForLicense = async (input: LicensePaymentInput): Promise<ApiResponse<any>> => {
-    try {
-      const response = await apiFetch<ApiResponse<any>>(`${apiBaseUrl}/api/license/pay`, {
-        method: 'POST',
-        body: input,
-        credentials: 'include'
-      })
-      return response
-    } catch (error: any) {
-      toast.error(error?.data?.error || error?.data?.message || 'Payment could not be started')
-      throw error
-    }
+  const openPaymentDialog = (): void => {
+    paymentDialogOpen.value = true
+    if (licensePackages.value.length === 0 && !packagesLoading.value) fetchPackages()
   }
 
-  const pollUntilLicensed = (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const pollTimeoutMilliseconds = 90000
-      const pollIntervalMilliseconds = 4000
-      let elapsedMilliseconds = 0
-
-      const interval = setInterval(async () => {
-        elapsedMilliseconds += pollIntervalMilliseconds
-        await fetchLicenseStatus()
-
-        if (licenseStatus.value?.licensed === true) {
-          clearInterval(interval)
-          resolve()
-          return
-        }
-
-        if (elapsedMilliseconds >= pollTimeoutMilliseconds) {
-          clearInterval(interval)
-          reject(new Error('Polling timeout'))
-        }
-      }, pollIntervalMilliseconds)
-    })
-  }
-
-  const dismissBanner = (): void => {
-    bannerDismissed.value = true
-  }
-
-  const isLicensed = computed(() => {
-    return licenseStatus.value?.licensed === true
-  })
-
-  const isTrial = computed(() => {
-    return licenseStatus.value?.is_trial === true
-  })
-
-  const isInGracePeriod = computed(() => {
-    return licenseStatus.value?.is_grace_period === true
-  })
-
-  const isHardLocked = computed(() => {
-    if (!licenseStatus.value) return false
-    return !isLicensed.value && !isInGracePeriod.value
-  })
-
-  const showGraceBanner = computed(() => {
-    return isInGracePeriod.value && !bannerDismissed.value
-  })
-
-  const showTrialBanner = computed(() => {
-    return isLicensed.value && isTrial.value && !bannerDismissed.value
-  })
+  const isLicensed = computed(() => licenseStatus.value?.licensed === true)
+  const isTrial = computed(() => licenseStatus.value?.is_trial === true)
+  const isInGracePeriod = computed(() => licenseStatus.value?.is_grace_period === true)
+  const isHardLocked = computed(() => licenseStatus.value !== null && !isLicensed.value)
+  const lockReason = computed<LockReason>(() => licenseStatus.value?.lock_reason ?? '')
+  const isExpiringSoon = computed(() =>
+    isLicensed.value &&
+    !isInGracePeriod.value &&
+    (licenseStatus.value?.days_remaining ?? Number.POSITIVE_INFINITY) <= expiringSoonDays
+  )
 
   return {
     licenseStatus,
     licensePackages,
-    lastPackage,
-    bannerDismissed,
+    packagesError,
+    packagesLoading,
+    paymentDialogOpen,
+    currentPackage,
     hardwareId,
     loading,
     isLicensed,
     isTrial,
     isHardLocked,
     isInGracePeriod,
-    showGraceBanner,
-    showTrialBanner,
+    isExpiringSoon,
+    lockReason,
     fetchLicenseStatus,
+    refreshLicense,
     fetchPackages,
-    fetchLastPackage,
     fetchHardwareId,
     payForLicense,
-    pollUntilLicensed,
-    dismissBanner,
+    waitForPayment,
+    openPaymentDialog,
   }
 }

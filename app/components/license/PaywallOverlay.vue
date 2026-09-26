@@ -1,57 +1,44 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
+import { CalendarX2, Check, CheckCircle2, Clock, Copy, LogOut, RefreshCw, UserRound } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import type { LicensePackage } from '@/composables/useLicense'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useLicense } from '@/composables/useLicense'
 import { useAuth } from '@/composables/useAuth'
 import PaymentFlow from './PaymentFlow.vue'
 
 const {
   licenseStatus,
-  licensePackages,
-  lastPackage,
-  isLicensed,
+  paymentDialogOpen,
+  hardwareId,
   isHardLocked,
-  showGraceBanner,
-  showTrialBanner,
+  isTrial,
+  lockReason,
+  loading,
   fetchLicenseStatus,
-  fetchPackages,
-  fetchLastPackage,
-  payForLicense,
-  pollUntilLicensed,
-  dismissBanner,
+  fetchHardwareId,
 } = useLicense()
 
-const { user } = useAuth()
-
-const ownerRoleName = 'Admin'
-const currentUserCanManageBilling = computed(() => user.value?.role === ownerRoleName)
-
-type PaymentFlowStep = 'select-package' | 'enter-details' | 'awaiting-confirmation' | 'success' | 'failed'
-type MobileProvider = 'Mpesa' | 'Tigo' | 'Airtel' | 'Halopesa' | 'Azampesa'
-
-const paymentFlowStep = ref<PaymentFlowStep>('select-package')
-const selectedPackage = ref<LicensePackage | null>(null)
-const isSubmittingPayment = ref(false)
-const showAllPackages = ref(false)
-const lastErrorMessage = ref('')
-const showPaymentDialog = ref(false)
+const { user, logout } = useAuth()
 
 const licenseStatusPollIntervalMilliseconds = 60000
-const dialogAutoCloseDelayMilliseconds = 800
+const firstStatusRetryMilliseconds = 3000
+const reloadAfterPaymentMilliseconds = 1500
+
+const currentUserCanManageBilling = computed(() => user.value?.role === 'Admin')
+const isUnlocking = ref(false)
+const lockScreenVisible = computed(() => isHardLocked.value || isUnlocking.value)
+const paymentDialogTitle = ref('Renew subscription')
+
+watch(paymentDialogOpen, (isOpen) => {
+  if (isOpen) paymentDialogTitle.value = isTrial.value ? 'Subscribe' : 'Renew subscription'
+})
 
 let licenseStatusPollInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(async () => {
   await fetchLicenseStatus()
-
-  if (!isLicensed.value) {
-    await fetchPackages()
-    await fetchLastPackage()
-  }
-
+  if (!licenseStatus.value) setTimeout(fetchLicenseStatus, firstStatusRetryMilliseconds)
   licenseStatusPollInterval = setInterval(fetchLicenseStatus, licenseStatusPollIntervalMilliseconds)
 })
 
@@ -59,174 +46,135 @@ onUnmounted(() => {
   if (licenseStatusPollInterval) clearInterval(licenseStatusPollInterval)
 })
 
-const openPaymentFlow = () => {
-  showPaymentDialog.value = true
-  paymentFlowStep.value = 'select-package'
-}
-
-const closePaymentDialog = () => {
-  showPaymentDialog.value = false
-  paymentFlowStep.value = 'select-package'
-  selectedPackage.value = null
-  showAllPackages.value = false
-  lastErrorMessage.value = ''
-}
-
-const handleDialogOpenChange = (open: boolean) => {
-  if (!open) closePaymentDialog()
-}
-
-const handleSelectPackage = (selectedLicensePackage: LicensePackage) => {
-  selectedPackage.value = selectedLicensePackage
-  paymentFlowStep.value = 'enter-details'
-}
-
-const goBackToPackages = () => {
-  paymentFlowStep.value = 'select-package'
-  selectedPackage.value = null
-  showAllPackages.value = false
-}
-
-const toggleShowAllPackages = () => {
-  showAllPackages.value = !showAllPackages.value
-}
-
-const closeDialogIfNowLicensed = () => {
-  if (isLicensed.value) closePaymentDialog()
-}
-
-const handleSubmit = async (values: { phone: string; provider: MobileProvider }) => {
-  if (!selectedPackage.value) return
-
-  isSubmittingPayment.value = true
-  try {
-    await payForLicense({
-      phone: values.phone,
-      provider: values.provider,
-      package_id: selectedPackage.value.id
-    })
-
-    paymentFlowStep.value = 'awaiting-confirmation'
-
-    try {
-      await pollUntilLicensed()
-      paymentFlowStep.value = 'success'
-      setTimeout(closeDialogIfNowLicensed, dialogAutoCloseDelayMilliseconds)
-    } catch {
-      paymentFlowStep.value = 'failed'
-      lastErrorMessage.value = 'We have not received confirmation yet. If you completed the payment on your phone, please wait a moment and check again.'
-    }
-  } catch (error: any) {
-    paymentFlowStep.value = 'failed'
-    lastErrorMessage.value = error?.data?.error || error?.data?.message || 'Payment failed. Please try again.'
-  } finally {
-    isSubmittingPayment.value = false
+watch(isHardLocked, (locked, wasLocked) => {
+  if (locked) {
+    paymentDialogOpen.value = false
+    if (!hardwareId.value) fetchHardwareId()
+    return
   }
+  if (!wasLocked) return
+  isUnlocking.value = true
+  setTimeout(() => window.location.reload(), reloadAfterPaymentMilliseconds)
+}, { immediate: true })
+
+const finishDialogPayment = () => {
+  paymentDialogOpen.value = false
+  toast.success('Subscription active', {
+    description: licenseStatus.value?.expires_at
+      ? `Paid until ${new Date(licenseStatus.value.expires_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`
+      : undefined,
+  })
 }
 
-const retryPayment = async () => {
-  try {
-    await pollUntilLicensed()
-    paymentFlowStep.value = 'success'
-    setTimeout(closeDialogIfNowLicensed, dialogAutoCloseDelayMilliseconds)
-  } catch {
-    lastErrorMessage.value = 'Still waiting for confirmation. Please try again in a moment.'
-  }
+const reloadNow = () => window.location.reload()
+
+const deviceIdCopied = ref(false)
+
+const copyDeviceId = async () => {
+  if (!hardwareId.value) return
+  await navigator.clipboard.writeText(hardwareId.value)
+  deviceIdCopied.value = true
+  setTimeout(() => { deviceIdCopied.value = false }, 2000)
 }
 </script>
 
 <template>
-  <div v-if="showTrialBanner" class="fixed top-0 left-0 right-0 z-40 bg-primary/10 border-b border-primary/20">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-      <p class="text-sm text-foreground">
-        Trial period — <span class="font-semibold">{{ licenseStatus?.days_remaining }}</span> day{{ licenseStatus?.days_remaining === 1 ? '' : 's' }} remaining.
-      </p>
-      <div class="flex gap-2 shrink-0">
-        <Button v-if="currentUserCanManageBilling" size="sm" variant="outline" @click="openPaymentFlow">
-          Subscribe Now
-        </Button>
-        <Button size="icon" variant="ghost" @click="dismissBanner">
-          <X class="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </div>
-
-  <div v-if="showGraceBanner" class="fixed top-0 left-0 right-0 z-40 bg-muted border-b">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-      <p class="text-sm text-foreground">
-        Your subscription has ended. You have <span class="font-semibold">{{ Math.abs(licenseStatus?.days_remaining ?? 0) }}</span> day{{ Math.abs(licenseStatus?.days_remaining ?? 0) === 1 ? '' : 's' }} left to renew before the app locks.
-      </p>
-      <div class="flex gap-2 shrink-0">
-        <Button v-if="currentUserCanManageBilling" size="sm" @click="openPaymentFlow">
-          Renew Now
-        </Button>
-        <Button size="icon" variant="ghost" @click="dismissBanner">
-          <X class="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </div>
-
-  <Dialog :open="showPaymentDialog" @update:open="handleDialogOpenChange">
-    <DialogContent class="sm:max-w-md">
-      <DialogHeader v-if="paymentFlowStep !== 'success'">
-        <DialogTitle>
-          <span v-if="paymentFlowStep === 'select-package'">Choose a package</span>
-          <span v-else-if="paymentFlowStep === 'enter-details'">Enter your details</span>
-          <span v-else-if="paymentFlowStep === 'awaiting-confirmation'">Confirming payment</span>
-          <span v-else-if="paymentFlowStep === 'failed'">Payment unsuccessful</span>
-        </DialogTitle>
+  <Dialog :open="paymentDialogOpen && !isHardLocked" @update:open="paymentDialogOpen = $event">
+    <DialogContent class="sm:max-w-lg">
+      <DialogHeader>
+        <DialogTitle>{{ paymentDialogTitle }}</DialogTitle>
+        <DialogDescription>Pay with mobile money. It takes about a minute.</DialogDescription>
       </DialogHeader>
-
-      <PaymentFlow
-        :payment-flow-step="paymentFlowStep"
-        :selected-package="selectedPackage"
-        :last-package="lastPackage"
-        :license-packages="licensePackages"
-        :is-submitting-payment="isSubmittingPayment"
-        :last-error-message="lastErrorMessage"
-        :show-all-packages="showAllPackages"
-        @select-package="handleSelectPackage"
-        @go-back="goBackToPackages"
-        @toggle-package-list="toggleShowAllPackages"
-        @submit="handleSubmit"
-        @retry="retryPayment"
-        @go-to-details="paymentFlowStep = 'enter-details'"
-      />
+      <PaymentFlow @finish="finishDialogPayment" />
     </DialogContent>
   </Dialog>
 
-  <div v-if="isHardLocked" class="fixed inset-0 bg-background z-50 flex items-center justify-center p-4">
-    <Card v-if="currentUserCanManageBilling" class="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Your subscription has expired</CardTitle>
-        <CardDescription>Choose a plan to keep using the POS.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <PaymentFlow
-          :payment-flow-step="paymentFlowStep"
-          :selected-package="selectedPackage"
-          :last-package="lastPackage"
-          :license-packages="licensePackages"
-          :is-submitting-payment="isSubmittingPayment"
-          :last-error-message="lastErrorMessage"
-          :show-all-packages="showAllPackages"
-          @select-package="handleSelectPackage"
-          @go-back="goBackToPackages"
-          @toggle-package-list="toggleShowAllPackages"
-          @submit="handleSubmit"
-          @retry="retryPayment"
-          @go-to-details="paymentFlowStep = 'enter-details'"
-        />
-      </CardContent>
-    </Card>
+  <div
+    v-if="lockScreenVisible"
+    class="fixed inset-0 z-[60] overflow-y-auto bg-background"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="lock-screen-title"
+  >
+    <div class="mx-auto flex min-h-full w-full max-w-lg flex-col justify-center gap-6 px-4 py-10">
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span
+          class="flex size-14 items-center justify-center rounded-2xl"
+          :class="lockReason === 'clock' && !isUnlocking ? 'bg-amber-500/15' : 'bg-primary/10'"
+        >
+          <CheckCircle2 v-if="isUnlocking" class="size-7 text-primary" />
+          <Clock v-else-if="lockReason === 'clock'" class="size-7 text-amber-600 dark:text-amber-400" />
+          <CalendarX2 v-else class="size-7 text-primary" />
+        </span>
 
-    <Card v-else class="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Subscription expired</CardTitle>
-        <CardDescription>Ask your business owner or admin to renew the subscription to keep using the POS.</CardDescription>
-      </CardHeader>
-    </Card>
+        <template v-if="isUnlocking">
+          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">All set</h1>
+          <p class="text-sm text-muted-foreground">Opening the POS…</p>
+        </template>
+        <template v-else-if="lockReason === 'clock'">
+          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">The computer's date is wrong</h1>
+          <p class="text-sm text-muted-foreground max-w-sm">
+            Set the correct date and time on this computer, then press Check again. Your data is safe.
+          </p>
+        </template>
+        <template v-else>
+          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">
+            {{ lockReason === 'missing' ? 'Activate the POS' : 'Subscription ended' }}
+          </h1>
+          <p class="text-sm text-muted-foreground max-w-sm">
+            <template v-if="currentUserCanManageBilling">Choose a plan and pay with mobile money to keep selling. Your data is safe.</template>
+            <template v-else>Ask the owner or an admin to renew. Your data is safe.</template>
+          </p>
+        </template>
+      </div>
+
+      <div v-if="lockReason !== 'clock' && currentUserCanManageBilling" class="rounded-2xl border bg-card p-5 shadow-sm">
+        <PaymentFlow @finish="reloadNow" />
+      </div>
+
+      <div
+        v-else-if="lockReason !== 'clock'"
+        class="flex flex-col items-center gap-3 rounded-2xl border bg-card p-6 text-center shadow-sm"
+      >
+        <span class="flex size-12 items-center justify-center rounded-full bg-muted">
+          <UserRound class="size-6 text-muted-foreground" />
+        </span>
+        <p class="text-sm text-muted-foreground">An admin can sign in here and renew in about a minute.</p>
+        <Button class="h-11 w-full" @click="logout">
+          <LogOut class="size-4 mr-2" />Sign in as admin
+        </Button>
+      </div>
+
+      <Button
+        v-if="lockReason === 'clock' && !isUnlocking"
+        class="h-11 self-center px-8"
+        :disabled="loading"
+        @click="fetchLicenseStatus"
+      >
+        <RefreshCw class="size-4 mr-2" :class="loading ? 'animate-spin' : ''" />Check again
+      </Button>
+
+      <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+        <button
+          v-if="hardwareId"
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono hover:bg-muted hover:text-foreground"
+          title="Copy the device ID for support"
+          @click="copyDeviceId"
+        >
+          <Check v-if="deviceIdCopied" class="size-3 text-primary" />
+          <Copy v-else class="size-3" />
+          {{ deviceIdCopied ? 'Device ID copied' : `Device ${hardwareId.slice(0, 12)}…` }}
+        </button>
+        <button
+          v-if="currentUserCanManageBilling || lockReason === 'clock'"
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-muted hover:text-foreground"
+          @click="logout"
+        >
+          <LogOut class="size-3" />Sign out
+        </button>
+      </div>
+    </div>
   </div>
 </template>
