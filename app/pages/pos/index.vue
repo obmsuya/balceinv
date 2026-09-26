@@ -495,12 +495,12 @@ const decrementItem = (item: CartItem) => {
   syncPaymentAmountForCash()
 }
 
-const setItemQuantity = (item: CartItem, rawValue: string) => {
-  const parsedQuantity = Number.parseInt(rawValue)
-  if (Number.isNaN(parsedQuantity) || parsedQuantity <= 0) {
-    removeItem(item)
-    return
-  }
+const quantityDrafts = reactive<Record<number, string>>({})
+
+const setItemQuantity = (item: CartItem, rawValue: string | number) => {
+  quantityDrafts[item.productId] = String(rawValue)
+  const parsedQuantity = Number.parseInt(String(rawValue))
+  if (Number.isNaN(parsedQuantity) || parsedQuantity <= 0) return
   if (parsedQuantity > item.availableStock) {
     toast.error('Not enough stock')
     return
@@ -512,7 +512,12 @@ const setItemQuantity = (item: CartItem, rawValue: string) => {
   syncPaymentAmountForCash()
 }
 
+const commitItemQuantity = (item: CartItem) => {
+  delete quantityDrafts[item.productId]
+}
+
 const removeItem = (item: CartItem) => {
+  commitItemQuantity(item)
   activeSlot.value.items = activeSlot.value.items.filter(
     cartItem => cartItem.productId !== item.productId,
   )
@@ -986,11 +991,14 @@ const paymentMethodIcon = (method: string) => {
                 </Button>
 
                 <Input
-                  :model-value="item.quantity"
-                  @input="setItemQuantity(item, ($event.target as HTMLInputElement).value)"
+                  :model-value="quantityDrafts[item.productId] ?? item.quantity"
+                  @update:model-value="setItemQuantity(item, $event)"
+                  @focus="($event.target as HTMLInputElement).select()"
+                  @blur="commitItemQuantity(item)"
+                  @keydown.enter="($event.target as HTMLInputElement).blur()"
                   type="number"
                   min="1"
-                  class="w-14 h-8 text-center text-sm p-1"
+                  class="w-16 h-8 text-center text-sm p-1"
                 />
 
                 <Button
