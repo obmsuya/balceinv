@@ -43,7 +43,7 @@ const { status: updateStatus, latestVersion, checkForUpdate } = useUpdater();
 const handleCheckForUpdates = async () => {
   await checkForUpdate();
   if (updateStatus.value === 'available') {
-    navigateTo('/settings');
+    navigateTo({ path: '/settings', query: { tab: 'updates' } });
   }
 };
 
@@ -199,7 +199,7 @@ onMounted(() => {
     checkForUpdate(true).then(() => {
       if (updateStatus.value === 'available') {
         toast.info(`Update available: v${latestVersion.value}`, {
-          action: { label: 'View', onClick: () => navigateTo('/settings') },
+          action: { label: 'View', onClick: () => navigateTo({ path: '/settings', query: { tab: 'updates' } }) },
         });
       }
     });
