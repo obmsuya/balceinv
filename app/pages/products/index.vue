@@ -686,11 +686,11 @@ const lowStockCount = computed(() =>
           <TabsList class="w-full">
             <TabsTrigger value="details" class="flex-1">Details</TabsTrigger>
             <TabsTrigger value="addons" class="flex-1" :disabled="!isEditing">
-              <Puzzle class="mr-2 h-4 w-4" />
+              <Puzzle />
               Add-ons
               <span
                 v-if="addons.length > 0"
-                class="ml-2 rounded-full bg-primary/10 px-1.5 text-xs tabular-nums"
+                class="rounded-full bg-primary/10 px-1.5 text-xs tabular-nums"
               >
                 {{ addons.length }}
               </span>
