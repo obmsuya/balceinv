@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import UpdateIndicator from '@/components/UpdateIndicator.vue';
 
 // Color mode
 const colorMode = useColorMode();
@@ -38,7 +39,7 @@ const {
   loadSoundSetting,
 } = useNotifications();
 
-const { status: updateStatus, latestVersion, checkForUpdate } = useUpdater();
+const { status: updateStatus, checkForUpdate } = useUpdater();
 
 const handleCheckForUpdates = async () => {
   await checkForUpdate();
@@ -193,16 +194,6 @@ onMounted(() => {
     setupNotificationPolling();
 
     fetchHardwareId();
-
-    // Silent background check so an update surfaces without the cashier
-    // having to know to look in Settings.
-    checkForUpdate(true).then(() => {
-      if (updateStatus.value === 'available') {
-        toast.info(`Update available: v${latestVersion.value}`, {
-          action: { label: 'View', onClick: () => navigateTo({ path: '/settings', query: { tab: 'updates' } }) },
-        });
-      }
-    });
   }
 });
 
@@ -226,6 +217,8 @@ onUnmounted(() => {
       </div>
 
       <div class="flex items-center gap-2">
+        <UpdateIndicator />
+
         <!-- Mode Toggle -->
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
