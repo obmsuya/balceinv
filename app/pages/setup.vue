@@ -37,7 +37,7 @@ const formSchema = toTypedSchema(z.object({
   tin:            z.string().optional(),
   owner_name:     z.string().min(2, 'Your name is required'),
   owner_email:    z.string().min(1, 'Email is required').email('Enter a valid email'),
-  owner_password: z.string().min(6, 'Password must be at least 6 characters'),
+  owner_password: z.string().min(8, 'Password must be at least 8 characters'),
 }))
 
 const form = useForm({ validationSchema: formSchema })
@@ -251,7 +251,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="At least 6 characters"
+                    placeholder="At least 8 characters"
                     autocomplete="new-password"
                     :disabled="isLoading"
                     v-bind="componentField"
