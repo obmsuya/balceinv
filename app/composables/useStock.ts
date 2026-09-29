@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type StockStatus = 'ok' | 'low' | 'out'
 export type MovementReason = 'opening' | 'sale' | 'return' | 'purchase' | 'adjustment' | 'damage' | 'transfer_in' | 'transfer_out'
@@ -80,16 +81,9 @@ interface Page<Item> {
 
 export const stockPageSize = 50
 
-export const movementReasonLabels: Record<MovementReason, string> = {
-  opening: 'Opening stock',
-  sale: 'Sale',
-  return: 'Returned',
-  purchase: 'Received',
-  adjustment: 'Correction',
-  damage: 'Damaged',
-  transfer_in: 'Transfer in',
-  transfer_out: 'Transfer out',
-}
+export const movementReasons: MovementReason[] = ['opening', 'sale', 'return', 'purchase', 'adjustment', 'damage', 'transfer_in', 'transfer_out']
+
+export const movementReasonLabel = (reason: MovementReason): string => t(`stock.reasons.${reason}`)
 
 export const productLabel = (item: { name?: string; product_name?: string; variant_label: string }): string => {
   const baseName = item.name ?? item.product_name ?? ''
@@ -139,7 +133,7 @@ export const useStock = () => {
       levels.value = levelPage.data.items
       totalLevels.value = levelPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load stock levels')
+      toast.error(apiErrorMessage(error, 'stock.toasts.levelsFailed'))
     } finally {
       loading.value = false
     }
@@ -150,7 +144,7 @@ export const useStock = () => {
       const summaryResponse = await apiFetch<ApiEnvelope<StockSummary>>('/api/stock/summary')
       summary.value = summaryResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load the stock summary')
+      toast.error(apiErrorMessage(error, 'stock.toasts.summaryFailed'))
     }
   }
 
@@ -170,7 +164,7 @@ export const useStock = () => {
       movements.value = movementPage.data.items
       totalMovements.value = movementPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load stock history')
+      toast.error(apiErrorMessage(error, 'stock.toasts.historyFailed'))
     } finally {
       loading.value = false
     }
@@ -183,10 +177,10 @@ export const useStock = () => {
         method: 'POST',
         body: adjustmentFields,
       })
-      toast.success(adjustResponse.message)
+      toast.success(t('stock.toasts.adjusted'))
       return adjustResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update the stock')
+      toast.error(apiErrorMessage(error, 'stock.toasts.adjustFailed'))
       throw error
     } finally {
       saving.value = false

@@ -14,16 +14,17 @@ const props = defineProps<{ canAdjust: boolean; initialStatus: '' | 'low' | 'out
 const emit = defineEmits<{ adjust: [level: StockLevel]; history: [level: StockLevel] }>()
 
 const allLevels = 'all'
+const { t, formatNumber } = useI18n()
 const { levels, totalLevels, loading, fetchLevels } = useStock()
 
 const searchText = ref('')
 const statusFilter = ref<string>(props.initialStatus || allLevels)
 const pageOffset = ref(0)
 
-const statusBadge: Record<string, { label: string; variant: 'secondary' | 'outline' | 'destructive' }> = {
-  ok: { label: 'In stock', variant: 'secondary' },
-  low: { label: 'Low', variant: 'outline' },
-  out: { label: 'Out', variant: 'destructive' },
+const statusVariant: Record<string, 'secondary' | 'outline' | 'destructive'> = {
+  ok: 'secondary',
+  low: 'outline',
+  out: 'destructive',
 }
 
 const reload = () => fetchLevels({
@@ -54,16 +55,16 @@ defineExpose({ reload })
     <div class="flex flex-col gap-3 sm:flex-row">
       <div class="relative flex-1">
         <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-        <Input v-model="searchText" placeholder="Search by name or SKU" class="pl-8" aria-label="Search stock" />
+        <Input v-model="searchText" :placeholder="t('stock.levels.searchPlaceholder')" class="pl-8" :aria-label="t('stock.levels.searchLabel')" />
       </div>
       <Select v-model="statusFilter">
-        <SelectTrigger class="w-full sm:w-48" aria-label="Filter by stock status">
+        <SelectTrigger class="w-full sm:w-48" :aria-label="t('stock.levels.filterByStatus')">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem :value="allLevels">All products</SelectItem>
-          <SelectItem value="low">Low or out</SelectItem>
-          <SelectItem value="out">Out of stock</SelectItem>
+          <SelectItem :value="allLevels">{{ t('stock.levels.allProducts') }}</SelectItem>
+          <SelectItem value="low">{{ t('stock.levels.lowOrOut') }}</SelectItem>
+          <SelectItem value="out">{{ t('stock.page.outOfStock') }}</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -75,10 +76,10 @@ defineExpose({ reload })
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead class="text-right">In stock</TableHead>
-            <TableHead class="hidden text-right sm:table-cell">Warn at</TableHead>
-            <TableHead class="hidden md:table-cell">Status</TableHead>
+            <TableHead>{{ t('products.table.product') }}</TableHead>
+            <TableHead class="text-right">{{ t('stock.levels.inStock') }}</TableHead>
+            <TableHead class="hidden text-right sm:table-cell">{{ t('stock.levels.warnAt') }}</TableHead>
+            <TableHead class="hidden md:table-cell">{{ t('common.fields.status') }}</TableHead>
             <TableHead class="w-24" />
           </TableRow>
         </TableHeader>
@@ -89,26 +90,26 @@ defineExpose({ reload })
               <p class="font-mono text-xs text-muted-foreground">{{ level.sku }}</p>
             </TableCell>
             <TableCell class="text-right">
-              <Badge :variant="statusBadge[level.status]!.variant" class="whitespace-nowrap tabular-nums md:hidden">{{ level.quantity }} {{ level.unit }}</Badge>
+              <Badge :variant="statusVariant[level.status]" class="whitespace-nowrap tabular-nums md:hidden">{{ level.quantity }} {{ level.unit }}</Badge>
               <span class="hidden tabular-nums md:inline">{{ level.quantity }} {{ level.unit }}</span>
             </TableCell>
             <TableCell class="hidden text-right tabular-nums text-muted-foreground sm:table-cell">{{ level.min_stock }}</TableCell>
             <TableCell class="hidden md:table-cell">
-              <Badge :variant="statusBadge[level.status]!.variant">{{ statusBadge[level.status]!.label }}</Badge>
+              <Badge :variant="statusVariant[level.status]">{{ t(`stock.status.${level.status}`) }}</Badge>
             </TableCell>
             <TableCell>
               <div class="flex justify-end gap-1">
-                <Button variant="ghost" size="icon" :aria-label="`History of ${productLabel(level)}`" @click="emit('history', level)">
+                <Button variant="ghost" size="icon" :aria-label="t('stock.levels.historyOf', { product: productLabel(level) })" @click="emit('history', level)">
                   <History />
                 </Button>
-                <Button v-if="canAdjust" variant="ghost" size="icon" :aria-label="`Change stock of ${productLabel(level)}`" @click="emit('adjust', level)">
+                <Button v-if="canAdjust" variant="ghost" size="icon" :aria-label="t('stock.levels.changeStockOf', { product: productLabel(level) })" @click="emit('adjust', level)">
                   <SlidersHorizontal />
                 </Button>
               </div>
             </TableCell>
           </TableRow>
           <TableRow v-if="!levels.length">
-            <TableCell colspan="5" class="h-24 text-center text-muted-foreground">No products match.</TableCell>
+            <TableCell colspan="5" class="h-24 text-center text-muted-foreground">{{ t('stock.levels.empty') }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -116,11 +117,11 @@ defineExpose({ reload })
 
     <div class="flex flex-col items-center justify-between gap-2 sm:flex-row">
       <p class="text-sm tabular-nums text-muted-foreground">
-        <template v-if="totalLevels">Showing {{ pageOffset + 1 }}–{{ Math.min(pageOffset + levels.length, totalLevels) }} of {{ totalLevels.toLocaleString() }}</template>
+        <template v-if="totalLevels">{{ t('common.pagination.showing', { from: formatNumber(pageOffset + 1), to: formatNumber(Math.min(pageOffset + levels.length, totalLevels)), total: formatNumber(totalLevels) }) }}</template>
       </p>
       <div class="flex gap-2">
-        <Button variant="outline" size="sm" :disabled="pageOffset === 0 || loading" @click="goToPage(pageOffset - stockPageSize)">Previous</Button>
-        <Button variant="outline" size="sm" :disabled="pageOffset + stockPageSize >= totalLevels || loading" @click="goToPage(pageOffset + stockPageSize)">Next</Button>
+        <Button variant="outline" size="sm" :disabled="pageOffset === 0 || loading" @click="goToPage(pageOffset - stockPageSize)">{{ t('common.pagination.previous') }}</Button>
+        <Button variant="outline" size="sm" :disabled="pageOffset + stockPageSize >= totalLevels || loading" @click="goToPage(pageOffset + stockPageSize)">{{ t('common.pagination.next') }}</Button>
       </div>
     </div>
   </div>

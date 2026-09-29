@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface TransferItem {
   product_id: string
@@ -62,7 +63,7 @@ export const useTransfers = () => {
       transfers.value = transferPage.data.items
       totalTransfers.value = transferPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load transfers')
+      toast.error(apiErrorMessage(error, 'stock.toasts.transfersFailed'))
     } finally {
       loading.value = false
     }
@@ -73,7 +74,7 @@ export const useTransfers = () => {
       const transferResponse = await apiFetch<ApiEnvelope<StockTransfer>>(`/api/stock-transfers/${transferId}`)
       return transferResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the transfer')
+      toast.error(apiErrorMessage(error, 'stock.toasts.transferFailed'))
     }
   }
 
@@ -84,10 +85,10 @@ export const useTransfers = () => {
         method: 'POST',
         body: transferFields,
       })
-      toast.success(sendResponse.message)
+      toast.success(t('stock.toasts.sent'))
       return sendResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to send the stock')
+      toast.error(apiErrorMessage(error, 'stock.toasts.sendFailed'))
       throw error
     } finally {
       saving.value = false

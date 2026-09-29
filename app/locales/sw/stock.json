@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Stoku",
+    "subtitle": "Kilichopo kwenye rafu, na kila badiliko lake",
+    "subtitleAtShop": "Kilichopo kwenye rafu za {shop}, na kila badiliko lake",
+    "sendStock": "Tuma stoku",
+    "changeStock": "Badilisha stoku",
+    "valueAtCost": "Thamani kwa bei ya kununua",
+    "valueAtPrice": "Thamani kwa bei ya kuuza",
+    "runningLow": "Inakaribia kuisha",
+    "outOfStock": "Imeisha",
+    "levelsTab": "Viwango",
+    "historyTab": "Historia",
+    "transfersTab": "Uhamisho"
+  },
+  "status": {
+    "ok": "Ipo",
+    "low": "Ndogo",
+    "out": "Imeisha"
+  },
+  "levels": {
+    "searchPlaceholder": "Tafuta kwa jina au SKU",
+    "searchLabel": "Tafuta stoku",
+    "filterByStatus": "Chuja kwa hali ya stoku",
+    "allProducts": "Bidhaa zote",
+    "lowOrOut": "Ndogo au imeisha",
+    "inStock": "Iliyopo",
+    "warnAt": "Onya ikifika",
+    "historyOf": "Historia ya {product}",
+    "changeStockOf": "Badilisha stoku ya {product}",
+    "empty": "Hakuna bidhaa inayolingana."
+  },
+  "history": {
+    "reason": "Sababu",
+    "filterByReason": "Chuja kwa sababu",
+    "allReasons": "Sababu zote",
+    "showEveryProduct": "Onyesha bidhaa zote",
+    "when": "Lini",
+    "change": "Badiliko",
+    "after": "Salio",
+    "by": "Aliyefanya",
+    "empty": "Hakuna mabadiliko ya stoku yanayolingana."
+  },
+  "reasons": {
+    "opening": "Stoku ya kuanzia",
+    "sale": "Mauzo",
+    "return": "Imerudishwa",
+    "purchase": "Imepokelewa",
+    "adjustment": "Marekebisho",
+    "damage": "Imeharibika",
+    "transfer_in": "Uhamisho (imeingia)",
+    "transfer_out": "Uhamisho (imetoka)"
+  },
+  "adjust": {
+    "description": "Kila badiliko linahifadhiwa kwenye historia ya stoku.",
+    "received": "Imepokelewa",
+    "receivedHint": "Mzigo umefika",
+    "returned": "Imerudishwa",
+    "returnedHint": "Mteja ameirudisha",
+    "damaged": "Imeharibika",
+    "damagedHint": "Imevunjika, imeisha muda au imepotea",
+    "counted": "Imehesabiwa",
+    "countedHint": "Weka kilichopo kwenye rafu",
+    "inStock": "Stoku: {quantity} {unit}",
+    "chooseAnother": "Chagua bidhaa nyingine",
+    "countedOnShelf": "Idadi iliyohesabiwa rafuni",
+    "stockAfter": "Stoku itakayobaki",
+    "note": "Maelezo (si lazima)",
+    "notePlaceholder": "Namba ya hati ya mzigo, msambazaji, sababu",
+    "errors": {
+      "chooseProduct": "Chagua bidhaa",
+      "badNumber": "Weka namba kamili ya sifuri au zaidi",
+      "countMatches": "Idadi iliyohesabiwa tayari inalingana na stoku",
+      "quantityRequired": "Weka idadi zaidi ya sifuri",
+      "notEnough": "Stoku iliyopo ni {quantity} {unit} tu"
+    }
+  },
+  "send": {
+    "thisShop": "duka hili",
+    "description": "Kutoka {shop}. Stoku inafika kwenye duka lingine mara moja.",
+    "sendTo": "Tuma kwa",
+    "destinationShop": "Duka la kupokea",
+    "chooseShop": "Chagua duka",
+    "products": "Bidhaa",
+    "searchPlaceholder": "Ongeza bidhaa kwa jina au SKU",
+    "here": "Hapa: {quantity} {unit}",
+    "quantityOf": "Idadi ya {product}",
+    "remove": "Ondoa {product}",
+    "notePlaceholder": "Dereva, gari au sababu",
+    "errors": {
+      "chooseShop": "Chagua duka la kutuma",
+      "noProducts": "Ongeza angalau bidhaa moja",
+      "badQuantity": "Weka namba kamili zaidi ya sifuri kwa {product}",
+      "notEnough": "{product}: zipo {quantity} {unit} tu hapa"
+    }
+  },
+  "transfers": {
+    "title": "Uhamisho",
+    "empty": "Bado hakuna stoku iliyotumwa au kupokelewa hapa.",
+    "sentTo": "Imetumwa kwa {shop}",
+    "receivedFrom": "Imepokelewa kutoka {shop}",
+    "units": {
+      "one": "Kipande {count}",
+      "other": "Vipande {count}"
+    },
+    "products": {
+      "one": "Bidhaa {count}",
+      "other": "Bidhaa {count}"
+    }
+  },
+  "toasts": {
+    "levelsFailed": "Imeshindwa kupakia viwango vya stoku",
+    "summaryFailed": "Imeshindwa kupakia muhtasari wa stoku",
+    "historyFailed": "Imeshindwa kupakia historia ya stoku",
+    "adjusted": "Stoku imerekebishwa",
+    "adjustFailed": "Imeshindwa kurekebisha stoku",
+    "transfersFailed": "Imeshindwa kupakia uhamisho",
+    "transferFailed": "Imeshindwa kupakia uhamisho huu",
+    "sent": "Stoku imetumwa",
+    "sendFailed": "Imeshindwa kutuma stoku"
+  }
+}
