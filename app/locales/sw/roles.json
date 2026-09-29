@@ -1,0 +1,147 @@
+{
+  "page": {
+    "title": "Usimamizi wa majukumu",
+    "subtitle": "Simamia majukumu ya watumiaji na ruhusa zao",
+    "add": "Ongeza jukumu",
+    "listTitle": "Majukumu yote",
+    "listDescription": "Orodha ya majukumu yote kwenye mfumo"
+  },
+  "form": {
+    "createTitle": "Unda jukumu jipya",
+    "editTitle": "Hariri jukumu",
+    "createDescription": "Ongeza jukumu jipya kwenye mfumo",
+    "editDescription": "Badilisha jina la jukumu",
+    "name": "Jina la jukumu",
+    "namePlaceholder": "Andika jina la jukumu"
+  },
+  "delete": {
+    "title": "Una uhakika?",
+    "body": "Hii itafuta kabisa jukumu \"{name}\". Kitendo hiki hakiwezi kutenduliwa."
+  },
+  "usersDialog": {
+    "title": "Watumiaji wenye jukumu la {name}",
+    "empty": "Hakuna watumiaji waliopewa jukumu hili"
+  },
+  "permissionsDialog": {
+    "title": "Simamia ruhusa za {name}",
+    "description": "Chagua ruhusa ambazo jukumu hili linapaswa kuwa nazo",
+    "loading": "Inapakia ruhusa...",
+    "selectAll": "Chagua ruhusa zote",
+    "selectedCount": "{selected} / {total} zimechaguliwa",
+    "save": "Hifadhi ruhusa"
+  },
+  "resources": {
+    "products": "Bidhaa",
+    "sales": "Mauzo",
+    "users": "Watumiaji",
+    "roles": "Majukumu",
+    "shops": "Maduka",
+    "stockMovements": "Mienendo ya stoku",
+    "discounts": "Punguzo",
+    "reports": "Ripoti",
+    "settings": "Mipangilio",
+    "notifications": "Taarifa"
+  },
+  "permissions": {
+    "products": {
+      "view": "Tazama bidhaa",
+      "create": "Ongeza bidhaa",
+      "edit": "Hariri bidhaa",
+      "delete": "Futa bidhaa"
+    },
+    "sales": {
+      "view": "Tazama mauzo",
+      "create": "Fanya mauzo",
+      "edit": "Hariri mauzo",
+      "delete": "Futa mauzo"
+    },
+    "users": {
+      "view": "Tazama watumiaji",
+      "create": "Ongeza watumiaji",
+      "edit": "Hariri watumiaji",
+      "delete": "Futa watumiaji"
+    },
+    "roles": {
+      "view": "Tazama majukumu",
+      "create": "Unda majukumu",
+      "edit": "Hariri majukumu",
+      "delete": "Futa majukumu"
+    },
+    "shops": {
+      "view": "Tazama maduka",
+      "create": "Ongeza maduka",
+      "edit": "Hariri maduka",
+      "delete": "Futa maduka"
+    },
+    "stockMovements": {
+      "view": "Tazama mienendo ya stoku",
+      "create": "Rekodi mienendo ya stoku",
+      "edit": "Hariri mienendo ya stoku",
+      "delete": "Futa mienendo ya stoku"
+    },
+    "discounts": {
+      "view": "Tazama punguzo",
+      "create": "Ongeza punguzo",
+      "edit": "Hariri punguzo",
+      "delete": "Futa punguzo"
+    },
+    "reports": {
+      "view": "Tazama ripoti",
+      "create": "Tengeneza ripoti",
+      "edit": "Hariri ripoti",
+      "delete": "Futa ripoti"
+    },
+    "settings": {
+      "view": "Tazama mipangilio",
+      "create": "Unda mipangilio",
+      "edit": "Hariri mipangilio",
+      "delete": "Futa mipangilio"
+    },
+    "notifications": {
+      "view": "Tazama taarifa",
+      "create": "Unda taarifa",
+      "edit": "Hariri taarifa",
+      "delete": "Futa taarifa"
+    }
+  },
+  "table": {
+    "users": "Watumiaji",
+    "userCount": {
+      "one": "mtumiaji {count}",
+      "other": "watumiaji {count}"
+    },
+    "permissions": "Ruhusa",
+    "granted": "ruhusa {count}",
+    "rename": "Badilisha jina",
+    "managePermissions": "Simamia ruhusa",
+    "viewUsers": "Tazama watumiaji",
+    "openMenu": "Fungua menyu",
+    "searchPlaceholder": "Tafuta majukumu...",
+    "total": {
+      "one": "Jumla ya jukumu {count}",
+      "other": "Jumla ya majukumu {count}"
+    }
+  },
+  "validation": {
+    "nameRequired": "Jina la jukumu linahitajika"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia majukumu",
+    "loadOneFailed": "Imeshindwa kupakia jukumu",
+    "created": "Jukumu limeundwa",
+    "createFailed": "Imeshindwa kuunda jukumu",
+    "updated": "Jukumu limesasishwa",
+    "updateFailed": "Imeshindwa kusasisha jukumu",
+    "deleted": "Jukumu limefutwa",
+    "deleteFailed": "Imeshindwa kufuta jukumu",
+    "assigned": "Jukumu limekabidhiwa",
+    "assignFailed": "Imeshindwa kukabidhi jukumu",
+    "permissionsLoadFailed": "Imeshindwa kupakia ruhusa",
+    "userPermissionsLoadFailed": "Imeshindwa kupakia ruhusa za mtumiaji",
+    "rolePermissionsLoadFailed": "Imeshindwa kupakia ruhusa za jukumu",
+    "rolePermissionsSaved": "Ruhusa za jukumu zimesasishwa",
+    "rolePermissionsFailed": "Imeshindwa kusasisha ruhusa za jukumu",
+    "userPermissionsSaved": "Ruhusa za mtumiaji zimesasishwa",
+    "userPermissionsFailed": "Imeshindwa kusasisha ruhusa za mtumiaji"
+  }
+}

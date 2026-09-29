@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import type { Role } from '~/composables/useRoles'
+import { t } from '~/utils/i18n'
 
 const dispatchRoleAction = (actionName: string, role: Role) => {
   window.dispatchEvent(new CustomEvent(actionName, { detail: role }))
@@ -24,7 +25,7 @@ export const columns: ColumnDef<Role>[] = [
       variant: 'ghost',
       class: '-ml-3',
       onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-    }, () => ['Role', h(ArrowUpDown, { class: 'ml-2 size-4' })]),
+    }, () => [t('common.fields.role'), h(ArrowUpDown, { class: 'ml-2 size-4' })]),
     cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-medium' }, [
       row.original.is_owner ? h(Crown, { class: 'size-4 text-primary' }) : null,
       row.original.name,
@@ -32,18 +33,18 @@ export const columns: ColumnDef<Role>[] = [
   },
   {
     accessorKey: 'user_count',
-    header: 'Users',
+    header: () => t('roles.table.users'),
     cell: ({ row }) => {
       const userCount = row.original.user_count
-      return h(Badge, { variant: 'secondary', class: 'whitespace-nowrap tabular-nums' }, () => `${userCount} user${userCount === 1 ? '' : 's'}`)
+      return h(Badge, { variant: 'secondary', class: 'whitespace-nowrap tabular-nums' }, () => t('roles.table.userCount', { count: userCount }))
     },
   },
   {
     id: 'permissions',
-    header: 'Permissions',
+    header: () => t('roles.table.permissions'),
     cell: ({ row }) => row.original.is_owner
-      ? h(Badge, { variant: 'default' }, () => 'All')
-      : h('span', { class: 'text-sm text-muted-foreground tabular-nums' }, `${row.original.permission_ids.length} granted`),
+      ? h(Badge, { variant: 'default' }, () => t('common.states.all'))
+      : h('span', { class: 'text-sm text-muted-foreground tabular-nums' }, t('roles.table.granted', { count: row.original.permission_ids.length })),
   },
   {
     id: 'actions',
@@ -51,7 +52,7 @@ export const columns: ColumnDef<Role>[] = [
     cell: ({ row }) => {
       const role = row.original
       const menuItems = [
-        h(DropdownMenuLabel, null, () => 'Actions'),
+        h(DropdownMenuLabel, null, () => t('common.fields.actions')),
         h(DropdownMenuSeparator),
       ]
 
@@ -59,11 +60,11 @@ export const columns: ColumnDef<Role>[] = [
         menuItems.push(
           h(DropdownMenuItem, { onClick: () => dispatchRoleAction('edit-role', role) }, () => [
             h(Pencil, { class: 'mr-2 size-4' }),
-            'Rename',
+            t('roles.table.rename'),
           ]),
           h(DropdownMenuItem, { onClick: () => dispatchRoleAction('manage-permissions', role) }, () => [
             h(Shield, { class: 'mr-2 size-4' }),
-            'Manage permissions',
+            t('roles.table.managePermissions'),
           ]),
         )
       }
@@ -71,7 +72,7 @@ export const columns: ColumnDef<Role>[] = [
       menuItems.push(
         h(DropdownMenuItem, { onClick: () => dispatchRoleAction('view-users', role) }, () => [
           h(Users, { class: 'mr-2 size-4' }),
-          'View users',
+          t('roles.table.viewUsers'),
         ]),
       )
 
@@ -80,7 +81,7 @@ export const columns: ColumnDef<Role>[] = [
           h(DropdownMenuSeparator),
           h(DropdownMenuItem, { class: 'text-destructive', onClick: () => dispatchRoleAction('delete-role', role) }, () => [
             h(Trash2, { class: 'mr-2 size-4' }),
-            'Delete',
+            t('common.actions.delete'),
           ]),
         )
       }
@@ -89,7 +90,7 @@ export const columns: ColumnDef<Role>[] = [
         default: () => [
           h(DropdownMenuTrigger, { asChild: true }, () =>
             h(Button, { variant: 'ghost', class: 'size-8 p-0' }, () => [
-              h('span', { class: 'sr-only' }, 'Open menu'),
+              h('span', { class: 'sr-only' }, t('roles.table.openMenu')),
               h(MoreHorizontal, { class: 'size-4' }),
             ]),
           ),

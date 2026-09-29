@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface Role {
   id: string
@@ -37,7 +38,7 @@ export const useRoles = () => {
       const rolePage = await apiFetch<ApiEnvelope<Page<Role>>>('/api/roles', { query: { limit: 100 } })
       roles.value = rolePage.data.items
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load roles')
+      toast.error(apiErrorMessage(error, 'roles.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -50,7 +51,7 @@ export const useRoles = () => {
       selectedRole.value = roleResponse.data
       return roleResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load role')
+      toast.error(apiErrorMessage(error, 'roles.toasts.loadOneFailed'))
     } finally {
       loading.value = false
     }
@@ -64,10 +65,10 @@ export const useRoles = () => {
         body: { name: roleName, permission_ids: permissionIds },
       })
       await fetchRoles()
-      toast.success(createResponse.message)
+      toast.success(t('roles.toasts.created'))
       return createResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create role')
+      toast.error(apiErrorMessage(error, 'roles.toasts.createFailed'))
       throw error
     } finally {
       loading.value = false
@@ -82,10 +83,10 @@ export const useRoles = () => {
         body: { name: roleName },
       })
       await fetchRoles()
-      toast.success(updateResponse.message)
+      toast.success(t('roles.toasts.updated'))
       return updateResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update role')
+      toast.error(apiErrorMessage(error, 'roles.toasts.updateFailed'))
       throw error
     } finally {
       loading.value = false
@@ -97,9 +98,9 @@ export const useRoles = () => {
     try {
       const deleteResponse = await apiFetch<ApiEnvelope<null>>(`/api/roles/${roleId}`, { method: 'DELETE' })
       roles.value = roles.value.filter(role => role.id !== roleId)
-      toast.success(deleteResponse.message)
+      toast.success(t('roles.toasts.deleted'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete role')
+      toast.error(apiErrorMessage(error, 'roles.toasts.deleteFailed'))
       throw error
     } finally {
       loading.value = false
@@ -113,9 +114,9 @@ export const useRoles = () => {
         method: 'POST',
         body: { user_id: userId, role_id: roleId },
       })
-      toast.success(assignResponse.message)
+      toast.success(t('roles.toasts.assigned'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to assign role')
+      toast.error(apiErrorMessage(error, 'roles.toasts.assignFailed'))
       throw error
     } finally {
       loading.value = false

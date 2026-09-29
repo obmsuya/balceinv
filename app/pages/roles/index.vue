@@ -27,9 +27,23 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { usePermissions } from '@/composables/usePermissions';
+import type { Permission } from '~/composables/useAuth';
 
 const { roles, loading, fetchRoles, createRole, updateRole, deleteRole } = useRoles();
 const { permissions, groupByResource, fetchPermissions, fetchRolePermissions, assignPermissionsToRole } = usePermissions();
+const { t } = useI18n();
+
+const camelCaseResource = (resource: string) => resource.replace(/_(\w)/g, (_underscore, nextLetter: string) => nextLetter.toUpperCase());
+
+const translatedOr = (key: string, fallbackText: string) => {
+  const translated = t(key);
+  return translated === key ? fallbackText : translated;
+};
+
+const resourceLabel = (resource: string) => translatedOr(`roles.resources.${camelCaseResource(resource)}`, resource);
+
+const permissionLabel = (permission: Permission) =>
+  translatedOr(`roles.permissions.${camelCaseResource(permission.resource)}.${permission.action}`, permission.description);
 
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
@@ -138,7 +152,7 @@ const openCreateDialog = () => {
 };
 
 const handleSubmit = async () => {
-  if (!roleName.value.trim()) { toast.error('Role name is required'); return; }
+  if (!roleName.value.trim()) { toast.error(t('roles.validation.nameRequired')); return; }
   try {
     if (isEditing.value && selectedRole.value) {
       await updateRole(selectedRole.value.id, roleName.value);
@@ -182,19 +196,19 @@ const handleSavePermissions = async () => {
   <div class="container mx-auto py-6 px-4 space-y-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Roles Management</h1>
-        <p class="text-muted-foreground mt-1">Manage user roles and permissions</p>
+        <h1 class="text-3xl font-bold tracking-tight">{{ t('roles.page.title') }}</h1>
+        <p class="text-muted-foreground mt-1">{{ t('roles.page.subtitle') }}</p>
       </div>
       <Button @click="openCreateDialog" :disabled="loading">
         <Plus class="mr-2 h-4 w-4" />
-        Add Role
+        {{ t('roles.page.add') }}
       </Button>
     </div>
 
     <Card>
       <CardHeader>
-        <CardTitle>All Roles</CardTitle>
-        <CardDescription>A list of all roles in the system</CardDescription>
+        <CardTitle>{{ t('roles.page.listTitle') }}</CardTitle>
+        <CardDescription>{{ t('roles.page.listDescription') }}</CardDescription>
       </CardHeader>
       <CardContent>
         <DataTable :columns="columns" :data="roles" />
@@ -204,18 +218,18 @@ const handleSavePermissions = async () => {
     <Dialog v-model:open="showDialog">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{{ isEditing ? 'Edit Role' : 'Create New Role' }}</DialogTitle>
-          <DialogDescription>{{ isEditing ? 'Update the role name' : 'Add a new role to the system' }}</DialogDescription>
+          <DialogTitle>{{ isEditing ? t('roles.form.editTitle') : t('roles.form.createTitle') }}</DialogTitle>
+          <DialogDescription>{{ isEditing ? t('roles.form.editDescription') : t('roles.form.createDescription') }}</DialogDescription>
         </DialogHeader>
         <div class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="role-name">Role Name</Label>
-            <Input id="role-name" v-model="roleName" placeholder="Enter role name" @keyup.enter="handleSubmit" />
+            <Label for="role-name">{{ t('roles.form.name') }}</Label>
+            <Input id="role-name" v-model="roleName" :placeholder="t('roles.form.namePlaceholder')" @keyup.enter="handleSubmit" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="showDialog = false">Cancel</Button>
-          <Button @click="handleSubmit" :disabled="!roleName.trim()">{{ isEditing ? 'Update' : 'Create' }}</Button>
+          <Button variant="outline" @click="showDialog = false">{{ t('common.actions.cancel') }}</Button>
+          <Button @click="handleSubmit" :disabled="!roleName.trim()">{{ isEditing ? t('common.actions.update') : t('common.actions.create') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -223,12 +237,12 @@ const handleSavePermissions = async () => {
     <AlertDialog v-model:open="showDeleteDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>This will permanently delete the role "{{ selectedRole?.name }}". This action cannot be undone.</AlertDialogDescription>
+          <AlertDialogTitle>{{ t('roles.delete.title') }}</AlertDialogTitle>
+          <AlertDialogDescription>{{ t('roles.delete.body', { name: selectedRole?.name ?? '' }) }}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="confirmDelete">Delete</AlertDialogAction>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
+          <AlertDialogAction @click="confirmDelete">{{ t('common.actions.delete') }}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -238,7 +252,7 @@ const handleSavePermissions = async () => {
         <DialogHeader>
           <DialogTitle class="flex items-center gap-2">
             <UsersIcon class="h-5 w-5" />
-            Users with {{ selectedRole?.name }} Role
+            {{ t('roles.usersDialog.title', { name: selectedRole?.name ?? '' }) }}
           </DialogTitle>
         </DialogHeader>
         <div class="py-4">
@@ -250,7 +264,7 @@ const handleSavePermissions = async () => {
               </div>
             </div>
           </div>
-          <div v-else class="text-center py-8 text-muted-foreground">No users assigned to this role</div>
+          <div v-else class="text-center py-8 text-muted-foreground">{{ t('roles.usersDialog.empty') }}</div>
         </div>
       </DialogContent>
     </Dialog>
@@ -260,13 +274,13 @@ const handleSavePermissions = async () => {
         <DialogHeader>
           <DialogTitle class="flex items-center gap-2">
             <Shield class="h-5 w-5" />
-            Manage Permissions for {{ selectedRole?.name }}
+            {{ t('roles.permissionsDialog.title', { name: selectedRole?.name ?? '' }) }}
           </DialogTitle>
-          <DialogDescription>Select the permissions this role should have</DialogDescription>
+          <DialogDescription>{{ t('roles.permissionsDialog.description') }}</DialogDescription>
         </DialogHeader>
 
         <div v-if="permissionsLoading" class="py-12 text-center text-muted-foreground text-sm">
-          Loading permissions...
+          {{ t('roles.permissionsDialog.loading') }}
         </div>
 
         <div v-else class="py-4 space-y-6">
@@ -281,11 +295,11 @@ const handleSavePermissions = async () => {
                 @change="toggleAll"
               />
               <label for="perm-select-all" class="text-sm font-semibold cursor-pointer select-none">
-                Select all permissions
+                {{ t('roles.permissionsDialog.selectAll') }}
               </label>
             </div>
             <span class="text-xs text-muted-foreground">
-              {{ selectedPermissions.length }} / {{ allPermissionIds.length }} selected
+              {{ t('roles.permissionsDialog.selectedCount', { selected: selectedPermissions.length, total: allPermissionIds.length }) }}
             </span>
           </div>
 
@@ -302,7 +316,7 @@ const handleSavePermissions = async () => {
                 :for="`perm-resource-${resource}`"
                 class="text-sm font-semibold uppercase text-muted-foreground cursor-pointer select-none"
               >
-                {{ resource }}
+                {{ resourceLabel(String(resource)) }}
               </label>
             </div>
             <Separator />
@@ -321,9 +335,9 @@ const handleSavePermissions = async () => {
                 />
                 <label
                   :for="`perm-${permission.id}`"
-                  class="text-sm font-medium capitalize cursor-pointer select-none"
+                  class="text-sm font-medium cursor-pointer select-none"
                 >
-                  {{ permission.action }}
+                  {{ permissionLabel(permission) }}
                 </label>
               </div>
             </div>
@@ -331,8 +345,8 @@ const handleSavePermissions = async () => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" @click="showPermissionsDialog = false">Cancel</Button>
-          <Button @click="handleSavePermissions" :disabled="permissionsLoading">Save Permissions</Button>
+          <Button variant="outline" @click="showPermissionsDialog = false">{{ t('common.actions.cancel') }}</Button>
+          <Button @click="handleSavePermissions" :disabled="permissionsLoading">{{ t('roles.permissionsDialog.save') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
