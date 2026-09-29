@@ -12,5 +12,24 @@
     "clearFailed": "Could not clear them",
     "soundOn": "Notification sound on",
     "soundOff": "Notification sound off"
+  },
+  "page": {
+    "title": "Notifications",
+    "subtitle": "Stock that ran low or ran out in this shop",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "markAllRead": "Mark all read",
+    "clearRead": "Clear read",
+    "unread": "Unread",
+    "caughtUp": "All caught up",
+    "empty": "No notifications yet",
+    "explainer": "You hear about a product once when it drops to its warning level and once when it runs out.",
+    "nowQuantity": "now {quantity} {unit}",
+    "markRead": "Mark read",
+    "clearDialog": {
+      "title": "Clear read notifications?",
+      "description": "Read notifications are removed from this shop. Unread ones stay.",
+      "confirm": "Clear"
+    }
   }
 }
