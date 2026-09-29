@@ -1,0 +1,59 @@
+{
+  "title": "Sales",
+  "subtitle": "Every receipt",
+  "subtitleShop": "Every receipt from {shop}",
+  "sending": "Sending…",
+  "sendWaiting": "Send waiting to EFD",
+  "receiptNumber": "Receipt number",
+  "cards": {
+    "sales": "Sales",
+    "takings": "Takings",
+    "taxIncluded": "Tax included",
+    "discountsGiven": "Discounts given"
+  },
+  "table": {
+    "receipt": "Receipt",
+    "cashier": "Cashier",
+    "paidBy": "Paid by",
+    "items": "Items",
+    "empty": "No sales in this period."
+  },
+  "details": {
+    "title": "Sale",
+    "wholesale": "Wholesale",
+    "beforeDiscounts": "Before discounts",
+    "discounts": "Discounts",
+    "includesTax": "Includes tax ({rate}%)",
+    "change": "Change",
+    "attempts": {
+      "one": "{count} attempt",
+      "other": "{count} attempts"
+    },
+    "sendNow": "Send now",
+    "printReceipt": "Print receipt"
+  },
+  "efd": {
+    "sending": "Sending to EFD…"
+  },
+  "fiscalStatus": {
+    "pending": "Waiting for EFD",
+    "sending": "Sending to EFD",
+    "sent": "Sent to EFD",
+    "failed": "EFD failed"
+  },
+  "paymentMethods": {
+    "cash": "Cash",
+    "card": "Card",
+    "mobile": "Mobile money"
+  },
+  "toasts": {
+    "loadFailed": "Failed to load sales",
+    "saleLoadFailed": "Could not load the sale",
+    "efdSendFailed": "Could not send the sale to the EFD",
+    "efdStillFailing": "{failed} still could not reach the EFD",
+    "efdSendSummary": "{sent} sent, {waiting} waiting",
+    "efdSent": "{count} sent to the EFD",
+    "efdNothingWaiting": "Nothing was waiting for the EFD",
+    "serverUnreachable": "Could not reach the server"
+  }
+}

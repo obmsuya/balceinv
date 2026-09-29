@@ -1,0 +1,59 @@
+{
+  "title": "Mauzo",
+  "subtitle": "Risiti zote",
+  "subtitleShop": "Risiti zote za {shop}",
+  "sending": "Inatuma…",
+  "sendWaiting": "Tuma zinazosubiri kwa EFD",
+  "receiptNumber": "Namba ya risiti",
+  "cards": {
+    "sales": "Mauzo",
+    "takings": "Makusanyo",
+    "taxIncluded": "Kodi iliyojumuishwa",
+    "discountsGiven": "Punguzo lililotolewa"
+  },
+  "table": {
+    "receipt": "Risiti",
+    "cashier": "Keshia",
+    "paidBy": "Njia ya malipo",
+    "items": "Bidhaa",
+    "empty": "Hakuna mauzo katika kipindi hiki."
+  },
+  "details": {
+    "title": "Mauzo",
+    "wholesale": "Bei ya jumla",
+    "beforeDiscounts": "Kabla ya punguzo",
+    "discounts": "Punguzo",
+    "includesTax": "Inajumuisha kodi ({rate}%)",
+    "change": "Chenji",
+    "attempts": {
+      "one": "Jaribio {count}",
+      "other": "Majaribio {count}"
+    },
+    "sendNow": "Tuma sasa",
+    "printReceipt": "Chapisha risiti"
+  },
+  "efd": {
+    "sending": "Inatuma kwa EFD…"
+  },
+  "fiscalStatus": {
+    "pending": "Inasubiri EFD",
+    "sending": "Inatumwa kwa EFD",
+    "sent": "Imetumwa kwa EFD",
+    "failed": "EFD imeshindwa"
+  },
+  "paymentMethods": {
+    "cash": "Taslimu",
+    "card": "Kadi",
+    "mobile": "Pesa ya simu"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia mauzo",
+    "saleLoadFailed": "Imeshindwa kupakia mauzo haya",
+    "efdSendFailed": "Imeshindwa kutuma mauzo kwa EFD",
+    "efdStillFailing": "Mauzo {failed} bado hayajafika kwenye EFD",
+    "efdSendSummary": "{sent} yametumwa, {waiting} yanasubiri",
+    "efdSent": "Mauzo {count} yametumwa kwa EFD",
+    "efdNothingWaiting": "Hakuna mauzo yaliyokuwa yanasubiri EFD",
+    "serverUnreachable": "Imeshindwa kufikia seva"
+  }
+}
