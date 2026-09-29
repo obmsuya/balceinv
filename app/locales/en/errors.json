@@ -62,5 +62,6 @@
   "team_tools_unavailable": "Team tools aren't set up here",
   "already_configured": "This business is already set up",
   "already_uploaded": "This link was already used",
-  "expired": "This link has expired. Make a new one."
+  "expired": "This link has expired. Make a new one.",
+  "invalid_printer_port": "That isn't a printer port. Use a COM port, a serial or USB printer, or a printer shared on this computer."
 }
