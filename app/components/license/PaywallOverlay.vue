@@ -26,7 +26,7 @@ const licenseStatusPollIntervalMilliseconds = 60000
 const firstStatusRetryMilliseconds = 3000
 const reloadAfterPaymentMilliseconds = 1500
 
-const currentUserCanManageBilling = computed(() => user.value?.role === 'Admin')
+const currentUserCanManageBilling = computed(() => user.value?.is_owner === true)
 const isUnlocking = ref(false)
 const lockScreenVisible = computed(() => isHardLocked.value || isUnlocking.value)
 const dialogOpenedDuringTrial = ref(false)

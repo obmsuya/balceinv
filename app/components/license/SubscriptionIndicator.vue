@@ -19,7 +19,7 @@ const { user } = useAuth()
 const { t, formatDate } = useI18n()
 
 const showPanel = ref(false)
-const currentUserCanManageBilling = computed(() => user.value?.role === 'Admin')
+const currentUserCanManageBilling = computed(() => user.value?.is_owner === true)
 const indicatorIsVisible = computed(() => !isHardLocked.value && (isTrial.value || isInGracePeriod.value || isExpiringSoon.value))
 
 const daysLeft = computed(() => {
