@@ -2,6 +2,7 @@ import { toast } from 'vue-sonner'
 import { isTauri } from '~/composables/usePlatform'
 import { applyBrandColor } from '~/utils/brandTheme'
 import { setMoneyFormat } from '~/utils/money'
+import { apiErrorMessage, setActiveLocale, t } from '~/utils/i18n'
 
 export interface ShopSummary {
   id: string
@@ -77,6 +78,7 @@ export const useAuth = () => {
     userPermissions.value = currentUser.permissions ?? []
     applyBrandColor(currentUser.branding?.primary_color)
     setMoneyFormat(currentUser.branding?.currency_code ?? 'TZS', currentUser.branding?.currency_decimals ?? 0)
+    setActiveLocale(currentUser.locale ?? currentUser.branding?.default_locale)
   }
 
   const login = async (credentials: { email: string; password: string }): Promise<CurrentUser> => {
@@ -115,9 +117,9 @@ export const useAuth = () => {
       })
       applyCurrentUser(switchResponse.data)
       const activeShop = switchResponse.data.shops.find(shop => shop.id === shopId)
-      toast.success(`Now working in ${activeShop?.name ?? 'the selected shop'}`)
+      toast.success(t('nav.shopSwitcher.switched', { name: activeShop?.name ?? t('nav.shopSwitcher.selectedShop') }))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not switch shop')
+      toast.error(apiErrorMessage(error, 'nav.shopSwitcher.failed'))
       throw error
     }
   }
@@ -132,7 +134,7 @@ export const useAuth = () => {
       userPermissions.value = []
       if (isTauri()) await clearTokens()
       isLoading.value = false
-      toast.success('Signed out')
+      toast.success(t('nav.header.signedOut'))
       await navigateTo('/login')
     }
   }

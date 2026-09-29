@@ -1,0 +1,52 @@
+{
+  "groups": {
+    "operations": "Operations",
+    "management": "Management",
+    "admin": "Admin"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "pos": "Point of Sale",
+    "sales": "Sales History",
+    "products": "Products",
+    "stock": "Stock",
+    "discounts": "Discounts",
+    "reports": "Reports",
+    "notifications": "Notifications",
+    "shops": "Shops",
+    "users": "Users",
+    "roles": "Roles",
+    "settings": "Settings"
+  },
+  "header": {
+    "toggleNavigation": "Show or hide the menu",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "Same as device",
+    "refresh": "Refresh",
+    "muteSound": "Mute notification sound",
+    "unmuteSound": "Turn on notification sound",
+    "notifications": "Notifications",
+    "newCount": "{count} new",
+    "nothingNew": "Nothing new",
+    "seeAll": "See all notifications",
+    "settings": "Settings",
+    "checkUpdates": "Check for updates",
+    "checkingUpdates": "Checking for updates…",
+    "hardwareId": "Hardware ID",
+    "hardwareIdCopied": "Hardware ID copied",
+    "signOut": "Sign out",
+    "signedOut": "Signed out"
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  },
+  "shopSwitcher": {
+    "label": "Switch shop",
+    "placeholder": "Choose a shop",
+    "switched": "Now working in {name}",
+    "selectedShop": "the selected shop",
+    "failed": "Could not switch shop"
+  }
+}

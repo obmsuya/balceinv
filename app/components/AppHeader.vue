@@ -2,7 +2,7 @@
 import { Bell, BellOff, Fingerprint, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { assetUrl } from '~/composables/useSettings'
-import { notificationMessage, relativeTime } from '~/composables/useNotifications'
+import { notificationMessage } from '~/composables/useNotifications'
 import type { StockNotification } from '~/composables/useNotifications'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -21,11 +21,13 @@ import { Separator } from '@/components/ui/separator'
 import UpdateIndicator from '@/components/UpdateIndicator.vue'
 import SubscriptionIndicator from '@/components/license/SubscriptionIndicator.vue'
 import ShopSwitcher from '@/components/ShopSwitcher.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const notificationPollMilliseconds = 30000
 const popoverNotificationCount = 5
 
 const colorMode = useColorMode()
+const { t, formatRelativeTime } = useI18n()
 const { user, logout } = useAuth()
 const { canView } = usePermissions()
 const { status: updateStatus, checkForUpdate } = useUpdater()
@@ -70,7 +72,7 @@ const reloadApp = () => window.location.reload()
 const copyHardwareId = async () => {
   if (!hardwareId.value) return
   await navigator.clipboard.writeText(hardwareId.value)
-  toast.success('Hardware ID copied')
+  toast.success(t('nav.header.hardwareIdCopied'))
 }
 
 const openNotification = async (notification: StockNotification) => {
@@ -112,7 +114,7 @@ onUnmounted(() => {
       <div class="flex min-w-0 items-center gap-3">
         <button
           type="button"
-          aria-label="Toggle navigation"
+          :aria-label="t('nav.header.toggleNavigation')"
           class="flex size-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent"
           @click="toggleSidebar"
         >
@@ -134,19 +136,21 @@ onUnmounted(() => {
 
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon" aria-label="Theme">
+            <Button variant="ghost" size="icon" :aria-label="t('nav.header.theme')">
               <Moon class="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Sun class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem @click="colorMode.preference = 'light'">Light</DropdownMenuItem>
-            <DropdownMenuItem @click="colorMode.preference = 'dark'">Dark</DropdownMenuItem>
-            <DropdownMenuItem @click="colorMode.preference = 'system'">System</DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'light'">{{ t('nav.header.light') }}</DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'dark'">{{ t('nav.header.dark') }}</DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'system'">{{ t('nav.header.system') }}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="ghost" size="icon" class="hidden sm:inline-flex" aria-label="Refresh" @click="reloadApp">
+        <LanguageSwitcher />
+
+        <Button variant="ghost" size="icon" class="hidden sm:inline-flex" :aria-label="t('nav.header.refresh')" @click="reloadApp">
           <RefreshCw class="size-5" />
         </Button>
 
@@ -155,7 +159,7 @@ onUnmounted(() => {
             variant="ghost"
             size="icon"
             class="hidden sm:inline-flex"
-            :aria-label="soundEnabled ? 'Mute notification sound' : 'Turn on notification sound'"
+            :aria-label="soundEnabled ? t('nav.header.muteSound') : t('nav.header.unmuteSound')"
             @click="toggleSound"
           >
             <Volume2 v-if="soundEnabled" class="size-5" />
@@ -164,7 +168,7 @@ onUnmounted(() => {
 
           <Popover v-model:open="showNotificationPopover">
             <PopoverTrigger as-child>
-              <Button variant="ghost" size="icon" class="relative" aria-label="Notifications">
+              <Button variant="ghost" size="icon" class="relative" :aria-label="t('nav.header.notifications')">
                 <Bell class="size-5" />
                 <Badge v-if="unreadCount" variant="destructive" class="absolute -right-1 -top-1 h-5 min-w-5 justify-center px-1 text-xs tabular-nums">
                   {{ unreadBadge }}
@@ -173,14 +177,14 @@ onUnmounted(() => {
             </PopoverTrigger>
             <PopoverContent class="w-80 p-0" align="end">
               <div class="flex items-center justify-between p-4">
-                <h4 class="font-semibold">Notifications</h4>
-                <Badge v-if="unreadCount" variant="secondary">{{ unreadCount }} new</Badge>
+                <h4 class="font-semibold">{{ t('nav.header.notifications') }}</h4>
+                <Badge v-if="unreadCount" variant="secondary">{{ t('nav.header.newCount', { count: unreadCount }) }}</Badge>
               </div>
               <Separator />
               <ScrollArea class="max-h-96">
                 <div v-if="!notifications.length" class="flex flex-col items-center gap-2 p-8 text-center">
                   <BellOff class="size-8 text-muted-foreground/50" />
-                  <p class="text-sm text-muted-foreground">Nothing new</p>
+                  <p class="text-sm text-muted-foreground">{{ t('nav.header.nothingNew') }}</p>
                 </div>
                 <div v-else class="divide-y">
                   <button
@@ -199,14 +203,14 @@ onUnmounted(() => {
                     </span>
                     <span class="min-w-0 flex-1">
                       <span class="line-clamp-2 block text-sm font-medium">{{ notificationMessage(notification) }}</span>
-                      <span class="block text-xs text-muted-foreground">{{ relativeTime(notification.created_at) }}</span>
+                      <span class="block text-xs text-muted-foreground">{{ formatRelativeTime(notification.created_at) }}</span>
                     </span>
                   </button>
                 </div>
               </ScrollArea>
               <Separator />
               <div class="p-2">
-                <Button variant="ghost" class="w-full" @click="viewAllNotifications">See all notifications</Button>
+                <Button variant="ghost" class="w-full" @click="viewAllNotifications">{{ t('nav.header.seeAll') }}</Button>
               </div>
             </PopoverContent>
           </Popover>
@@ -230,20 +234,20 @@ onUnmounted(() => {
               <p class="text-xs font-normal text-muted-foreground">{{ user?.email }}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem @click="navigateTo('/settings')">Settings</DropdownMenuItem>
+            <DropdownMenuItem @click="navigateTo('/settings')">{{ t('nav.header.settings') }}</DropdownMenuItem>
             <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
-              {{ updateStatus === 'checking' ? 'Checking for updates…' : 'Check for updates' }}
+              {{ updateStatus === 'checking' ? t('nav.header.checkingUpdates') : t('nav.header.checkUpdates') }}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">
                 <Fingerprint class="size-3" />
-                Hardware ID
+                {{ t('nav.header.hardwareId') }}
               </span>
-              <span class="w-full truncate font-mono text-xs">{{ hardwareId ? `${hardwareId.slice(0, 16)}…` : 'Loading…' }}</span>
+              <span class="w-full truncate font-mono text-xs">{{ hardwareId ? `${hardwareId.slice(0, 16)}…` : t('common.states.loading') }}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">Sign out</DropdownMenuItem>
+            <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">{{ t('nav.header.signOut') }}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
