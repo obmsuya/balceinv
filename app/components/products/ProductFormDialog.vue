@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ImageOff, ImageUp, Plus, Puzzle, Trash2, X } from 'lucide-vue-next'
+import { ImageOff, ImageUp, Plus, Puzzle, Smartphone, Trash2, X } from 'lucide-vue-next'
+import PhonePhotoDialog from '@/components/products/PhonePhotoDialog.vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -66,6 +67,7 @@ const activeTab = ref('details')
 const imageFile = ref<File | null>(null)
 const imageObjectUrl = ref<string | null>(null)
 const imageInput = ref<HTMLInputElement | null>(null)
+const showPhonePhoto = ref(false)
 const newAddonName = ref('')
 const newAddonPrice = ref('')
 
@@ -153,6 +155,12 @@ const prefillFromCatalog = (catalogProduct: CatalogProduct) => {
   form.value.sku = catalogProduct.sku_prefix ? `${catalogProduct.sku_prefix}-` : ''
   form.value.price = catalogProduct.default_price ? String(catalogProduct.default_price) : ''
   metadataRows.value = rowsFromMetadata(catalogProduct.metadata)
+}
+
+const usePhonePhoto = (photoFile: File) => {
+  clearImage()
+  imageFile.value = photoFile
+  imageObjectUrl.value = URL.createObjectURL(photoFile)
 }
 
 const onImagePicked = (event: Event) => {
@@ -307,10 +315,16 @@ const removeAddon = async (addon: ProductAddon) => {
             </div>
             <div class="flex flex-col gap-2">
               <input ref="imageInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onImagePicked">
-              <Button variant="outline" size="sm" type="button" @click="imageInput?.click()">
-                <ImageUp />
-                {{ imagePreview ? 'Change photo' : 'Add photo' }}
-              </Button>
+              <div class="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" type="button" @click="imageInput?.click()">
+                  <ImageUp />
+                  {{ imagePreview ? 'Change photo' : 'Add photo' }}
+                </Button>
+                <Button variant="outline" size="sm" type="button" @click="showPhonePhoto = true">
+                  <Smartphone />
+                  Use phone
+                </Button>
+              </div>
               <Button v-if="imageFile" variant="ghost" size="sm" type="button" @click="clearImage">
                 <X />
                 Undo photo
@@ -464,5 +478,6 @@ const removeAddon = async (addon: ProductAddon) => {
         <Button v-if="activeTab === 'details'" :disabled="saving" @click="submit">{{ submitLabel }}</Button>
       </DialogFooter>
     </DialogContent>
+    <PhonePhotoDialog v-model:open="showPhonePhoto" @photo="usePhonePhoto" />
   </Dialog>
 </template>
