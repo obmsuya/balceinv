@@ -37,7 +37,7 @@ const readSlots = (storageKey: string): CartSlot[] => {
   return Array.from({ length: cartSlotCount }, emptySlot)
 }
 
-const randomReference = (): string => {
+export const randomReference = (): string => {
   if (typeof crypto.randomUUID === 'function') return crypto.randomUUID()
   const randomBytes = crypto.getRandomValues(new Uint8Array(16))
   randomBytes[6] = (randomBytes[6]! & 0x0f) | 0x40
