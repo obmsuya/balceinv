@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { Menu, Bell, Volume2, VolumeX, Fingerprint, RefreshCw, Moon, Sun, Store } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
-import { assetUrl } from '~/composables/useSettings';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Bell, BellOff, Fingerprint, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
+import { assetUrl } from '~/composables/useSettings'
+import { notificationMessage, relativeTime } from '~/composables/useNotifications'
+import type { StockNotification } from '~/composables/useNotifications'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,193 +14,110 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import UpdateIndicator from '@/components/UpdateIndicator.vue';
-import SubscriptionIndicator from '@/components/license/SubscriptionIndicator.vue';
-import ShopSwitcher from '@/components/ShopSwitcher.vue';
+} from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import UpdateIndicator from '@/components/UpdateIndicator.vue'
+import SubscriptionIndicator from '@/components/license/SubscriptionIndicator.vue'
+import ShopSwitcher from '@/components/ShopSwitcher.vue'
 
-// Color mode
-const colorMode = useColorMode();
+const notificationPollMilliseconds = 30000
+const popoverNotificationCount = 5
 
-// Import notification composable
+const colorMode = useColorMode()
+const { user, logout } = useAuth()
+const { canView } = usePermissions()
+const { status: updateStatus, checkForUpdate } = useUpdater()
+const { hardwareId, fetchHardwareId } = useLicense()
 const {
-  notificationCount,
-  unreadNotifications,
-  hasUnread,
+  notifications,
+  unreadCount,
   soundEnabled,
-  fetchNotificationCount,
   fetchNotifications,
-  markAsSeen,
-  toggleSound,
+  fetchUnreadCount,
+  markRead,
   loadSoundSetting,
-} = useNotifications();
+  toggleSound,
+} = useNotifications()
 
-const { status: updateStatus, checkForUpdate } = useUpdater();
+const sidebarCollapsed = useState('sidebar-collapsed', () => false)
+const showNotificationPopover = ref(false)
+let notificationTimer: ReturnType<typeof setInterval> | null = null
 
-const handleCheckForUpdates = async () => {
-  await checkForUpdate();
-  if (updateStatus.value === 'available') {
-    navigateTo({ path: '/settings', query: { tab: 'updates' } });
-  }
-};
+const companyLogoSource = computed(() => assetUrl(user.value?.branding?.logo_url))
+const canSeeNotifications = computed(() => canView('notifications'))
+const unreadBadge = computed(() => ((unreadCount.value ?? 0) > 99 ? '99+' : String(unreadCount.value ?? 0)))
 
-// Hardware ID — needed for support calls (licensing is tied to it), so it
-// lives in the user menu rather than as a headline header element.
-const { hardwareId, fetchHardwareId } = useLicense();
-
-const copyHardwareId = async () => {
-  if (!hardwareId.value) return;
-  await navigator.clipboard.writeText(hardwareId.value);
-  toast.success('Hardware ID copied');
-};
-
-const sidebarCollapsed = useState('sidebar-collapsed', () => false);
-
-const { user, logout } = useAuth();
-const companyLogoSource = computed(() => assetUrl(user.value?.branding?.logo_url));
-
-const showNotificationPopover = ref(false);
-const notificationInterval = ref<NodeJS.Timeout | null>(null);
-
-watch(showNotificationPopover, (isOpen) => {
-  if (isOpen) fetchNotifications();
-});
+const initialsOf = (name: string): string =>
+  name.split(' ').map(namePart => namePart[0]).join('').toUpperCase().slice(0, 2)
 
 const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-  if (process.client) {
-    localStorage.setItem('sidebar-collapsed', sidebarCollapsed.value.toString());
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  try {
+    localStorage.setItem('sidebar-collapsed', String(sidebarCollapsed.value))
+  } catch {
   }
-};
+}
 
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
+const handleCheckForUpdates = async () => {
+  await checkForUpdate()
+  if (updateStatus.value === 'available') navigateTo({ path: '/settings', query: { tab: 'updates' } })
+}
 
-// Reloads the whole app — the fastest way to guarantee every page's data
-// (cart, license status, product list, etc.) is current after something
-// external changed it, e.g. a payment confirming out-of-band.
-const hardRefresh = () => {
-  window.location.reload();
-};
+const reloadApp = () => window.location.reload()
 
-const handleLogout = async () => {
-  await logout();
-};
+const copyHardwareId = async () => {
+  if (!hardwareId.value) return
+  await navigator.clipboard.writeText(hardwareId.value)
+  toast.success('Hardware ID copied')
+}
 
-/**
- * Format notification time
- */
-const formatNotificationTime = (date: Date): string => {
-  const now = new Date();
-  const notifDate = new Date(date);
-  const diffMs = now.getTime() - notifDate.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
+const openNotification = async (notification: StockNotification) => {
+  await markRead(notification.id)
+  showNotificationPopover.value = false
+  navigateTo({ path: '/products', query: { view: notification.product_id } })
+}
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  
-  return notifDate.toLocaleDateString();
-};
-
-/**
- * Get notification message
- */
-const getNotificationMessage = (notification: any): string => {
-  if (notification.alert_type === 'out') {
-    return `${notification.product_name} is out of stock`;
-  }
-  return `${notification.product_name} is low (${notification.current_quantity} left)`;
-};
-
-/**
- * Handle notification click
- */
-const handleNotificationClick = async (notification: any) => {
-  await markAsSeen(notification.id);
-  showNotificationPopover.value = false;
-  navigateTo({ path: '/products', query: { view: notification.product_id } });
-};
-
-/**
- * View all notifications
- */
 const viewAllNotifications = () => {
-  showNotificationPopover.value = false;
-  navigateTo('/notifications');
-};
+  showNotificationPopover.value = false
+  navigateTo('/notifications')
+}
 
-/**
- * Setup notification polling
- */
-const setupNotificationPolling = () => {
-  // Check for new notifications every 30 seconds
-  notificationInterval.value = setInterval(() => {
-    fetchNotificationCount();
-  }, 30000);
-};
-
-/**
- * Clear notification polling
- */
-const clearNotificationPolling = () => {
-  if (notificationInterval.value) {
-    clearInterval(notificationInterval.value);
-    notificationInterval.value = null;
-  }
-};
+watch(showNotificationPopover, isOpen => {
+  if (isOpen) fetchNotifications(true, 0, popoverNotificationCount)
+})
 
 onMounted(() => {
-  if (process.client) {
-    const savedState = localStorage.getItem('sidebar-collapsed');
-    const isPhoneWidth = window.matchMedia('(max-width: 767px)').matches;
-    if (isPhoneWidth) {
-      sidebarCollapsed.value = true;
-    } else if (savedState !== null) {
-      sidebarCollapsed.value = savedState === 'true';
-    }
+  const savedCollapsed = localStorage.getItem('sidebar-collapsed')
+  const isPhoneWidth = window.matchMedia('(max-width: 767px)').matches
+  if (isPhoneWidth) sidebarCollapsed.value = true
+  else if (savedCollapsed !== null) sidebarCollapsed.value = savedCollapsed === 'true'
 
-    // Load notification settings and start polling
-    loadSoundSetting();
-    fetchNotificationCount();
-    setupNotificationPolling();
-
-    fetchHardwareId();
-  }
-});
+  fetchHardwareId()
+  if (!canSeeNotifications.value) return
+  loadSoundSetting()
+  fetchUnreadCount()
+  notificationTimer = setInterval(fetchUnreadCount, notificationPollMilliseconds)
+})
 
 onUnmounted(() => {
-  clearNotificationPolling();
-});
+  if (notificationTimer) clearInterval(notificationTimer)
+})
 </script>
 
 <template>
-  <header class="fixed top-0 left-0 right-0 h-16 border-b bg-background z-50">
-    <div class="flex items-center justify-between h-full px-4 gap-4">
-      <div class="flex items-center gap-3">
+  <header class="fixed left-0 right-0 top-0 z-50 h-16 border-b bg-background">
+    <div class="flex h-full items-center justify-between gap-4 px-4">
+      <div class="flex min-w-0 items-center gap-3">
         <button
           type="button"
           aria-label="Toggle navigation"
+          class="flex size-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent"
           @click="toggleSidebar"
-          class="flex items-center justify-center size-9 rounded-md hover:bg-accent transition-colors shrink-0"
         >
           <Menu class="size-5" />
         </button>
-
         <div class="flex min-w-0 items-center gap-2.5">
           <div class="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
             <img v-if="companyLogoSource" :src="companyLogoSource" alt="" class="size-full bg-background object-contain">
@@ -209,185 +127,123 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 sm:gap-2">
         <ShopSwitcher />
         <SubscriptionIndicator />
         <UpdateIndicator />
 
-        <!-- Mode Toggle -->
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Theme">
               <Moon class="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Sun class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span class="sr-only">Toggle theme</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem @click="colorMode.preference = 'light'">
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem @click="colorMode.preference = 'dark'">
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem @click="colorMode.preference = 'system'">
-              System
-            </DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'light'">Light</DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'dark'">Dark</DropdownMenuItem>
+            <DropdownMenuItem @click="colorMode.preference = 'system'">System</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <!-- Hard Refresh -->
-        <Button
-          variant="ghost"
-          size="icon"
-          @click="hardRefresh"
-          title="Refresh"
-        >
-          <RefreshCw class="h-5 w-5" />
+        <Button variant="ghost" size="icon" class="hidden sm:inline-flex" aria-label="Refresh" @click="reloadApp">
+          <RefreshCw class="size-5" />
         </Button>
 
-        <!-- Sound Toggle -->
-        <Button
-          variant="ghost"
-          size="icon"
-          @click="toggleSound"
-          :title="soundEnabled ? 'Mute notifications' : 'Unmute notifications'"
-          class="hidden sm:flex"
-        >
-          <Volume2 v-if="soundEnabled" class="h-5 w-5" />
-          <VolumeX v-else class="h-5 w-5" />
-        </Button>
+        <template v-if="canSeeNotifications">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="hidden sm:inline-flex"
+            :aria-label="soundEnabled ? 'Mute notification sound' : 'Turn on notification sound'"
+            @click="toggleSound"
+          >
+            <Volume2 v-if="soundEnabled" class="size-5" />
+            <VolumeX v-else class="size-5" />
+          </Button>
 
-        <!-- Notifications Popover -->
-        <Popover v-model:open="showNotificationPopover">
-          <PopoverTrigger as-child>
-            <Button 
-              variant="ghost"
-              size="icon"
-              class="relative"
-            >
-              <Bell class="h-5 w-5" />
-              <Badge 
-                v-if="hasUnread" 
-                class="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center p-0 px-1 text-xs"
-                variant="destructive"
-              >
-                {{ notificationCount > 99 ? '99+' : notificationCount }}
-              </Badge>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-80 p-0" align="end">
-            <div class="flex items-center justify-between p-4">
-              <h4 class="font-semibold">Notifications</h4>
-              <Badge v-if="hasUnread" variant="secondary">
-                {{ notificationCount }} new
-              </Badge>
-            </div>
-            <Separator />
-            
-            <!-- Notification List -->
-            <ScrollArea class="h-[400px]">
-              <div v-if="unreadNotifications.length === 0" class="p-8 text-center">
-                <Bell class="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p class="text-sm text-muted-foreground">No new notifications</p>
-              </div>
-
-              <div v-else class="divide-y">
-                <button
-                  v-for="notification in unreadNotifications.slice(0, 5)"
-                  :key="notification.id"
-                  @click="handleNotificationClick(notification)"
-                  class="w-full p-4 text-left hover:bg-accent transition-colors"
-                >
-                  <div class="flex items-start gap-3">
-                    <div 
-                      class="rounded-full p-2 shrink-0 mt-1"
-                      :class="notification.alert_type === 'out' ? 'bg-destructive/10' : 'bg-yellow-500/10'"
-                    >
-                      <Bell 
-                        class="h-4 w-4" 
-                        :class="notification.alert_type === 'out' ? 'text-destructive' : 'text-yellow-600'"
-                      />
-                    </div>
-                    
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium mb-1 line-clamp-2">
-                        {{ getNotificationMessage(notification) }}
-                      </p>
-                      <p class="text-xs text-muted-foreground">
-                        {{ formatNotificationTime(notification.created_at) }}
-                      </p>
-                    </div>
-
-                    <Badge 
-                      variant="outline"
-                      class="shrink-0"
-                      :class="notification.alert_type === 'out' ? 'border-destructive text-destructive' : 'border-yellow-600 text-yellow-600'"
-                    >
-                      {{ notification.alert_type === 'out' ? 'Out' : 'Low' }}
-                    </Badge>
-                  </div>
-                </button>
-              </div>
-            </ScrollArea>
-
-            <Separator />
-            <div class="p-2">
-              <Button
-                variant="ghost"
-                class="w-full justify-center"
-                @click="viewAllNotifications"
-              >
-                View All Notifications
+          <Popover v-model:open="showNotificationPopover">
+            <PopoverTrigger as-child>
+              <Button variant="ghost" size="icon" class="relative" aria-label="Notifications">
+                <Bell class="size-5" />
+                <Badge v-if="unreadCount" variant="destructive" class="absolute -right-1 -top-1 h-5 min-w-5 justify-center px-1 text-xs tabular-nums">
+                  {{ unreadBadge }}
+                </Badge>
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-        
-        <!-- User Menu -->
+            </PopoverTrigger>
+            <PopoverContent class="w-80 p-0" align="end">
+              <div class="flex items-center justify-between p-4">
+                <h4 class="font-semibold">Notifications</h4>
+                <Badge v-if="unreadCount" variant="secondary">{{ unreadCount }} new</Badge>
+              </div>
+              <Separator />
+              <ScrollArea class="max-h-96">
+                <div v-if="!notifications.length" class="flex flex-col items-center gap-2 p-8 text-center">
+                  <BellOff class="size-8 text-muted-foreground/50" />
+                  <p class="text-sm text-muted-foreground">Nothing new</p>
+                </div>
+                <div v-else class="divide-y">
+                  <button
+                    v-for="notification in notifications"
+                    :key="notification.id"
+                    type="button"
+                    class="flex w-full items-start gap-3 p-4 text-left transition-colors hover:bg-accent"
+                    @click="openNotification(notification)"
+                  >
+                    <span
+                      class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full"
+                      :class="notification.kind === 'out_of_stock' ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600'"
+                    >
+                      <PackageX v-if="notification.kind === 'out_of_stock'" class="size-4" />
+                      <TriangleAlert v-else class="size-4" />
+                    </span>
+                    <span class="min-w-0 flex-1">
+                      <span class="line-clamp-2 block text-sm font-medium">{{ notificationMessage(notification) }}</span>
+                      <span class="block text-xs text-muted-foreground">{{ relativeTime(notification.created_at) }}</span>
+                    </span>
+                  </button>
+                </div>
+              </ScrollArea>
+              <Separator />
+              <div class="p-2">
+                <Button variant="ghost" class="w-full" @click="viewAllNotifications">See all notifications</Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </template>
+
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <button class="flex items-center gap-2 pl-3 border-l hover:bg-accent rounded-md px-2 py-1 transition-colors">
-              <Avatar class="h-9 w-9">
-                <AvatarFallback>{{ user ? getInitials(user.name) : 'GU' }}</AvatarFallback>
+            <button type="button" class="flex items-center gap-2 rounded-md border-l px-2 py-1 pl-3 transition-colors hover:bg-accent">
+              <Avatar class="size-9">
+                <AvatarFallback>{{ user ? initialsOf(user.name) : 'GU' }}</AvatarFallback>
               </Avatar>
-              <div class="hidden md:block text-sm text-left">
-                <p class="font-medium leading-none">{{ user?.name || 'Guest User' }}</p>
-                <p class="text-xs text-muted-foreground mt-1">{{ user?.role || 'No Role' }}</p>
-              </div>
+              <span class="hidden text-left text-sm md:block">
+                <span class="block font-medium leading-none">{{ user?.name }}</span>
+                <span class="mt-1 block text-xs text-muted-foreground">{{ user?.role }}</span>
+              </span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-56">
             <DropdownMenuLabel>
-              <div class="flex flex-col space-y-1">
-                <p class="text-sm font-medium">{{ user?.name || 'Guest User' }}</p>
-                <p class="text-xs text-muted-foreground">{{ user?.email || '' }}</p>
-              </div>
+              <p class="text-sm font-medium">{{ user?.name }}</p>
+              <p class="text-xs font-normal text-muted-foreground">{{ user?.email }}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem @click="$router.push('/settings')">
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem @click="$router.push('/profile')">
-              Profile
-            </DropdownMenuItem>
+            <DropdownMenuItem @click="navigateTo('/settings')">Settings</DropdownMenuItem>
             <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
-              {{ updateStatus === 'checking' ? 'Checking for updates…' : 'Check for Updates' }}
+              {{ updateStatus === 'checking' ? 'Checking for updates…' : 'Check for updates' }}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">
-                <Fingerprint class="h-3 w-3" />
+                <Fingerprint class="size-3" />
                 Hardware ID
               </span>
-              <span class="font-mono text-xs truncate w-full">
-                {{ hardwareId ? hardwareId.slice(0, 16) + '…' : 'Loading…' }}
-              </span>
+              <span class="w-full truncate font-mono text-xs">{{ hardwareId ? `${hardwareId.slice(0, 16)}…` : 'Loading…' }}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem @click="handleLogout" class="text-destructive">
-              Logout
-            </DropdownMenuItem>
+            <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
