@@ -32,3 +32,20 @@ export const formatMoney = (minorUnits: number | null | undefined): string => {
 }
 
 export const currencyCode = (): string => activeMoneyFormat.value.currencyCode
+
+export const majorToMinor = (majorUnits: number): number =>
+  Math.round(majorUnits * 10 ** activeMoneyFormat.value.decimals)
+
+export const minorToInputText = (minorUnits: number | null | undefined): string => {
+  if (minorUnits == null || !Number.isFinite(minorUnits)) return ''
+  const { decimals } = activeMoneyFormat.value
+  return (minorUnits / 10 ** decimals).toFixed(decimals)
+}
+
+export const inputTextToMinor = (inputText: string): number | null => {
+  const cleanedText = inputText.replace(/[\s,]/g, '')
+  if (cleanedText === '') return null
+  const majorUnits = Number(cleanedText)
+  if (!Number.isFinite(majorUnits) || majorUnits < 0) return Number.NaN
+  return majorToMinor(majorUnits)
+}

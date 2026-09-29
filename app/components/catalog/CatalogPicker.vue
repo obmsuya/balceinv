@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCatalog } from '@/composables/useCatalog'
 import type { CatalogProduct } from '@/composables/useCatalog'
-import { formatShillings } from '~/utils/mobileMoney'
+import { formatMoney, majorToMinor } from '~/utils/money'
 
 const emit = defineEmits<{ pick: [catalogProduct: CatalogProduct] }>()
 
@@ -114,7 +114,7 @@ onMounted(() => fetchCatalog())
                 </span>
                 <Badge variant="outline" class="shrink-0 font-normal">{{ catalogProduct.unit }}</Badge>
                 <span v-if="catalogProduct.default_price" class="shrink-0 text-xs tabular-nums text-muted-foreground">
-                  {{ formatShillings(catalogProduct.default_price) }}
+                  {{ formatMoney(majorToMinor(catalogProduct.default_price)) }}
                 </span>
               </button>
             </li>

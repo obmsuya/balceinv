@@ -28,7 +28,7 @@ import {
 } from '@/composables/useCatalog'
 import type { CatalogImportMode, CatalogImportResult, CatalogProduct } from '@/composables/useCatalog'
 import { businessTypeLabel, businessTypes } from '~/utils/businessTypes'
-import { formatShillings } from '~/utils/mobileMoney'
+import { formatMoney, majorToMinor } from '~/utils/money'
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -518,7 +518,7 @@ watch(teamUnlocked, (unlocked) => {
                   </span>
                   <Badge variant="outline" class="shrink-0 font-normal">{{ catalogProduct.unit }}</Badge>
                   <span class="w-24 shrink-0 text-right tabular-nums text-xs text-muted-foreground">
-                    {{ catalogProduct.default_price ? formatShillings(catalogProduct.default_price) : '—' }}
+                    {{ catalogProduct.default_price ? formatMoney(majorToMinor(catalogProduct.default_price)) : '—' }}
                   </span>
                 </li>
                 <li

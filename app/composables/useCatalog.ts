@@ -1,7 +1,8 @@
 import { toast } from 'vue-sonner'
+import { saveFile } from '~/utils/download'
 
 export interface CatalogProduct {
-  id: number
+  id: string
   business_type: string
   name: string
   category: string | null
@@ -9,7 +10,7 @@ export interface CatalogProduct {
   unit: string
   sku_prefix: string
   default_price: number
-  metadata: Record<string, any> | null
+  metadata: Record<string, string>
 }
 
 export interface CatalogCount {
@@ -59,8 +60,6 @@ export const catalogFileExtensions = ['.xlsx', '.csv']
 
 const supportPasscodeHeader = 'X-Support-Passcode'
 
-const isTauri = () => import.meta.client && '__TAURI_INTERNALS__' in window
-
 export const readCatalogError = (error: any, fallback: string): string => {
   if (error?.statusCode === 413 || error?.status === 413) return 'This file is too big. Keep it under 4 MB.'
   if (!error?.statusCode && !error?.status && error?.name === 'FetchError') return 'The POS service is not responding. Try again in a moment.'
@@ -88,7 +87,6 @@ export const matchesCatalogSearch = (catalogProduct: CatalogProduct, query: stri
 }
 
 export const useCatalog = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
   const apiFetch = $apiFetch as typeof $fetch
 
@@ -106,9 +104,7 @@ export const useCatalog = () => {
     loading.value = true
     loadError.value = ''
     try {
-      const response = await apiFetch<ApiResponse<CatalogProduct[]>>(`${apiBase}/api/catalog`, {
-        credentials: 'include',
-      })
+      const response = await apiFetch<ApiResponse<CatalogProduct[]>>('/api/catalog')
       catalog.value = response.data ?? []
       catalogLoaded.value = true
     } catch (error: any) {
@@ -134,9 +130,8 @@ export const useCatalog = () => {
   }
 
   const unlockTeamTools = async (passcode: string): Promise<void> => {
-    const response = await apiFetch<ApiResponse<CatalogSummary>>(`${apiBase}/api/catalog/team/summary`, {
+    const response = await apiFetch<ApiResponse<CatalogSummary>>(`/api/catalog/team/summary`, {
       headers: teamHeaders(passcode),
-      credentials: 'include',
     })
     teamPasscode.value = passcode
     teamSummary.value = response.data
@@ -144,9 +139,8 @@ export const useCatalog = () => {
 
   const fetchTeamSummary = async (): Promise<void> => {
     try {
-      const response = await apiFetch<ApiResponse<CatalogSummary>>(`${apiBase}/api/catalog/team/summary`, {
+      const response = await apiFetch<ApiResponse<CatalogSummary>>(`/api/catalog/team/summary`, {
         headers: teamHeaders(),
-        credentials: 'include',
       })
       teamSummary.value = response.data
     } catch (error: any) {
@@ -157,10 +151,9 @@ export const useCatalog = () => {
 
   const fetchTeamItems = async (businessType: string): Promise<CatalogProduct[]> => {
     try {
-      const response = await apiFetch<ApiResponse<CatalogProduct[]>>(`${apiBase}/api/catalog/team/items`, {
+      const response = await apiFetch<ApiResponse<CatalogProduct[]>>(`/api/catalog/team/items`, {
         query: { business_type: businessType },
         headers: teamHeaders(),
-        credentials: 'include',
       })
       return response.data ?? []
     } catch (error: any) {
@@ -185,11 +178,10 @@ export const useCatalog = () => {
     formData.append('mode', mode)
 
     try {
-      const response = await apiFetch<ApiResponse<CatalogImportResult>>(`${apiBase}/api/catalog/team/import`, {
+      const response = await apiFetch<ApiResponse<CatalogImportResult>>(`/api/catalog/team/import`, {
         method: 'POST',
         body: formData,
         headers: teamHeaders(),
-        credentials: 'include',
       })
       await afterTeamListChanged(businessType)
       return response.data
@@ -201,11 +193,10 @@ export const useCatalog = () => {
 
   const clearCatalog = async (businessType: string): Promise<boolean> => {
     try {
-      const response = await apiFetch<ApiResponse<{ removed: number }>>(`${apiBase}/api/catalog/team`, {
+      const response = await apiFetch<ApiResponse<{ removed: number }>>(`/api/catalog/team`, {
         method: 'DELETE',
         query: { business_type: businessType },
         headers: teamHeaders(),
-        credentials: 'include',
       })
       toast.success(response.message || 'List cleared')
       await afterTeamListChanged(businessType)
@@ -217,31 +208,13 @@ export const useCatalog = () => {
     }
   }
 
-  const saveFileFromDesktop = async (
-    fileBytes: Uint8Array,
-    defaultPath: string,
-    filter: { name: string; extensions: string[] },
-  ): Promise<string | null> => {
-    const { save } = await import('@tauri-apps/plugin-dialog')
-    const savePath = await save({ defaultPath, filters: [filter] })
-    if (!savePath) return null
-    const { writeFile } = await import('@tauri-apps/plugin-fs')
-    await writeFile(savePath, fileBytes)
-    return savePath
-  }
-
   const downloadCatalogTemplate = async (): Promise<void> => {
-    if (!isTauri()) {
-      toast.error('Saving files is only available in the desktop app')
-      return
-    }
     try {
-      const templateBytes = await apiFetch<ArrayBuffer>(`${apiBase}/api/catalog/team/template`, {
+      const templateBytes = await apiFetch<ArrayBuffer>(`/api/catalog/team/template`, {
         headers: teamHeaders(),
-        credentials: 'include',
         responseType: 'arrayBuffer',
       })
-      const savePath = await saveFileFromDesktop(
+      const savePath = await saveFile(
         new Uint8Array(templateBytes),
         'common-products-template.xlsx',
         { name: 'Excel Workbook', extensions: ['xlsx'] },
@@ -254,10 +227,6 @@ export const useCatalog = () => {
   }
 
   const exportCatalogJson = async (businessType: string): Promise<void> => {
-    if (!isTauri()) {
-      toast.error('Saving files is only available in the desktop app')
-      return
-    }
     try {
       const catalogProducts = await fetchTeamItems(businessType)
       if (catalogProducts.length === 0) {
@@ -266,7 +235,7 @@ export const useCatalog = () => {
       }
       const seedEntries = catalogProducts.map(({ id: _id, business_type: _businessType, ...seedEntry }) => seedEntry)
       const seedJson = `${JSON.stringify(seedEntries, null, 2)}\n`
-      const savePath = await saveFileFromDesktop(
+      const savePath = await saveFile(
         new TextEncoder().encode(seedJson),
         `${businessType}.json`,
         { name: 'JSON', extensions: ['json'] },

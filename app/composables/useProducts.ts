@@ -1,319 +1,282 @@
 import { toast } from 'vue-sonner'
+import { saveFile } from '~/utils/download'
+
+export interface ProductBarcode {
+  code: string
+  pack_size: number
+}
 
 export interface Product {
-  id: number
-  name: string
+  id: string
+  parent_id: string | null
   sku: string
-  barcode?: string | null
-  parent_id?: number | null
-  variant_label?: string | null
+  name: string
+  variant_label: string
   price: number
   cost_price: number
-  quantity: number
-  min_stock: number
-  wholesale_price?: number | null
-  wholesale_min?: number | null
-  category?: string | null
+  wholesale_price: number | null
+  wholesale_min: number
+  category: string | null
   unit: string
   pieces_per_unit: number
-  image?: string | null
-  metadata?: Record<string, any> | null
-  variants?: Product[]
-  addons?: ProductAddon[]
-  created_at?: string
-  updated_at?: string
-}
-
-export interface ProductAddon {
-  id: number
-  product_id: number
-  name: string
-  price: number
+  image_url: string | null
+  metadata: Record<string, string | number | boolean>
   is_active: boolean
-  created_at?: string
-  updated_at?: string
+  quantity: number | null
+  min_stock: number | null
+  variant_count: number
+  barcodes: ProductBarcode[]
+  created_at: string
+  updated_at: string
 }
 
-interface ProductFilters {
-  search?: string
-  category?: string
+export interface ProductFields {
+  sku: string
+  name: string
+  variant_label: string
+  price: number
+  cost_price: number
+  wholesale_price: number | null
+  wholesale_min: number
+  category: string | null
+  unit: string
+  pieces_per_unit: number
+  metadata: Record<string, string | number | boolean>
+  barcodes: ProductBarcode[]
+  min_stock: number
 }
 
-interface ApiResponse<T> {
+export interface NewProductFields extends ProductFields {
+  parent_id: string | null
+  opening_quantity: number
+}
+
+export interface ProductListFilter {
+  searchText: string
+  category: string
+  includeArchived: boolean
+  offset: number
+}
+
+export interface ProductImportProblem {
+  row: number
+  column?: string
+  problem: string
+}
+
+export interface ProductImportResult {
+  rows_read: number
+  created: number
+  problems: ProductImportProblem[]
+  problems_total: number
+}
+
+export class ProductImportError extends Error {
+  constructor(message: string, public result: ProductImportResult | null) {
+    super(message)
+  }
+}
+
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
 }
 
-interface UploadResult {
-  created: number
-  errors: Array<{ sku: string; error: string }>
+interface Page<Item> {
+  items: Item[]
+  total: number
+  limit: number
+  offset: number
 }
 
-const isTauri = () => process.client && '__TAURI_INTERNALS__' in window
+export const productPageSize = 50
+export const productImageLimitBytes = 2 * 1024 * 1024
+export const productImportLimitBytes = 5 * 1024 * 1024
 
 export const useProducts = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
   const products = ref<Product[]>([])
-  const lowStockProducts = ref<Product[]>([])
+  const totalProducts = ref(0)
+  const categories = ref<string[]>([])
   const loading = ref(false)
-  const selectedProduct = ref<Product | null>(null)
+  const saving = ref(false)
 
-  const fetchProducts = async (filters?: ProductFilters): Promise<void> => {
+  const fetchProducts = async (filter: Partial<ProductListFilter> = {}): Promise<void> => {
     loading.value = true
     try {
-      const query = new URLSearchParams()
-      if (filters?.search) query.append('search', filters.search)
-      if (filters?.category) query.append('category', filters.category)
-      const queryString = query.toString()
-      const url = queryString
-        ? `${apiBase}/api/products?${queryString}`
-        : `${apiBase}/api/products`
-
-      const response = await $apiFetch<ApiResponse<Product[]>>(url, {
-        credentials: 'include' as const,
+      const productPage = await apiFetch<ApiEnvelope<Page<Product>>>('/api/products', {
+        query: {
+          q: filter.searchText || undefined,
+          category: filter.category || undefined,
+          include_archived: filter.includeArchived || undefined,
+          limit: productPageSize,
+          offset: filter.offset ?? 0,
+        },
       })
-      products.value = response.data ?? []
+      products.value = productPage.data.items
+      totalProducts.value = productPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch products')
+      toast.error(error?.data?.message || 'Failed to load products')
     } finally {
       loading.value = false
     }
   }
 
-  const fetchProduct = async (id: number): Promise<Product | undefined> => {
-    loading.value = true
+  const fetchCategories = async (): Promise<void> => {
     try {
-      const response = await $apiFetch<ApiResponse<Product>>(
-        `${apiBase}/api/products/${id}`,
-        { credentials: 'include' as const },
-      )
-      selectedProduct.value = response.data
-      return response.data
+      const categoryResponse = await apiFetch<ApiEnvelope<string[]>>('/api/products/categories')
+      categories.value = categoryResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load product details')
-    } finally {
-      loading.value = false
+      toast.error(error?.data?.message || 'Failed to load categories')
     }
   }
 
-  const fetchVariants = async (parentId: number): Promise<Product[]> => {
+  const fetchProduct = async (productId: string): Promise<Product | undefined> => {
     try {
-      const response = await $apiFetch<ApiResponse<Product[]>>(
-        `${apiBase}/api/products/${parentId}/variants`,
-        { credentials: 'include' as const },
-      )
-      return response.data ?? []
+      const productResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}`)
+      return productResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch variants')
+      toast.error(error?.data?.message || 'Could not load the product')
+    }
+  }
+
+  const fetchVariants = async (parentId: string): Promise<Product[]> => {
+    try {
+      const variantResponse = await apiFetch<ApiEnvelope<Product[]>>(`/api/products/${parentId}/variants`)
+      return variantResponse.data ?? []
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Could not load the variants')
       return []
     }
   }
 
-  const createProduct = async (product: Partial<Product>): Promise<Product | undefined> => {
-    loading.value = true
+  const uploadImage = async (productId: string, imageFile: File): Promise<Product> => {
+    const imageForm = new FormData()
+    imageForm.append('image', imageFile)
+    const imageResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}/image`, {
+      method: 'POST',
+      body: imageForm,
+    })
+    return imageResponse.data
+  }
+
+  const createProduct = async (newFields: NewProductFields, imageFile: File | null): Promise<Product | undefined> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<Product>>(
-        `${apiBase}/api/products`,
-        {
-          method: 'POST' as const,
-          body: product,
-          credentials: 'include' as const,
-        },
-      )
-      products.value.unshift(response.data)
-      toast.success(response.message)
-      return response.data
+      const createResponse = await apiFetch<ApiEnvelope<Product>>('/api/products', {
+        method: 'POST',
+        body: newFields,
+      })
+      const createdProduct = imageFile ? await uploadImage(createResponse.data.id, imageFile) : createResponse.data
+      toast.success(createResponse.message)
+      return createdProduct
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create product')
+      toast.error(error?.data?.message || 'Failed to create the product')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
-  const updateProduct = async (
-    id: number,
-    product: Partial<Product>,
-  ): Promise<Product | undefined> => {
-    loading.value = true
+  const updateProduct = async (productId: string, changedFields: ProductFields, imageFile: File | null): Promise<Product | undefined> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<Product>>(
-        `${apiBase}/api/products/${id}`,
-        {
-          method: 'PUT' as const,
-          body: product,
-          credentials: 'include' as const,
-        },
-      )
-      const productIndex = products.value.findIndex(existingProduct => existingProduct.id === id)
-      if (productIndex !== -1) products.value[productIndex] = response.data
-      toast.success(response.message)
-      return response.data
+      const updateResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}`, {
+        method: 'PUT',
+        body: changedFields,
+      })
+      const updatedProduct = imageFile ? await uploadImage(productId, imageFile) : updateResponse.data
+      toast.success(updateResponse.message)
+      return updatedProduct
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update product')
+      toast.error(error?.data?.message || 'Failed to save the product')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
-  const updateProductImage = async (id: number, imageDataURI: string): Promise<Product | undefined> => {
-    loading.value = true
+  const archiveProduct = async (productId: string): Promise<void> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<Product>>(
-        `${apiBase}/api/products/${id}/image`,
-        {
-          method: 'POST' as const,
-          body: { image: imageDataURI },
-          credentials: 'include' as const,
-        },
-      )
-      const productIndex = products.value.findIndex(existingProduct => existingProduct.id === id)
-      if (productIndex !== -1) products.value[productIndex] = response.data
-      toast.success('Product image updated')
-      return response.data
+      const archiveResponse = await apiFetch<ApiEnvelope<null>>(`/api/products/${productId}`, {
+        method: 'DELETE',
+      })
+      toast.success(archiveResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update product image')
+      toast.error(error?.data?.message || 'Failed to archive the product')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
-  const deleteProduct = async (id: number): Promise<void> => {
-    loading.value = true
+  const restoreProduct = async (productId: string): Promise<void> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<null>>(
-        `${apiBase}/api/products/${id}`,
-        {
-          method: 'DELETE' as const,
-          credentials: 'include' as const,
-        },
-      )
-      products.value = products.value.filter(product => product.id !== id)
-      toast.success(response.message)
+      const restoreResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}/restore`, {
+        method: 'POST',
+      })
+      toast.success(restoreResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete product')
+      toast.error(error?.data?.message || 'Failed to restore the product')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
-  const uploadExcel = async (file: File): Promise<UploadResult | undefined> => {
-    loading.value = true
+  const importProducts = async (spreadsheetFile: File): Promise<ProductImportResult> => {
+    saving.value = true
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const response = await $apiFetch<ApiResponse<UploadResult>>(
-        `${apiBase}/api/products/upload`,
-        {
-          method: 'POST' as const,
-          body: formData,
-          credentials: 'include' as const,
-        },
-      )
-      toast.success(response.message)
-      if (response.data.errors.length > 0) {
-        toast.warning(
-          `${response.data.errors.length} product${response.data.errors.length > 1 ? 's' : ''} could not be imported`,
-        )
-      }
-      await fetchProducts()
-      return response.data
+      const importForm = new FormData()
+      importForm.append('file', spreadsheetFile)
+      const importResponse = await apiFetch<ApiEnvelope<ProductImportResult>>('/api/products/upload', {
+        method: 'POST',
+        body: importForm,
+      })
+      toast.success(`${importResponse.data.created} products imported`)
+      return importResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to upload products')
-      throw error
+      throw new ProductImportError(error?.data?.message || 'Failed to import the file', error?.data?.data ?? null)
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
   const downloadTemplate = async (): Promise<void> => {
-    if (!isTauri()) {
-      toast.error('Template download is only available in the desktop app')
-      return
-    }
-
     try {
-      const fileBytes = await $apiFetch<ArrayBuffer>(`${apiBase}/api/products/template`, {
-        credentials: 'include' as const,
-        responseType: 'arrayBuffer' as const,
+      const templateBytes = await apiFetch<ArrayBuffer>('/api/products/template', {
+        responseType: 'arrayBuffer',
       })
-
-      const { save } = await import('@tauri-apps/plugin-dialog')
-      const savePath = await save({
-        defaultPath: 'products_template.xlsx',
-        filters: [{ name: 'Excel Workbook', extensions: ['xlsx'] }],
+      const savedName = await saveFile(new Uint8Array(templateBytes), 'products-template.xlsx', {
+        name: 'Excel Workbook',
+        extensions: ['xlsx'],
       })
-      if (!savePath) return // user cancelled the dialog — not an error
-
-      const { writeFile } = await import('@tauri-apps/plugin-fs')
-      await writeFile(savePath, new Uint8Array(fileBytes))
-
-      toast.success('Template downloaded')
+      if (savedName) toast.success('Template saved', { description: savedName })
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to download template')
-    }
-  }
-
-  const createImageUploadSession = async (): Promise<{ token: string; upload_url: string } | undefined> => {
-    try {
-      const response = await $apiFetch<ApiResponse<{ token: string; upload_url: string }>>(
-        `${apiBase}/api/products/image-session`,
-        { method: 'POST' as const, credentials: 'include' as const },
-      )
-      return response.data
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not start phone upload')
-      throw error
-    }
-  }
-
-  // Polled every couple seconds while the QR code is shown — no toast here,
-  // the polling loop decides what a "not found" (expired) response means.
-  const getImageUploadStatus = async (token: string): Promise<{ status: 'pending' | 'done'; image?: string }> => {
-    const response = await $apiFetch<ApiResponse<{ status: 'pending' | 'done'; image?: string }>>(
-      `${apiBase}/api/image-session/${token}`,
-      { credentials: 'include' as const },
-    )
-    return response.data
-  }
-
-  const fetchLowStock = async (): Promise<void> => {
-    loading.value = true
-    try {
-      const response = await $apiFetch<ApiResponse<Product[]>>(
-        `${apiBase}/api/products/low-stock`,
-        { credentials: 'include' as const },
-      )
-      lowStockProducts.value = response.data ?? []
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch low stock products')
-    } finally {
-      loading.value = false
+      toast.error(error?.data?.message || 'Failed to download the template')
     }
   }
 
   return {
     products,
-    lowStockProducts,
+    totalProducts,
+    categories,
     loading,
-    selectedProduct,
+    saving,
     fetchProducts,
+    fetchCategories,
     fetchProduct,
     fetchVariants,
     createProduct,
     updateProduct,
-    updateProductImage,
-    createImageUploadSession,
-    getImageUploadStatus,
-    deleteProduct,
-    uploadExcel,
+    archiveProduct,
+    restoreProduct,
+    importProducts,
     downloadTemplate,
-    fetchLowStock,
   }
 }

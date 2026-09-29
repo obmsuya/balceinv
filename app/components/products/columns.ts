@@ -1,8 +1,10 @@
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Eye, AlertTriangle, ImageOff, GitBranch } from 'lucide-vue-next'
+import { Archive, ArchiveRestore, Eye, GitBranch, ImageOff, MoreHorizontal, Pencil, TriangleAlert } from 'lucide-vue-next'
 import { h } from 'vue'
 import { formatMoney } from '~/utils/money'
+import { assetUrl } from '~/composables/useSettings'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,167 +14,118 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
 import type { Product } from '@/composables/useProducts'
 
-export interface ActionHandlers {
+export interface ProductRowActions {
   onView: (product: Product) => void
   onEdit: (product: Product) => void
-  onDelete: (product: Product) => void
   onAddVariant: (product: Product) => void
+  onArchive: (product: Product) => void
+  onRestore: (product: Product) => void
   canEdit: boolean
   canDelete: boolean
 }
 
-const formatCurrency = (value: number): string => formatMoney(value)
-
-const renderImageFrame = (imageDataURI: string | null | undefined, productName: string) => {
-  const frameClasses = 'relative flex items-center justify-center rounded-md border bg-muted overflow-hidden flex-shrink-0'
-  const frameSizeClasses = 'w-10 h-10'
-
-  if (imageDataURI) {
-    return h('div', { class: `${frameClasses} ${frameSizeClasses}` }, [
-      h('img', {
-        src: imageDataURI,
-        alt: productName,
-        class: 'w-full h-full object-cover',
-      }),
+const renderThumbnail = (product: Product) => {
+  const imageSource = assetUrl(product.image_url)
+  const frameClass = 'flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted'
+  if (imageSource) {
+    return h('div', { class: frameClass }, [
+      h('img', { src: imageSource, alt: product.name, class: 'size-full object-cover', loading: 'lazy' }),
     ])
   }
+  return h('div', { class: frameClass }, [h(ImageOff, { class: 'size-4 text-muted-foreground/50' })])
+}
 
-  return h('div', { class: `${frameClasses} ${frameSizeClasses}` }, [
-    h(ImageOff, { class: 'w-4 h-4 text-muted-foreground/40' }),
+const renderStock = (product: Product) => {
+  if (product.quantity == null) return h('span', { class: 'text-sm text-muted-foreground' }, '—')
+
+  const isOut = product.quantity === 0
+  const isLow = product.quantity <= (product.min_stock ?? 0)
+  return h('div', { class: 'flex items-center gap-1.5' }, [
+    isLow && h(TriangleAlert, { class: isOut ? 'size-4 text-destructive' : 'size-4 text-amber-500' }),
+    h(Badge, { variant: isOut ? 'destructive' : isLow ? 'outline' : 'secondary', class: 'whitespace-nowrap tabular-nums' }, () => `${product.quantity} ${product.unit}`),
   ])
 }
 
-export const createColumns = (handlers: ActionHandlers): ColumnDef<Product>[] => [
+const renderActions = (product: Product, actions: ProductRowActions) => {
+  const editItems = product.is_active && actions.canEdit
+    ? [
+        h(DropdownMenuItem, { onClick: () => actions.onEdit(product) }, () => [h(Pencil), 'Edit']),
+        h(DropdownMenuItem, { onClick: () => actions.onAddVariant(product) }, () => [h(GitBranch), 'Add variant']),
+      ]
+    : []
+  const archiveItem = product.is_active
+    ? actions.canDelete && h(DropdownMenuItem, { class: 'text-destructive focus:text-destructive', onClick: () => actions.onArchive(product) }, () => [h(Archive), 'Archive'])
+    : actions.canEdit && h(DropdownMenuItem, { onClick: () => actions.onRestore(product) }, () => [h(ArchiveRestore), 'Restore'])
+
+  return h(DropdownMenu, null, {
+    default: () => [
+      h(DropdownMenuTrigger, { asChild: true }, () =>
+        h(Button, { variant: 'ghost', size: 'icon', class: 'size-8' }, () => [
+          h('span', { class: 'sr-only' }, 'Open menu'),
+          h(MoreHorizontal),
+        ]),
+      ),
+      h(DropdownMenuContent, { align: 'end' }, () => [
+        h(DropdownMenuLabel, { class: 'max-w-56 truncate' }, () => product.name),
+        h(DropdownMenuSeparator),
+        h(DropdownMenuGroup, null, () => [
+          h(DropdownMenuItem, { onClick: () => actions.onView(product) }, () => [h(Eye), 'View details']),
+          ...editItems,
+        ]),
+        archiveItem && h(DropdownMenuSeparator),
+        archiveItem,
+      ]),
+    ],
+  })
+}
+
+export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] => [
   {
     id: 'image',
     header: '',
-    enableSorting: false,
-    enableHiding: false,
-    cell: ({ row }) => renderImageFrame(row.original.image, row.original.name),
+    meta: { class: 'hidden sm:table-cell' },
+    cell: ({ row }) => renderThumbnail(row.original),
   },
   {
     accessorKey: 'name',
-    header: ({ column }) =>
-      h(Button, {
-        variant: 'ghost',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-      }, () => ['Product', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })]),
+    header: 'Product',
     cell: ({ row }) => {
       const product = row.original
-      const isVariant = product.parent_id != null
-      const hasVariants = product.variants && product.variants.length > 0
-
-      return h('div', { class: 'flex flex-col gap-0.5 min-w-0' }, [
-        h('div', { class: 'flex items-center gap-2' }, [
-          h('span', { class: 'font-semibold truncate' }, product.name),
-          isVariant && h(Badge, { variant: 'outline', class: 'text-xs shrink-0' }, () => [
-            product.variant_label,
+      return h('div', { class: 'flex min-w-0 flex-col gap-0.5' }, [
+        h('div', { class: 'flex flex-wrap items-center gap-x-2 gap-y-1' }, [
+          h('span', { class: 'font-medium leading-tight' }, product.name),
+          product.variant_count > 0 && h(Badge, { variant: 'outline', class: 'shrink-0 gap-1 font-normal' }, () => [
+            h(GitBranch, { class: 'size-3' }),
+            `${product.variant_count}`,
           ]),
-          hasVariants && h('div', { class: 'flex items-center gap-1 text-muted-foreground' }, [
-            h(GitBranch, { class: 'h-3 w-3' }),
-            h('span', { class: 'text-xs' }, `${product.variants!.length}`),
-          ]),
+          !product.is_active && h(Badge, { variant: 'secondary', class: 'shrink-0 font-normal' }, () => 'Archived'),
         ]),
-        h('span', { class: 'text-xs text-muted-foreground font-mono' }, product.sku),
+        h('span', { class: 'font-mono text-xs text-muted-foreground' }, product.sku),
       ])
     },
   },
   {
     accessorKey: 'category',
     header: 'Category',
-    cell: ({ row }) => {
-      const category = row.getValue('category') as string | null
-      return category
-        ? h(Badge, { variant: 'outline' }, () => category)
-        : h('span', { class: 'text-muted-foreground text-sm' }, '—')
-    },
-    filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    meta: { class: 'hidden md:table-cell' },
+    cell: ({ row }) => row.original.category
+      ? h(Badge, { variant: 'outline', class: 'font-normal' }, () => row.original.category)
+      : h('span', { class: 'text-sm text-muted-foreground' }, '—'),
   },
   {
     accessorKey: 'price',
-    header: ({ column }) =>
-      h(Button, {
-        variant: 'ghost',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-      }, () => ['Price', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })]),
-    cell: ({ row }) =>
-      h('div', { class: 'font-medium tabular-nums' }, formatCurrency(row.getValue('price'))),
+    header: 'Price',
+    cell: ({ row }) => h('span', { class: 'font-medium tabular-nums' }, formatMoney(row.original.price)),
   },
   {
     accessorKey: 'quantity',
-    header: ({ column }) =>
-      h(Button, {
-        variant: 'ghost',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-      }, () => ['Stock', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })]),
-    cell: ({ row }) => {
-      const quantity = row.getValue('quantity') as number
-      const minStock = row.original.min_stock
-      const unit = row.original.unit
-      const isLow = quantity <= minStock
-      const isOut = quantity === 0
-
-      return h('div', { class: 'flex items-center gap-2' }, [
-        isLow && h(AlertTriangle, {
-          class: `h-4 w-4 ${isOut ? 'text-destructive' : 'text-orange-500'}`,
-        }),
-        h(Badge, {
-          variant: isOut ? 'destructive' : isLow ? 'outline' : 'secondary',
-          class: isLow && !isOut ? 'border-orange-500 text-orange-600' : '',
-        }, () => `${quantity} ${unit}`),
-      ])
-    },
+    header: 'Stock',
+    cell: ({ row }) => renderStock(row.original),
   },
   {
     id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const product = row.original
-      const isVariant = product.parent_id != null
-
-      return h(DropdownMenu, null, {
-        default: () => [
-          h(DropdownMenuTrigger, { asChild: true }, () =>
-            h(Button, { variant: 'ghost', class: 'h-8 w-8 p-0' }, () => [
-              h('span', { class: 'sr-only' }, 'Open menu'),
-              h(MoreHorizontal, { class: 'h-4 w-4' }),
-            ]),
-          ),
-          h(DropdownMenuContent, { align: 'end' }, () => [
-            h(DropdownMenuLabel, null, () => product.name),
-            h(DropdownMenuSeparator),
-            h(DropdownMenuGroup, null, () => [
-              h(DropdownMenuItem, { onClick: () => handlers.onView(product) }, () => [
-                h(Eye, { class: 'mr-2 h-4 w-4' }),
-                'View Details',
-              ]),
-              handlers.canEdit && h(DropdownMenuItem, { onClick: () => handlers.onEdit(product) }, () => [
-                h(Pencil, { class: 'mr-2 h-4 w-4' }),
-                'Edit',
-              ]),
-              !isVariant && handlers.canEdit && h(DropdownMenuItem, {
-                onClick: () => handlers.onAddVariant(product),
-              }, () => [
-                h(GitBranch, { class: 'mr-2 h-4 w-4' }),
-                'Add Variant',
-              ]),
-            ]),
-            handlers.canDelete && h(DropdownMenuSeparator),
-            handlers.canDelete && h(DropdownMenuGroup, null, () => [
-              h(DropdownMenuItem, {
-                class: 'text-destructive focus:text-destructive',
-                onClick: () => handlers.onDelete(product),
-              }, () => [
-                h(Trash2, { class: 'mr-2 h-4 w-4' }),
-                'Delete',
-              ]),
-            ]),
-          ]),
-        ],
-      })
-    },
+    cell: ({ row }) => renderActions(row.original, actions),
   },
 ]

@@ -1,119 +1,93 @@
 import { toast } from 'vue-sonner'
 
 export interface ProductAddon {
-  id: number
-  product_id: number
+  id: string
+  product_id: string
   name: string
   price: number
   is_active: boolean
-  created_at?: string
-  updated_at?: string
+  created_at: string
+  updated_at: string
 }
 
-interface CreateAddonInput {
+export interface AddonFields {
   name: string
   price: number
+  is_active?: boolean
 }
 
-interface UpdateAddonInput {
-  name: string
-  price: number
-  is_active: boolean
-}
-
-interface ApiResponse<T> {
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
 }
 
 export const useAddons = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
   const addons = ref<ProductAddon[]>([])
   const loading = ref(false)
 
-  const fetchAddons = async (productId: number): Promise<void> => {
+  const fetchAddons = async (productId: string): Promise<void> => {
     loading.value = true
     try {
-      const response = await $apiFetch<ApiResponse<ProductAddon[]>>(
-        `${apiBase}/api/products/${productId}/addons`,
-        { credentials: 'include' as const },
-      )
-      addons.value = response.data ?? []
+      const addonResponse = await apiFetch<ApiEnvelope<ProductAddon[]>>(`/api/products/${productId}/addons`)
+      addons.value = addonResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch addons')
+      toast.error(error?.data?.message || 'Failed to load add-ons')
     } finally {
       loading.value = false
     }
   }
 
-  const createAddon = async (
-    productId: number,
-    input: CreateAddonInput,
-  ): Promise<ProductAddon | undefined> => {
+  const createAddon = async (productId: string, addonFields: AddonFields): Promise<ProductAddon | undefined> => {
     loading.value = true
     try {
-      const response = await $apiFetch<ApiResponse<ProductAddon>>(
-        `${apiBase}/api/products/${productId}/addons`,
-        {
-          method: 'POST' as const,
-          body: input,
-          credentials: 'include' as const,
-        },
-      )
-      addons.value.push(response.data)
-      toast.success(response.message)
-      return response.data
+      const createResponse = await apiFetch<ApiEnvelope<ProductAddon>>(`/api/products/${productId}/addons`, {
+        method: 'POST',
+        body: addonFields,
+      })
+      addons.value.push(createResponse.data)
+      toast.success(createResponse.message)
+      return createResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create addon')
+      toast.error(error?.data?.message || 'Failed to add the add-on')
       throw error
     } finally {
       loading.value = false
     }
   }
 
-  const updateAddon = async (
-    id: number,
-    input: UpdateAddonInput,
-  ): Promise<ProductAddon | undefined> => {
+  const updateAddon = async (addonId: string, addonFields: AddonFields): Promise<ProductAddon | undefined> => {
     loading.value = true
     try {
-      const response = await $apiFetch<ApiResponse<ProductAddon>>(
-        `${apiBase}/api/addons/${id}`,
-        {
-          method: 'PUT' as const,
-          body: input,
-          credentials: 'include' as const,
-        },
-      )
-      const addonIndex = addons.value.findIndex(existingAddon => existingAddon.id === id)
-      if (addonIndex !== -1) addons.value[addonIndex] = response.data
-      toast.success(response.message)
-      return response.data
+      const updateResponse = await apiFetch<ApiEnvelope<ProductAddon>>(`/api/addons/${addonId}`, {
+        method: 'PUT',
+        body: addonFields,
+      })
+      const addonIndex = addons.value.findIndex(existingAddon => existingAddon.id === addonId)
+      if (addonIndex !== -1) addons.value[addonIndex] = updateResponse.data
+      toast.success(updateResponse.message)
+      return updateResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update addon')
+      toast.error(error?.data?.message || 'Failed to save the add-on')
       throw error
     } finally {
       loading.value = false
     }
   }
 
-  const deleteAddon = async (id: number): Promise<void> => {
+  const deleteAddon = async (addonId: string): Promise<void> => {
     loading.value = true
     try {
-      const response = await $apiFetch<ApiResponse<null>>(
-        `${apiBase}/api/addons/${id}`,
-        {
-          method: 'DELETE' as const,
-          credentials: 'include' as const,
-        },
-      )
-      addons.value = addons.value.filter(addon => addon.id !== id)
-      toast.success(response.message)
+      const deleteResponse = await apiFetch<ApiEnvelope<null>>(`/api/addons/${addonId}`, {
+        method: 'DELETE',
+      })
+      addons.value = addons.value.filter(addon => addon.id !== addonId)
+      toast.success(deleteResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete addon')
+      toast.error(error?.data?.message || 'Failed to delete the add-on')
       throw error
     } finally {
       loading.value = false
