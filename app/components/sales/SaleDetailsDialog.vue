@@ -49,6 +49,7 @@ const printReceipt = () => {
         <DialogTitle>{{ sale?.receipt_number ?? t('sales.details.title') }}</DialogTitle>
         <DialogDescription v-if="sale">
           {{ formatDateTime(sale.created_at) }} · {{ sale.cashier_name }} · {{ sale.shop_name }}
+          <template v-if="sale.customer_name"> · {{ t('sales.details.customer', { name: sale.customer_name }) }}</template>
         </DialogDescription>
       </DialogHeader>
 

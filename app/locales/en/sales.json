@@ -30,7 +30,8 @@
       "other": "{count} attempts"
     },
     "sendNow": "Send now",
-    "printReceipt": "Print receipt"
+    "printReceipt": "Print receipt",
+    "customer": "Customer: {name}"
   },
   "efd": {
     "sending": "Sending to EFD…"
@@ -44,7 +45,8 @@
   "paymentMethods": {
     "cash": "Cash",
     "card": "Card",
-    "mobile": "Mobile money"
+    "mobile": "Mobile money",
+    "credit": "Pay later"
   },
   "toasts": {
     "loadFailed": "Failed to load sales",

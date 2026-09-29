@@ -30,7 +30,8 @@
       "other": "Majaribio {count}"
     },
     "sendNow": "Tuma sasa",
-    "printReceipt": "Chapisha risiti"
+    "printReceipt": "Chapisha risiti",
+    "customer": "Mteja: {name}"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"
@@ -44,7 +45,8 @@
   "paymentMethods": {
     "cash": "Taslimu",
     "card": "Kadi",
-    "mobile": "Pesa ya simu"
+    "mobile": "Pesa ya simu",
+    "credit": "Lipa baadaye"
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia mauzo",

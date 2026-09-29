@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Grid3x3, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, X } from 'lucide-vue-next'
+import { Grid3x3, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, UserPlus, UserRound, X } from 'lucide-vue-next'
+import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import NumberPad from '@/components/pos/NumberPad.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import { Badge } from '@/components/ui/badge'
@@ -32,9 +33,11 @@ const {
   slotUnitCounts,
   setQuantity,
   setNote,
+  setCustomer,
   selectSlot,
 } = useCart()
 const { t, formatNumber } = useI18n()
+const { customersOn } = useFeatures()
 
 const numpadOpenStorageKey = 'balce:till-numpad-open'
 
@@ -42,6 +45,7 @@ const lineList = ref<HTMLElement | null>(null)
 const showNumpad = ref(true)
 const flashingKey = ref<string | null>(null)
 const showNote = ref(false)
+const showCustomerPicker = ref(false)
 let flashTimer: ReturnType<typeof setTimeout> | null = null
 
 const hasLines = computed(() => activeSlot.value.lines.length > 0)
@@ -162,6 +166,37 @@ watch(activeSlotIndex, () => {
         <Trash2 />
       </Button>
     </div>
+
+    <div v-if="customersOn" class="flex items-center gap-2 border-b px-3 py-1.5">
+      <template v-if="activeSlot.customer">
+        <button
+          type="button"
+          class="flex min-w-0 items-center gap-1.5 rounded-full bg-primary/10 py-1 pl-2.5 pr-3 text-sm font-medium text-primary hover:bg-primary/15"
+          :title="t('pos.customer.change')"
+          @click="showCustomerPicker = true"
+        >
+          <UserRound class="size-4 shrink-0" />
+          <span class="truncate">{{ activeSlot.customer.name }}</span>
+        </button>
+        <Button variant="ghost" size="icon" class="size-7 text-muted-foreground" :aria-label="t('pos.customer.remove')" @click="setCustomer(null)">
+          <X />
+        </Button>
+      </template>
+      <button
+        v-else
+        type="button"
+        class="flex items-center gap-1.5 rounded-full border border-dashed px-3 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+        @click="showCustomerPicker = true"
+      >
+        <UserPlus class="size-4" />
+        {{ t('pos.customer.add') }}
+      </button>
+    </div>
+    <CustomerPicker
+      v-if="customersOn"
+      v-model:open="showCustomerPicker"
+      @pick="customer => setCustomer({ id: customer.id, name: customer.name, phone: customer.phone })"
+    />
 
     <div ref="lineList" class="min-h-0 flex-1 overflow-y-auto">
       <div v-if="!hasLines" class="flex h-full flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">

@@ -16,15 +16,22 @@ export interface CartLine {
   addons: CartAddon[]
 }
 
+export interface CartCustomer {
+  id: string
+  name: string
+  phone: string | null
+}
+
 export interface CartSlot {
   lines: CartLine[]
   clientRef: string | null
   note: string
+  customer?: CartCustomer | null
 }
 
 export const cartSlotCount = 3
 
-const emptySlot = (): CartSlot => ({ lines: [], clientRef: null, note: '' })
+const emptySlot = (): CartSlot => ({ lines: [], clientRef: null, note: '', customer: null })
 
 const storageKeyFor = (shopId: string | null | undefined) => `balce:pos-carts:${shopId ?? 'none'}`
 
@@ -116,6 +123,11 @@ export const useCart = () => {
     touch()
   }
 
+  const setCustomer = (customer: CartCustomer | null) => {
+    activeSlot.value.customer = customer
+    touch()
+  }
+
   const selectSlot = (slotIndex: number) => {
     activeSlotIndex.value = slotIndex
     selectedKey.value = null
@@ -151,6 +163,7 @@ export const useCart = () => {
     clearActive,
     restoreSlot,
     setNote,
+    setCustomer,
     selectSlot,
     takeMultiplier,
     checkoutReference,
