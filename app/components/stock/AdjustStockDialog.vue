@@ -16,6 +16,7 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
 const { adjustStock, saving } = useStock()
+const { accountingOn } = useFeatures()
 
 const reasonChoices = computed<Array<{ reason: AdjustmentReason; label: string; hint: string; icon: any }>>(() => [
   { reason: 'purchase', label: t('stock.adjust.received'), hint: t('stock.adjust.receivedHint'), icon: PackagePlus },
@@ -131,6 +132,8 @@ const submit = async () => {
             </p>
           </div>
         </div>
+
+        <p v-if="accountingOn && reason === 'purchase'" class="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">{{ t('stock.adjust.booksTip') }}</p>
 
         <div class="flex flex-col gap-1.5">
           <Label for="adjust-reference">{{ t('stock.adjust.note') }}</Label>

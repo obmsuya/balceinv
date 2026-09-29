@@ -73,7 +73,8 @@
       "countMatches": "Idadi iliyohesabiwa tayari inalingana na stoku",
       "quantityRequired": "Weka idadi zaidi ya sifuri",
       "notEnough": "Stoku iliyopo ni {quantity} {unit} tu"
-    }
+    },
+    "booksTip": "Vitabu vya hesabu vikiwa vimewashwa, stoku inayopokelewa hapa inahesabiwa kama stoku aliyoleta mmiliki. Kurekodi stoku uliyonunua kwa msambazaji na ulicholipa, tumia Stoku imefika."
   },
   "send": {
     "thisShop": "duka hili",
