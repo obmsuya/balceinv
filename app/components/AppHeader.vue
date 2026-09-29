@@ -12,6 +12,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -22,12 +24,18 @@ import UpdateIndicator from '@/components/UpdateIndicator.vue'
 import SubscriptionIndicator from '@/components/license/SubscriptionIndicator.vue'
 import ShopSwitcher from '@/components/ShopSwitcher.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { isLocale, supportedLocales } from '~/utils/translate'
 
 const notificationPollMilliseconds = 30000
 const popoverNotificationCount = 5
 
 const colorMode = useColorMode()
-const { t, formatRelativeTime } = useI18n()
+const { t, locale, chooseLanguage, formatRelativeTime } = useI18n()
+
+const selectLanguage = (chosenLocale: unknown) => {
+  if (!isLocale(chosenLocale) || chosenLocale === locale.value) return
+  chooseLanguage(chosenLocale)
+}
 const { user, logout } = useAuth()
 const { canView } = usePermissions()
 const { status: updateStatus, checkForUpdate } = useUpdater()
@@ -136,7 +144,7 @@ onUnmounted(() => {
 
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon" :aria-label="t('nav.header.theme')">
+            <Button variant="ghost" size="icon" class="hidden sm:inline-flex" :aria-label="t('nav.header.theme')">
               <Moon class="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Sun class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
@@ -148,7 +156,9 @@ onUnmounted(() => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <LanguageSwitcher />
+        <div class="hidden sm:block">
+          <LanguageSwitcher />
+        </div>
 
         <Button variant="ghost" size="icon" class="hidden sm:inline-flex" :aria-label="t('nav.header.refresh')" @click="reloadApp">
           <RefreshCw class="size-5" />
@@ -234,6 +244,19 @@ onUnmounted(() => {
               <p class="text-xs font-normal text-muted-foreground">{{ user?.email }}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuLabel class="text-xs font-normal text-muted-foreground sm:hidden">{{ t('common.language.label') }}</DropdownMenuLabel>
+            <DropdownMenuRadioGroup class="sm:hidden" :model-value="locale" @update:model-value="selectLanguage">
+              <DropdownMenuRadioItem v-for="supportedLocale in supportedLocales" :key="supportedLocale" :value="supportedLocale">
+                {{ t(`common.language.${supportedLocale}`) }}
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuLabel class="text-xs font-normal text-muted-foreground sm:hidden">{{ t('nav.header.theme') }}</DropdownMenuLabel>
+            <DropdownMenuRadioGroup v-model="colorMode.preference" class="sm:hidden">
+              <DropdownMenuRadioItem value="light">{{ t('nav.header.light') }}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">{{ t('nav.header.dark') }}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">{{ t('nav.header.system') }}</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator class="sm:hidden" />
             <DropdownMenuItem @click="navigateTo('/settings')">{{ t('nav.header.settings') }}</DropdownMenuItem>
             <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
               {{ updateStatus === 'checking' ? t('nav.header.checkingUpdates') : t('nav.header.checkUpdates') }}
