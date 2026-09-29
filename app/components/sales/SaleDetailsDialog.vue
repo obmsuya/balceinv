@@ -6,13 +6,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Sale } from '@/composables/useSales'
-import { fiscalStatusLabels, paymentMethodLabels } from '@/composables/useSales'
+import { fiscalStatusLabel, paymentMethodLabel } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
 const props = defineProps<{ saleId: string | null }>()
 const emit = defineEmits<{ changed: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const { t, formatDateTime, formatNumber } = useI18n()
 
 const { fetchSale, sendToEfd } = useSales()
 const sale = ref<Sale | null>(null)
@@ -45,9 +46,9 @@ const printReceipt = () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>{{ sale?.receipt_number ?? 'Sale' }}</DialogTitle>
+        <DialogTitle>{{ sale?.receipt_number ?? t('sales.details.title') }}</DialogTitle>
         <DialogDescription v-if="sale">
-          {{ new Date(sale.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) }} · {{ sale.cashier_name }} · {{ sale.shop_name }}
+          {{ formatDateTime(sale.created_at) }} · {{ sale.cashier_name }} · {{ sale.shop_name }}
         </DialogDescription>
       </DialogHeader>
 
@@ -61,7 +62,7 @@ const printReceipt = () => {
               <template v-if="saleLine.addons.length"> + {{ saleLine.addons.map(addon => addon.name).join(', ') }}</template>
             </p>
             <div class="mt-1 flex flex-wrap gap-1">
-              <Badge v-if="saleLine.is_wholesale" variant="secondary" class="font-normal">Wholesale</Badge>
+              <Badge v-if="saleLine.is_wholesale" variant="secondary" class="font-normal">{{ t('sales.details.wholesale') }}</Badge>
               <Badge v-if="saleLine.discount_name" variant="outline" class="font-normal">{{ saleLine.discount_name }} −{{ formatMoney(saleLine.discount_amount) }}</Badge>
             </div>
           </div>
@@ -70,30 +71,30 @@ const printReceipt = () => {
 
         <Separator />
         <dl class="flex flex-col gap-1 text-sm">
-          <div v-if="sale.discount_total" class="flex justify-between text-muted-foreground"><dt>Before discounts</dt><dd class="tabular-nums">{{ formatMoney(sale.subtotal) }}</dd></div>
-          <div v-if="sale.discount_total" class="flex justify-between text-muted-foreground"><dt>Discounts</dt><dd class="tabular-nums">−{{ formatMoney(sale.discount_total) }}</dd></div>
-          <div class="flex justify-between text-base font-semibold"><dt>Total</dt><dd class="tabular-nums">{{ formatMoney(sale.total) }}</dd></div>
-          <div class="flex justify-between text-xs text-muted-foreground"><dt>Includes tax ({{ (sale.tax_rate_basis_points / 100).toLocaleString() }}%)</dt><dd class="tabular-nums">{{ formatMoney(sale.tax_total) }}</dd></div>
-          <div v-for="payment in sale.payments" :key="payment.method" class="flex justify-between"><dt>{{ paymentMethodLabels[payment.method] }}</dt><dd class="tabular-nums">{{ formatMoney(payment.amount) }}</dd></div>
-          <div v-if="sale.change_given" class="flex justify-between"><dt>Change</dt><dd class="tabular-nums">{{ formatMoney(sale.change_given) }}</dd></div>
+          <div v-if="sale.discount_total" class="flex justify-between text-muted-foreground"><dt>{{ t('sales.details.beforeDiscounts') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.subtotal) }}</dd></div>
+          <div v-if="sale.discount_total" class="flex justify-between text-muted-foreground"><dt>{{ t('sales.details.discounts') }}</dt><dd class="tabular-nums">−{{ formatMoney(sale.discount_total) }}</dd></div>
+          <div class="flex justify-between text-base font-semibold"><dt>{{ t('common.fields.total') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.total) }}</dd></div>
+          <div class="flex justify-between text-xs text-muted-foreground"><dt>{{ t('sales.details.includesTax', { rate: formatNumber(sale.tax_rate_basis_points / 100) }) }}</dt><dd class="tabular-nums">{{ formatMoney(sale.tax_total) }}</dd></div>
+          <div v-for="payment in sale.payments" :key="payment.method" class="flex justify-between"><dt>{{ paymentMethodLabel(payment.method) }}</dt><dd class="tabular-nums">{{ formatMoney(payment.amount) }}</dd></div>
+          <div v-if="sale.change_given" class="flex justify-between"><dt>{{ t('sales.details.change') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.change_given) }}</dd></div>
         </dl>
         <p v-if="sale.note" class="rounded-md bg-muted/40 px-3 py-2 text-sm">{{ sale.note }}</p>
         <div v-if="sale.fiscal" class="flex items-start justify-between gap-3 rounded-md border px-3 py-2 text-sm">
           <div class="min-w-0">
             <p class="flex items-center gap-2 font-medium">
               <ReceiptText class="size-4 text-muted-foreground" />
-              {{ sendingFiscal ? 'Sending to EFD…' : fiscalStatusLabels[sale.fiscal.status] }}
+              {{ sendingFiscal ? t('sales.efd.sending') : fiscalStatusLabel(sale.fiscal.status) }}
             </p>
             <p v-if="sale.fiscal.verification_code" class="font-mono text-xs">{{ sale.fiscal.verification_code }}</p>
             <p v-if="sale.fiscal.status !== 'sent' && sale.fiscal.last_error" class="text-xs text-destructive">{{ sale.fiscal.last_error }}</p>
-            <p v-if="sale.fiscal.attempts" class="text-xs text-muted-foreground">{{ sale.fiscal.attempts }} {{ sale.fiscal.attempts === 1 ? 'attempt' : 'attempts' }}</p>
+            <p v-if="sale.fiscal.attempts" class="text-xs text-muted-foreground">{{ t('sales.details.attempts', { count: sale.fiscal.attempts }) }}</p>
           </div>
-          <Button v-if="sale.fiscal.status !== 'sent'" variant="outline" size="sm" :disabled="sendingFiscal" @click="sendFiscal">Send now</Button>
+          <Button v-if="sale.fiscal.status !== 'sent'" variant="outline" size="sm" :disabled="sendingFiscal" @click="sendFiscal">{{ t('sales.details.sendNow') }}</Button>
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> Print receipt</Button>
+        <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> {{ t('sales.details.printReceipt') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

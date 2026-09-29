@@ -9,6 +9,7 @@ const props = defineProps<{ parent: Product | null }>()
 const emit = defineEmits<{ pick: [product: Product] }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const { t } = useI18n()
 
 const { fetchVariants } = useProducts()
 const variants = ref<Product[]>([])
@@ -34,7 +35,7 @@ const pick = (product: Product) => {
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
         <DialogTitle>{{ parent?.name }}</DialogTitle>
-        <DialogDescription>Which one?</DialogDescription>
+        <DialogDescription>{{ t('pos.variants.which') }}</DialogDescription>
       </DialogHeader>
       <Skeleton v-if="loading" class="h-24 w-full" />
       <div v-else class="grid grid-cols-2 gap-2">
@@ -46,7 +47,7 @@ const pick = (product: Product) => {
           :disabled="(product.quantity ?? 0) <= 0"
           @click="pick(product)"
         >
-          <span class="text-sm font-medium">{{ product.variant_label || 'Standard' }}</span>
+          <span class="text-sm font-medium">{{ product.variant_label || t('pos.variants.standard') }}</span>
           <span class="text-sm tabular-nums">{{ formatMoney(product.price) }}</span>
           <Badge variant="outline" class="font-normal tabular-nums">{{ product.quantity ?? 0 }} {{ product.unit }}</Badge>
         </button>

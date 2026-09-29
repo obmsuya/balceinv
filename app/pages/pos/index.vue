@@ -15,8 +15,9 @@ import type { ProductAddon } from '@/composables/useAddons'
 import type { CartAddon } from '@/composables/useCart'
 import type { Product } from '@/composables/useProducts'
 import type { PaymentInput, Sale, SaleFiscal, TillOptions } from '@/composables/useSales'
-import { fiscalStatusLabels } from '@/composables/useSales'
+import { fiscalStatusLabel } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
+import { apiErrorMessage } from '~/utils/i18n'
 
 const allCategories = ''
 const efdRetryMilliseconds = 5 * 60 * 1000
@@ -27,6 +28,7 @@ const { activeSlot, activeSlotIndex, unitCount, loadCarts, addLine, clearActive,
 const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd } = useSales()
 const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
 const { user } = useAuth()
+const { t } = useI18n()
 const { quote, quoteError, quoting, cartItems, linePrices, total, isExact, shortLineCount, requestQuote, settleQuote } = useTillQuote()
 
 const searchText = ref('')
@@ -116,18 +118,18 @@ const scanCode = async () => {
       await chooseProduct(products.value[0]!)
       return
     }
-    toast.error(`Nothing matches “${scannedCode}”`)
+    toast.error(t('pos.search.noMatch', { text: scannedCode }))
     focusSearch()
   } catch {
-    toast.error('Cannot reach the server to look that up')
+    toast.error(t('pos.search.lookupOffline'))
   }
 }
 
 const clearCart = () => {
   const clearedSlotIndex = activeSlotIndex.value
   const clearedSlot = clearActive()
-  toast('Cart cleared', {
-    action: { label: 'Undo', onClick: () => restoreSlot(clearedSlotIndex, clearedSlot) },
+  toast(t('pos.toasts.cartCleared'), {
+    action: { label: t('pos.toasts.undo'), onClick: () => restoreSlot(clearedSlotIndex, clearedSlot) },
   })
 }
 
@@ -163,7 +165,7 @@ const completeSale = async (payments: PaymentInput[]) => {
     nextSaleElement?.focus()
   } catch (error: any) {
     const isOffline = !error?.status && !error?.statusCode
-    toast.error(isOffline ? 'The sale did not reach the server. Try again; it will not be charged twice.' : error?.data?.message || 'The sale failed')
+    toast.error(isOffline ? t('pos.toasts.saleOffline') : apiErrorMessage(error, 'pos.toasts.saleFailed'))
     if (!isOffline) {
       showPayment.value = false
       requestQuote()
@@ -258,9 +260,9 @@ onBeforeUnmount(() => {
           <Input
             ref="searchInput"
             v-model="searchText"
-            placeholder="Scan a barcode or search products"
+            :placeholder="t('pos.search.placeholder')"
             class="h-12 pl-10 pr-20 text-base"
-            aria-label="Scan or search products"
+            :aria-label="t('pos.search.label')"
             autocomplete="off"
             @keydown.esc="searchText = ''"
           />
@@ -268,7 +270,7 @@ onBeforeUnmount(() => {
             v-if="searchText"
             type="button"
             class="absolute right-12 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-            aria-label="Clear the search"
+            :aria-label="t('pos.search.clear')"
             @click="searchText = ''; focusSearch()"
           >
             <X class="size-4" />
@@ -279,11 +281,11 @@ onBeforeUnmount(() => {
           v-if="customerDisplayEnabled"
           variant="outline"
           class="h-12 shrink-0"
-          title="Open the customer display on the second screen"
+          :title="t('pos.customerScreen.open')"
           @click="openDisplay"
         >
           <Monitor />
-          <span class="hidden lg:inline">Customer screen</span>
+          <span class="hidden lg:inline">{{ t('pos.customerScreen.button') }}</span>
         </Button>
       </div>
 
@@ -296,7 +298,7 @@ onBeforeUnmount(() => {
           :class="categoryFilter === category ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'"
           @click="categoryFilter = category"
         >
-          {{ category || 'All' }}
+          {{ category || t('common.states.all') }}
         </button>
       </div>
 
@@ -332,17 +334,17 @@ onBeforeUnmount(() => {
         <Button variant="outline" class="h-12 flex-1 justify-between" @click="showCartSheet = true">
           <span class="flex items-center gap-2">
             <ChevronUp />
-            {{ unitCount }} {{ unitCount === 1 ? 'item' : 'items' }}
+            {{ t('pos.itemCount', { count: unitCount }) }}
           </span>
           <span class="font-semibold tabular-nums">{{ formatMoney(unitCount ? total : 0) }}</span>
         </Button>
-        <Button class="h-12 px-6 text-base" :disabled="!unitCount || preparingPayment" @click="startPayment">Pay</Button>
+        <Button class="h-12 px-6 text-base" :disabled="!unitCount || preparingPayment" @click="startPayment">{{ t('pos.pay') }}</Button>
       </div>
     </div>
 
     <Sheet v-model:open="showCartSheet">
       <SheetContent side="bottom" class="h-[88dvh] gap-0 rounded-t-2xl p-0">
-        <SheetHeader class="sr-only"><SheetTitle>Cart</SheetTitle></SheetHeader>
+        <SheetHeader class="sr-only"><SheetTitle>{{ t('pos.cart.title') }}</SheetTitle></SheetHeader>
         <CartPanel
           :quote="quote"
           :line-prices="linePrices"
@@ -366,17 +368,17 @@ onBeforeUnmount(() => {
       <DialogContent class="sm:max-w-sm">
         <DialogHeader class="items-center text-center">
           <CircleCheck class="size-12 text-emerald-500" />
-          <DialogTitle>Sale complete</DialogTitle>
-          <DialogDescription>Receipt {{ completedSale?.receipt_number }} · {{ formatMoney(completedSale?.total ?? 0) }}</DialogDescription>
+          <DialogTitle>{{ t('pos.complete.title') }}</DialogTitle>
+          <DialogDescription>{{ t('pos.complete.description', { number: completedSale?.receipt_number ?? '', total: formatMoney(completedSale?.total ?? 0) }) }}</DialogDescription>
         </DialogHeader>
         <div v-if="completedSale" class="flex flex-col items-center gap-1 rounded-xl bg-muted/50 py-4">
-          <span class="text-sm text-muted-foreground">Change to give</span>
+          <span class="text-sm text-muted-foreground">{{ t('pos.complete.changeToGive') }}</span>
           <span class="text-4xl font-bold tabular-nums">{{ formatMoney(completedSale.change_given) }}</span>
         </div>
         <div v-if="saleFiscal" class="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm">
           <span class="flex items-center gap-2">
             <ReceiptText class="size-4 text-muted-foreground" />
-            {{ sendingFiscal ? 'Sending to EFD…' : fiscalStatusLabels[saleFiscal.status] }}
+            {{ sendingFiscal ? t('sales.efd.sending') : fiscalStatusLabel(saleFiscal.status) }}
           </span>
           <Button
             v-if="!sendingFiscal && saleFiscal.status !== 'sent'"
@@ -384,12 +386,12 @@ onBeforeUnmount(() => {
             size="sm"
             @click="completedSale && sendSaleToEfd(completedSale.id)"
           >
-            Try again
+            {{ t('common.actions.retry') }}
           </Button>
         </div>
         <DialogFooter class="gap-2 sm:justify-center">
-          <Button variant="outline" @click="completedSale && printReceipt(completedSale.id)"><Printer /> Print receipt</Button>
-          <Button ref="nextSaleButton" @click="startNextSale">Next sale</Button>
+          <Button variant="outline" @click="completedSale && printReceipt(completedSale.id)"><Printer /> {{ t('pos.complete.printReceipt') }}</Button>
+          <Button ref="nextSaleButton" @click="startNextSale">{{ t('pos.complete.nextSale') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

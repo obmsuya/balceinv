@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type PaymentMethod = 'cash' | 'card' | 'mobile'
 
@@ -60,12 +61,7 @@ export interface SendWaitingResult {
   still_waiting: number
 }
 
-export const fiscalStatusLabels: Record<FiscalStatus, string> = {
-  pending: 'Waiting for EFD',
-  sending: 'Sending to EFD',
-  sent: 'Sent to EFD',
-  failed: 'EFD failed',
-}
+export const fiscalStatusLabel = (status: FiscalStatus): string => t(`sales.fiscalStatus.${status}`)
 
 export interface SaleQuote {
   lines: SaleLine[]
@@ -160,11 +156,7 @@ interface Page<Item> {
 
 export const salePageSize = 50
 
-export const paymentMethodLabels: Record<PaymentMethod, string> = {
-  cash: 'Cash',
-  card: 'Card',
-  mobile: 'Mobile money',
-}
+export const paymentMethodLabel = (method: PaymentMethod): string => t(`sales.paymentMethods.${method}`)
 
 const localDayStart = (isoDate: string): string | undefined =>
   isoDate ? new Date(`${isoDate}T00:00:00`).toISOString() : undefined
@@ -225,7 +217,7 @@ export const useSales = () => {
       totalSales.value = salePage.data.total
       totals.value = totalsResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load sales')
+      toast.error(apiErrorMessage(error, 'sales.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -236,7 +228,7 @@ export const useSales = () => {
       const saleResponse = await apiFetch<ApiEnvelope<Sale>>(`/api/sales/${saleId}`)
       return saleResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the sale')
+      toast.error(apiErrorMessage(error, 'sales.toasts.saleLoadFailed'))
     }
   }
 
@@ -259,7 +251,7 @@ export const useSales = () => {
       const fiscalResponse = await apiFetch<ApiEnvelope<SaleFiscal>>(`/api/sales/${saleId}/fiscal`, { method: 'POST' })
       return fiscalResponse.data
     } catch (error: any) {
-      if (error?.data?.message) toast.error(error.data.message)
+      if (error?.data?.message) toast.error(apiErrorMessage(error, 'sales.toasts.efdSendFailed'))
       return null
     }
   }
@@ -269,12 +261,12 @@ export const useSales = () => {
       const sendResponse = await apiFetch<ApiEnvelope<SendWaitingResult>>('/api/sales/fiscal/send-waiting', { method: 'POST' })
       const sendResult = sendResponse.data
       if (announce) {
-        if (sendResult.failed) toast.error(`${sendResult.failed} still could not reach the EFD`, { description: `${sendResult.sent} sent, ${sendResult.still_waiting} waiting` })
-        else toast.success(sendResult.sent ? `${sendResult.sent} sent to the EFD` : 'Nothing was waiting for the EFD')
+        if (sendResult.failed) toast.error(t('sales.toasts.efdStillFailing', { failed: sendResult.failed }), { description: t('sales.toasts.efdSendSummary', { sent: sendResult.sent, waiting: sendResult.still_waiting }) })
+        else toast.success(sendResult.sent ? t('sales.toasts.efdSent', { count: sendResult.sent }) : t('sales.toasts.efdNothingWaiting'))
       }
       return sendResult
     } catch (error: any) {
-      if (announce) toast.error(error?.data?.message || 'Could not reach the server')
+      if (announce) toast.error(apiErrorMessage(error, 'sales.toasts.serverUnreachable'))
       return null
     }
   }

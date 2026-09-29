@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 import { isTauri } from '~/composables/usePlatform'
 
 interface PrinterStatus {
@@ -76,10 +77,10 @@ export const usePrint = () => {
           credentials: 'include' as const,
         },
       )
-      toast.success('Receipt printed')
+      toast.success(t('receipt.toasts.printed'))
       return true
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not reach the printer')
+      toast.error(apiErrorMessage(error, 'receipt.toasts.printerUnreachable'))
       return false
     }
   }
@@ -93,7 +94,7 @@ export const usePrint = () => {
       )
       devices.value = response.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not scan for printers')
+      toast.error(apiErrorMessage(error, 'receipt.toasts.scanFailed'))
     } finally {
       scanning.value = false
     }
@@ -110,10 +111,10 @@ export const usePrint = () => {
           credentials: 'include' as const,
         },
       )
-      toast.success('Test print sent')
+      toast.success(t('receipt.toasts.testSent'))
       return true
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Test print failed — check the connection')
+      toast.error(apiErrorMessage(error, 'receipt.toasts.testFailed'))
       return false
     } finally {
       testingPort.value = false

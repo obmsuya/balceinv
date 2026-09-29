@@ -1,0 +1,100 @@
+{
+  "search": {
+    "placeholder": "Scan a barcode or search products",
+    "label": "Scan or search products",
+    "clear": "Clear the search",
+    "noMatch": "Nothing matches “{text}”",
+    "lookupOffline": "Cannot reach the server to look that up"
+  },
+  "customerScreen": {
+    "open": "Open the customer display on the second screen",
+    "button": "Customer screen"
+  },
+  "itemCount": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "pay": "Pay",
+  "cart": {
+    "title": "Cart",
+    "heldCarts": "Held carts",
+    "slot": "Cart {number}",
+    "showNumpad": "Show the number pad",
+    "clear": "Clear this cart",
+    "emptyTitle": "Cart is empty",
+    "emptyHint": "Tap a product or scan a barcode",
+    "oneLess": "One less {name}",
+    "oneMore": "One more {name}",
+    "quantityOf": "Quantity of {name}",
+    "wholesale": "Wholesale",
+    "onlyLeft": "Only {count} {unit} left in this shop",
+    "addNote": "Add a note",
+    "notePlaceholder": "Note for this sale (prints on the receipt)",
+    "removeNote": "Remove the note",
+    "discounts": "Discounts",
+    "includesTax": "Includes tax ({rate}%)"
+  },
+  "numpad": {
+    "label": "Number pad",
+    "deleteLast": "Delete the last digit",
+    "clear": "Clear",
+    "ok": "OK",
+    "set": "Set",
+    "promptSelected": "New quantity for {name}",
+    "promptBuffered": "Now tap or scan a product",
+    "promptIdle": "Type a quantity, then tap a product"
+  },
+  "payment": {
+    "title": "Take payment",
+    "description": "Enter how the customer pays",
+    "toPay": "To pay",
+    "payRestWith": "Pay the rest with {method}",
+    "amountFor": "{method} amount",
+    "exact": "Exact",
+    "stillToPay": "Still to pay",
+    "change": "Change",
+    "badAmount": "Amounts must be numbers",
+    "stillOwed": "{amount} still owed",
+    "nonCashTooMuch": "Card and mobile money cannot be more than the total",
+    "completeSale": "Complete sale",
+    "typingInto": "Typing into:",
+    "done": "Done"
+  },
+  "grid": {
+    "noProducts": "No products yet",
+    "productLabel": "{name}, {price}",
+    "productLabelOut": "{name}, {price}, out of stock",
+    "out": "Out",
+    "left": "{count} left",
+    "shownOf": "{shown} of {total} shown · search to find one faster"
+  },
+  "variants": {
+    "which": "Which one?",
+    "standard": "Standard"
+  },
+  "addons": {
+    "description": "Add anything extra? Each add-on is charged per item.",
+    "addWith": "Add with extras",
+    "addWithout": "Add without extras"
+  },
+  "calculator": {
+    "open": "Calculator"
+  },
+  "complete": {
+    "title": "Sale complete",
+    "description": "Receipt {number} · {total}",
+    "changeToGive": "Change to give",
+    "printReceipt": "Print receipt",
+    "nextSale": "Next sale"
+  },
+  "quote": {
+    "offline": "Cannot reach the server to price the cart. Check the connection.",
+    "failed": "Could not price the cart"
+  },
+  "toasts": {
+    "cartCleared": "Cart cleared",
+    "undo": "Undo",
+    "saleOffline": "The sale did not reach the server. Try again; it will not be charged twice.",
+    "saleFailed": "The sale failed"
+  }
+}

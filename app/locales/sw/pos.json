@@ -1,0 +1,100 @@
+{
+  "search": {
+    "placeholder": "Changanua msimbopau au tafuta bidhaa",
+    "label": "Changanua au tafuta bidhaa",
+    "clear": "Futa utafutaji",
+    "noMatch": "Hakuna kinacholingana na “{text}”",
+    "lookupOffline": "Imeshindwa kufikia seva ili kuitafuta"
+  },
+  "customerScreen": {
+    "open": "Fungua skrini ya mteja kwenye skrini ya pili",
+    "button": "Skrini ya mteja"
+  },
+  "itemCount": {
+    "one": "Bidhaa {count}",
+    "other": "Bidhaa {count}"
+  },
+  "pay": "Lipa",
+  "cart": {
+    "title": "Kikapu",
+    "heldCarts": "Vikapu vilivyohifadhiwa",
+    "slot": "Kikapu {number}",
+    "showNumpad": "Onyesha vitufe vya namba",
+    "clear": "Futa kikapu hiki",
+    "emptyTitle": "Kikapu kiko tupu",
+    "emptyHint": "Gusa bidhaa au changanua msimbopau",
+    "oneLess": "Punguza moja: {name}",
+    "oneMore": "Ongeza moja: {name}",
+    "quantityOf": "Idadi ya {name}",
+    "wholesale": "Bei ya jumla",
+    "onlyLeft": "Zimebaki {count} {unit} tu dukani hapa",
+    "addNote": "Ongeza maelezo",
+    "notePlaceholder": "Maelezo ya mauzo haya (yanachapishwa kwenye risiti)",
+    "removeNote": "Ondoa maelezo",
+    "discounts": "Punguzo",
+    "includesTax": "Inajumuisha kodi ({rate}%)"
+  },
+  "numpad": {
+    "label": "Vitufe vya namba",
+    "deleteLast": "Futa tarakimu ya mwisho",
+    "clear": "Futa",
+    "ok": "Sawa",
+    "set": "Weka",
+    "promptSelected": "Idadi mpya ya {name}",
+    "promptBuffered": "Sasa gusa au changanua bidhaa",
+    "promptIdle": "Andika idadi, kisha gusa bidhaa"
+  },
+  "payment": {
+    "title": "Pokea malipo",
+    "description": "Weka jinsi mteja anavyolipa",
+    "toPay": "Kiasi cha kulipa",
+    "payRestWith": "Lipa kiasi kilichobaki kwa {method}",
+    "amountFor": "Kiasi cha {method}",
+    "exact": "Kamili",
+    "stillToPay": "Kiasi kilichobaki",
+    "change": "Chenji",
+    "badAmount": "Kiasi lazima kiwe namba",
+    "stillOwed": "Bado kiasi cha {amount} hakijalipwa",
+    "nonCashTooMuch": "Kadi na pesa ya simu haziwezi kuzidi jumla",
+    "completeSale": "Kamilisha mauzo",
+    "typingInto": "Unaandika kwenye:",
+    "done": "Maliza"
+  },
+  "grid": {
+    "noProducts": "Bado hakuna bidhaa",
+    "productLabel": "{name}, {price}",
+    "productLabelOut": "{name}, {price}, imeisha",
+    "out": "Imeisha",
+    "left": "Zipo {count}",
+    "shownOf": "Zinaonyeshwa {shown} kati ya {total} · tafuta ili upate haraka"
+  },
+  "variants": {
+    "which": "Chagua aina",
+    "standard": "Kawaida"
+  },
+  "addons": {
+    "description": "Ungependa kuongeza nyongeza? Kila nyongeza inatozwa kwa kila bidhaa.",
+    "addWith": "Ongeza pamoja na nyongeza",
+    "addWithout": "Ongeza bila nyongeza"
+  },
+  "calculator": {
+    "open": "Kikokotoo"
+  },
+  "complete": {
+    "title": "Mauzo yamekamilika",
+    "description": "Risiti {number} · {total}",
+    "changeToGive": "Chenji ya kurudisha",
+    "printReceipt": "Chapisha risiti",
+    "nextSale": "Mteja anayefuata"
+  },
+  "quote": {
+    "offline": "Imeshindwa kufikia seva kupata bei za kikapu. Angalia muunganisho.",
+    "failed": "Imeshindwa kupata bei za kikapu"
+  },
+  "toasts": {
+    "cartCleared": "Kikapu kimefutwa",
+    "undo": "Tendua",
+    "saleOffline": "Mauzo hayajafika kwenye seva. Jaribu tena; hayatarekodiwa mara mbili.",
+    "saleFailed": "Imeshindwa kukamilisha mauzo"
+  }
+}

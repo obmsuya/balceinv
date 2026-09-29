@@ -10,6 +10,7 @@ const props = defineProps<{ productName: string; addons: ProductAddon[] }>()
 const emit = defineEmits<{ confirm: [addons: CartAddon[]] }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const { t } = useI18n()
 
 const chosenIds = ref<string[]>([])
 
@@ -35,7 +36,7 @@ const confirm = () => {
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
         <DialogTitle>{{ productName }}</DialogTitle>
-        <DialogDescription>Add anything extra? Each add-on is charged per item.</DialogDescription>
+        <DialogDescription>{{ t('pos.addons.description') }}</DialogDescription>
       </DialogHeader>
       <div class="flex flex-col gap-2">
         <button
@@ -55,7 +56,7 @@ const confirm = () => {
         </button>
       </div>
       <DialogFooter>
-        <Button @click="confirm">{{ chosenIds.length ? 'Add with extras' : 'Add without extras' }}</Button>
+        <Button @click="confirm">{{ chosenIds.length ? t('pos.addons.addWith') : t('pos.addons.addWithout') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

@@ -34,6 +34,7 @@ const {
   setNote,
   selectSlot,
 } = useCart()
+const { t, formatNumber } = useI18n()
 
 const numpadOpenStorageKey = 'balce:till-numpad-open'
 
@@ -73,9 +74,9 @@ const toggleSelected = (lineKey: string) => {
 const selectedLine = computed(() => activeSlot.value.lines.find(cartLine => cartLine.key === selectedKey.value) ?? null)
 
 const numpadPrompt = computed(() => {
-  if (selectedLine.value) return `New quantity for ${selectedLine.value.name}`
-  if (numpadBuffer.value) return 'Now tap or scan a product'
-  return 'Type a quantity, then tap a product'
+  if (selectedLine.value) return t('pos.numpad.promptSelected', { name: selectedLine.value.name })
+  if (numpadBuffer.value) return t('pos.numpad.promptBuffered')
+  return t('pos.numpad.promptIdle')
 })
 
 const pressNumpad = (key: NumberPadKey) => {
@@ -127,18 +128,18 @@ watch(activeSlotIndex, () => {
 <template>
   <div class="flex h-full min-h-0 flex-col bg-background">
     <div class="flex items-center gap-2 border-b px-3 py-2">
-      <div class="flex flex-1 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label="Held carts">
+      <div class="flex flex-1 gap-1 rounded-lg bg-muted p-1" role="tablist" :aria-label="t('pos.cart.heldCarts')">
         <button
           v-for="slotIndex in cartSlotCount"
           :key="slotIndex"
           type="button"
           role="tab"
-          class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium transition-colors"
+          class="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium transition-colors"
           :class="activeSlotIndex === slotIndex - 1 ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
           :aria-selected="activeSlotIndex === slotIndex - 1"
           @click="selectSlot(slotIndex - 1)"
         >
-          Cart {{ slotIndex }}
+          <span class="truncate">{{ t('pos.cart.slot', { number: slotIndex }) }}</span>
           <span
             v-if="slotUnitCounts[slotIndex - 1]"
             class="min-w-5 rounded-full bg-primary px-1.5 text-center text-xs tabular-nums text-primary-foreground"
@@ -152,12 +153,12 @@ watch(activeSlotIndex, () => {
         class="size-8"
         :class="showNumpad ? 'text-primary' : 'text-muted-foreground'"
         :aria-pressed="showNumpad"
-        aria-label="Show the number pad"
+        :aria-label="t('pos.cart.showNumpad')"
         @click="toggleNumpad"
       >
         <Grid3x3 />
       </Button>
-      <Button variant="ghost" size="icon" class="size-8 text-muted-foreground" :disabled="!hasLines" aria-label="Clear this cart" @click="emit('clear')">
+      <Button variant="ghost" size="icon" class="size-8 text-muted-foreground" :disabled="!hasLines" :aria-label="t('pos.cart.clear')" @click="emit('clear')">
         <Trash2 />
       </Button>
     </div>
@@ -168,8 +169,8 @@ watch(activeSlotIndex, () => {
           <ShoppingCart class="size-6" />
         </span>
         <div>
-          <p class="font-medium text-foreground">Cart is empty</p>
-          <p class="text-sm">Tap a product or scan a barcode</p>
+          <p class="font-medium text-foreground">{{ t('pos.cart.emptyTitle') }}</p>
+          <p class="text-sm">{{ t('pos.cart.emptyHint') }}</p>
         </div>
       </div>
 
@@ -206,7 +207,7 @@ watch(activeSlotIndex, () => {
               <button
                 type="button"
                 class="flex size-8 items-center justify-center rounded-l-md transition-colors hover:bg-muted"
-                :aria-label="`One less ${cartLine.name}`"
+                :aria-label="t('pos.cart.oneLess', { name: cartLine.name })"
                 @click="setQuantity(cartLine.key, cartLine.quantity - 1)"
               >
                 <Minus v-if="cartLine.quantity > 1" class="size-3.5" />
@@ -216,7 +217,7 @@ watch(activeSlotIndex, () => {
                 :value="cartLine.quantity"
                 inputmode="numeric"
                 class="h-8 w-11 border-x bg-transparent text-center text-sm tabular-nums outline-none focus:bg-muted"
-                :aria-label="`Quantity of ${cartLine.name}`"
+                :aria-label="t('pos.cart.quantityOf', { name: cartLine.name })"
                 @focus="($event.target as HTMLInputElement).select()"
                 @change="typeQuantity(cartLine.key, ($event.target as HTMLInputElement).value)"
                 @keydown.enter="($event.target as HTMLInputElement).blur()"
@@ -224,7 +225,7 @@ watch(activeSlotIndex, () => {
               <button
                 type="button"
                 class="flex size-8 items-center justify-center rounded-r-md transition-colors hover:bg-muted"
-                :aria-label="`One more ${cartLine.name}`"
+                :aria-label="t('pos.cart.oneMore', { name: cartLine.name })"
                 @click="setQuantity(cartLine.key, cartLine.quantity + 1)"
               >
                 <Plus class="size-3.5" />
@@ -232,7 +233,7 @@ watch(activeSlotIndex, () => {
             </div>
             <span class="text-xs text-muted-foreground tabular-nums">× {{ formatMoney(eachPrice(lineIndex)) }}</span>
             <div class="ml-auto flex flex-wrap justify-end gap-1">
-              <Badge v-if="linePrices[lineIndex]?.quoted?.is_wholesale" variant="secondary" class="font-normal">Wholesale</Badge>
+              <Badge v-if="linePrices[lineIndex]?.quoted?.is_wholesale" variant="secondary" class="font-normal">{{ t('pos.cart.wholesale') }}</Badge>
               <Badge v-if="linePrices[lineIndex]?.quoted?.discount_name" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">
                 {{ linePrices[lineIndex]?.quoted?.discount_name }}
               </Badge>
@@ -241,7 +242,7 @@ watch(activeSlotIndex, () => {
 
           <p v-if="isShort(lineIndex)" class="flex items-center gap-1 text-xs font-medium text-destructive">
             <TriangleAlert class="size-3.5" />
-            Only {{ linePrices[lineIndex]?.inStock }} {{ cartLine.unit }} left in this shop
+            {{ t('pos.cart.onlyLeft', { count: linePrices[lineIndex]?.inStock ?? 0, unit: cartLine.unit }) }}
           </p>
         </li>
       </ul>
@@ -252,7 +253,7 @@ watch(activeSlotIndex, () => {
         <span class="truncate text-xs text-muted-foreground">{{ numpadPrompt }}</span>
         <span class="font-mono text-lg font-semibold tabular-nums">{{ numpadBuffer ? `× ${numpadBuffer}` : '' }}</span>
       </div>
-      <NumberPad :enter-label="selectedLine ? 'Set' : 'OK'" @press="pressNumpad" />
+      <NumberPad :enter-label="selectedLine ? t('pos.numpad.set') : t('pos.numpad.ok')" @press="pressNumpad" />
     </div>
 
     <div class="flex flex-col gap-2 border-t bg-muted/20 p-3">
@@ -260,32 +261,32 @@ watch(activeSlotIndex, () => {
         <div v-if="showNote" class="relative">
           <Textarea
             :model-value="activeSlot.note"
-            placeholder="Note for this sale (prints on the receipt)"
+            :placeholder="t('pos.cart.notePlaceholder')"
             maxlength="200"
             rows="2"
             class="min-h-0 resize-none pr-8 text-sm"
             @update:model-value="value => setNote(String(value))"
           />
-          <button type="button" class="absolute right-2 top-2 text-muted-foreground hover:text-foreground" aria-label="Remove the note" @click="setNote(''); showNote = false">
+          <button type="button" class="absolute right-2 top-2 text-muted-foreground hover:text-foreground" :aria-label="t('pos.cart.removeNote')" @click="setNote(''); showNote = false">
             <X class="size-4" />
           </button>
         </div>
         <button v-else type="button" class="flex items-center gap-1.5 self-start text-xs text-muted-foreground hover:text-foreground" @click="showNote = true">
           <NotebookPen class="size-3.5" />
-          Add a note
+          {{ t('pos.cart.addNote') }}
         </button>
 
         <dl class="flex flex-col gap-1 text-sm">
           <div class="flex justify-between text-muted-foreground">
-            <dt>{{ unitCount }} {{ unitCount === 1 ? 'item' : 'items' }}</dt>
+            <dt>{{ t('pos.itemCount', { count: unitCount }) }}</dt>
             <dd class="tabular-nums">{{ quote && isExact ? formatMoney(quote.subtotal) : '' }}</dd>
           </div>
           <div v-if="isExact && quote?.discount_total" class="flex justify-between text-emerald-700 dark:text-emerald-400">
-            <dt>Discounts</dt>
+            <dt>{{ t('pos.cart.discounts') }}</dt>
             <dd class="tabular-nums">−{{ formatMoney(quote.discount_total) }}</dd>
           </div>
           <div v-if="isExact && quote?.tax_total" class="flex justify-between text-xs text-muted-foreground">
-            <dt>Includes tax ({{ (quote.tax_rate_basis_points / 100).toLocaleString() }}%)</dt>
+            <dt>{{ t('pos.cart.includesTax', { rate: formatNumber(quote.tax_rate_basis_points / 100) }) }}</dt>
             <dd class="tabular-nums">{{ formatMoney(quote.tax_total) }}</dd>
           </div>
         </dl>
@@ -299,7 +300,7 @@ watch(activeSlotIndex, () => {
       <Button class="h-14 justify-between px-4 text-base" :disabled="!canPay" @click="emit('pay')">
         <span class="flex items-center gap-2">
           <LoaderCircle v-if="preparingPayment" class="animate-spin" />
-          Pay
+          {{ t('pos.pay') }}
           <kbd class="hidden rounded border border-primary-foreground/30 px-1 text-[10px] font-normal opacity-70 xl:inline">F9</kbd>
         </span>
         <span class="text-xl font-bold tabular-nums transition-opacity" :class="isExact || !hasLines ? '' : 'opacity-70'">

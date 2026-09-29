@@ -1,0 +1,29 @@
+{
+  "receipt": "Receipt",
+  "cashier": "Served by",
+  "subtotal": "Subtotal",
+  "discounts": "Discounts",
+  "total": "Total",
+  "tax": "Includes VAT",
+  "paid": "Paid",
+  "change": "Change",
+  "tin": "TIN",
+  "wholesale": "wholesale",
+  "thanks": "Thank you for shopping with us",
+  "note": "Note",
+  "efd": "EFD verification",
+  "efdPending": "EFD receipt to follow",
+  "paymentMethods": {
+    "cash": "Cash",
+    "card": "Card",
+    "mobile": "Mobile money"
+  },
+  "loadFailed": "This receipt could not be loaded",
+  "toasts": {
+    "printed": "Receipt printed",
+    "printerUnreachable": "Could not reach the printer",
+    "scanFailed": "Could not scan for printers",
+    "testSent": "Test print sent",
+    "testFailed": "Test print failed — check the connection"
+  }
+}
