@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import TransferDetailsDialog from '@/components/stock/TransferDetailsDialog.vue'
 import { transferPageSize } from '@/composables/useTransfers'
 
+const { t, formatDateTime } = useI18n()
 const { user } = useAuth()
 const { transfers, totalTransfers, loading, fetchTransfers } = useTransfers()
 
@@ -25,9 +26,6 @@ const openTransfer = (transferId: string) => {
   showDetails.value = true
 }
 
-const formatDate = (isoDate: string): string =>
-  new Date(isoDate).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
-
 defineExpose({ reload })
 </script>
 
@@ -36,7 +34,7 @@ defineExpose({ reload })
     <div v-if="loading && !transfers.length" class="flex flex-col gap-2">
       <Skeleton v-for="skeletonRow in 3" :key="skeletonRow" class="h-16 w-full" />
     </div>
-    <p v-else-if="!transfers.length" class="py-10 text-center text-sm text-muted-foreground">No stock has been sent or received here yet.</p>
+    <p v-else-if="!transfers.length" class="py-10 text-center text-sm text-muted-foreground">{{ t('stock.transfers.empty') }}</p>
     <button
       v-for="transfer in transfers"
       :key="transfer.id"
@@ -53,19 +51,19 @@ defineExpose({ reload })
       </span>
       <span class="min-w-0 flex-1">
         <span class="block truncate text-sm font-medium">
-          {{ transfer.from_shop_id === user?.shop_id ? `Sent to ${transfer.to_shop_name}` : `Received from ${transfer.from_shop_name}` }}
+          {{ transfer.from_shop_id === user?.shop_id ? t('stock.transfers.sentTo', { shop: transfer.to_shop_name }) : t('stock.transfers.receivedFrom', { shop: transfer.from_shop_name }) }}
         </span>
-        <span class="block text-xs text-muted-foreground">{{ formatDate(transfer.created_at) }}<template v-if="transfer.user_name"> · {{ transfer.user_name }}</template></span>
+        <span class="block text-xs text-muted-foreground">{{ formatDateTime(transfer.created_at) }}<template v-if="transfer.user_name"> · {{ transfer.user_name }}</template></span>
       </span>
       <span class="shrink-0 text-right text-sm tabular-nums">
-        {{ transfer.total_units }} units
-        <span class="block text-xs text-muted-foreground">{{ transfer.item_count }} {{ transfer.item_count === 1 ? 'product' : 'products' }}</span>
+        {{ t('stock.transfers.units', { count: transfer.total_units }) }}
+        <span class="block text-xs text-muted-foreground">{{ t('stock.transfers.products', { count: transfer.item_count }) }}</span>
       </span>
     </button>
 
     <div v-if="totalTransfers > transferPageSize" class="flex justify-end gap-2">
-      <Button variant="outline" size="sm" :disabled="pageOffset === 0 || loading" @click="goToPage(pageOffset - transferPageSize)">Previous</Button>
-      <Button variant="outline" size="sm" :disabled="pageOffset + transferPageSize >= totalTransfers || loading" @click="goToPage(pageOffset + transferPageSize)">Next</Button>
+      <Button variant="outline" size="sm" :disabled="pageOffset === 0 || loading" @click="goToPage(pageOffset - transferPageSize)">{{ t('common.pagination.previous') }}</Button>
+      <Button variant="outline" size="sm" :disabled="pageOffset + transferPageSize >= totalTransfers || loading" @click="goToPage(pageOffset + transferPageSize)">{{ t('common.pagination.next') }}</Button>
     </div>
 
     <TransferDetailsDialog v-model:open="showDetails" :transfer-id="openTransferId" />

@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Stock",
+    "subtitle": "What is on the shelves, and every change to it",
+    "subtitleAtShop": "What is on the shelves at {shop}, and every change to it",
+    "sendStock": "Send stock",
+    "changeStock": "Change stock",
+    "valueAtCost": "Value at cost",
+    "valueAtPrice": "Value at selling price",
+    "runningLow": "Running low",
+    "outOfStock": "Out of stock",
+    "levelsTab": "Levels",
+    "historyTab": "History",
+    "transfersTab": "Transfers"
+  },
+  "status": {
+    "ok": "In stock",
+    "low": "Low",
+    "out": "Out"
+  },
+  "levels": {
+    "searchPlaceholder": "Search by name or SKU",
+    "searchLabel": "Search stock",
+    "filterByStatus": "Filter by stock status",
+    "allProducts": "All products",
+    "lowOrOut": "Low or out",
+    "inStock": "In stock",
+    "warnAt": "Warn at",
+    "historyOf": "History of {product}",
+    "changeStockOf": "Change stock of {product}",
+    "empty": "No products match."
+  },
+  "history": {
+    "reason": "Reason",
+    "filterByReason": "Filter by reason",
+    "allReasons": "All reasons",
+    "showEveryProduct": "Show every product",
+    "when": "When",
+    "change": "Change",
+    "after": "After",
+    "by": "By",
+    "empty": "No stock changes match."
+  },
+  "reasons": {
+    "opening": "Opening stock",
+    "sale": "Sale",
+    "return": "Returned",
+    "purchase": "Received",
+    "adjustment": "Correction",
+    "damage": "Damaged",
+    "transfer_in": "Transfer in",
+    "transfer_out": "Transfer out"
+  },
+  "adjust": {
+    "description": "Every change is kept in the stock history.",
+    "received": "Received",
+    "receivedHint": "A delivery arrived",
+    "returned": "Returned",
+    "returnedHint": "A customer brought it back",
+    "damaged": "Damaged",
+    "damagedHint": "Broken, expired or lost",
+    "counted": "Counted",
+    "countedHint": "Set what is on the shelf",
+    "inStock": "{quantity} {unit} in stock",
+    "chooseAnother": "Choose another product",
+    "countedOnShelf": "Counted on the shelf",
+    "stockAfter": "Stock after",
+    "note": "Note (optional)",
+    "notePlaceholder": "Delivery note number, supplier, reason",
+    "errors": {
+      "chooseProduct": "Choose a product",
+      "badNumber": "Enter a whole number of zero or more",
+      "countMatches": "The count matches the stock already",
+      "quantityRequired": "Enter a quantity above zero",
+      "notEnough": "Only {quantity} {unit} in stock"
+    }
+  },
+  "send": {
+    "thisShop": "this shop",
+    "description": "From {shop}. The stock arrives in the other shop straight away.",
+    "sendTo": "Send to",
+    "destinationShop": "Destination shop",
+    "chooseShop": "Choose a shop",
+    "products": "Products",
+    "searchPlaceholder": "Add a product by name or SKU",
+    "here": "{quantity} {unit} here",
+    "quantityOf": "Quantity of {product}",
+    "remove": "Remove {product}",
+    "notePlaceholder": "Driver, vehicle or reason",
+    "errors": {
+      "chooseShop": "Choose the shop to send to",
+      "noProducts": "Add at least one product",
+      "badQuantity": "Enter a whole number above zero for {product}",
+      "notEnough": "Only {quantity} {unit} of {product} here"
+    }
+  },
+  "transfers": {
+    "title": "Transfer",
+    "empty": "No stock has been sent or received here yet.",
+    "sentTo": "Sent to {shop}",
+    "receivedFrom": "Received from {shop}",
+    "units": {
+      "one": "{count} unit",
+      "other": "{count} units"
+    },
+    "products": {
+      "one": "{count} product",
+      "other": "{count} products"
+    }
+  },
+  "toasts": {
+    "levelsFailed": "Failed to load stock levels",
+    "summaryFailed": "Failed to load the stock summary",
+    "historyFailed": "Failed to load stock history",
+    "adjusted": "Stock updated",
+    "adjustFailed": "Failed to update the stock",
+    "transfersFailed": "Failed to load transfers",
+    "transferFailed": "Could not load the transfer",
+    "sent": "Stock sent",
+    "sendFailed": "Failed to send the stock"
+  }
+}

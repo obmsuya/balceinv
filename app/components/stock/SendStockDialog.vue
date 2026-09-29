@@ -19,6 +19,7 @@ const emit = defineEmits<{ sent: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
 const { user } = useAuth()
 const { sendStock, saving } = useTransfers()
 
@@ -26,7 +27,7 @@ const destinationShopId = ref('')
 const note = ref('')
 const rows = ref<TransferRow[]>([])
 
-const currentShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name ?? 'this shop')
+const currentShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name ?? t('stock.send.thisShop'))
 const destinationShops = computed(() => (user.value?.shops ?? []).filter(shop => shop.id !== user.value?.shop_id))
 const chosenProductIds = computed(() => rows.value.map(row => row.level.product_id))
 
@@ -48,21 +49,21 @@ const rowQuantity = (row: TransferRow): number | null => {
 
 const submit = async () => {
   if (!destinationShopId.value) {
-    toast.error('Choose the shop to send to')
+    toast.error(t('stock.send.errors.chooseShop'))
     return
   }
   if (!rows.value.length) {
-    toast.error('Add at least one product')
+    toast.error(t('stock.send.errors.noProducts'))
     return
   }
   const badRow = rows.value.find(row => rowQuantity(row) == null)
   if (badRow) {
-    toast.error(`Enter a whole number above zero for ${productLabel(badRow.level)}`)
+    toast.error(t('stock.send.errors.badQuantity', { product: productLabel(badRow.level) }))
     return
   }
   const shortRow = rows.value.find(row => (rowQuantity(row) ?? 0) > row.level.quantity)
   if (shortRow) {
-    toast.error(`Only ${shortRow.level.quantity} ${shortRow.level.unit} of ${productLabel(shortRow.level)} here`)
+    toast.error(t('stock.send.errors.notEnough', { quantity: shortRow.level.quantity, unit: shortRow.level.unit, product: productLabel(shortRow.level) }))
     return
   }
   try {
@@ -82,16 +83,16 @@ const submit = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Send stock</DialogTitle>
-        <DialogDescription>From {{ currentShopName }}. The stock arrives in the other shop straight away.</DialogDescription>
+        <DialogTitle>{{ t('stock.page.sendStock') }}</DialogTitle>
+        <DialogDescription>{{ t('stock.send.description', { shop: currentShopName }) }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <Label>Send to</Label>
+          <Label>{{ t('stock.send.sendTo') }}</Label>
           <Select v-model="destinationShopId">
-            <SelectTrigger aria-label="Destination shop">
-              <SelectValue placeholder="Choose a shop" />
+            <SelectTrigger :aria-label="t('stock.send.destinationShop')">
+              <SelectValue :placeholder="t('stock.send.chooseShop')" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem v-for="shop in destinationShops" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
@@ -100,30 +101,30 @@ const submit = async () => {
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <Label>Products</Label>
-          <StockProductSearch :exclude-ids="chosenProductIds" placeholder="Add a product by name or SKU" @pick="addRow" />
+          <Label>{{ t('stock.send.products') }}</Label>
+          <StockProductSearch :exclude-ids="chosenProductIds" :placeholder="t('stock.send.searchPlaceholder')" @pick="addRow" />
         </div>
 
         <div v-for="(row, rowIndex) in rows" :key="row.level.product_id" class="flex items-center gap-2 rounded-lg border px-3 py-2">
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium">{{ productLabel(row.level) }}</p>
-            <p class="text-xs text-muted-foreground tabular-nums">{{ row.level.quantity }} {{ row.level.unit }} here</p>
+            <p class="text-xs text-muted-foreground tabular-nums">{{ t('stock.send.here', { quantity: row.level.quantity, unit: row.level.unit }) }}</p>
           </div>
-          <Input v-model="row.quantityText" inputmode="numeric" class="w-20" :aria-label="`Quantity of ${productLabel(row.level)}`" />
-          <Button variant="ghost" size="icon" :aria-label="`Remove ${productLabel(row.level)}`" @click="rows.splice(rowIndex, 1)">
+          <Input v-model="row.quantityText" inputmode="numeric" class="w-20" :aria-label="t('stock.send.quantityOf', { product: productLabel(row.level) })" />
+          <Button variant="ghost" size="icon" :aria-label="t('stock.send.remove', { product: productLabel(row.level) })" @click="rows.splice(rowIndex, 1)">
             <Trash2 class="text-destructive" />
           </Button>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <Label for="transfer-note">Note (optional)</Label>
-          <Input id="transfer-note" v-model="note" placeholder="Driver, vehicle or reason" />
+          <Label for="transfer-note">{{ t('stock.adjust.note') }}</Label>
+          <Input id="transfer-note" v-model="note" :placeholder="t('stock.send.notePlaceholder')" />
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" @click="open = false">Cancel</Button>
-        <Button :disabled="saving" @click="submit">Send stock</Button>
+        <Button variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
+        <Button :disabled="saving" @click="submit">{{ t('stock.page.sendStock') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

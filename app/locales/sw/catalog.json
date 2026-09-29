@@ -1,0 +1,95 @@
+{
+  "picker": {
+    "title": "Chagua kutoka bidhaa za kawaida",
+    "loading": "Inapakia orodha…",
+    "loadFailed": "Imeshindwa kupakia orodha",
+    "hint": "Inakujazia jina, kipimo, kundi na bei",
+    "searchPlaceholder": "Andika jina la bidhaa",
+    "notFound": "Haipo kwenye orodha. Andika maelezo hapa chini badala yake.",
+    "noCategory": "Hakuna kundi",
+    "showingSome": "Inaonyesha {shown} kati ya {total}. Endelea kuandika ili kupunguza."
+  },
+  "team": {
+    "lockedTitle": "Zana za timu",
+    "lockedDescription": "Kwa timu ya mauzo na huduma kwa wateja. Weka nenosiri la timu.",
+    "passcode": "Nenosiri la timu",
+    "unlock": "Fungua",
+    "sessionEnded": "Kipindi cha timu kimeisha. Weka nenosiri tena.",
+    "title": "Bidhaa za kawaida",
+    "teamBadge": "Timu",
+    "description": "Orodha ambazo maduka huchagua kutoka wakati wa kuongeza bidhaa.",
+    "lock": "Funga",
+    "businessType": "Aina ya biashara",
+    "productCount": {
+      "one": "Bidhaa {formatted}",
+      "other": "Bidhaa {formatted}"
+    },
+    "empty": "Tupu",
+    "thisShop": "Duka hili",
+    "uploadTo": "Pakia kwenye {name}",
+    "getTemplate": "Pakua kiolezo",
+    "dropFile": "Dondosha faili la Excel au CSV, au bofya kuchagua",
+    "needsColumnBefore": "Inahitaji safu ya",
+    "needsColumnAfter": "(jina). Safu za ziada kama nguvu huhifadhiwa kama maelezo.",
+    "removeFile": "Ondoa faili",
+    "importMode": "Jinsi ya kuhifadhi faili",
+    "merge": "Ongeza na sasisha",
+    "mergeHint": "Majina mapya yanaongezwa, yaliyopo yanasasishwa",
+    "replace": "Badilisha zote",
+    "replaceHint": {
+      "one": "Inaondoa bidhaa {formatted} iliyopo sasa",
+      "other": "Inaondoa bidhaa {formatted} zilizopo sasa"
+    },
+    "replaceHintEmpty": "Orodha iko tupu sasa",
+    "reading": "Inasoma faili…",
+    "replaceList": "Badilisha orodha ya {name}",
+    "listNowHas": {
+      "one": "Orodha ya {name} sasa ina bidhaa {formatted}",
+      "other": "Orodha ya {name} sasa ina bidhaa {formatted}"
+    },
+    "added": "{count} zimeongezwa",
+    "updated": "{count} zimesasishwa",
+    "addedUpdated": "{added} zimeongezwa, {updated} zimesasishwa",
+    "rowsSkipped": {
+      "one": "Mstari {formatted} umerukwa",
+      "other": "Mistari {formatted} imerukwa"
+    },
+    "skippedRows": "Mistari iliyorukwa",
+    "row": "Mstari {row}",
+    "andMore": "na mingine {count}",
+    "listName": "Orodha ya {name}",
+    "emptyList": "Bado hakuna bidhaa za kawaida kwa {name}. Pakia faili hapo juu.",
+    "noMatch": "Hakuna kinacholingana na “{search}”.",
+    "showingSome": "Inaonyesha {shown} kati ya {total}. Tafuta ili kupata zilizobaki.",
+    "exportHint": "Hifadhi orodha hii kama JSON ili iwekwe kwenye toleo lijalo",
+    "export": "Hamisha kwa toleo lijalo",
+    "clearList": "Futa orodha",
+    "confirmClear": "Ondoa zote {count}?",
+    "keep": "Acha",
+    "listSaved": "Orodha ya {name} imehifadhiwa",
+    "cleared": {
+      "one": "Bidhaa {count} ya kawaida imeondolewa",
+      "other": "Bidhaa {count} za kawaida zimeondolewa"
+    },
+    "exported": {
+      "one": "Bidhaa {count} imehamishwa",
+      "other": "Bidhaa {count} zimehamishwa"
+    }
+  },
+  "errors": {
+    "uploadTooBig": "Faili hili ni kubwa mno. Lisizidi MB 4.",
+    "serviceDown": "Mfumo haujibu. Jaribu tena baada ya muda mfupi.",
+    "wrongFileType": "Tumia faili la Excel (.xlsx) au CSV (.csv). Faili za zamani za .xls lazima zihifadhiwe upya kama .xlsx.",
+    "emptyFile": "Faili hili ni tupu.",
+    "fileTooBig": "Faili hili ni kubwa mno. Lisizidi MB 4, au ligawanye.",
+    "loadFailed": "Imeshindwa kupakia bidhaa za kawaida",
+    "countFailed": "Imeshindwa kuhesabu bidhaa za kawaida",
+    "saveFailed": "Imeshindwa kuhifadhi orodha",
+    "clearFailed": "Imeshindwa kufuta orodha",
+    "templateFailed": "Imeshindwa kuhifadhi kiolezo",
+    "nothingToExport": "Orodha hii ni tupu, hakuna cha kuhamisha",
+    "exportFailed": "Imeshindwa kuhamisha orodha",
+    "previewFailed": "Imeshindwa kupakia orodha hii",
+    "passcodeFailed": "Imeshindwa kukagua nenosiri"
+  }
+}

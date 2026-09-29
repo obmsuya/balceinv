@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface ProductBarcode {
   code: string
@@ -138,7 +139,7 @@ export const useProducts = () => {
       products.value = append ? [...products.value, ...productPage.data.items] : productPage.data.items
       totalProducts.value = productPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load products')
+      toast.error(apiErrorMessage(error, 'products.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -159,7 +160,7 @@ export const useProducts = () => {
       const linkResponse = await apiFetch<ApiEnvelope<PhoneUploadLink>>('/api/phone-uploads', { method: 'POST' })
       return linkResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not make a phone link')
+      toast.error(apiErrorMessage(error, 'products.toasts.phoneLinkFailed'))
       return null
     }
   }
@@ -179,7 +180,7 @@ export const useProducts = () => {
       const categoryResponse = await apiFetch<ApiEnvelope<string[]>>('/api/products/categories')
       categories.value = categoryResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load categories')
+      toast.error(apiErrorMessage(error, 'products.toasts.categoriesFailed'))
     }
   }
 
@@ -188,7 +189,7 @@ export const useProducts = () => {
       const productResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}`)
       return productResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the product')
+      toast.error(apiErrorMessage(error, 'products.toasts.productFailed'))
     }
   }
 
@@ -197,7 +198,7 @@ export const useProducts = () => {
       const variantResponse = await apiFetch<ApiEnvelope<Product[]>>(`/api/products/${parentId}/variants`)
       return variantResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the variants')
+      toast.error(apiErrorMessage(error, 'products.toasts.variantsFailed'))
       return []
     }
   }
@@ -220,10 +221,10 @@ export const useProducts = () => {
         body: newFields,
       })
       const createdProduct = imageFile ? await uploadImage(createResponse.data.id, imageFile) : createResponse.data
-      toast.success(createResponse.message)
+      toast.success(t('products.toasts.created'))
       return createdProduct
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create the product')
+      toast.error(apiErrorMessage(error, 'products.toasts.createFailed'))
       throw error
     } finally {
       saving.value = false
@@ -238,10 +239,10 @@ export const useProducts = () => {
         body: changedFields,
       })
       const updatedProduct = imageFile ? await uploadImage(productId, imageFile) : updateResponse.data
-      toast.success(updateResponse.message)
+      toast.success(t('products.toasts.saved'))
       return updatedProduct
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to save the product')
+      toast.error(apiErrorMessage(error, 'products.toasts.saveFailed'))
       throw error
     } finally {
       saving.value = false
@@ -254,9 +255,9 @@ export const useProducts = () => {
       const archiveResponse = await apiFetch<ApiEnvelope<null>>(`/api/products/${productId}`, {
         method: 'DELETE',
       })
-      toast.success(archiveResponse.message)
+      toast.success(t('products.toasts.archived'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to archive the product')
+      toast.error(apiErrorMessage(error, 'products.toasts.archiveFailed'))
       throw error
     } finally {
       saving.value = false
@@ -269,9 +270,9 @@ export const useProducts = () => {
       const restoreResponse = await apiFetch<ApiEnvelope<Product>>(`/api/products/${productId}/restore`, {
         method: 'POST',
       })
-      toast.success(restoreResponse.message)
+      toast.success(t('products.toasts.restored'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to restore the product')
+      toast.error(apiErrorMessage(error, 'products.toasts.restoreFailed'))
       throw error
     } finally {
       saving.value = false
@@ -287,10 +288,10 @@ export const useProducts = () => {
         method: 'POST',
         body: importForm,
       })
-      toast.success(`${importResponse.data.created} products imported`)
+      toast.success(t('products.toasts.imported', { count: importResponse.data.created }))
       return importResponse.data
     } catch (error: any) {
-      throw new ProductImportError(error?.data?.message || 'Failed to import the file', error?.data?.data ?? null)
+      throw new ProductImportError(apiErrorMessage(error, 'products.toasts.importFailed'), error?.data?.data ?? null)
     } finally {
       saving.value = false
     }
@@ -302,12 +303,12 @@ export const useProducts = () => {
         responseType: 'arrayBuffer',
       })
       const savedName = await saveFile(new Uint8Array(templateBytes), 'products-template.xlsx', {
-        name: 'Excel Workbook',
+        name: t('products.toasts.excelWorkbook'),
         extensions: ['xlsx'],
       })
-      if (savedName) toast.success('Template saved', { description: savedName })
+      if (savedName) toast.success(t('products.toasts.templateSaved'), { description: savedName })
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to download the template')
+      toast.error(apiErrorMessage(error, 'products.toasts.templateFailed'))
     }
   }
 

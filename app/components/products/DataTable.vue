@@ -4,6 +4,8 @@ import type { ColumnDef } from '@tanstack/vue-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Product } from '@/composables/useProducts'
 
+const { t } = useI18n()
+
 const props = defineProps<{
   columns: ColumnDef<Product, any>[]
   data: Product[]
@@ -48,7 +50,7 @@ const table = useVueTable({
         </template>
         <TableRow v-else>
           <TableCell :colspan="columns.length" class="h-24 text-center text-muted-foreground">
-            <slot name="empty">No products found.</slot>
+            <slot name="empty">{{ t('products.table.empty') }}</slot>
           </TableCell>
         </TableRow>
       </TableBody>

@@ -8,6 +8,7 @@ import { productLabel } from '@/composables/useStock'
 const props = defineProps<{ excludeIds?: string[]; placeholder?: string }>()
 const emit = defineEmits<{ pick: [level: StockLevel] }>()
 
+const { t } = useI18n()
 const { searchLevels } = useStock()
 
 const searchText = ref('')
@@ -49,7 +50,7 @@ const pick = (level: StockLevel) => {
   <div class="flex flex-col gap-1">
     <div class="relative">
       <Search class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-      <Input v-model="searchText" :placeholder="placeholder ?? 'Search by name or SKU'" class="pl-8" aria-label="Search products" />
+      <Input v-model="searchText" :placeholder="placeholder ?? t('stock.levels.searchPlaceholder')" class="pl-8" :aria-label="t('products.page.searchLabel')" />
     </div>
     <ul v-if="visibleMatches.length" class="max-h-56 overflow-y-auto rounded-md border">
       <li v-for="level in visibleMatches" :key="level.product_id">
@@ -62,6 +63,6 @@ const pick = (level: StockLevel) => {
         </button>
       </li>
     </ul>
-    <p v-else-if="hasSearched && !isSearching" class="px-1 text-xs text-muted-foreground">No product matches.</p>
+    <p v-else-if="hasSearched && !isSearching" class="px-1 text-xs text-muted-foreground">{{ t('products.search.noMatch') }}</p>
   </div>
 </template>

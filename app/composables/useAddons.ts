@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface ProductAddon {
   id: string
@@ -35,7 +36,7 @@ export const useAddons = () => {
       const addonResponse = await apiFetch<ApiEnvelope<ProductAddon[]>>(`/api/products/${productId}/addons`)
       addons.value = addonResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load add-ons')
+      toast.error(apiErrorMessage(error, 'products.addons.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -58,10 +59,10 @@ export const useAddons = () => {
         body: addonFields,
       })
       addons.value.push(createResponse.data)
-      toast.success(createResponse.message)
+      toast.success(t('products.addons.created'))
       return createResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to add the add-on')
+      toast.error(apiErrorMessage(error, 'products.addons.createFailed'))
       throw error
     } finally {
       loading.value = false
@@ -77,10 +78,10 @@ export const useAddons = () => {
       })
       const addonIndex = addons.value.findIndex(existingAddon => existingAddon.id === addonId)
       if (addonIndex !== -1) addons.value[addonIndex] = updateResponse.data
-      toast.success(updateResponse.message)
+      toast.success(t('products.addons.saved'))
       return updateResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to save the add-on')
+      toast.error(apiErrorMessage(error, 'products.addons.saveFailed'))
       throw error
     } finally {
       loading.value = false
@@ -94,9 +95,9 @@ export const useAddons = () => {
         method: 'DELETE',
       })
       addons.value = addons.value.filter(addon => addon.id !== addonId)
-      toast.success(deleteResponse.message)
+      toast.success(t('products.addons.deleted'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete the add-on')
+      toast.error(apiErrorMessage(error, 'products.addons.deleteFailed'))
       throw error
     } finally {
       loading.value = false

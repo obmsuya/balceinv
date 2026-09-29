@@ -40,6 +40,8 @@ const emit = defineEmits<{ saved: [product: Product] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
+
 const { createProduct, updateProduct, saving } = useProducts()
 const { addons, loading: addonsLoading, fetchAddons, createAddon, updateAddon, deleteAddon } = useAddons()
 
@@ -77,21 +79,21 @@ const isVariant = computed(() => props.mode === 'variant' || (isEditing.value &&
 const imagePreview = computed(() => imageObjectUrl.value ?? (isEditing.value ? assetUrl(props.product?.image_url) : null))
 
 const dialogTitle = computed(() => {
-  if (props.mode === 'variant') return `Add variant of ${props.parent?.name ?? ''}`
-  if (isEditing.value) return 'Edit product'
-  return 'Add product'
+  if (props.mode === 'variant') return t('products.form.variantTitle', { name: props.parent?.name ?? '' })
+  if (isEditing.value) return t('products.form.editTitle')
+  return t('products.form.createTitle')
 })
 
 const dialogDescription = computed(() => {
-  if (props.mode === 'variant') return 'A variant keeps the product name but has its own SKU, price and stock.'
-  if (isEditing.value) return 'Update the details, photo and add-ons.'
-  return 'Pick a common product to fill the form, or type the details yourself.'
+  if (props.mode === 'variant') return t('products.form.variantDescription')
+  if (isEditing.value) return t('products.form.editDescription')
+  return t('products.form.createDescription')
 })
 
 const submitLabel = computed(() => {
-  if (isEditing.value) return 'Save changes'
-  if (props.mode === 'variant') return 'Add variant'
-  return 'Add product'
+  if (isEditing.value) return t('common.actions.saveChanges')
+  if (props.mode === 'variant') return t('products.form.addVariant')
+  return t('products.form.createTitle')
 })
 
 const rowsFromMetadata = (metadata: Record<string, unknown> | null | undefined): KeyValueRow[] =>
@@ -167,7 +169,7 @@ const onImagePicked = (event: Event) => {
   const pickedFile = (event.target as HTMLInputElement).files?.[0]
   if (!pickedFile) return
   if (pickedFile.size > productImageLimitBytes) {
-    toast.error('The image must be 2 MB or smaller')
+    toast.error(t('products.form.imageTooBig'))
     return
   }
   clearImage()
@@ -184,22 +186,22 @@ const readCount = (inputText: string, fallback: number): number => {
 
 const buildFields = (): ProductFields | string => {
   const productName = isVariant.value && props.mode === 'variant' ? props.parent?.name ?? '' : form.value.name.trim()
-  if (!productName) return 'Enter the product name'
-  if (!form.value.sku.trim()) return 'Enter the SKU'
-  if (isVariant.value && !form.value.variantLabel.trim()) return 'Enter a variant label, for example Red / Large'
+  if (!productName) return t('products.form.errors.nameRequired')
+  if (!form.value.sku.trim()) return t('products.form.errors.skuRequired')
+  if (isVariant.value && !form.value.variantLabel.trim()) return t('products.form.errors.variantLabelRequired')
 
   const price = inputTextToMinor(form.value.price)
-  if (price == null) return 'Enter the selling price'
+  if (price == null) return t('products.form.errors.priceRequired')
   const costPrice = inputTextToMinor(form.value.costPrice) ?? 0
   const wholesalePrice = inputTextToMinor(form.value.wholesalePrice)
   const hasBadMoney = [price, costPrice, wholesalePrice ?? 0].some(amount => Number.isNaN(amount))
-  if (hasBadMoney) return 'Prices must be numbers of zero or more'
+  if (hasBadMoney) return t('products.form.errors.badPrice')
 
   const wholesaleMin = readCount(form.value.wholesaleMin, 1)
   const piecesPerUnit = readCount(form.value.piecesPerUnit, 1)
   const minStock = readCount(form.value.minStock, Number(defaultMinimumStock))
   const hasBadCount = [wholesaleMin, piecesPerUnit, minStock].some(count => Number.isNaN(count))
-  if (hasBadCount) return 'Quantities must be whole numbers'
+  if (hasBadCount) return t('products.form.errors.badQuantity')
 
   const barcodes = barcodeRows.value
     .filter(barcodeRow => barcodeRow.code.trim() !== '')
@@ -242,7 +244,7 @@ const submit = async () => {
 
     const openingQuantity = readCount(form.value.openingQuantity, 0)
     if (Number.isNaN(openingQuantity)) {
-      toast.error('Opening stock must be a whole number')
+      toast.error(t('products.form.errors.badOpeningStock'))
       return
     }
     const newFields: NewProductFields = {
@@ -261,7 +263,7 @@ const addAddon = async () => {
   if (!props.product) return
   const addonPrice = inputTextToMinor(newAddonPrice.value) ?? 0
   if (!newAddonName.value.trim() || Number.isNaN(addonPrice)) {
-    toast.error('Enter an add-on name and a price of zero or more')
+    toast.error(t('products.form.errors.badAddon'))
     return
   }
   try {
@@ -297,10 +299,10 @@ const removeAddon = async (addon: ProductAddon) => {
 
       <Tabs v-model="activeTab">
         <TabsList v-if="isEditing" class="w-full">
-          <TabsTrigger value="details" class="flex-1">Details</TabsTrigger>
+          <TabsTrigger value="details" class="flex-1">{{ t('products.form.detailsTab') }}</TabsTrigger>
           <TabsTrigger value="addons" class="flex-1">
             <Puzzle />
-            Add-ons
+            {{ t('products.form.addonsTab') }}
             <span v-if="addons.length" class="rounded-full bg-muted px-1.5 text-xs tabular-nums">{{ addons.length }}</span>
           </TabsTrigger>
         </TabsList>
@@ -310,7 +312,7 @@ const removeAddon = async (addon: ProductAddon) => {
 
           <div class="flex items-center gap-4">
             <div class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
-              <img v-if="imagePreview" :src="imagePreview" alt="Product photo" class="size-full object-cover">
+              <img v-if="imagePreview" :src="imagePreview" :alt="t('products.form.photoAlt')" class="size-full object-cover">
               <ImageOff v-else class="size-7 text-muted-foreground/40" />
             </div>
             <div class="flex flex-col gap-2">
@@ -318,18 +320,18 @@ const removeAddon = async (addon: ProductAddon) => {
               <div class="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" type="button" @click="imageInput?.click()">
                   <ImageUp />
-                  {{ imagePreview ? 'Change photo' : 'Add photo' }}
+                  {{ imagePreview ? t('products.form.changePhoto') : t('products.form.addPhoto') }}
                 </Button>
                 <Button variant="outline" size="sm" type="button" @click="showPhonePhoto = true">
                   <Smartphone />
-                  Use phone
+                  {{ t('products.form.usePhone') }}
                 </Button>
               </div>
               <Button v-if="imageFile" variant="ghost" size="sm" type="button" @click="clearImage">
                 <X />
-                Undo photo
+                {{ t('products.form.undoPhoto') }}
               </Button>
-              <p class="text-xs text-muted-foreground">PNG, JPEG or WebP, up to 2 MB</p>
+              <p class="text-xs text-muted-foreground">{{ t('products.form.photoHint') }}</p>
             </div>
           </div>
 
@@ -337,7 +339,7 @@ const removeAddon = async (addon: ProductAddon) => {
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
-              <Label for="product-name">Product name</Label>
+              <Label for="product-name">{{ t('products.form.name') }}</Label>
               <Input id="product-name" v-model="form.name" placeholder="Coca Cola 500ml" :disabled="isVariant" />
             </div>
             <div class="flex flex-col gap-1.5">
@@ -345,23 +347,23 @@ const removeAddon = async (addon: ProductAddon) => {
               <Input id="product-sku" v-model="form.sku" placeholder="COCA-500" autocapitalize="characters" />
             </div>
             <div v-if="isVariant" class="flex flex-col gap-1.5 sm:col-span-2">
-              <Label for="product-variant-label">Variant label</Label>
-              <Input id="product-variant-label" v-model="form.variantLabel" placeholder="Red / Large" />
+              <Label for="product-variant-label">{{ t('products.form.variantLabel') }}</Label>
+              <Input id="product-variant-label" v-model="form.variantLabel" :placeholder="t('products.form.variantLabelPlaceholder')" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="product-category">Category</Label>
-              <Input id="product-category" v-model="form.category" list="product-category-options" placeholder="Drinks" />
+              <Label for="product-category">{{ t('products.form.category') }}</Label>
+              <Input id="product-category" v-model="form.category" list="product-category-options" :placeholder="t('products.form.categoryPlaceholder')" />
               <datalist id="product-category-options">
                 <option v-for="category in categories" :key="category" :value="category" />
               </datalist>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="product-unit">Unit</Label>
+                <Label for="product-unit">{{ t('products.form.unit') }}</Label>
                 <Input id="product-unit" v-model="form.unit" placeholder="pcs" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="product-pieces">Pieces per unit</Label>
+                <Label for="product-pieces">{{ t('products.form.piecesPerUnit') }}</Label>
                 <Input id="product-pieces" v-model="form.piecesPerUnit" inputmode="numeric" />
               </div>
             </div>
@@ -371,19 +373,19 @@ const removeAddon = async (addon: ProductAddon) => {
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
-              <Label for="product-price">Selling price ({{ currencyCode() }})</Label>
+              <Label for="product-price">{{ t('products.form.sellingPrice', { currency: currencyCode() }) }}</Label>
               <Input id="product-price" v-model="form.price" inputmode="decimal" placeholder="1000" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="product-cost">Cost price ({{ currencyCode() }})</Label>
+              <Label for="product-cost">{{ t('products.form.costPrice', { currency: currencyCode() }) }}</Label>
               <Input id="product-cost" v-model="form.costPrice" inputmode="decimal" placeholder="700" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="product-wholesale-price">Wholesale price (optional)</Label>
+              <Label for="product-wholesale-price">{{ t('products.form.wholesalePrice') }}</Label>
               <Input id="product-wholesale-price" v-model="form.wholesalePrice" inputmode="decimal" placeholder="850" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="product-wholesale-min">Wholesale from quantity</Label>
+              <Label for="product-wholesale-min">{{ t('products.form.wholesaleMin') }}</Label>
               <Input id="product-wholesale-min" v-model="form.wholesaleMin" inputmode="numeric" />
             </div>
           </div>
@@ -392,15 +394,15 @@ const removeAddon = async (addon: ProductAddon) => {
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div v-if="!isEditing" class="flex flex-col gap-1.5">
-              <Label for="product-opening">Opening stock</Label>
+              <Label for="product-opening">{{ t('products.form.openingStock') }}</Label>
               <Input id="product-opening" v-model="form.openingQuantity" inputmode="numeric" />
             </div>
             <div v-else class="flex flex-col gap-1.5">
-              <Label>Current stock</Label>
+              <Label>{{ t('products.form.currentStock') }}</Label>
               <p class="flex h-9 items-center text-sm tabular-nums">{{ product?.quantity ?? '—' }} {{ product?.unit }}</p>
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="product-min-stock">Warn when stock is at or below</Label>
+              <Label for="product-min-stock">{{ t('products.form.minStock') }}</Label>
               <Input id="product-min-stock" v-model="form.minStock" inputmode="numeric" />
             </div>
           </div>
@@ -410,18 +412,18 @@ const removeAddon = async (addon: ProductAddon) => {
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between gap-2">
               <div>
-                <Label>Barcodes</Label>
-                <p class="mt-0.5 text-xs text-muted-foreground">A box barcode can sell several pieces at once.</p>
+                <Label>{{ t('products.form.barcodes') }}</Label>
+                <p class="mt-0.5 text-xs text-muted-foreground">{{ t('products.form.barcodesHint') }}</p>
               </div>
               <Button variant="outline" size="sm" type="button" @click="barcodeRows.push({ code: '', packSize: '1' })">
                 <Plus />
-                Barcode
+                {{ t('products.form.addBarcode') }}
               </Button>
             </div>
             <div v-for="(barcodeRow, rowIndex) in barcodeRows" :key="rowIndex" class="flex items-center gap-2">
-              <Input v-model="barcodeRow.code" placeholder="Scan or type" class="flex-1" :aria-label="`Barcode ${rowIndex + 1}`" />
-              <Input v-model="barcodeRow.packSize" inputmode="numeric" class="w-20" :aria-label="`Pieces for barcode ${rowIndex + 1}`" />
-              <Button variant="ghost" size="icon" type="button" aria-label="Remove barcode" @click="barcodeRows.splice(rowIndex, 1)">
+              <Input v-model="barcodeRow.code" :placeholder="t('products.form.barcodePlaceholder')" class="flex-1" :aria-label="t('products.form.barcodeLabel', { number: rowIndex + 1 })" />
+              <Input v-model="barcodeRow.packSize" inputmode="numeric" class="w-20" :aria-label="t('products.form.barcodePiecesLabel', { number: rowIndex + 1 })" />
+              <Button variant="ghost" size="icon" type="button" :aria-label="t('products.form.removeBarcode')" @click="barcodeRows.splice(rowIndex, 1)">
                 <X />
               </Button>
             </div>
@@ -432,18 +434,18 @@ const removeAddon = async (addon: ProductAddon) => {
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between gap-2">
               <div>
-                <Label>Extra details</Label>
-                <p class="mt-0.5 text-xs text-muted-foreground">Anything else worth knowing, like strength or size.</p>
+                <Label>{{ t('products.form.extraDetails') }}</Label>
+                <p class="mt-0.5 text-xs text-muted-foreground">{{ t('products.form.extraDetailsHint') }}</p>
               </div>
               <Button variant="outline" size="sm" type="button" @click="metadataRows.push({ key: '', value: '' })">
                 <Plus />
-                Detail
+                {{ t('products.form.addDetail') }}
               </Button>
             </div>
             <div v-for="(metadataRow, rowIndex) in metadataRows" :key="rowIndex" class="flex items-center gap-2">
-              <Input v-model="metadataRow.key" placeholder="Name" class="w-2/5" :aria-label="`Detail name ${rowIndex + 1}`" />
-              <Input v-model="metadataRow.value" placeholder="Value" class="flex-1" :aria-label="`Detail value ${rowIndex + 1}`" />
-              <Button variant="ghost" size="icon" type="button" aria-label="Remove detail" @click="metadataRows.splice(rowIndex, 1)">
+              <Input v-model="metadataRow.key" :placeholder="t('products.form.detailNamePlaceholder')" class="w-2/5" :aria-label="t('products.form.detailNameLabel', { number: rowIndex + 1 })" />
+              <Input v-model="metadataRow.value" :placeholder="t('products.form.detailValuePlaceholder')" class="flex-1" :aria-label="t('products.form.detailValueLabel', { number: rowIndex + 1 })" />
+              <Button variant="ghost" size="icon" type="button" :aria-label="t('products.form.removeDetail')" @click="metadataRows.splice(rowIndex, 1)">
                 <X />
               </Button>
             </div>
@@ -452,21 +454,21 @@ const removeAddon = async (addon: ProductAddon) => {
 
         <TabsContent v-if="isEditing" value="addons" class="mt-4 flex flex-col gap-4">
           <div class="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 sm:flex-row">
-            <Input v-model="newAddonName" placeholder="Add-on name, e.g. Delivery" class="flex-1" aria-label="Add-on name" />
-            <Input v-model="newAddonPrice" inputmode="decimal" :placeholder="`Price (${currencyCode()})`" class="sm:w-36" aria-label="Add-on price" />
+            <Input v-model="newAddonName" :placeholder="t('products.form.addonNamePlaceholder')" class="flex-1" :aria-label="t('products.form.addonName')" />
+            <Input v-model="newAddonPrice" inputmode="decimal" :placeholder="t('products.form.addonPricePlaceholder', { currency: currencyCode() })" class="sm:w-36" :aria-label="t('products.form.addonPrice')" />
             <Button type="button" :disabled="addonsLoading || !newAddonName.trim()" @click="addAddon">
               <Plus />
-              Add
+              {{ t('common.actions.add') }}
             </Button>
           </div>
-          <p v-if="!addons.length" class="py-8 text-center text-sm text-muted-foreground">No add-ons yet.</p>
+          <p v-if="!addons.length" class="py-8 text-center text-sm text-muted-foreground">{{ t('products.form.noAddons') }}</p>
           <div v-for="addon in addons" :key="addon.id" class="flex items-center gap-3 rounded-md border px-3 py-2">
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium">{{ addon.name }}</p>
               <p class="text-xs text-muted-foreground tabular-nums">+ {{ formatMoney(addon.price) }}</p>
             </div>
-            <Switch :model-value="addon.is_active" :disabled="addonsLoading" :aria-label="`Offer ${addon.name}`" @update:model-value="toggleAddon(addon, $event)" />
-            <Button variant="ghost" size="icon" :disabled="addonsLoading" :aria-label="`Delete ${addon.name}`" @click="removeAddon(addon)">
+            <Switch :model-value="addon.is_active" :disabled="addonsLoading" :aria-label="t('products.form.offerAddon', { name: addon.name })" @update:model-value="toggleAddon(addon, $event)" />
+            <Button variant="ghost" size="icon" :disabled="addonsLoading" :aria-label="t('products.form.deleteAddon', { name: addon.name })" @click="removeAddon(addon)">
               <Trash2 class="text-destructive" />
             </Button>
           </div>
@@ -474,7 +476,7 @@ const removeAddon = async (addon: ProductAddon) => {
       </Tabs>
 
       <DialogFooter>
-        <Button variant="outline" @click="open = false">Cancel</Button>
+        <Button variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
         <Button v-if="activeTab === 'details'" :disabled="saving" @click="submit">{{ submitLabel }}</Button>
       </DialogFooter>
     </DialogContent>

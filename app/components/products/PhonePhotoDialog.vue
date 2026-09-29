@@ -10,6 +10,7 @@ const pollMilliseconds = 1500
 const emit = defineEmits<{ photo: [photoFile: File] }>()
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
 const { user } = useAuth()
 const { startPhoneUpload, checkPhoneUpload } = useProducts()
 
@@ -82,8 +83,8 @@ onBeforeUnmount(stopPolling)
   <Dialog v-model:open="open">
     <DialogContent class="sm:max-w-sm">
       <DialogHeader>
-        <DialogTitle class="flex items-center gap-2"><Smartphone class="size-5" /> Take the photo with a phone</DialogTitle>
-        <DialogDescription>Scan the code with the phone's camera, take the photo and press Send. It appears here by itself.</DialogDescription>
+        <DialogTitle class="flex items-center gap-2"><Smartphone class="size-5" /> {{ t('products.phonePhoto.title') }}</DialogTitle>
+        <DialogDescription>{{ t('products.phonePhoto.description') }}</DialogDescription>
       </DialogHeader>
 
       <div v-if="isStarting" class="flex justify-center py-10">
@@ -93,22 +94,22 @@ onBeforeUnmount(stopPolling)
       <div v-else-if="uploadLink && !uploadLink.reachable" class="flex flex-col items-center gap-3 py-4 text-center">
         <WifiOff class="size-10 text-muted-foreground" />
         <p class="text-sm">{{ uploadLink.reason }}</p>
-        <Button v-if="user?.is_owner" variant="outline" size="sm" @click="openNetworkSettings">Open network settings</Button>
+        <Button v-if="user?.is_owner" variant="outline" size="sm" @click="openNetworkSettings">{{ t('products.phonePhoto.openNetworkSettings') }}</Button>
       </div>
 
       <div v-else-if="isExpired" class="flex flex-col items-center gap-3 py-6 text-center">
-        <p class="text-sm">This code has expired.</p>
-        <Button size="sm" @click="startLink"><RefreshCw /> Make a new code</Button>
+        <p class="text-sm">{{ t('products.phonePhoto.expired') }}</p>
+        <Button size="sm" @click="startLink"><RefreshCw /> {{ t('products.phonePhoto.newCode') }}</Button>
       </div>
 
       <div v-else-if="uploadLink" class="flex flex-col items-center gap-3">
-        <img v-if="qrCode" :src="qrCode" alt="QR code for the phone" class="size-60 rounded-lg bg-white p-2">
+        <img v-if="qrCode" :src="qrCode" :alt="t('products.phonePhoto.qrAlt')" class="size-60 rounded-lg bg-white p-2">
         <code class="max-w-full break-all rounded bg-muted px-2 py-1 text-center text-xs">{{ uploadLink.upload_urls[0] }}</code>
         <p class="flex items-center gap-2 text-sm text-muted-foreground">
           <LoaderCircle class="size-4 animate-spin" />
-          {{ connectionTrouble ? 'Trying to reach this computer…' : 'Waiting for the photo…' }}
+          {{ connectionTrouble ? t('products.phonePhoto.reconnecting') : t('products.phonePhoto.waiting') }}
         </p>
-        <p class="text-xs text-muted-foreground">The phone must be on the same Wi-Fi. The code works for 5 minutes.</p>
+        <p class="text-xs text-muted-foreground">{{ t('products.phonePhoto.hint') }}</p>
       </div>
     </DialogContent>
   </Dialog>

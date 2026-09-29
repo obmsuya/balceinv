@@ -14,14 +14,15 @@ const emit = defineEmits<{ saved: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
 const { adjustStock, saving } = useStock()
 
-const reasonChoices: Array<{ reason: AdjustmentReason; label: string; hint: string; icon: any }> = [
-  { reason: 'purchase', label: 'Received', hint: 'A delivery arrived', icon: PackagePlus },
-  { reason: 'return', label: 'Returned', hint: 'A customer brought it back', icon: RotateCcw },
-  { reason: 'damage', label: 'Damaged', hint: 'Broken, expired or lost', icon: PackageMinus },
-  { reason: 'adjustment', label: 'Counted', hint: 'Set what is on the shelf', icon: Scale },
-]
+const reasonChoices = computed<Array<{ reason: AdjustmentReason; label: string; hint: string; icon: any }>>(() => [
+  { reason: 'purchase', label: t('stock.adjust.received'), hint: t('stock.adjust.receivedHint'), icon: PackagePlus },
+  { reason: 'return', label: t('stock.adjust.returned'), hint: t('stock.adjust.returnedHint'), icon: RotateCcw },
+  { reason: 'damage', label: t('stock.adjust.damaged'), hint: t('stock.adjust.damagedHint'), icon: PackageMinus },
+  { reason: 'adjustment', label: t('stock.adjust.counted'), hint: t('stock.adjust.countedHint'), icon: Scale },
+])
 
 const chosenLevel = ref<StockLevel | null>(null)
 const reason = ref<AdjustmentReason>('purchase')
@@ -52,19 +53,19 @@ watch(open, isOpen => {
 
 const submit = async () => {
   if (!chosenLevel.value) {
-    toast.error('Choose a product')
+    toast.error(t('stock.adjust.errors.chooseProduct'))
     return
   }
   if (change.value == null) {
-    toast.error('Enter a whole number of zero or more')
+    toast.error(t('stock.adjust.errors.badNumber'))
     return
   }
   if (change.value === 0) {
-    toast.error(isCounting.value ? 'The count matches the stock already' : 'Enter a quantity above zero')
+    toast.error(isCounting.value ? t('stock.adjust.errors.countMatches') : t('stock.adjust.errors.quantityRequired'))
     return
   }
   if (quantityAfter.value != null && quantityAfter.value < 0) {
-    toast.error(`Only ${chosenLevel.value.quantity} ${chosenLevel.value.unit} in stock`)
+    toast.error(t('stock.adjust.errors.notEnough', { quantity: chosenLevel.value.quantity, unit: chosenLevel.value.unit }))
     return
   }
   try {
@@ -85,17 +86,17 @@ const submit = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Change stock</DialogTitle>
-        <DialogDescription>Every change is kept in the stock history.</DialogDescription>
+        <DialogTitle>{{ t('stock.page.changeStock') }}</DialogTitle>
+        <DialogDescription>{{ t('stock.adjust.description') }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
         <div v-if="chosenLevel" class="flex items-center gap-3 rounded-lg border px-3 py-2">
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium">{{ productLabel(chosenLevel) }}</p>
-            <p class="text-xs text-muted-foreground tabular-nums">{{ chosenLevel.quantity }} {{ chosenLevel.unit }} in stock</p>
+            <p class="text-xs text-muted-foreground tabular-nums">{{ t('stock.adjust.inStock', { quantity: chosenLevel.quantity, unit: chosenLevel.unit }) }}</p>
           </div>
-          <Button variant="ghost" size="icon" aria-label="Choose another product" @click="chosenLevel = null"><X /></Button>
+          <Button variant="ghost" size="icon" :aria-label="t('stock.adjust.chooseAnother')" @click="chosenLevel = null"><X /></Button>
         </div>
         <StockProductSearch v-else @pick="chosenLevel = $event" />
 
@@ -119,11 +120,11 @@ const submit = async () => {
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1.5">
-            <Label for="adjust-amount">{{ isCounting ? 'Counted on the shelf' : 'Quantity' }}</Label>
+            <Label for="adjust-amount">{{ isCounting ? t('stock.adjust.countedOnShelf') : t('common.fields.quantity') }}</Label>
             <Input id="adjust-amount" v-model="amountText" inputmode="numeric" placeholder="0" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <Label>Stock after</Label>
+            <Label>{{ t('stock.adjust.stockAfter') }}</Label>
             <p class="flex h-9 items-center text-sm tabular-nums" :class="quantityAfter != null && quantityAfter < 0 ? 'text-destructive' : ''">
               <template v-if="quantityAfter != null">{{ quantityAfter }} {{ chosenLevel?.unit }}</template>
               <template v-else>—</template>
@@ -132,14 +133,14 @@ const submit = async () => {
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <Label for="adjust-reference">Note (optional)</Label>
-          <Input id="adjust-reference" v-model="reference" placeholder="Delivery note number, supplier, reason" />
+          <Label for="adjust-reference">{{ t('stock.adjust.note') }}</Label>
+          <Input id="adjust-reference" v-model="reference" :placeholder="t('stock.adjust.notePlaceholder')" />
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" @click="open = false">Cancel</Button>
-        <Button :disabled="saving" @click="submit">Save</Button>
+        <Button variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
+        <Button :disabled="saving" @click="submit">{{ t('common.actions.save') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

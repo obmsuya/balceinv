@@ -14,6 +14,7 @@ import { productLabel } from '@/composables/useStock'
 import { formatMoney } from '~/utils/money'
 
 const route = useRoute()
+const { t, formatNumber } = useI18n()
 const { user } = useAuth()
 const { canCreate } = usePermissions()
 const { summary, fetchSummary } = useStock()
@@ -57,19 +58,19 @@ onMounted(fetchSummary)
   <div class="container mx-auto flex flex-col gap-6 py-2 sm:px-4 sm:py-6">
     <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Stock</h1>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('stock.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">
-          What is on the shelves<template v-if="activeShopName && hasOtherShops"> at {{ activeShopName }}</template>, and every change to it
+          {{ activeShopName && hasOtherShops ? t('stock.page.subtitleAtShop', { shop: activeShopName }) : t('stock.page.subtitle') }}
         </p>
       </div>
       <div v-if="canChangeStock" class="flex flex-wrap gap-2">
         <Button v-if="hasOtherShops" variant="outline" @click="showSendDialog = true">
           <Send />
-          Send stock
+          {{ t('stock.page.sendStock') }}
         </Button>
         <Button @click="openAdjust(null)">
           <SlidersHorizontal />
-          Change stock
+          {{ t('stock.page.changeStock') }}
         </Button>
       </div>
     </div>
@@ -77,7 +78,7 @@ onMounted(fetchSummary)
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Value at cost</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('stock.page.valueAtCost') }}</CardTitle>
           <Wallet class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -87,7 +88,7 @@ onMounted(fetchSummary)
       </Card>
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Value at selling price</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('stock.page.valueAtPrice') }}</CardTitle>
           <Wallet class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -97,22 +98,22 @@ onMounted(fetchSummary)
       </Card>
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Running low</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('stock.page.runningLow') }}</CardTitle>
           <TriangleAlert class="size-4 text-amber-500" />
         </CardHeader>
         <CardContent>
           <Skeleton v-if="!summary" class="h-7 w-12" />
-          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ summary.low_count.toLocaleString() }}</p>
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatNumber(summary.low_count) }}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Out of stock</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('stock.page.outOfStock') }}</CardTitle>
           <PackageX class="size-4 text-destructive" />
         </CardHeader>
         <CardContent>
           <Skeleton v-if="!summary" class="h-7 w-12" />
-          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl" :class="summary.out_count ? 'text-destructive' : ''">{{ summary.out_count.toLocaleString() }}</p>
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl" :class="summary.out_count ? 'text-destructive' : ''">{{ formatNumber(summary.out_count) }}</p>
         </CardContent>
       </Card>
     </div>
@@ -121,9 +122,9 @@ onMounted(fetchSummary)
       <CardContent class="px-3 sm:px-6">
         <Tabs v-model="activeTab">
           <TabsList class="w-full sm:w-auto">
-            <TabsTrigger value="levels" class="flex-1 sm:flex-none">Levels</TabsTrigger>
-            <TabsTrigger value="history" class="flex-1 sm:flex-none">History</TabsTrigger>
-            <TabsTrigger v-if="hasOtherShops" value="transfers" class="flex-1 sm:flex-none">Transfers</TabsTrigger>
+            <TabsTrigger value="levels" class="flex-1 sm:flex-none">{{ t('stock.page.levelsTab') }}</TabsTrigger>
+            <TabsTrigger value="history" class="flex-1 sm:flex-none">{{ t('stock.page.historyTab') }}</TabsTrigger>
+            <TabsTrigger v-if="hasOtherShops" value="transfers" class="flex-1 sm:flex-none">{{ t('stock.page.transfersTab') }}</TabsTrigger>
           </TabsList>
           <TabsContent value="levels" class="mt-4">
             <StockLevelsPanel ref="levelsPanel" :can-adjust="canChangeStock" :initial-status="initialStatus" @adjust="openAdjust" @history="openHistory" />

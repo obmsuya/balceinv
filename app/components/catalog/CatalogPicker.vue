@@ -10,6 +10,7 @@ import { formatMoney, majorToMinor } from '~/utils/money'
 
 const emit = defineEmits<{ pick: [catalogProduct: CatalogProduct] }>()
 
+const { t, formatNumber } = useI18n()
 const { catalog, catalogLoaded, loading, loadError, fetchCatalog, searchCatalog } = useCatalog()
 
 const shownLimit = 50
@@ -55,14 +56,14 @@ onMounted(() => fetchCatalog())
         <BookOpen class="size-4 text-primary" />
       </span>
       <span class="min-w-0 flex-1">
-        <span class="block text-sm font-medium">Pick from common products</span>
+        <span class="block text-sm font-medium">{{ t('catalog.picker.title') }}</span>
         <span class="block text-xs text-muted-foreground">
-          <template v-if="loading && !catalogLoaded">Loading the list…</template>
-          <template v-else-if="loadError">The list could not load</template>
-          <template v-else>Fills the name, unit, category and price for you</template>
+          <template v-if="loading && !catalogLoaded">{{ t('catalog.picker.loading') }}</template>
+          <template v-else-if="loadError">{{ t('catalog.picker.loadFailed') }}</template>
+          <template v-else>{{ t('catalog.picker.hint') }}</template>
         </span>
       </span>
-      <Badge v-if="catalog.length" variant="secondary" class="tabular-nums">{{ catalog.length.toLocaleString() }}</Badge>
+      <Badge v-if="catalog.length" variant="secondary" class="tabular-nums">{{ formatNumber(catalog.length) }}</Badge>
       <ChevronDown class="size-4 shrink-0 text-muted-foreground transition-transform" :class="expanded ? 'rotate-180' : ''" />
     </button>
 
@@ -70,7 +71,7 @@ onMounted(() => fetchCatalog())
       <div v-if="loadError" class="flex flex-col items-center gap-2 py-4 text-center text-sm">
         <p class="text-destructive">{{ loadError }}</p>
         <Button variant="outline" size="sm" type="button" :disabled="loading" @click="fetchCatalog({ force: true })">
-          <RefreshCw class="size-3.5 mr-1.5" :class="loading ? 'animate-spin' : ''" />Try again
+          <RefreshCw class="size-3.5 mr-1.5" :class="loading ? 'animate-spin' : ''" />{{ t('common.actions.retry') }}
         </Button>
       </div>
 
@@ -80,7 +81,7 @@ onMounted(() => fetchCatalog())
           <Input
             ref="searchField"
             v-model="searchText"
-            placeholder="Type a product name"
+            :placeholder="t('catalog.picker.searchPlaceholder')"
             class="h-10 pl-9 pr-9"
             @keydown.enter.prevent="pickFirstMatch"
             @keydown.esc.stop="expanded = false"
@@ -96,7 +97,7 @@ onMounted(() => fetchCatalog())
             <Skeleton v-for="i in 3" :key="i" class="h-12 w-full" />
           </div>
           <p v-else-if="!shownProducts.length" class="py-6 text-center text-sm text-muted-foreground">
-            Not in the list. Type the details below instead.
+            {{ t('catalog.picker.notFound') }}
           </p>
           <ul v-else class="flex flex-col gap-0.5">
             <li v-for="(catalogProduct, index) in shownProducts" :key="catalogProduct.id">
@@ -109,7 +110,7 @@ onMounted(() => fetchCatalog())
                 <span class="min-w-0 flex-1">
                   <span class="block truncate text-sm font-medium">{{ catalogProduct.name }}</span>
                   <span class="block truncate text-xs text-muted-foreground">
-                    {{ [catalogProduct.category, catalogProduct.sub_category].filter(Boolean).join(' · ') || 'No category' }}
+                    {{ [catalogProduct.category, catalogProduct.sub_category].filter(Boolean).join(' · ') || t('catalog.picker.noCategory') }}
                   </span>
                 </span>
                 <Badge variant="outline" class="shrink-0 font-normal">{{ catalogProduct.unit }}</Badge>
@@ -120,7 +121,7 @@ onMounted(() => fetchCatalog())
             </li>
           </ul>
           <p v-if="matchingProducts.length > shownLimit" class="pt-2 text-center text-xs text-muted-foreground">
-            Showing {{ shownLimit }} of {{ matchingProducts.length.toLocaleString() }}. Keep typing to narrow it down.
+            {{ t('catalog.picker.showingSome', { shown: shownLimit, total: formatNumber(matchingProducts.length) }) }}
           </p>
         </div>
       </template>

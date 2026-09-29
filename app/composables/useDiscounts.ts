@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import { formatMoney } from '~/utils/money'
+import { apiErrorMessage, formatNumber, t } from '~/utils/i18n'
 
 export type DiscountKind = 'percent' | 'fixed'
 export type DiscountStatus = 'scheduled' | 'active' | 'expired' | 'stopped'
@@ -47,12 +48,12 @@ export const discountPageSize = 50
 
 export const discountValueLabel = (discount: Pick<Discount, 'kind' | 'value'>): string =>
   discount.kind === 'percent'
-    ? `${(discount.value / 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}% off`
-    : `${formatMoney(discount.value)} off each`
+    ? t('discounts.labels.percentOff', { percent: formatNumber(discount.value / 100, { maximumFractionDigits: 2 }) })
+    : t('discounts.labels.amountOffEach', { amount: formatMoney(discount.value) })
 
 export const discountTargetLabel = (discount: Discount): string => {
-  if (!discount.product_id) return 'Every product'
-  return discount.variant_label ? `${discount.product_name} · ${discount.variant_label}` : discount.product_name ?? 'A product'
+  if (!discount.product_id) return t('discounts.labels.everyProduct')
+  return discount.variant_label ? `${discount.product_name} · ${discount.variant_label}` : discount.product_name ?? t('discounts.labels.aProduct')
 }
 
 export const useDiscounts = () => {
@@ -73,7 +74,7 @@ export const useDiscounts = () => {
       discounts.value = discountPage.data.items
       totalDiscounts.value = discountPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load discounts')
+      toast.error(apiErrorMessage(error, 'discounts.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -86,10 +87,10 @@ export const useDiscounts = () => {
         method: discountId ? 'PUT' : 'POST',
         body: discountFields,
       })
-      toast.success(saveResponse.message)
+      toast.success(t(discountId ? 'discounts.toasts.saved' : 'discounts.toasts.created'))
       return saveResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to save the discount')
+      toast.error(apiErrorMessage(error, 'discounts.toasts.saveFailed'))
       throw error
     } finally {
       saving.value = false
@@ -100,9 +101,9 @@ export const useDiscounts = () => {
     saving.value = true
     try {
       const stopResponse = await apiFetch<ApiEnvelope<Discount>>(`/api/discounts/${discountId}`, { method: 'DELETE' })
-      toast.success(stopResponse.message)
+      toast.success(t('discounts.toasts.stopped'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to stop the discount')
+      toast.error(apiErrorMessage(error, 'discounts.toasts.stopFailed'))
       throw error
     } finally {
       saving.value = false
