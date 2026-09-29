@@ -2,7 +2,7 @@ import { toast } from 'vue-sonner'
 import { isTauri } from '~/composables/usePlatform'
 import { applyBrandColor } from '~/utils/brandTheme'
 import { setMoneyFormat } from '~/utils/money'
-import { apiErrorMessage, setActiveLocale, t } from '~/utils/i18n'
+import { activeLocale, apiErrorMessage, setActiveLocale, t } from '~/utils/i18n'
 
 export interface ShopSummary {
   id: string
@@ -96,7 +96,12 @@ export const useAuth = () => {
         await setToken('session_token', sessionToken)
       }
 
+      const localeChosenBeforeSignIn = activeLocale.value
       applyCurrentUser(loginResponse.data.user)
+      const hasNoSavedLocale = loginResponse.data.user.locale == null
+      if (hasNoSavedLocale && localeChosenBeforeSignIn !== activeLocale.value) {
+        await useI18n().chooseLanguage(localeChosenBeforeSignIn)
+      }
       return loginResponse.data.user
     } finally {
       isLoading.value = false
