@@ -8,6 +8,7 @@ const routePermissions: Record<string, { resource: string; action: string }> = {
   '/discounts': { resource: 'discounts', action: 'view' },
   '/reports': { resource: 'reports', action: 'view' },
   '/notifications': { resource: 'notifications', action: 'view' },
+  '/shops': { resource: 'shops', action: 'view' },
   '/users': { resource: 'users', action: 'view' },
   '/roles': { resource: 'roles', action: 'view' },
   '/settings': { resource: 'settings', action: 'view' },

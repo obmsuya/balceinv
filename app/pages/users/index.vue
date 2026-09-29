@@ -33,6 +33,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUsers } from '~/composables/useUsers';
+import ShopAssignment from '@/components/users/ShopAssignment.vue';
 
 
 const { users, loading, fetchUsers, createUser, updateUser, updatePassword, deactivateUser } = useUsers();
@@ -49,11 +50,14 @@ const formData = ref({
   email: '',
   password: '',
   roleId: '',
+  shopIds: [] as string[],
 });
 
 const newPassword = ref('');
 
 const { user } = useAuth()
+const assignableShops = computed(() => user.value?.shops ?? [])
+const showShopAssignment = computed(() => assignableShops.value.length > 1)
 onMounted(async () => {
   await fetchUsers();
   await fetchRoles();
@@ -76,6 +80,7 @@ const handleEdit = (event: any) => {
     email: event.detail.email,
     password: '',
     roleId: event.detail.role_id,
+    shopIds: [...(event.detail.shop_ids ?? [])],
   };
   showEditDialog.value = true;
 };
@@ -97,6 +102,7 @@ const openCreateDialog = () => {
     email: '',
     password: '',
     roleId: '',
+    shopIds: user.value?.shop_id ? [user.value.shop_id] : [],
   };
   showCreateDialog.value = true;
 };
@@ -128,15 +134,14 @@ const handleCreateSubmit = async () => {
     return;
   }
 
+  if (showShopAssignment.value && formData.value.shopIds.length === 0) {
+    toast.error('Choose at least one shop');
+    return;
+  }
+
   try {
     await createUser(formData.value);
     showCreateDialog.value = false;
-    formData.value = {
-      name: '',
-      email: '',
-      password: '',
-      roleId: '',
-    };
   } catch (error) {
     console.error('Failed to create user:', error);
   }
@@ -158,11 +163,17 @@ const handleEditSubmit = async () => {
     return;
   }
 
+  if (showShopAssignment.value && formData.value.shopIds.length === 0) {
+    toast.error('Choose at least one shop');
+    return;
+  }
+
   try {
     await updateUser(selectedUser.value.id, {
       name: formData.value.name,
       email: formData.value.email,
       roleId: formData.value.roleId,
+      shopIds: showShopAssignment.value ? formData.value.shopIds : undefined,
     });
     showEditDialog.value = false;
     selectedUser.value = null;
@@ -282,6 +293,7 @@ const confirmDelete = async () => {
               </SelectContent>
             </Select>
           </div>
+          <ShopAssignment v-if="showShopAssignment" v-model="formData.shopIds" :shops="assignableShops" />
         </div>
         <DialogFooter>
           <Button variant="outline" @click="showCreateDialog = false">Cancel</Button>
@@ -335,6 +347,7 @@ const confirmDelete = async () => {
               </SelectContent>
             </Select>
           </div>
+          <ShopAssignment v-if="showShopAssignment" v-model="formData.shopIds" :shops="assignableShops" />
         </div>
         <DialogFooter>
           <Button variant="outline" @click="showEditDialog = false">Cancel</Button>
