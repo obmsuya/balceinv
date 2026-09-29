@@ -1,0 +1,143 @@
+{
+  "title": "Reports",
+  "excel": "Excel",
+  "excelFileType": "Excel workbook",
+  "printOrPdf": "Print or PDF",
+  "presets": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last7": "Last 7 days",
+    "last30": "Last 30 days",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "custom": "Custom"
+  },
+  "scope": {
+    "label": "Which shops",
+    "current": "{shop} (current)",
+    "thisShop": "This shop",
+    "allShops": "All shops",
+    "shop": "Shop"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "products": "Products",
+    "staff": "Staff",
+    "shops": "Shops",
+    "stock": "Stock"
+  },
+  "counts": {
+    "sales": {
+      "one": "{count} sale",
+      "other": "{count} sales"
+    },
+    "items": {
+      "one": "{count} item",
+      "other": "{count} items"
+    },
+    "products": {
+      "one": "{count} product",
+      "other": "{count} products"
+    }
+  },
+  "stats": {
+    "takings": "Takings",
+    "grossProfit": "Gross profit",
+    "marginOfNetSales": "{margin} of net sales",
+    "netSales": "Net sales",
+    "afterTax": "After {amount} tax",
+    "discountsGiven": "Discounts given",
+    "averageSale": "Average sale {amount}"
+  },
+  "chart": {
+    "sales": "Sales",
+    "grossProfit": "Gross profit"
+  },
+  "dayByDay": {
+    "title": "Day by day",
+    "description": "Takings and gross profit, in company time"
+  },
+  "payments": {
+    "title": "How customers paid",
+    "description": "Cash is after change given"
+  },
+  "products": {
+    "topInPeriod": "Top 100 products in this period",
+    "rankBy": "Rank products by",
+    "empty": "No products sold in this period.",
+    "profitNote": "Profit per product removes tax line by line, so it can differ from the overview by a few units of currency."
+  },
+  "sorts": {
+    "revenue": "Sales",
+    "quantity": "Quantity",
+    "profit": "Profit"
+  },
+  "noSales": "No sales in this period.",
+  "stock": {
+    "note": "Stock as it is now, whatever the dates above.",
+    "valueAtCost": "Stock value at cost",
+    "itemsOnHand": {
+      "one": "{count} item on hand",
+      "other": "{count} items on hand"
+    },
+    "valueAtPrice": "Stock value at price",
+    "runningLow": "Running low",
+    "runningLowHint": "At or below their warning level",
+    "outOfStock": "Out of stock",
+    "outOfStockHint": "Nothing left"
+  },
+  "deadStock": {
+    "title": "Not selling",
+    "description": "In stock but unsold for {days} days, most money tied up first",
+    "neverSold": "Never sold",
+    "empty": "Everything in stock has sold recently."
+  },
+  "columns": {
+    "item": "Item",
+    "value": "Value",
+    "period": "Period",
+    "shops": "Shops",
+    "shop": "Shop",
+    "date": "Date",
+    "product": "Product",
+    "sku": "SKU",
+    "staff": "Staff",
+    "sales": "Sales",
+    "sold": "Sold",
+    "quantity": "Quantity",
+    "itemsSold": "Items sold",
+    "takings": "Takings",
+    "takingsInclTax": "Takings (incl. tax)",
+    "tax": "Tax",
+    "netSales": "Net sales",
+    "cost": "Cost",
+    "costOfGoods": "Cost of goods",
+    "profit": "Profit",
+    "grossProfit": "Gross profit",
+    "margin": "Margin",
+    "marginPercent": "Margin %",
+    "discountsGiven": "Discounts given",
+    "averageSale": "Average sale",
+    "cash": "Cash",
+    "card": "Card",
+    "mobileMoney": "Mobile money",
+    "onHand": "On hand",
+    "valueAtCost": "Value at cost",
+    "lastSold": "Last sold"
+  },
+  "sheets": {
+    "summary": "Summary",
+    "days": "Days",
+    "products": "Products",
+    "staff": "Staff",
+    "shops": "Shops"
+  },
+  "toasts": {
+    "loadFailed": "Could not load the reports",
+    "productsFailed": "Could not load the products",
+    "stockFailed": "Could not load the stock report",
+    "dateOrder": "The start date is after the end date",
+    "saved": "Report saved",
+    "saveFailed": "The report could not be saved"
+  }
+}

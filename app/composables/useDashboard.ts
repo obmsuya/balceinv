@@ -1,4 +1,5 @@
 import type { ProductSort, ReportDay, ReportProduct, ReportSummary, StockTotals } from '~/composables/useReports'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface RecentSale {
   id: string
@@ -51,18 +52,24 @@ export const useDashboard = () => {
   const dashboard = ref<Dashboard | null>(null)
   const exchangeRates = ref<ExchangeRates | null>(null)
   const loading = ref(false)
-  const loadError = ref('')
-  const ratesError = ref('')
+  const loadFailure = shallowRef<any>(null)
+  const ratesFailed = ref(false)
+
+  const loadError = computed(() => {
+    if (!loadFailure.value) return ''
+    const isOffline = !loadFailure.value?.status && !loadFailure.value?.statusCode
+    return isOffline ? t('dashboard.errors.offline') : apiErrorMessage(loadFailure.value, 'dashboard.errors.loadFailed')
+  })
+  const ratesError = computed(() => (ratesFailed.value ? t('dashboard.exchangeRates.loadFailed') : ''))
 
   const fetchDashboard = async (shop: string): Promise<void> => {
     loading.value = true
     try {
       const dashboardResponse = await apiFetch<ApiEnvelope<Dashboard>>('/api/dashboard', { query: { shop: shop || undefined } })
       dashboard.value = dashboardResponse.data
-      loadError.value = ''
+      loadFailure.value = null
     } catch (error: any) {
-      const isOffline = !error?.status && !error?.statusCode
-      loadError.value = isOffline ? 'Cannot reach the server. Showing the last figures loaded.' : error?.data?.message || 'Could not load the dashboard'
+      loadFailure.value = error
     } finally {
       loading.value = false
     }
@@ -72,9 +79,9 @@ export const useDashboard = () => {
     try {
       const ratesResponse = await apiFetch<ApiEnvelope<ExchangeRates>>('/api/exchange-rates')
       exchangeRates.value = ratesResponse.data
-      ratesError.value = ''
+      ratesFailed.value = false
     } catch {
-      ratesError.value = 'Cannot reach the server for exchange rates.'
+      ratesFailed.value = true
     }
   }
 

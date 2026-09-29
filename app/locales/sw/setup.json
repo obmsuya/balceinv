@@ -1,0 +1,61 @@
+{
+  "pitch": {
+    "titleLine1": "Weka biashara yako",
+    "titleLine2": "kwa dakika chache.",
+    "body": "Tueleze kuhusu duka lako kisha uunde akaunti ya mmiliki. Hii hufanyika mara moja tu."
+  },
+  "steps": {
+    "businessTitle": "Maelezo ya biashara",
+    "businessHint": "Jina, aina na mahali",
+    "ownerTitle": "Akaunti ya mmiliki",
+    "ownerHint": "Barua pepe na nenosiri lako"
+  },
+  "business": {
+    "title": "Biashara yako",
+    "subtitle": "Anza na mambo ya msingi — unaweza kubadilisha kila kitu baadaye kwenye mipangilio.",
+    "name": "Jina la biashara",
+    "namePlaceholder": "mf. Duka la Amina",
+    "type": "Aina ya biashara",
+    "typePlaceholder": "Chagua aina ya biashara yako",
+    "optional": "(si lazima)",
+    "addressPlaceholder": "Mtaa, eneo, mji",
+    "tin": "Namba ya TIN",
+    "tinPlaceholder": "Namba ya Utambulisho wa Mlipakodi",
+    "continue": "Endelea kwenye akaunti ya mmiliki"
+  },
+  "owner": {
+    "title": "Akaunti ya mmiliki",
+    "subtitle": "Hii itakuwa akaunti kuu ya kusimamia biashara yako.",
+    "name": "Jina lako kamili",
+    "namePlaceholder": "mf. Amina Juma",
+    "email": "Barua pepe",
+    "passwordPlaceholder": "Angalau herufi 8",
+    "creating": "Inaunda akaunti…",
+    "create": "Unda akaunti ya biashara",
+    "back": "← Rudi kwenye maelezo ya biashara"
+  },
+  "haveAccount": "Tayari una akaunti?",
+  "signIn": "Ingia",
+  "businessTypes": {
+    "pharmacy": "Duka la dawa",
+    "supermarket": "Supamaketi",
+    "retail": "Duka la rejareja",
+    "hardware": "Duka la vifaa vya ujenzi",
+    "wholesale": "Duka la jumla",
+    "winehouse": "Mvinyo na vinywaji vikali",
+    "beauty": "Urembo na vipodozi"
+  },
+  "validation": {
+    "businessNameRequired": "Jina la biashara linahitajika",
+    "businessTypeRequired": "Chagua aina ya biashara",
+    "ownerNameRequired": "Jina lako linahitajika",
+    "emailRequired": "Barua pepe inahitajika",
+    "emailInvalid": "Weka barua pepe sahihi",
+    "passwordMin": "Nenosiri liwe na angalau herufi 8"
+  },
+  "toasts": {
+    "created": "Akaunti ya biashara imeundwa!",
+    "createdHint": "Sasa unaweza kuingia kwa barua pepe na nenosiri lako.",
+    "failed": "Imeshindwa kuweka biashara"
+  }
+}

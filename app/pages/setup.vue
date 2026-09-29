@@ -21,23 +21,25 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { businessTypes } from '~/utils/businessTypes'
+import { apiErrorMessage } from '~/utils/i18n'
 
 definePageMeta({ layout: false })
 
 const { setup, checkSetup, isLoading } = useAuth()
+const { t } = useI18n()
 
 const mounted = ref(false)
 const step = ref<1 | 2>(1)
 
 const formSchema = toTypedSchema(z.object({
-  business_name:  z.string().min(2, 'Business name is required'),
-  business_type:  z.string().min(1, 'Please select a business type'),
+  business_name:  z.string().min(2, { error: () => t('setup.validation.businessNameRequired') }),
+  business_type:  z.string().min(1, { error: () => t('setup.validation.businessTypeRequired') }),
   phone:          z.string().optional(),
   address:        z.string().optional(),
   tin:            z.string().optional(),
-  owner_name:     z.string().min(2, 'Your name is required'),
-  owner_email:    z.string().min(1, 'Email is required').email('Enter a valid email'),
-  owner_password: z.string().min(8, 'Password must be at least 8 characters'),
+  owner_name:     z.string().min(2, { error: () => t('setup.validation.ownerNameRequired') }),
+  owner_email:    z.string().min(1, { error: () => t('setup.validation.emailRequired') }).email({ error: () => t('setup.validation.emailInvalid') }),
+  owner_password: z.string().min(8, { error: () => t('setup.validation.passwordMin') }),
 }))
 
 const form = useForm({ validationSchema: formSchema })
@@ -68,13 +70,12 @@ const nextStep = async () => {
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await setup(values)
-    toast.success('Business account created!', {
-      description: 'You can now sign in with your credentials.'
+    toast.success(t('setup.toasts.created'), {
+      description: t('setup.toasts.createdHint')
     })
     await navigateTo('/login')
   } catch (err: any) {
-    const msg = err?.data?.message || err?.message || 'Something went wrong'
-    toast.error('Setup failed', { description: msg })
+    toast.error(t('setup.toasts.failed'), { description: apiErrorMessage(err, 'errors.error') })
   }
 })
 </script>
@@ -92,8 +93,8 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
 
         <div class="pitch">
-          <h1>Set up your<br>business in minutes.</h1>
-          <p>Tell us about your store and create your owner account. This only happens once.</p>
+          <h1>{{ t('setup.pitch.titleLine1') }}<br>{{ t('setup.pitch.titleLine2') }}</h1>
+          <p>{{ t('setup.pitch.body') }}</p>
         </div>
 
         <div class="steps-strip">
@@ -105,16 +106,16 @@ const onSubmit = form.handleSubmit(async (values) => {
               <span v-else>1</span>
             </div>
             <div class="step-text">
-              <strong>Business info</strong>
-              <span>Name, type &amp; location</span>
+              <strong>{{ t('setup.steps.businessTitle') }}</strong>
+              <span>{{ t('setup.steps.businessHint') }}</span>
             </div>
           </div>
           <div class="step-line" :class="{ done: step === 2 }"/>
           <div class="step-item" :class="{ active: step === 2 }">
             <div class="step-dot"><span>2</span></div>
             <div class="step-text">
-              <strong>Owner account</strong>
-              <span>Your login credentials</span>
+              <strong>{{ t('setup.steps.ownerTitle') }}</strong>
+              <span>{{ t('setup.steps.ownerHint') }}</span>
             </div>
           </div>
         </div>
@@ -127,21 +128,24 @@ const onSubmit = form.handleSubmit(async (values) => {
       </div>
     </aside>
 
-    <main class="form-side" :class="{ show: mounted }">
+    <main class="form-side relative" :class="{ show: mounted }">
+      <div class="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div class="form-box">
 
         <div v-show="step === 1">
           <div class="form-head">
-            <h2>Your business</h2>
-            <p>Start with the basics — you can update everything later in settings.</p>
+            <h2>{{ t('setup.business.title') }}</h2>
+            <p>{{ t('setup.business.subtitle') }}</p>
           </div>
 
           <div class="fields">
             <FormField v-slot="{ componentField }" name="business_name">
               <FormItem>
-                <FormLabel>Business name</FormLabel>
+                <FormLabel>{{ t('setup.business.name') }}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Duka la Amina" v-bind="componentField" />
+                  <Input :placeholder="t('setup.business.namePlaceholder')" v-bind="componentField" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -149,11 +153,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="business_type">
               <FormItem>
-                <FormLabel>Business type</FormLabel>
+                <FormLabel>{{ t('setup.business.type') }}</FormLabel>
                 <FormControl>
                   <Select v-bind="componentField">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your business type" />
+                      <SelectValue :placeholder="t('setup.business.typePlaceholder')" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -174,7 +178,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="phone">
               <FormItem>
-                <FormLabel>Phone <span class="optional">(optional)</span></FormLabel>
+                <FormLabel>{{ t('common.fields.phone') }} <span class="optional">{{ t('setup.business.optional') }}</span></FormLabel>
                 <FormControl>
                   <Input placeholder="+255 7xx xxx xxx" v-bind="componentField" />
                 </FormControl>
@@ -184,9 +188,9 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="address">
               <FormItem>
-                <FormLabel>Address <span class="optional">(optional)</span></FormLabel>
+                <FormLabel>{{ t('common.fields.address') }} <span class="optional">{{ t('setup.business.optional') }}</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Street, area, city" v-bind="componentField" />
+                  <Input :placeholder="t('setup.business.addressPlaceholder')" v-bind="componentField" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -194,33 +198,33 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="tin">
               <FormItem>
-                <FormLabel>TIN number <span class="optional">(optional)</span></FormLabel>
+                <FormLabel>{{ t('setup.business.tin') }} <span class="optional">{{ t('setup.business.optional') }}</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Tax Identification Number" v-bind="componentField" />
+                  <Input :placeholder="t('setup.business.tinPlaceholder')" v-bind="componentField" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             </FormField>
 
             <Button class="w-full h-11" @click="nextStep">
-              Continue to owner account
+              {{ t('setup.business.continue') }}
             </Button>
           </div>
         </div>
 
         <div v-show="step === 2">
           <div class="form-head">
-            <h2>Owner account</h2>
-            <p>This will be the main admin account for your business.</p>
+            <h2>{{ t('setup.owner.title') }}</h2>
+            <p>{{ t('setup.owner.subtitle') }}</p>
           </div>
 
           <form class="fields" @submit="onSubmit">
             <FormField v-slot="{ componentField }" name="owner_name">
               <FormItem>
-                <FormLabel>Your full name</FormLabel>
+                <FormLabel>{{ t('setup.owner.name') }}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g. Amina Juma"
+                    :placeholder="t('setup.owner.namePlaceholder')"
                     :disabled="isLoading"
                     v-bind="componentField"
                   />
@@ -231,7 +235,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="owner_email">
               <FormItem>
-                <FormLabel>Email address</FormLabel>
+                <FormLabel>{{ t('setup.owner.email') }}</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
@@ -247,11 +251,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <FormField v-slot="{ componentField }" name="owner_password">
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{{ t('common.fields.password') }}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="At least 8 characters"
+                    :placeholder="t('setup.owner.passwordPlaceholder')"
                     autocomplete="new-password"
                     :disabled="isLoading"
                     v-bind="componentField"
@@ -263,19 +267,19 @@ const onSubmit = form.handleSubmit(async (values) => {
 
             <Button as-child>
               <button type="submit" class="w-full h-11" :disabled="isLoading">
-                {{ isLoading ? 'Creating account...' : 'Create business account' }}
+                {{ isLoading ? t('setup.owner.creating') : t('setup.owner.create') }}
               </button>
             </Button>
 
             <button type="button" class="back-btn" :disabled="isLoading" @click="step = 1">
-              ← Back to business info
+              {{ t('setup.owner.back') }}
             </button>
           </form>
         </div>
 
         <div class="login-row">
-          Already have an account?
-          <NuxtLink to="/login" class="ghost-link">Sign in</NuxtLink>
+          {{ t('setup.haveAccount') }}
+          <NuxtLink to="/login" class="ghost-link">{{ t('setup.signIn') }}</NuxtLink>
         </div>
       </div>
     </main>

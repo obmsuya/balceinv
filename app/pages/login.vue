@@ -15,12 +15,15 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { homePathFor } from '~/utils/portedRoutes'
+import { apiErrorMessage } from '~/utils/i18n'
 
 definePageMeta({ layout: 'auth' })
 
+const { t } = useI18n()
+
 const formSchema = toTypedSchema(z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(1, 'Password is required')
+  email: z.string().min(1, { error: () => t('auth.validation.emailRequired') }).email({ error: () => t('auth.validation.emailInvalid') }),
+  password: z.string().min(1, { error: () => t('auth.validation.passwordRequired') })
 }))
 
 const { login, isLoading } = useAuth()
@@ -45,16 +48,10 @@ const onSubmit = form.handleSubmit(async (values) => {
   try {
     const signedInUser = await login(values)
     const { hasPermission } = usePermissions()
-    toast.success('Welcome back!', { description: `Signed in as ${signedInUser.name}` })
+    toast.success(t('auth.toasts.welcomeBack'), { description: t('auth.toasts.signedInAs', { name: signedInUser.name }) })
     await navigateTo(homePathFor(hasPermission))
   } catch (error: any) {
-    toast.error('Sign in failed', {
-      description: error?.statusCode === 401
-        ? 'Invalid email or password'
-        : error?.statusCode === 429
-          ? 'Too many attempts. Wait a minute and try again.'
-          : error?.data?.message || 'Something went wrong'
-    })
+    toast.error(t('auth.toasts.signInFailed'), { description: apiErrorMessage(error, 'errors.error') })
   }
 })
 </script>
@@ -72,24 +69,24 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
 
         <div class="pitch">
-          <h1>The smarter way<br>to run your store.</h1>
-          <p>Inventory, sales, and reporting — unified. Built for businesses that demand clarity and speed.</p>
+          <h1>{{ t('auth.pitch.titleLine1') }}<br>{{ t('auth.pitch.titleLine2') }}</h1>
+          <p>{{ t('auth.pitch.body') }}</p>
         </div>
 
         <div class="chips">
           <div class="chip">
-            <strong>Real-time</strong>
-            <span>Stock alerts</span>
+            <strong>{{ t('auth.chips.realTime') }}</strong>
+            <span>{{ t('auth.chips.stockAlerts') }}</span>
           </div>
           <div class="chip-sep" />
           <div class="chip">
-            <strong>Multi-user</strong>
-            <span>Roles &amp; access</span>
+            <strong>{{ t('auth.chips.multiUser') }}</strong>
+            <span>{{ t('auth.chips.rolesAccess') }}</span>
           </div>
           <div class="chip-sep" />
           <div class="chip">
-            <strong>Analytics</strong>
-            <span>Sales reports</span>
+            <strong>{{ t('auth.chips.analytics') }}</strong>
+            <span>{{ t('auth.chips.salesReports') }}</span>
           </div>
         </div>
       </div>
@@ -103,17 +100,20 @@ const onSubmit = form.handleSubmit(async (values) => {
       </div>
     </aside>
 
-    <main class="form-side" :class="{ show: mounted }">
+    <main class="form-side relative" :class="{ show: mounted }">
+      <div class="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div class="form-box">
         <div class="form-head">
-          <h2>Sign in</h2>
-          <p>Enter your credentials to continue</p>
+          <h2>{{ t('auth.form.title') }}</h2>
+          <p>{{ t('auth.form.subtitle') }}</p>
         </div>
 
         <form @submit="onSubmit" class="fields">
           <FormField v-slot="{ componentField }" name="email">
             <FormItem>
-              <FormLabel>Email address</FormLabel>
+              <FormLabel>{{ t('auth.form.email') }}</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="you@company.com" autocomplete="email" :disabled="isLoading"
                   v-bind="componentField" />
@@ -125,15 +125,15 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormField v-slot="{ componentField }" name="password">
             <FormItem>
               <div class="pw-label">
-                <FormLabel>Password</FormLabel>
-                <NuxtLink to="/forgot-password" class="ghost-link">Forgot password?</NuxtLink>
+                <FormLabel>{{ t('common.fields.password') }}</FormLabel>
+                <NuxtLink to="/forgot-password" class="ghost-link">{{ t('auth.form.forgotPassword') }}</NuxtLink>
               </div>
               <FormControl>
                 <div class="relative">
                   <Input :type="showPassword ? 'text' : 'password'" placeholder="••••••••"
                     autocomplete="current-password" :disabled="isLoading" class="pr-10" v-bind="componentField" />
                   <button type="button" class="eye-btn" @click="showPassword = !showPassword"
-                    :aria-label="showPassword ? 'Hide password' : 'Show password'">
+                    :aria-label="showPassword ? t('auth.form.hidePassword') : t('auth.form.showPassword')">
                     <component :is="showPassword ? EyeOff : Eye" class="size-4" />
                   </button>
                 </div>
@@ -144,19 +144,19 @@ const onSubmit = form.handleSubmit(async (values) => {
 
           <Button as-child>
             <button type="submit" class="w-full h-11" :disabled="isLoading">
-              {{ isLoading ? 'Signing in...' : 'Sign in' }}
+              {{ isLoading ? t('auth.form.submitting') : t('auth.form.submit') }}
             </button>
           </Button>
         </form>
 
         <div class="bottom-links">
           <NuxtLink to="/setup?from=login" class="setup-link">
-            Set up your business
+            {{ t('auth.form.setupBusiness') }}
           </NuxtLink>
 
           <Transition name="fade">
             <NuxtLink v-if="devUnlocked" to="/admin-page" class="dev-link">
-              Create Super User account
+              {{ t('auth.form.createSuperUser') }}
             </NuxtLink>
           </Transition>
         </div>

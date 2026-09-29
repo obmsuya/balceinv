@@ -1,0 +1,40 @@
+{
+  "pitch": {
+    "titleLine1": "One setup.",
+    "titleLine2": "Total control.",
+    "body": "The Super User account owns everything — users, roles, permissions, and system settings. Set it up once."
+  },
+  "steps": {
+    "createTitle": "Create this account",
+    "createHint": "Unrestricted access to all modules",
+    "rolesTitle": "Configure roles",
+    "rolesHint": "Define what each team member can do",
+    "operateTitle": "Start operating",
+    "operateHint": "Add products, sell, and track stock"
+  },
+  "form": {
+    "badge": "Initial Setup",
+    "title": "Create Super User",
+    "subtitle": "This account has full, unrestricted system access.",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Admin Name",
+    "email": "Email address",
+    "password": "Root password",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "creating": "Creating account…",
+    "create": "Create account",
+    "alreadySetUp": "already set up?",
+    "signInInstead": "Sign in instead"
+  },
+  "validation": {
+    "nameMin": "At least 2 characters",
+    "emailInvalid": "Invalid email address",
+    "passwordMin": "At least 6 characters"
+  },
+  "toasts": {
+    "created": "Super User created",
+    "createdHint": "Admin account set up successfully",
+    "failed": "Setup failed",
+    "connectionFailed": "Error connecting to server"
+  }
+}

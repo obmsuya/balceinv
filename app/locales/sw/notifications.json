@@ -12,5 +12,24 @@
     "clearFailed": "Imeshindwa kuzifuta",
     "soundOn": "Sauti ya taarifa imewashwa",
     "soundOff": "Sauti ya taarifa imezimwa"
+  },
+  "page": {
+    "title": "Taarifa",
+    "subtitle": "Stoku iliyopungua au kuisha katika duka hili",
+    "soundOn": "Sauti imewashwa",
+    "soundOff": "Sauti imezimwa",
+    "markAllRead": "Weka zote zimesomwa",
+    "clearRead": "Futa zilizosomwa",
+    "unread": "Hazijasomwa",
+    "caughtUp": "Hakuna taarifa mpya",
+    "empty": "Bado hakuna taarifa",
+    "explainer": "Utapata taarifa mara moja bidhaa inapofika kiwango cha tahadhari, na mara moja inapoisha.",
+    "nowQuantity": "sasa {quantity} {unit}",
+    "markRead": "Weka imesomwa",
+    "clearDialog": {
+      "title": "Futa taarifa zilizosomwa?",
+      "description": "Taarifa zilizosomwa zitaondolewa katika duka hili. Zisizosomwa zitabaki.",
+      "confirm": "Futa"
+    }
   }
 }

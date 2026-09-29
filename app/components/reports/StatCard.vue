@@ -11,9 +11,11 @@ const props = defineProps<{
   icon?: any
 }>()
 
+const { formatNumber } = useI18n()
+
 const changeText = computed(() => {
   if (props.change == null || !Number.isFinite(props.change)) return ''
-  return `${Math.abs(props.change).toLocaleString(undefined, { maximumFractionDigits: 0 })}%`
+  return `${formatNumber(Math.abs(props.change), { maximumFractionDigits: 0 })}%`
 })
 </script>
 

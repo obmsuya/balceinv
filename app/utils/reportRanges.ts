@@ -1,14 +1,8 @@
+import { formatNumber, t } from '~/utils/i18n'
+
 export type RangePreset = 'today' | 'yesterday' | 'last7' | 'last30' | 'thisMonth' | 'lastMonth' | 'custom'
 
-export const rangePresetLabels: Record<RangePreset, string> = {
-  today: 'Today',
-  yesterday: 'Yesterday',
-  last7: 'Last 7 days',
-  last30: 'Last 30 days',
-  thisMonth: 'This month',
-  lastMonth: 'Last month',
-  custom: 'Custom',
-}
+export const rangePresetLabel = (preset: RangePreset): string => t(`reports.presets.${preset}`)
 
 export const todayIn = (timezone: string | undefined): string => {
   try {
@@ -50,4 +44,4 @@ export const percentChange = (current: number, previous: number): number | null 
 }
 
 export const marginText = (basisPoints: number): string =>
-  `${(basisPoints / 100).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`
+  `${formatNumber(basisPoints / 100, { maximumFractionDigits: 1 })}%`

@@ -12,6 +12,7 @@ import { marginText, percentChange } from '~/utils/reportRanges'
 const autoRefreshMilliseconds = 60 * 1000
 
 const { user } = useAuth()
+const { t, formatDate } = useI18n()
 const { dashboard, exchangeRates, loading, loadError, ratesError, fetchDashboard, fetchExchangeRates } = useDashboard()
 
 const allShopsSelected = ref(false)
@@ -20,14 +21,14 @@ let refreshTimer: ReturnType<typeof setInterval> | null = null
 
 const hasSeveralShops = computed(() => (user.value?.shops.length ?? 0) > 1 || user.value?.is_owner === true)
 const shopScope = computed(() => (allShopsSelected.value ? 'all' : ''))
-const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name ?? 'This shop')
+const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name ?? t('dashboard.scope.thisShop'))
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
   const firstName = user.value?.name.split(' ')[0] ?? ''
-  if (hour < 12) return `Good morning, ${firstName}`
-  if (hour < 17) return `Good afternoon, ${firstName}`
-  return `Good evening, ${firstName}`
+  if (hour < 12) return t('dashboard.greeting.morning', { name: firstName })
+  if (hour < 17) return t('dashboard.greeting.afternoon', { name: firstName })
+  return t('dashboard.greeting.evening', { name: firstName })
 })
 
 const today = computed(() => dashboard.value?.today ?? null)
@@ -43,7 +44,7 @@ const refreshRates = async () => {
   refreshingRates.value = false
 }
 
-const timeOf = (isoDate: string) => new Date(isoDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+const timeOf = (isoDate: string) => formatDate(isoDate, { hour: '2-digit', minute: '2-digit' })
 
 watch(allShopsSelected, reload)
 
@@ -66,12 +67,12 @@ onUnmounted(() => {
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ greeting }}</h1>
         <p class="mt-1 text-muted-foreground">
-          {{ new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) }} ·
-          {{ allShopsSelected ? 'All shops' : activeShopName }}
+          {{ formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long' }) }} ·
+          {{ allShopsSelected ? t('dashboard.scope.allShops') : activeShopName }}
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <div v-if="hasSeveralShops" class="flex rounded-lg bg-muted p-1 text-sm" role="group" aria-label="Which shops">
+        <div v-if="hasSeveralShops" class="flex rounded-lg bg-muted p-1 text-sm" role="group" :aria-label="t('dashboard.scope.label')">
           <button
             type="button"
             class="rounded-md px-3 py-1 font-medium transition-colors"
@@ -79,7 +80,7 @@ onUnmounted(() => {
             :aria-pressed="!allShopsSelected"
             @click="allShopsSelected = false"
           >
-            This shop
+            {{ t('dashboard.scope.thisShop') }}
           </button>
           <button
             type="button"
@@ -88,10 +89,10 @@ onUnmounted(() => {
             :aria-pressed="allShopsSelected"
             @click="allShopsSelected = true"
           >
-            All shops
+            {{ t('dashboard.scope.allShops') }}
           </button>
         </div>
-        <Button variant="outline" size="icon" :disabled="loading" aria-label="Refresh the dashboard" @click="reload">
+        <Button variant="outline" size="icon" :disabled="loading" :aria-label="t('dashboard.refresh')" @click="reload">
           <RefreshCw :class="loading ? 'animate-spin' : ''" />
         </Button>
       </div>
@@ -104,30 +105,30 @@ onUnmounted(() => {
 
     <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
       <StatCard
-        title="Sales today"
+        :title="t('dashboard.stats.salesToday')"
         :value="today ? formatMoney(today.total) : null"
         :change="salesChange"
-        :hint="today ? `${today.sale_count} ${today.sale_count === 1 ? 'sale' : 'sales'} · vs yesterday` : ''"
+        :hint="today ? `${t('reports.counts.sales', { count: today.sale_count })} · ${t('dashboard.stats.vsYesterday')}` : ''"
         :icon="Wallet"
       />
       <StatCard
-        title="Profit today"
+        :title="t('dashboard.stats.profitToday')"
         :value="today ? formatMoney(today.gross_profit) : null"
         :change="profitChange"
-        :hint="today ? `${marginText(today.margin_basis_points)} margin, after tax and cost` : ''"
+        :hint="today ? t('dashboard.stats.profitHint', { margin: marginText(today.margin_basis_points) }) : ''"
         :icon="PiggyBank"
       />
       <StatCard
-        title="This month"
+        :title="t('dashboard.stats.thisMonth')"
         :value="dashboard ? formatMoney(dashboard.month_to_date.total) : null"
-        :hint="dashboard ? `${dashboard.month_to_date.sale_count} sales · ${formatMoney(dashboard.month_to_date.gross_profit)} profit` : ''"
+        :hint="dashboard ? `${t('reports.counts.sales', { count: dashboard.month_to_date.sale_count })} · ${t('dashboard.stats.monthProfit', { amount: formatMoney(dashboard.month_to_date.gross_profit) })}` : ''"
         :icon="TrendingUp"
       />
       <NuxtLink to="/stock?status=low" class="rounded-xl transition-shadow hover:shadow-md">
         <StatCard
-          title="Stock alerts"
+          :title="t('dashboard.stats.stockAlerts')"
           :value="dashboard ? String(stockAlertCount) : null"
-          :hint="dashboard ? `${dashboard.stock.out_count} out · ${dashboard.stock.low_count} running low` : ''"
+          :hint="dashboard ? t('dashboard.stats.stockHint', { out: dashboard.stock.out_count, low: dashboard.stock.low_count }) : ''"
           :icon="Boxes"
         />
       </NuxtLink>
@@ -136,8 +137,8 @@ onUnmounted(() => {
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card class="lg:col-span-2">
         <CardHeader>
-          <CardTitle class="text-base">Last 14 days</CardTitle>
-          <CardDescription>Sales and gross profit per day</CardDescription>
+          <CardTitle class="text-base">{{ t('dashboard.trend.title') }}</CardTitle>
+          <CardDescription>{{ t('dashboard.trend.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton v-if="!dashboard" class="h-64 w-full" />
@@ -150,12 +151,12 @@ onUnmounted(() => {
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle class="text-base">Best sellers</CardTitle>
-          <CardDescription>By sales over the last 30 days</CardDescription>
+          <CardTitle class="text-base">{{ t('dashboard.bestSellers.title') }}</CardTitle>
+          <CardDescription>{{ t('dashboard.bestSellers.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton v-if="!dashboard" class="h-40 w-full" />
-          <p v-else-if="!dashboard.top_products.length" class="py-8 text-center text-sm text-muted-foreground">No sales in the last 30 days.</p>
+          <p v-else-if="!dashboard.top_products.length" class="py-8 text-center text-sm text-muted-foreground">{{ t('dashboard.bestSellers.empty') }}</p>
           <ol v-else class="flex flex-col gap-3">
             <li v-for="(product, productIndex) in dashboard.top_products" :key="product.product_id" class="flex items-center gap-3">
               <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">{{ productIndex + 1 }}</span>
@@ -167,7 +168,7 @@ onUnmounted(() => {
               </div>
               <div class="shrink-0 text-right">
                 <p class="text-sm font-semibold tabular-nums">{{ formatMoney(product.revenue) }}</p>
-                <p class="text-xs text-muted-foreground tabular-nums">{{ product.quantity }} sold</p>
+                <p class="text-xs text-muted-foreground tabular-nums">{{ t('dashboard.bestSellers.sold', { quantity: product.quantity }) }}</p>
               </div>
             </li>
           </ol>
@@ -176,15 +177,15 @@ onUnmounted(() => {
 
       <Card>
         <CardHeader class="flex flex-row items-start justify-between">
-          <div>
-            <CardTitle class="text-base">Latest sales</CardTitle>
-            <CardDescription>The most recent receipts</CardDescription>
+          <div class="min-w-0">
+            <CardTitle class="text-base">{{ t('dashboard.latestSales.title') }}</CardTitle>
+            <CardDescription>{{ t('dashboard.latestSales.description') }}</CardDescription>
           </div>
-          <Button variant="ghost" size="sm" @click="navigateTo('/sales')">See all</Button>
+          <Button variant="ghost" size="sm" class="shrink-0" @click="navigateTo('/sales')">{{ t('dashboard.latestSales.seeAll') }}</Button>
         </CardHeader>
         <CardContent>
           <Skeleton v-if="!dashboard" class="h-40 w-full" />
-          <p v-else-if="!dashboard.recent_sales.length" class="py-8 text-center text-sm text-muted-foreground">No sales yet.</p>
+          <p v-else-if="!dashboard.recent_sales.length" class="py-8 text-center text-sm text-muted-foreground">{{ t('dashboard.latestSales.empty') }}</p>
           <ul v-else class="divide-y">
             <li v-for="recentSale in dashboard.recent_sales" :key="recentSale.id" class="flex items-center gap-3 py-2.5">
               <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">

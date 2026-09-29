@@ -1,0 +1,61 @@
+{
+  "pitch": {
+    "titleLine1": "Set up your",
+    "titleLine2": "business in minutes.",
+    "body": "Tell us about your store and create your owner account. This only happens once."
+  },
+  "steps": {
+    "businessTitle": "Business info",
+    "businessHint": "Name, type & location",
+    "ownerTitle": "Owner account",
+    "ownerHint": "Your login credentials"
+  },
+  "business": {
+    "title": "Your business",
+    "subtitle": "Start with the basics — you can update everything later in settings.",
+    "name": "Business name",
+    "namePlaceholder": "e.g. Duka la Amina",
+    "type": "Business type",
+    "typePlaceholder": "Select your business type",
+    "optional": "(optional)",
+    "addressPlaceholder": "Street, area, city",
+    "tin": "TIN number",
+    "tinPlaceholder": "Tax Identification Number",
+    "continue": "Continue to owner account"
+  },
+  "owner": {
+    "title": "Owner account",
+    "subtitle": "This will be the main admin account for your business.",
+    "name": "Your full name",
+    "namePlaceholder": "e.g. Amina Juma",
+    "email": "Email address",
+    "passwordPlaceholder": "At least 8 characters",
+    "creating": "Creating account…",
+    "create": "Create business account",
+    "back": "← Back to business info"
+  },
+  "haveAccount": "Already have an account?",
+  "signIn": "Sign in",
+  "businessTypes": {
+    "pharmacy": "Pharmacy",
+    "supermarket": "Supermarket",
+    "retail": "Retail Store",
+    "hardware": "Hardware Store",
+    "wholesale": "Wholesaler",
+    "winehouse": "Wine & Spirits",
+    "beauty": "Beauty & Cosmetics"
+  },
+  "validation": {
+    "businessNameRequired": "Business name is required",
+    "businessTypeRequired": "Please select a business type",
+    "ownerNameRequired": "Your name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email",
+    "passwordMin": "Password must be at least 8 characters"
+  },
+  "toasts": {
+    "created": "Business account created!",
+    "createdHint": "You can now sign in with your credentials.",
+    "failed": "Setup failed"
+  }
+}

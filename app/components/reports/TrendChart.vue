@@ -9,6 +9,7 @@ ChartJS.register(BarController, BarElement, CategoryScale, Legend, LinearScale, 
 
 const props = defineProps<{ days: ReportDay[] }>()
 
+const { t, formatDate } = useI18n()
 const colorMode = useColorMode()
 const themeColors = ref({ bar: '#2563eb', line: '#059669', grid: 'rgba(128,128,128,0.15)', text: '#71717a' })
 
@@ -26,14 +27,14 @@ const readThemeColors = () => {
 onMounted(readThemeColors)
 watch(() => colorMode.value, () => nextTick(readThemeColors))
 
-const dayLabel = (isoDate: string) => new Date(`${isoDate}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+const dayLabel = (isoDate: string) => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short' })
 
 const chartData = computed<ChartData<'bar' | 'line'>>(() => ({
   labels: props.days.map(day => dayLabel(day.date)),
   datasets: [
     {
       type: 'bar' as const,
-      label: 'Sales',
+      label: t('reports.chart.sales'),
       data: props.days.map(day => day.total),
       backgroundColor: themeColors.value.bar,
       borderRadius: 4,
@@ -42,7 +43,7 @@ const chartData = computed<ChartData<'bar' | 'line'>>(() => ({
     },
     {
       type: 'line' as const,
-      label: 'Gross profit',
+      label: t('reports.chart.grossProfit'),
       data: props.days.map(day => day.gross_profit),
       borderColor: themeColors.value.line,
       backgroundColor: themeColors.value.line,

@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import { Hammer, Pill, ShoppingCart, Sparkles, Store, Warehouse, Wine } from 'lucide-vue-next'
+import { t } from '~/utils/i18n'
 
 export interface BusinessTypeOption {
   value: string
@@ -7,14 +8,22 @@ export interface BusinessTypeOption {
   icon: Component
 }
 
+const businessTypeOption = (value: string, icon: Component): BusinessTypeOption => ({
+  value,
+  icon,
+  get label() {
+    return t(`setup.businessTypes.${value}`)
+  },
+})
+
 export const businessTypes: BusinessTypeOption[] = [
-  { value: 'pharmacy', label: 'Pharmacy', icon: Pill },
-  { value: 'supermarket', label: 'Supermarket', icon: ShoppingCart },
-  { value: 'retail', label: 'Retail Store', icon: Store },
-  { value: 'hardware', label: 'Hardware Store', icon: Hammer },
-  { value: 'wholesale', label: 'Wholesaler', icon: Warehouse },
-  { value: 'winehouse', label: 'Wine & Spirits', icon: Wine },
-  { value: 'beauty', label: 'Beauty & Cosmetics', icon: Sparkles },
+  businessTypeOption('pharmacy', Pill),
+  businessTypeOption('supermarket', ShoppingCart),
+  businessTypeOption('retail', Store),
+  businessTypeOption('hardware', Hammer),
+  businessTypeOption('wholesale', Warehouse),
+  businessTypeOption('winehouse', Wine),
+  businessTypeOption('beauty', Sparkles),
 ]
 
 export const businessTypeLabel = (value: string): string =>

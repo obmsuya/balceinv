@@ -1,0 +1,15 @@
+{
+  "splash": {
+    "tagline": "Mahiri. Haraka. Kila kitu mkononi mwako.",
+    "initializing": "Inaanzisha mfumo…",
+    "loadingInventory": "Inapakia stoku…",
+    "almostReady": "Karibu tayari…"
+  },
+  "unauthorized": {
+    "title": "Huna ruhusa",
+    "description": "Huna ruhusa ya kufungua ukurasa huu",
+    "body": "Ukurasa huu ni kwa watumiaji wenye ruhusa maalum tu. Kama unaamini unapaswa kuufikia, wasiliana na msimamizi wako.",
+    "goBack": "Rudi nyuma",
+    "goHome": "Nenda kwenye dashibodi"
+  }
+}
