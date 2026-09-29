@@ -18,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '~/composables/useAuth';
 import { usePermissions } from '~/composables/usePermissions';
-import { isPortedRoute } from '~/utils/portedRoutes';
 
 interface NavigationItem {
   path: string;
@@ -75,7 +74,7 @@ const navigationItems = computed(() => {
   const isVisible = (item: NavigationItem) => {
     const isCloudOnly = item.path === '/shops';
     if (isCloudOnly && !isCloud.value) return false;
-    return isPortedRoute(item.path) && canView(item.resource);
+    return canView(item.resource);
   };
 
   return {

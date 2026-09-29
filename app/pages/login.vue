@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-vue-next'
-import { homePathFor } from '~/utils/portedRoutes'
+import { homePathFor } from '~/utils/homePath'
 import { apiErrorMessage } from '~/utils/i18n'
 
 definePageMeta({ layout: 'auth' })

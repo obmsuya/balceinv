@@ -1,6 +1,6 @@
 import { isTauri } from '~/composables/usePlatform'
 import type { CurrentUser, Permission } from '~/composables/useAuth'
-import { homePathFor, isPortedRoute } from '~/utils/portedRoutes'
+import { homePathFor } from '~/utils/homePath'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const publicRoutes = ['/', '/login', '/setup', '/display']
@@ -22,7 +22,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     }
   }
 
-  if (!isPortedRoute(to.path)) {
+  const isUnknownPage = to.matched.length === 0
+  if (isUnknownPage) {
     const can = (resource: string, action: string) =>
       user.value?.is_owner === true || userPermissions.value.some(permission => permission.resource === resource && permission.action === action)
     return navigateTo(homePathFor(can))
