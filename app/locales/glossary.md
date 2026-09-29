@@ -1,0 +1,101 @@
+# Swahili glossary
+
+Standard Tanzanian Kiswahili, the words shop staff actually use. Every
+Swahili string follows this list so the same thing is never called two
+names. Add a row here before inventing a new term.
+
+| English | Kiswahili | Never |
+|---|---|---|
+| notification(s) | taarifa | arifa, arifu |
+| dashboard | dashibodi | |
+| point of sale / till | kaunta ya mauzo / kaunta | |
+| sale / sales | mauzo | |
+| sales history | historia ya mauzo | |
+| sell | uza | |
+| product(s) | bidhaa | |
+| stock (quantity on hand) | stoku | hisa (that means shares) |
+| low stock | stoku ndogo / inakaribia kuisha | |
+| out of stock | imeisha | |
+| stock adjustment | marekebisho ya stoku | |
+| stock transfer | uhamisho wa stoku | |
+| shop / shops | duka / maduka | |
+| branch | tawi | |
+| business | biashara | |
+| company | kampuni | |
+| customer / customers | mteja / wateja | |
+| cashier | keshia | |
+| staff | wafanyakazi | |
+| user / users | mtumiaji / watumiaji | |
+| owner | mmiliki | |
+| role / roles | jukumu / majukumu | |
+| permission(s) | ruhusa | |
+| settings | mipangilio | |
+| report(s) | ripoti | |
+| discount(s) | punguzo | |
+| price | bei | |
+| cost price | bei ya kununua | |
+| selling price | bei ya kuuza | |
+| wholesale | jumla (bei ya jumla) | |
+| retail | rejareja | |
+| quantity | idadi | |
+| amount | kiasi | |
+| total | jumla | |
+| subtotal | jumla ndogo | |
+| tax / VAT | kodi / VAT | |
+| receipt | risiti | |
+| payment | malipo | |
+| pay | lipa | |
+| cash | taslimu | keshi |
+| card | kadi | |
+| mobile money | pesa ya simu | |
+| change (money back) | chenji | |
+| cart | kikapu | |
+| revenue | mapato | |
+| profit | faida | |
+| cost / expense | gharama | |
+| exchange rate(s) | viwango vya kubadilisha fedha | |
+| currency | sarafu | |
+| category | kundi | kategoria |
+| variant (size, colour) | aina | |
+| add-on | nyongeza | |
+| barcode | msimbopau | |
+| SKU | SKU | |
+| unit (pcs, kg) | kipimo | |
+| supplier | msambazaji | |
+| backup | nakala rudufu | |
+| restore | rejesha | |
+| network | mtandao | |
+| printer | printa | |
+| print | chapisha | |
+| subscription | usajili | |
+| trial | kipindi cha majaribio | |
+| license | leseni | |
+| language | lugha | |
+| search | tafuta | |
+| save | hifadhi | |
+| cancel | ghairi | |
+| delete | futa | |
+| edit | hariri | |
+| add | ongeza | |
+| close | funga | |
+| sign in / sign out | ingia / toka | |
+| password | nenosiri | |
+| email | barua pepe | |
+| phone | simu | |
+| address | anwani | |
+| date | tarehe | |
+| from / to (dates) | kuanzia / hadi | |
+| today / yesterday | leo / jana | |
+| error | hitilafu | |
+| loading… | inapakia… | |
+| number pad | vitufe vya namba | |
+| customer screen | skrini ya mteja | |
+| EFD | EFD | |
+| TIN | TIN | |
+
+Style:
+- Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".
+- Buttons are verbs in the imperative: "Hifadhi", "Ongeza bidhaa".
+- Failures start with "Imeshindwa …" ("Imeshindwa kuhifadhi bidhaa").
+- Successes use the perfect tense: "Bidhaa imehifadhiwa".
+- Keep numbers, currency codes, SKUs and product names untouched.

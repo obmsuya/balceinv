@@ -3,13 +3,15 @@ import { shallowRef } from 'vue'
 interface MoneyFormat {
   currencyCode: string
   decimals: number
+  locale: string | undefined
   formatter: Intl.NumberFormat
 }
 
-const buildMoneyFormat = (currencyCode: string, decimals: number): MoneyFormat => ({
+const buildMoneyFormat = (currencyCode: string, decimals: number, locale: string | undefined): MoneyFormat => ({
   currencyCode,
   decimals,
-  formatter: new Intl.NumberFormat(undefined, {
+  locale,
+  formatter: new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
     minimumFractionDigits: decimals,
@@ -17,12 +19,18 @@ const buildMoneyFormat = (currencyCode: string, decimals: number): MoneyFormat =
   }),
 })
 
-const activeMoneyFormat = shallowRef<MoneyFormat>(buildMoneyFormat('TZS', 0))
+const activeMoneyFormat = shallowRef<MoneyFormat>(buildMoneyFormat('TZS', 0, undefined))
 
 export const setMoneyFormat = (currencyCode: string, decimals: number) => {
   const isUnchanged = activeMoneyFormat.value.currencyCode === currencyCode && activeMoneyFormat.value.decimals === decimals
   if (isUnchanged) return
-  activeMoneyFormat.value = buildMoneyFormat(currencyCode, decimals)
+  activeMoneyFormat.value = buildMoneyFormat(currencyCode, decimals, activeMoneyFormat.value.locale)
+}
+
+export const setMoneyLocale = (locale: string) => {
+  if (activeMoneyFormat.value.locale === locale) return
+  const { currencyCode, decimals } = activeMoneyFormat.value
+  activeMoneyFormat.value = buildMoneyFormat(currencyCode, decimals, locale)
 }
 
 export const formatMoney = (minorUnits: number | null | undefined): string => {
