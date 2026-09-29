@@ -1,0 +1,66 @@
+{
+  "page": {
+    "title": "Usimamizi wa watumiaji",
+    "subtitle": "Simamia watumiaji wa mfumo na majukumu yao",
+    "add": "Ongeza mtumiaji",
+    "listTitle": "Watumiaji wote",
+    "listDescription": "Orodha ya watumiaji wote kwenye mfumo"
+  },
+  "form": {
+    "fullName": "Jina kamili",
+    "fullNamePlaceholder": "Andika jina kamili",
+    "passwordPlaceholder": "Angalau herufi 8",
+    "rolePlaceholder": "Chagua jukumu",
+    "worksIn": "Maduka anayofanyia kazi"
+  },
+  "create": {
+    "title": "Ongeza mtumiaji mpya",
+    "description": "Ongeza mtumiaji mpya kwenye mfumo",
+    "submit": "Ongeza mtumiaji"
+  },
+  "edit": {
+    "title": "Hariri mtumiaji",
+    "description": "Sasisha maelezo ya mtumiaji",
+    "submit": "Hifadhi mtumiaji"
+  },
+  "password": {
+    "title": "Badilisha nenosiri",
+    "description": "Weka nenosiri jipya la {name}",
+    "newPassword": "Nenosiri jipya",
+    "signOutNote": "Mtumiaji atatolewa kwenye vifaa vyote nenosiri likishabadilishwa",
+    "submit": "Badilisha nenosiri"
+  },
+  "deactivate": {
+    "title": "Zima mtumiaji huyu?",
+    "body": "\"{name}\" atatolewa kila mahali na hataweza kuingia tena. Historia yake inabaki kama ilivyo, na unaweza kumrudisha tena baadaye.",
+    "cannotUndo": "Kitendo hiki hakiwezi kutenduliwa.",
+    "action": "Zima"
+  },
+  "validation": {
+    "nameRequired": "Jina linahitajika",
+    "emailRequired": "Barua pepe inahitajika",
+    "passwordRequired": "Nenosiri linahitajika",
+    "passwordTooShort": "Nenosiri lazima liwe na angalau herufi 8",
+    "roleRequired": "Jukumu linahitajika",
+    "shopRequired": "Chagua angalau duka moja"
+  },
+  "table": {
+    "added": "Aliongezwa",
+    "resetPassword": "Badilisha nenosiri",
+    "openMenu": "Fungua menyu",
+    "searchPlaceholder": "Tafuta kwa jina au barua pepe...",
+    "total": { "one": "Jumla ya mtumiaji {count}", "other": "Jumla ya watumiaji {count}" }
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia watumiaji",
+    "loadOneFailed": "Imeshindwa kupakia mtumiaji",
+    "created": "Mtumiaji ameongezwa",
+    "createFailed": "Imeshindwa kuongeza mtumiaji",
+    "updated": "Mtumiaji amesasishwa",
+    "updateFailed": "Imeshindwa kusasisha mtumiaji",
+    "passwordUpdated": "Nenosiri limebadilishwa",
+    "passwordFailed": "Imeshindwa kubadilisha nenosiri",
+    "deactivated": "Mtumiaji amezimwa",
+    "deactivateFailed": "Imeshindwa kumzima mtumiaji"
+  }
+}

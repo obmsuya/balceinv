@@ -1,0 +1,66 @@
+{
+  "page": {
+    "title": "User Management",
+    "subtitle": "Manage system users and their roles",
+    "add": "Add User",
+    "listTitle": "All Users",
+    "listDescription": "A list of all users in the system"
+  },
+  "form": {
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter full name",
+    "passwordPlaceholder": "Minimum 8 characters",
+    "rolePlaceholder": "Select a role",
+    "worksIn": "Works in"
+  },
+  "create": {
+    "title": "Create New User",
+    "description": "Add a new user to the system",
+    "submit": "Create User"
+  },
+  "edit": {
+    "title": "Edit User",
+    "description": "Update user information",
+    "submit": "Update User"
+  },
+  "password": {
+    "title": "Update Password",
+    "description": "Set a new password for {name}",
+    "newPassword": "New Password",
+    "signOutNote": "User will be logged out of all sessions after password update",
+    "submit": "Update Password"
+  },
+  "deactivate": {
+    "title": "Deactivate this user?",
+    "body": "\"{name}\" will be signed out everywhere and will no longer be able to sign in. Their history stays intact, and you can reactivate them later.",
+    "cannotUndo": "This action cannot be undone.",
+    "action": "Deactivate"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "roleRequired": "Role is required",
+    "shopRequired": "Choose at least one shop"
+  },
+  "table": {
+    "added": "Added",
+    "resetPassword": "Reset password",
+    "openMenu": "Open menu",
+    "searchPlaceholder": "Search by name or email...",
+    "total": { "one": "{count} user total", "other": "{count} users total" }
+  },
+  "toasts": {
+    "loadFailed": "Failed to load users",
+    "loadOneFailed": "Failed to load user",
+    "created": "User added",
+    "createFailed": "Failed to create user",
+    "updated": "User updated",
+    "updateFailed": "Failed to update user",
+    "passwordUpdated": "Password updated",
+    "passwordFailed": "Failed to update password",
+    "deactivated": "User deactivated",
+    "deactivateFailed": "Failed to deactivate user"
+  }
+}
