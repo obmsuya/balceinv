@@ -34,8 +34,10 @@ watch([open, () => props.saleId], async ([isOpen]) => {
   sale.value = (await fetchSale(props.saleId)) ?? null
 })
 
+const { printSaleReceipt } = usePrint()
+
 const printReceipt = () => {
-  if (sale.value) window.open(`/receipts/${sale.value.id}?print=1`, '_blank', 'width=420,height=720')
+  if (sale.value) printSaleReceipt(sale.value.id)
 }
 </script>
 

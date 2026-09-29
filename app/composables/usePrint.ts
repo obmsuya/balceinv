@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { isTauri } from '~/composables/usePlatform'
 
 interface PrinterStatus {
   enabled: boolean
@@ -27,9 +28,9 @@ export const usePrint = () => {
   const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
 
-  const printerEnabled = ref(false)
-  const autoPrint = ref(false)
-  const statusLoaded = ref(false)
+  const printerEnabled = useState('print:enabled', () => false)
+  const autoPrint = useState('print:auto', () => false)
+  const statusLoaded = useState('print:loaded', () => false)
   const devices = ref<DetectedPrinter[]>([])
   const scanning = ref(false)
   const testingPort = ref(false)
@@ -50,7 +51,22 @@ export const usePrint = () => {
     }
   }
 
-  const printReceipt = async (saleId: number, openDrawer = false): Promise<boolean> => {
+  const openBrowserReceipt = (saleId: string) => {
+    window.open(`/receipts/${saleId}?print=1`, '_blank', 'width=420,height=720')
+  }
+
+  const printSaleReceipt = async (saleId: string, openDrawer = false): Promise<void> => {
+    if (isTauri() && !statusLoaded.value) await fetchPrinterStatus()
+    const usesReceiptPrinter = isTauri() && printerEnabled.value
+    if (!usesReceiptPrinter) {
+      openBrowserReceipt(saleId)
+      return
+    }
+    const isPrinted = await printReceipt(saleId, openDrawer)
+    if (!isPrinted) openBrowserReceipt(saleId)
+  }
+
+  const printReceipt = async (saleId: string, openDrawer = false): Promise<boolean> => {
     try {
       await $apiFetch<ApiResponse<null>>(
         `${apiBase}/api/print/receipt`,
@@ -113,6 +129,7 @@ export const usePrint = () => {
     testingPort,
     fetchPrinterStatus,
     printReceipt,
+    printSaleReceipt,
     fetchDevices,
     testPrint,
   }
