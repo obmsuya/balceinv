@@ -90,6 +90,11 @@ interface Page<Item> {
   offset: number
 }
 
+export interface ProductLookup {
+  product: Product
+  pack_size: number
+}
+
 export const productPageSize = 50
 export const productImageLimitBytes = 2 * 1024 * 1024
 export const productImportLimitBytes = 5 * 1024 * 1024
@@ -104,7 +109,7 @@ export const useProducts = () => {
   const loading = ref(false)
   const saving = ref(false)
 
-  const fetchProducts = async (filter: Partial<ProductListFilter> = {}): Promise<void> => {
+  const fetchProducts = async (filter: Partial<ProductListFilter> = {}, append = false): Promise<void> => {
     loading.value = true
     try {
       const productPage = await apiFetch<ApiEnvelope<Page<Product>>>('/api/products', {
@@ -116,12 +121,22 @@ export const useProducts = () => {
           offset: filter.offset ?? 0,
         },
       })
-      products.value = productPage.data.items
+      products.value = append ? [...products.value, ...productPage.data.items] : productPage.data.items
       totalProducts.value = productPage.data.total
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to load products')
     } finally {
       loading.value = false
+    }
+  }
+
+  const lookupProduct = async (code: string): Promise<ProductLookup | null> => {
+    try {
+      const lookupResponse = await apiFetch<ApiEnvelope<ProductLookup>>('/api/products/lookup', { query: { code } })
+      return lookupResponse.data
+    } catch (error: any) {
+      if ((error?.statusCode ?? error?.status) === 404) return null
+      throw error
     }
   }
 
@@ -270,6 +285,7 @@ export const useProducts = () => {
     saving,
     fetchProducts,
     fetchCategories,
+    lookupProduct,
     fetchProduct,
     fetchVariants,
     createProduct,

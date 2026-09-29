@@ -119,7 +119,7 @@ onUnmounted(() => {
           <Menu class="size-5" />
         </button>
         <div class="flex min-w-0 items-center gap-2.5">
-          <div class="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+          <div class="hidden size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground sm:flex">
             <img v-if="companyLogoSource" :src="companyLogoSource" alt="" class="size-full bg-background object-contain">
             <Store v-else class="size-4" />
           </div>
