@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Printer } from 'lucide-vue-next'
+import QRCode from 'qrcode'
 import { Button } from '@/components/ui/button'
 import type { SaleReceipt } from '@/composables/useSales'
 import { paymentMethodLabels } from '@/composables/useSales'
@@ -8,15 +9,18 @@ import { assetUrl } from '~/composables/useSettings'
 definePageMeta({ layout: false })
 
 const receiptLabels = {
-  en: { receipt: 'Receipt', cashier: 'Served by', subtotal: 'Subtotal', discounts: 'Discounts', total: 'Total', tax: 'Includes VAT', paid: 'Paid', change: 'Change', tin: 'TIN', wholesale: 'wholesale', thanks: 'Thank you for shopping with us' },
-  sw: { receipt: 'Risiti', cashier: 'Umehudumiwa na', subtotal: 'Jumla ndogo', discounts: 'Punguzo', total: 'Jumla', tax: 'Inajumuisha VAT', paid: 'Umelipa', change: 'Chenji', tin: 'TIN', wholesale: 'jumla', thanks: 'Asante kwa kununua kwetu' },
+  en: { receipt: 'Receipt', cashier: 'Served by', subtotal: 'Subtotal', discounts: 'Discounts', total: 'Total', tax: 'Includes VAT', paid: 'Paid', change: 'Change', tin: 'TIN', wholesale: 'wholesale', thanks: 'Thank you for shopping with us', note: 'Note', efd: 'EFD verification', efdPending: 'EFD receipt to follow' },
+  sw: { receipt: 'Risiti', cashier: 'Umehudumiwa na', subtotal: 'Jumla ndogo', discounts: 'Punguzo', total: 'Jumla', tax: 'Inajumuisha VAT', paid: 'Umelipa', change: 'Chenji', tin: 'TIN', wholesale: 'jumla', thanks: 'Asante kwa kununua kwetu', note: 'Maelezo', efd: 'Uthibitisho wa EFD', efdPending: 'Risiti ya EFD itafuata' },
 }
 
 const route = useRoute()
 const { fetchReceipt } = useSales()
 
+const fiscalWaitAttempts = 4
+
 const receipt = ref<SaleReceipt | null>(null)
 const loadError = ref('')
+const verificationQr = ref('')
 
 const labels = computed(() => receiptLabels[receipt.value?.receipt_language === 'sw' ? 'sw' : 'en'])
 const paperWidth = computed(() => (receipt.value?.paper_width_millimeters === 58 ? 58 : 80))
@@ -36,9 +40,22 @@ const soldAt = computed(() => receipt.value ? new Date(receipt.value.sale.create
 
 const printNow = () => window.print()
 
+const loadReceipt = async (willPrint: boolean) => {
+  const saleId = String(route.params.id)
+  receipt.value = await fetchReceipt(saleId)
+  for (let attempt = 0; willPrint && attempt < fiscalWaitAttempts; attempt++) {
+    const fiscalStatus = receipt.value.sale.fiscal?.status
+    if (!fiscalStatus || fiscalStatus === 'sent' || fiscalStatus === 'failed') break
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    receipt.value = await fetchReceipt(saleId)
+  }
+  const verificationUrl = receipt.value.sale.fiscal?.verification_url
+  verificationQr.value = verificationUrl ? await QRCode.toDataURL(verificationUrl, { margin: 0, width: 160 }) : ''
+}
+
 onMounted(async () => {
   try {
-    receipt.value = await fetchReceipt(String(route.params.id))
+    await loadReceipt(route.query.print === '1')
     useHead({ title: `${labels.value.receipt} ${receipt.value.sale.receipt_number}` })
     if (route.query.print === '1') {
       await nextTick()
@@ -108,6 +125,17 @@ onMounted(async () => {
         <span>{{ money(payment.amount) }}</span>
       </div>
       <div v-if="receipt.sale.change_given" class="flex justify-between font-bold"><span>{{ labels.change }}</span><span>{{ money(receipt.sale.change_given) }}</span></div>
+      <p v-if="receipt.sale.note" class="mt-2 whitespace-pre-line">{{ labels.note }}: {{ receipt.sale.note }}</p>
+
+      <template v-if="receipt.sale.fiscal">
+        <div class="my-2 border-t border-dashed border-black" />
+        <div v-if="receipt.sale.fiscal.status === 'sent'" class="flex flex-col items-center gap-1 text-center">
+          <p>{{ labels.efd }}</p>
+          <p v-if="receipt.sale.fiscal.verification_code" class="font-bold">{{ receipt.sale.fiscal.verification_code }}</p>
+          <img v-if="verificationQr" :src="verificationQr" alt="" class="mt-1 size-24">
+        </div>
+        <p v-else class="text-center">{{ labels.efdPending }}</p>
+      </template>
 
       <div class="my-2 border-t border-dashed border-black" />
       <p class="whitespace-pre-line text-center">{{ receipt.company.receipt_footer || labels.thanks }}</p>

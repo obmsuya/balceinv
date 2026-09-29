@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Banknote, CreditCard, Smartphone } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import NumberPad from '@/components/pos/NumberPad.vue'
+import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import type { PaymentInput, PaymentMethod } from '@/composables/useSales'
 import { paymentMethodLabels } from '@/composables/useSales'
-import { currencyCode, formatMoney, inputTextToMinor, majorToMinor, minorToInputText } from '~/utils/money'
+import { currencyCode, currencyDecimals, formatMoney, inputTextToMinor, majorToMinor, minorToInputText } from '~/utils/money'
 
-const props = defineProps<{ total: number; saving: boolean }>()
+const props = defineProps<{ total: number; saving: boolean; numpadEnabled: boolean }>()
 const emit = defineEmits<{ pay: [payments: PaymentInput[]] }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -16,6 +17,8 @@ const methodIcons: Record<PaymentMethod, any> = { cash: Banknote, card: CreditCa
 const methods: PaymentMethod[] = ['cash', 'card', 'mobile']
 
 const amountTexts = ref<Record<PaymentMethod, string>>({ cash: '', card: '', mobile: '' })
+const activeMethod = ref<PaymentMethod>('cash')
+const replaceOnNextKey = ref(true)
 
 const amounts = computed(() => {
   const readAmounts = {} as Record<PaymentMethod, number>
@@ -48,18 +51,30 @@ const quickCashAmounts = computed(() => {
   return [...suggestions].filter(amount => amount >= props.total).sort((first, second) => first - second).slice(0, 4)
 })
 
-watch(open, async isOpen => {
+const focusAmount = async (method: PaymentMethod) => {
+  activeMethod.value = method
+  replaceOnNextKey.value = true
+  await nextTick()
+  const amountElement = document.getElementById(`payment-${method}`) as HTMLInputElement | null
+  amountElement?.focus()
+  amountElement?.select()
+}
+
+watch(open, isOpen => {
   if (!isOpen) return
   amountTexts.value = { cash: minorToInputText(props.total), card: '', mobile: '' }
-  await nextTick()
-  const cashElement = document.getElementById('payment-cash') as HTMLInputElement | null
-  cashElement?.focus()
-  cashElement?.select()
+  focusAmount('cash')
 })
 
 const payRestWith = (method: PaymentMethod) => {
   const otherMethodsTotal = paidTotal.value - amounts.value[method]
   amountTexts.value[method] = minorToInputText(Math.max(props.total - otherMethodsTotal, 0))
+  focusAmount(method)
+}
+
+const payCashOnly = (cashAmount: number) => {
+  amountTexts.value = { cash: minorToInputText(cashAmount), card: '', mobile: '' }
+  focusAmount('cash')
 }
 
 const submit = () => {
@@ -69,63 +84,91 @@ const submit = () => {
     .map(method => ({ method, amount: amounts.value[method] }))
   emit('pay', payments)
 }
+
+const pressNumpad = (key: NumberPadKey) => {
+  const method = activeMethod.value
+  const currentText = replaceOnNextKey.value ? '' : amountTexts.value[method]
+  if (key === 'enter') {
+    submit()
+    return
+  }
+  replaceOnNextKey.value = false
+  if (key === 'back') amountTexts.value[method] = amountTexts.value[method].slice(0, -1)
+  else if (key === 'clear') amountTexts.value[method] = ''
+  else if (key === '.') amountTexts.value[method] = currentText.includes('.') ? currentText : `${currentText || '0'}.`
+  else if (currentText.replace('.', '').length < 12) amountTexts.value[method] = `${currentText}${key}`
+}
 </script>
 
 <template>
   <Dialog v-model:open="open">
-    <DialogContent class="sm:max-w-md">
+    <DialogContent class="max-h-[95dvh] overflow-y-auto" :class="numpadEnabled ? 'sm:max-w-2xl' : 'sm:max-w-md'">
       <DialogHeader>
         <DialogTitle>Take payment</DialogTitle>
-        <DialogDescription class="text-2xl font-bold text-foreground tabular-nums">{{ formatMoney(total) }}</DialogDescription>
+        <DialogDescription class="sr-only">Enter how the customer pays</DialogDescription>
       </DialogHeader>
 
-      <form class="flex flex-col gap-3" @submit.prevent="submit">
-        <div v-for="method in methods" :key="method" class="flex items-center gap-2">
-          <button
-            type="button"
-            class="flex w-36 shrink-0 items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors hover:bg-accent"
-            :title="`Pay the rest with ${paymentMethodLabels[method]}`"
-            @click="payRestWith(method)"
-          >
-            <component :is="methodIcons[method]" class="size-4 text-muted-foreground" />
-            {{ paymentMethodLabels[method] }}
-          </button>
-          <Input
-            :id="`payment-${method}`"
-            v-model="amountTexts[method]"
-            inputmode="decimal"
-            :placeholder="`0 ${currencyCode()}`"
-            class="text-right tabular-nums"
-            :aria-label="`${paymentMethodLabels[method]} amount`"
-          />
+      <form class="grid gap-4" :class="numpadEnabled ? 'sm:grid-cols-[1fr_15rem]' : ''" @submit.prevent="submit">
+        <div class="flex flex-col gap-3">
+          <div class="flex items-baseline justify-between rounded-xl bg-muted/60 px-4 py-3">
+            <span class="text-sm text-muted-foreground">To pay</span>
+            <span class="text-3xl font-bold tabular-nums">{{ formatMoney(total) }}</span>
+          </div>
+
+          <div v-for="method in methods" :key="method" class="flex items-center gap-2">
+            <button
+              type="button"
+              class="flex w-36 shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
+              :class="activeMethod === method ? 'border-primary' : ''"
+              :title="`Pay the rest with ${paymentMethodLabels[method]}`"
+              @click="payRestWith(method)"
+            >
+              <component :is="methodIcons[method]" class="size-4 text-muted-foreground" />
+              {{ paymentMethodLabels[method] }}
+            </button>
+            <input
+              :id="`payment-${method}`"
+              v-model="amountTexts[method]"
+              inputmode="decimal"
+              :placeholder="`0 ${currencyCode()}`"
+              class="h-11 w-full min-w-0 rounded-lg border bg-transparent px-3 text-right text-lg tabular-nums outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              :aria-label="`${paymentMethodLabels[method]} amount`"
+              @focus="activeMethod = method"
+              @input="replaceOnNextKey = false"
+            >
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <Button
+              v-for="quickAmount in quickCashAmounts"
+              :key="quickAmount"
+              type="button"
+              variant="secondary"
+              class="flex-1 tabular-nums"
+              @click="payCashOnly(quickAmount)"
+            >
+              {{ quickAmount === total ? 'Exact' : formatMoney(quickAmount) }}
+            </Button>
+          </div>
+
+          <div class="flex items-center justify-between rounded-xl px-4 py-3" :class="problem ? 'bg-destructive/10' : 'bg-emerald-500/10'">
+            <span class="text-sm font-medium">{{ problem && paidTotal < total ? 'Still to pay' : 'Change' }}</span>
+            <span class="text-2xl font-bold tabular-nums" :class="problem ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'">
+              {{ problem && !hasBadAmount && paidTotal < total ? formatMoney(stillOwed) : formatMoney(change) }}
+            </span>
+          </div>
+          <p v-if="problem && paidTotal >= total" class="text-sm text-destructive">{{ problem }}</p>
+
+          <div class="flex gap-2">
+            <Button type="button" variant="outline" class="h-12" @click="open = false">Back</Button>
+            <Button type="submit" class="h-12 flex-1 text-base" :disabled="Boolean(problem) || saving">{{ saving ? 'Saving…' : 'Complete sale' }}</Button>
+          </div>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-          <Button
-            v-for="quickAmount in quickCashAmounts"
-            :key="quickAmount"
-            type="button"
-            variant="secondary"
-            size="sm"
-            class="tabular-nums"
-            @click="amountTexts = { cash: minorToInputText(quickAmount), card: '', mobile: '' }"
-          >
-            {{ quickAmount === total ? 'Exact' : formatMoney(quickAmount) }}
-          </Button>
+        <div v-if="numpadEnabled" class="flex flex-col justify-end gap-2">
+          <p class="text-xs text-muted-foreground">Typing into: <span class="font-medium text-foreground">{{ paymentMethodLabels[activeMethod] }}</span></p>
+          <NumberPad :allow-decimal="currencyDecimals() > 0" enter-label="Done" @press="pressNumpad" />
         </div>
-
-        <div class="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-3">
-          <span class="text-sm text-muted-foreground">{{ problem ? 'Still to pay' : 'Change' }}</span>
-          <span class="text-xl font-bold tabular-nums" :class="problem ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'">
-            {{ problem && !hasBadAmount && paidTotal < total ? formatMoney(stillOwed) : formatMoney(change) }}
-          </span>
-        </div>
-        <p v-if="problem" class="text-sm text-destructive">{{ problem }}</p>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" @click="open = false">Back</Button>
-          <Button type="submit" :disabled="Boolean(problem) || saving">{{ saving ? 'Saving…' : 'Complete sale' }}</Button>
-        </DialogFooter>
       </form>
     </DialogContent>
   </Dialog>

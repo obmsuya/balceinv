@@ -1,20 +1,32 @@
 <script setup lang="ts">
-import { Printer } from 'lucide-vue-next'
+import { Printer, ReceiptText } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Sale } from '@/composables/useSales'
-import { paymentMethodLabels } from '@/composables/useSales'
+import { fiscalStatusLabels, paymentMethodLabels } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
 const props = defineProps<{ saleId: string | null }>()
+const emit = defineEmits<{ changed: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
-const { fetchSale } = useSales()
+const { fetchSale, sendToEfd } = useSales()
 const sale = ref<Sale | null>(null)
+const sendingFiscal = ref(false)
+
+const sendFiscal = async () => {
+  if (!sale.value) return
+  sendingFiscal.value = true
+  const sentFiscal = await sendToEfd(sale.value.id)
+  sendingFiscal.value = false
+  if (!sentFiscal) return
+  sale.value.fiscal = sentFiscal
+  emit('changed')
+}
 
 watch([open, () => props.saleId], async ([isOpen]) => {
   if (!isOpen || !props.saleId) return
@@ -64,6 +76,18 @@ const printReceipt = () => {
           <div v-if="sale.change_given" class="flex justify-between"><dt>Change</dt><dd class="tabular-nums">{{ formatMoney(sale.change_given) }}</dd></div>
         </dl>
         <p v-if="sale.note" class="rounded-md bg-muted/40 px-3 py-2 text-sm">{{ sale.note }}</p>
+        <div v-if="sale.fiscal" class="flex items-start justify-between gap-3 rounded-md border px-3 py-2 text-sm">
+          <div class="min-w-0">
+            <p class="flex items-center gap-2 font-medium">
+              <ReceiptText class="size-4 text-muted-foreground" />
+              {{ sendingFiscal ? 'Sending to EFD…' : fiscalStatusLabels[sale.fiscal.status] }}
+            </p>
+            <p v-if="sale.fiscal.verification_code" class="font-mono text-xs">{{ sale.fiscal.verification_code }}</p>
+            <p v-if="sale.fiscal.status !== 'sent' && sale.fiscal.last_error" class="text-xs text-destructive">{{ sale.fiscal.last_error }}</p>
+            <p v-if="sale.fiscal.attempts" class="text-xs text-muted-foreground">{{ sale.fiscal.attempts }} {{ sale.fiscal.attempts === 1 ? 'attempt' : 'attempts' }}</p>
+          </div>
+          <Button v-if="sale.fiscal.status !== 'sent'" variant="outline" size="sm" :disabled="sendingFiscal" @click="sendFiscal">Send now</Button>
+        </div>
       </div>
 
       <DialogFooter>

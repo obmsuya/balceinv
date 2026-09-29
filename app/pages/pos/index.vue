@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronUp, CircleCheck, Printer, ScanBarcode, X } from 'lucide-vue-next'
+import { ChevronUp, CircleCheck, Monitor, Printer, ReceiptText, ScanBarcode, X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useDebounceFn, useEventListener } from '@vueuse/core'
 import { Button } from '@/components/ui/button'
@@ -14,15 +14,19 @@ import VariantPicker from '@/components/pos/VariantPicker.vue'
 import type { ProductAddon } from '@/composables/useAddons'
 import type { CartAddon } from '@/composables/useCart'
 import type { Product } from '@/composables/useProducts'
-import type { PaymentInput, Sale } from '@/composables/useSales'
+import type { PaymentInput, Sale, SaleFiscal, TillOptions } from '@/composables/useSales'
+import { fiscalStatusLabels } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
 const allCategories = ''
+const efdRetryMilliseconds = 5 * 60 * 1000
 
 const { products, totalProducts, categories, loading, fetchProducts, fetchCategories, lookupProduct } = useProducts()
 const { fetchActiveAddons } = useAddons()
-const { activeSlot, activeSlotIndex, unitCount, loadCarts, addLine, clearActive, restoreSlot, checkoutReference } = useCart()
-const { createSale, saving } = useSales()
+const { activeSlot, activeSlotIndex, unitCount, loadCarts, addLine, clearActive, restoreSlot, takeMultiplier, checkoutReference } = useCart()
+const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd } = useSales()
+const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
+const { user } = useAuth()
 const { quote, quoteError, quoting, cartItems, linePrices, total, isExact, shortLineCount, requestQuote, settleQuote } = useTillQuote()
 
 const searchText = ref('')
@@ -40,6 +44,13 @@ const showAddons = ref(false)
 const addonCache = new Map<string, ProductAddon[]>()
 const searchInput = ref<InstanceType<typeof Input> | null>(null)
 const nextSaleButton = ref<InstanceType<typeof Button> | null>(null)
+const tillOptions = ref<TillOptions | null>(null)
+const saleFiscal = ref<SaleFiscal | null>(null)
+const sendingFiscal = ref(false)
+let efdRetryTimer: ReturnType<typeof setInterval> | null = null
+
+const numpadEnabled = computed(() => tillOptions.value?.numpad_enabled ?? false)
+const customerDisplayEnabled = computed(() => tillOptions.value?.customer_display_enabled ?? false)
 
 const productFilter = () => ({ searchText: searchText.value.trim(), category: categoryFilter.value })
 const loadProducts = () => fetchProducts(productFilter())
@@ -70,7 +81,7 @@ const putInCart = (product: Product, addons: CartAddon[], quantity: number) => {
 }
 
 const chooseProduct = async (product: Product, quantity = 1, offerVariants = true) => {
-  pendingQuantity.value = quantity
+  pendingQuantity.value = quantity * takeMultiplier()
   if (offerVariants && product.variant_count > 0) {
     variantParent.value = product
     showVariants.value = true
@@ -87,7 +98,7 @@ const chooseProduct = async (product: Product, quantity = 1, offerVariants = tru
     showAddons.value = true
     return
   }
-  putInCart(product, [], quantity)
+  putInCart(product, [], pendingQuantity.value)
 }
 
 const scanCode = async () => {
@@ -143,7 +154,10 @@ const completeSale = async (payments: PaymentInput[]) => {
     const sale = await createSale(clientRef, cartItems.value, payments, activeSlot.value.note.trim() || null)
     showPayment.value = false
     clearActive()
+    saleFiscal.value = sale.fiscal
     completedSale.value = sale
+    if (tillOptions.value?.print_receipt_automatically) printReceipt(sale.id)
+    if (sale.fiscal) sendSaleToEfd(sale.id)
     await nextTick()
     const nextSaleElement = nextSaleButton.value?.$el as HTMLButtonElement | undefined
     nextSaleElement?.focus()
@@ -161,6 +175,43 @@ const printReceipt = (saleId: string) => {
   window.open(`/receipts/${saleId}?print=1`, '_blank', 'width=420,height=720')
 }
 
+const sendSaleToEfd = async (saleId: string) => {
+  sendingFiscal.value = true
+  const sentFiscal = await sendToEfd(saleId)
+  sendingFiscal.value = false
+  if (completedSale.value?.id === saleId && sentFiscal) saleFiscal.value = sentFiscal
+}
+
+const displayState = computed(() => {
+  const companyName = user.value?.company_name ?? ''
+  const logoUrl = user.value?.branding?.logo_url ?? null
+  if (completedSale.value) {
+    const paidAmount = completedSale.value.amount_paid
+    return { phase: 'paid' as const, companyName, logoUrl, lines: [], itemCount: 0, total: formatMoney(completedSale.value.total), discount: null, paid: formatMoney(paidAmount), change: formatMoney(completedSale.value.change_given) }
+  }
+  const displayLines = activeSlot.value.lines.map((cartLine, lineIndex) => ({
+    name: cartLine.variantLabel ? `${cartLine.name} · ${cartLine.variantLabel}` : cartLine.name,
+    quantity: cartLine.quantity,
+    amount: formatMoney(linePrices.value[lineIndex]?.amount ?? 0),
+  }))
+  const discountTotal = isExact.value ? quote.value?.discount_total ?? 0 : 0
+  return {
+    phase: displayLines.length ? 'cart' as const : 'idle' as const,
+    companyName,
+    logoUrl,
+    lines: displayLines,
+    itemCount: unitCount.value,
+    total: formatMoney(displayLines.length ? total.value : 0),
+    discount: discountTotal ? formatMoney(discountTotal) : null,
+    paid: null,
+    change: null,
+  }
+})
+
+watch([displayState, customerDisplayEnabled], ([nextDisplayState, isDisplayOn]) => {
+  if (isDisplayOn) publishToDisplay(nextDisplayState)
+}, { deep: true })
+
 const startNextSale = () => {
   completedSale.value = null
   loadProducts()
@@ -177,40 +228,61 @@ useEventListener(window, 'keydown', (keyEvent: KeyboardEvent) => {
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   loadCarts()
   loadProducts()
   fetchCategories()
   if (cartItems.value.length) requestQuote()
   focusSearch()
+  tillOptions.value = await fetchTillOptions()
+  if (!tillOptions.value?.efd_enabled) return
+  sendWaitingToEfd(false)
+  efdRetryTimer = setInterval(() => sendWaitingToEfd(false), efdRetryMilliseconds)
+})
+
+onBeforeUnmount(() => {
+  if (efdRetryTimer) clearInterval(efdRetryTimer)
+  if (customerDisplayEnabled.value) publishToDisplay({ ...displayState.value, phase: 'idle', lines: [] })
 })
 </script>
 
 <template>
   <div class="-m-4 flex h-[calc(100dvh-4rem)] min-h-0 md:-m-6">
     <section class="flex min-w-0 flex-1 flex-col gap-3 p-3 md:p-4">
-      <form class="relative" @submit.prevent="scanCode">
-        <ScanBarcode class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          ref="searchInput"
-          v-model="searchText"
-          placeholder="Scan a barcode or search products"
-          class="h-12 pl-10 pr-20 text-base"
-          aria-label="Scan or search products"
-          autocomplete="off"
-          @keydown.esc="searchText = ''"
-        />
-        <button
-          v-if="searchText"
-          type="button"
-          class="absolute right-12 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-          aria-label="Clear the search"
-          @click="searchText = ''; focusSearch()"
+      <div class="flex gap-2">
+        <form class="relative flex-1" @submit.prevent="scanCode">
+          <ScanBarcode class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            ref="searchInput"
+            v-model="searchText"
+            placeholder="Scan a barcode or search products"
+            class="h-12 pl-10 pr-20 text-base"
+            aria-label="Scan or search products"
+            autocomplete="off"
+            @keydown.esc="searchText = ''"
+          />
+          <button
+            v-if="searchText"
+            type="button"
+            class="absolute right-12 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+            aria-label="Clear the search"
+            @click="searchText = ''; focusSearch()"
+          >
+            <X class="size-4" />
+          </button>
+          <kbd class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border px-1.5 text-[10px] text-muted-foreground xl:block">F2</kbd>
+        </form>
+        <Button
+          v-if="customerDisplayEnabled"
+          variant="outline"
+          class="h-12 shrink-0"
+          title="Open the customer display on the second screen"
+          @click="openDisplay"
         >
-          <X class="size-4" />
-        </button>
-        <kbd class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border px-1.5 text-[10px] text-muted-foreground xl:block">F2</kbd>
-      </form>
+          <Monitor />
+          <span class="hidden lg:inline">Customer screen</span>
+        </Button>
+      </div>
 
       <div v-if="categories.length" class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
         <button
@@ -246,6 +318,7 @@ onMounted(() => {
         :quote-error="quoteError"
         :short-line-count="shortLineCount"
         :preparing-payment="preparingPayment"
+        :numpad-enabled="numpadEnabled"
         @pay="startPayment"
         @clear="clearCart"
       />
@@ -275,13 +348,14 @@ onMounted(() => {
           :quote-error="quoteError"
           :short-line-count="shortLineCount"
           :preparing-payment="preparingPayment"
+          :numpad-enabled="numpadEnabled"
           @pay="startPayment"
           @clear="clearCart"
         />
       </SheetContent>
     </Sheet>
 
-    <PaymentDialog v-model:open="showPayment" :total="quote?.total ?? 0" :saving="saving" @pay="completeSale" />
+    <PaymentDialog v-model:open="showPayment" :total="quote?.total ?? 0" :saving="saving" :numpad-enabled="numpadEnabled" @pay="completeSale" />
     <VariantPicker v-model:open="showVariants" :parent="variantParent" @pick="variant => chooseProduct(variant, pendingQuantity, false)" />
     <AddonPicker v-model:open="showAddons" :product-name="addonProduct?.name ?? ''" :addons="addonChoices" @confirm="addons => addonProduct && putInCart(addonProduct, addons, pendingQuantity)" />
 
@@ -295,6 +369,20 @@ onMounted(() => {
         <div v-if="completedSale" class="flex flex-col items-center gap-1 rounded-xl bg-muted/50 py-4">
           <span class="text-sm text-muted-foreground">Change to give</span>
           <span class="text-4xl font-bold tabular-nums">{{ formatMoney(completedSale.change_given) }}</span>
+        </div>
+        <div v-if="saleFiscal" class="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm">
+          <span class="flex items-center gap-2">
+            <ReceiptText class="size-4 text-muted-foreground" />
+            {{ sendingFiscal ? 'Sending to EFD…' : fiscalStatusLabels[saleFiscal.status] }}
+          </span>
+          <Button
+            v-if="!sendingFiscal && saleFiscal.status !== 'sent'"
+            variant="ghost"
+            size="sm"
+            @click="completedSale && sendSaleToEfd(completedSale.id)"
+          >
+            Try again
+          </Button>
         </div>
         <DialogFooter class="gap-2 sm:justify-center">
           <Button variant="outline" @click="completedSale && printReceipt(completedSale.id)"><Printer /> Print receipt</Button>

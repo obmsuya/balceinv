@@ -14,7 +14,7 @@ const routePermissions: Record<string, { resource: string; action: string }> = {
   '/settings': { resource: 'settings', action: 'view' },
 }
 
-const publicRoutes = ['/', '/login', '/setup', '/admin-page', '/unauthorized']
+const publicRoutes = ['/', '/login', '/setup', '/admin-page', '/unauthorized', '/display']
 
 export default defineNuxtRouteMiddleware((to) => {
   if (publicRoutes.includes(to.path)) return

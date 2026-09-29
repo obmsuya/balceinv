@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, X } from 'lucide-vue-next'
+import { Grid3x3, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, X } from 'lucide-vue-next'
+import NumberPad from '@/components/pos/NumberPad.vue'
+import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,6 +18,7 @@ const props = defineProps<{
   quoteError: string
   shortLineCount: number
   preparingPayment: boolean
+  numpadEnabled: boolean
 }>()
 const emit = defineEmits<{ pay: []; clear: [] }>()
 
@@ -24,6 +27,7 @@ const {
   activeSlot,
   lastAddedKey,
   selectedKey,
+  numpadBuffer,
   unitCount,
   slotUnitCounts,
   setQuantity,
@@ -31,7 +35,10 @@ const {
   selectSlot,
 } = useCart()
 
+const numpadOpenStorageKey = 'balce:till-numpad-open'
+
 const lineList = ref<HTMLElement | null>(null)
+const showNumpad = ref(true)
 const flashingKey = ref<string | null>(null)
 const showNote = ref(false)
 let flashTimer: ReturnType<typeof setTimeout> | null = null
@@ -58,8 +65,47 @@ const typeQuantity = (lineKey: string, rawQuantity: string) => {
 }
 
 const toggleSelected = (lineKey: string) => {
+  if (!props.numpadEnabled) return
   selectedKey.value = selectedKey.value === lineKey ? null : lineKey
+  numpadBuffer.value = ''
 }
+
+const selectedLine = computed(() => activeSlot.value.lines.find(cartLine => cartLine.key === selectedKey.value) ?? null)
+
+const numpadPrompt = computed(() => {
+  if (selectedLine.value) return `New quantity for ${selectedLine.value.name}`
+  if (numpadBuffer.value) return 'Now tap or scan a product'
+  return 'Type a quantity, then tap a product'
+})
+
+const pressNumpad = (key: NumberPadKey) => {
+  if (key === 'back') numpadBuffer.value = numpadBuffer.value.slice(0, -1)
+  else if (key === 'clear') numpadBuffer.value = ''
+  else if (key === 'enter') {
+    if (selectedLine.value && numpadBuffer.value) setQuantity(selectedLine.value.key, Number(numpadBuffer.value))
+    if (selectedLine.value) {
+      selectedKey.value = null
+      numpadBuffer.value = ''
+    }
+  } else if (key !== '.' && numpadBuffer.value.length < 6) {
+    numpadBuffer.value = `${numpadBuffer.value}${key}`.replace(/^0+/, '')
+  }
+}
+
+const toggleNumpad = () => {
+  showNumpad.value = !showNumpad.value
+  try {
+    localStorage.setItem(numpadOpenStorageKey, String(showNumpad.value))
+  } catch {
+  }
+}
+
+onMounted(() => {
+  try {
+    showNumpad.value = localStorage.getItem(numpadOpenStorageKey) !== 'false'
+  } catch {
+  }
+})
 
 watch(lastAddedKey, async addedKey => {
   if (!addedKey) return
@@ -99,6 +145,18 @@ watch(activeSlotIndex, () => {
           >{{ slotUnitCounts[slotIndex - 1] }}</span>
         </button>
       </div>
+      <Button
+        v-if="numpadEnabled"
+        variant="ghost"
+        size="icon"
+        class="size-8"
+        :class="showNumpad ? 'text-primary' : 'text-muted-foreground'"
+        :aria-pressed="showNumpad"
+        aria-label="Show the number pad"
+        @click="toggleNumpad"
+      >
+        <Grid3x3 />
+      </Button>
       <Button variant="ghost" size="icon" class="size-8 text-muted-foreground" :disabled="!hasLines" aria-label="Clear this cart" @click="emit('clear')">
         <Trash2 />
       </Button>
@@ -120,10 +178,11 @@ watch(activeSlotIndex, () => {
           v-for="(cartLine, lineIndex) in activeSlot.lines"
           :key="cartLine.key"
           :data-line-key="cartLine.key"
-          class="group relative flex cursor-pointer flex-col gap-1.5 px-3 py-2.5 transition-colors"
+          class="group relative flex flex-col gap-1.5 px-3 py-2.5 transition-colors"
           :class="[
             flashingKey === cartLine.key ? 'bg-primary/10' : '',
-            selectedKey === cartLine.key ? 'bg-accent' : 'hover:bg-muted/50',
+            selectedKey === cartLine.key ? 'bg-accent' : '',
+            numpadEnabled ? 'cursor-pointer hover:bg-muted/50' : '',
           ]"
           :aria-selected="selectedKey === cartLine.key"
           @click="toggleSelected(cartLine.key)"
@@ -186,6 +245,14 @@ watch(activeSlotIndex, () => {
           </p>
         </li>
       </ul>
+    </div>
+
+    <div v-if="numpadEnabled && showNumpad" class="border-t p-2">
+      <div class="mb-2 flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-1.5">
+        <span class="truncate text-xs text-muted-foreground">{{ numpadPrompt }}</span>
+        <span class="font-mono text-lg font-semibold tabular-nums">{{ numpadBuffer ? `× ${numpadBuffer}` : '' }}</span>
+      </div>
+      <NumberPad :enter-label="selectedLine ? 'Set' : 'OK'" @press="pressNumpad" />
     </div>
 
     <div class="flex flex-col gap-2 border-t bg-muted/20 p-3">

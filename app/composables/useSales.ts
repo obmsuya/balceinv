@@ -36,6 +36,37 @@ export interface SaleLine {
   in_stock?: number
 }
 
+export type FiscalStatus = 'pending' | 'sending' | 'sent' | 'failed'
+
+export interface SaleFiscal {
+  status: FiscalStatus
+  attempts: number
+  verification_code: string | null
+  verification_url: string | null
+  last_error: string | null
+  sent_at: string | null
+}
+
+export interface TillOptions {
+  numpad_enabled: boolean
+  customer_display_enabled: boolean
+  efd_enabled: boolean
+  print_receipt_automatically: boolean
+}
+
+export interface SendWaitingResult {
+  sent: number
+  failed: number
+  still_waiting: number
+}
+
+export const fiscalStatusLabels: Record<FiscalStatus, string> = {
+  pending: 'Waiting for EFD',
+  sending: 'Sending to EFD',
+  sent: 'Sent to EFD',
+  failed: 'EFD failed',
+}
+
 export interface SaleQuote {
   lines: SaleLine[]
   subtotal: number
@@ -66,6 +97,7 @@ export interface Sale {
   created_at: string
   items: SaleLine[]
   payments: PaymentInput[]
+  fiscal: SaleFiscal | null
 }
 
 export interface SaleSummary {
@@ -76,6 +108,7 @@ export interface SaleSummary {
   unit_count: number
   payment_methods: PaymentMethod[]
   cashier_name: string
+  fiscal_status: FiscalStatus | null
   created_at: string
 }
 
@@ -109,6 +142,7 @@ export interface SaleFilter {
   fromDate: string
   toDate: string
   offset: number
+  fiscalWaiting?: boolean
 }
 
 interface ApiEnvelope<Payload> {
@@ -177,6 +211,7 @@ export const useSales = () => {
     q: filter.searchText || undefined,
     from: localDayStart(filter.fromDate),
     to: localDayAfter(filter.toDate),
+    fiscal: filter.fiscalWaiting ? 'waiting' : undefined,
   })
 
   const fetchSales = async (filter: SaleFilter): Promise<void> => {
@@ -210,6 +245,40 @@ export const useSales = () => {
     return receiptResponse.data
   }
 
+  const fetchTillOptions = async (): Promise<TillOptions | null> => {
+    try {
+      const optionsResponse = await apiFetch<ApiEnvelope<TillOptions>>('/api/sales/till')
+      return optionsResponse.data
+    } catch {
+      return null
+    }
+  }
+
+  const sendToEfd = async (saleId: string): Promise<SaleFiscal | null> => {
+    try {
+      const fiscalResponse = await apiFetch<ApiEnvelope<SaleFiscal>>(`/api/sales/${saleId}/fiscal`, { method: 'POST' })
+      return fiscalResponse.data
+    } catch (error: any) {
+      if (error?.data?.message) toast.error(error.data.message)
+      return null
+    }
+  }
+
+  const sendWaitingToEfd = async (announce: boolean): Promise<SendWaitingResult | null> => {
+    try {
+      const sendResponse = await apiFetch<ApiEnvelope<SendWaitingResult>>('/api/sales/fiscal/send-waiting', { method: 'POST' })
+      const sendResult = sendResponse.data
+      if (announce) {
+        if (sendResult.failed) toast.error(`${sendResult.failed} still could not reach the EFD`, { description: `${sendResult.sent} sent, ${sendResult.still_waiting} waiting` })
+        else toast.success(sendResult.sent ? `${sendResult.sent} sent to the EFD` : 'Nothing was waiting for the EFD')
+      }
+      return sendResult
+    } catch (error: any) {
+      if (announce) toast.error(error?.data?.message || 'Could not reach the server')
+      return null
+    }
+  }
+
   return {
     sales,
     totalSales,
@@ -221,5 +290,8 @@ export const useSales = () => {
     fetchSales,
     fetchSale,
     fetchReceipt,
+    fetchTillOptions,
+    sendToEfd,
+    sendWaitingToEfd,
   }
 }

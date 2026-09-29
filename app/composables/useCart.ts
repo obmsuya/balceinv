@@ -57,6 +57,7 @@ export const useCart = () => {
   const activeSlotIndex = useState<number>('pos:active-slot', () => 0)
   const lastAddedKey = useState<string | null>('pos:last-added', () => null)
   const selectedKey = useState<string | null>('pos:selected-line', () => null)
+  const numpadBuffer = useState<string>('pos:numpad-buffer', () => '')
 
   const activeSlot = computed(() => slots.value[activeSlotIndex.value]!)
   const unitCount = computed(() => activeSlot.value.lines.reduce((sum, line) => sum + line.quantity, 0))
@@ -120,6 +121,12 @@ export const useCart = () => {
     selectedKey.value = null
   }
 
+  const takeMultiplier = (): number => {
+    const typedQuantity = Number(numpadBuffer.value)
+    numpadBuffer.value = ''
+    return Number.isInteger(typedQuantity) && typedQuantity > 0 ? Math.min(typedQuantity, 100000) : 1
+  }
+
   const checkoutReference = (): string => {
     if (!activeSlot.value.clientRef) {
       activeSlot.value.clientRef = randomReference()
@@ -134,6 +141,7 @@ export const useCart = () => {
     activeSlot,
     lastAddedKey,
     selectedKey,
+    numpadBuffer,
     unitCount,
     slotUnitCounts,
     loadCarts,
@@ -144,6 +152,7 @@ export const useCart = () => {
     restoreSlot,
     setNote,
     selectSlot,
+    takeMultiplier,
     checkoutReference,
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BadgePercent, Receipt, Search, Wallet } from 'lucide-vue-next'
+import { BadgePercent, Receipt, Search, Send, Wallet } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,11 +9,11 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import SaleDetailsDialog from '@/components/sales/SaleDetailsDialog.vue'
-import { paymentMethodLabels, salePageSize } from '@/composables/useSales'
+import { fiscalStatusLabels, paymentMethodLabels, salePageSize } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
 const { user } = useAuth()
-const { sales, totalSales, totals, loading, fetchSales } = useSales()
+const { sales, totalSales, totals, loading, fetchSales, fetchTillOptions, sendWaitingToEfd } = useSales()
 
 const localToday = () => {
   const now = new Date()
@@ -26,10 +26,13 @@ const toDate = ref(localToday())
 const pageOffset = ref(0)
 const openSaleId = ref<string | null>(null)
 const showDetails = ref(false)
+const efdEnabled = ref(false)
+const fiscalWaiting = ref(false)
+const sendingWaiting = ref(false)
 
 const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
 
-const reload = () => fetchSales({ searchText: searchText.value.trim(), fromDate: fromDate.value, toDate: toDate.value, offset: pageOffset.value })
+const reload = () => fetchSales({ searchText: searchText.value.trim(), fromDate: fromDate.value, toDate: toDate.value, offset: pageOffset.value, fiscalWaiting: fiscalWaiting.value })
 
 const reloadFromFirstPage = () => {
   pageOffset.value = 0
@@ -37,7 +40,7 @@ const reloadFromFirstPage = () => {
 }
 
 watch(searchText, useDebounceFn(reloadFromFirstPage, 300))
-watch([fromDate, toDate], reloadFromFirstPage)
+watch([fromDate, toDate, fiscalWaiting], reloadFromFirstPage)
 
 const goToPage = (nextOffset: number) => {
   pageOffset.value = Math.max(nextOffset, 0)
@@ -52,14 +55,35 @@ const openSale = (saleId: string) => {
 const formatTime = (isoDate: string): string =>
   new Date(isoDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
 
-onMounted(reload)
+const sendWaiting = async () => {
+  sendingWaiting.value = true
+  await sendWaitingToEfd(true)
+  sendingWaiting.value = false
+  reload()
+}
+
+onMounted(async () => {
+  reload()
+  efdEnabled.value = (await fetchTillOptions())?.efd_enabled ?? false
+})
 </script>
 
 <template>
   <div class="container mx-auto flex flex-col gap-6 py-2 sm:px-4 sm:py-6">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Sales</h1>
-      <p class="mt-1 text-muted-foreground">Every receipt<template v-if="activeShopName"> from {{ activeShopName }}</template></p>
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Sales</h1>
+        <p class="mt-1 text-muted-foreground">Every receipt<template v-if="activeShopName"> from {{ activeShopName }}</template></p>
+      </div>
+      <div v-if="efdEnabled" class="flex flex-wrap gap-2">
+        <Button :variant="fiscalWaiting ? 'default' : 'outline'" size="sm" :aria-pressed="fiscalWaiting" @click="fiscalWaiting = !fiscalWaiting">
+          Waiting for EFD
+        </Button>
+        <Button variant="outline" size="sm" :disabled="sendingWaiting" @click="sendWaiting">
+          <Send />
+          {{ sendingWaiting ? 'Sending…' : 'Send waiting to EFD' }}
+        </Button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -140,7 +164,12 @@ onMounted(reload)
             <TableBody>
               <TableRow v-for="sale in sales" :key="sale.id" class="cursor-pointer" @click="openSale(sale.id)">
                 <TableCell>
-                  <p class="font-mono text-sm font-medium">{{ sale.receipt_number }}</p>
+                  <p class="flex flex-wrap items-center gap-1.5 font-mono text-sm font-medium">
+                    {{ sale.receipt_number }}
+                    <Badge v-if="sale.fiscal_status && sale.fiscal_status !== 'sent'" :variant="sale.fiscal_status === 'failed' ? 'destructive' : 'secondary'" class="font-sans font-normal">
+                      {{ fiscalStatusLabels[sale.fiscal_status] }}
+                    </Badge>
+                  </p>
                   <p class="text-xs text-muted-foreground">{{ formatTime(sale.created_at) }}</p>
                 </TableCell>
                 <TableCell class="hidden text-sm sm:table-cell">{{ sale.cashier_name }}</TableCell>
@@ -165,6 +194,6 @@ onMounted(reload)
       </CardContent>
     </Card>
 
-    <SaleDetailsDialog v-model:open="showDetails" :sale-id="openSaleId" />
+    <SaleDetailsDialog v-model:open="showDetails" :sale-id="openSaleId" @changed="reload" />
   </div>
 </template>
