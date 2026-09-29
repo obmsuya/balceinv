@@ -38,6 +38,7 @@ import ShopAssignment from '@/components/users/ShopAssignment.vue';
 
 const { users, loading, fetchUsers, createUser, updateUser, updatePassword, deactivateUser } = useUsers();
 const { roles, fetchRoles } = useRoles();
+const { t } = useI18n();
 
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
@@ -110,32 +111,32 @@ const openCreateDialog = () => {
 
 const handleCreateSubmit = async () => {
   if (!formData.value.name.trim()) {
-    toast.error('Name is required');
+    toast.error(t('users.validation.nameRequired'));
     return;
   }
   
   if (!formData.value.email.trim()) {
-    toast.error('Email is required');
+    toast.error(t('users.validation.emailRequired'));
     return;
   }
   
   if (!formData.value.password.trim()) {
-    toast.error('Password is required');
+    toast.error(t('users.validation.passwordRequired'));
     return;
   }
   
   if (formData.value.password.length < 8) {
-    toast.error('Password must be at least 8 characters');
+    toast.error(t('users.validation.passwordTooShort'));
     return;
   }
   
   if (!formData.value.roleId) {
-    toast.error('Role is required');
+    toast.error(t('users.validation.roleRequired'));
     return;
   }
 
   if (showShopAssignment.value && formData.value.shopIds.length === 0) {
-    toast.error('Choose at least one shop');
+    toast.error(t('users.validation.shopRequired'));
     return;
   }
 
@@ -149,22 +150,22 @@ const handleCreateSubmit = async () => {
 
 const handleEditSubmit = async () => {
   if (!formData.value.name.trim()) {
-    toast.error('Name is required');
+    toast.error(t('users.validation.nameRequired'));
     return;
   }
   
   if (!formData.value.email.trim()) {
-    toast.error('Email is required');
+    toast.error(t('users.validation.emailRequired'));
     return;
   }
   
   if (!formData.value.roleId) {
-    toast.error('Role is required');
+    toast.error(t('users.validation.roleRequired'));
     return;
   }
 
   if (showShopAssignment.value && formData.value.shopIds.length === 0) {
-    toast.error('Choose at least one shop');
+    toast.error(t('users.validation.shopRequired'));
     return;
   }
 
@@ -184,12 +185,12 @@ const handleEditSubmit = async () => {
 
 const handlePasswordSubmit = async () => {
   if (!newPassword.value.trim()) {
-    toast.error('Password is required');
+    toast.error(t('users.validation.passwordRequired'));
     return;
   }
   
   if (newPassword.value.length < 8) {
-    toast.error('Password must be at least 8 characters');
+    toast.error(t('users.validation.passwordTooShort'));
     return;
   }
 
@@ -220,21 +221,21 @@ const confirmDelete = async () => {
   <div class="container mx-auto py-6 px-4 space-y-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">User Management</h1>
+        <h1 class="text-3xl font-bold tracking-tight">{{ t('users.page.title') }}</h1>
         <p class="text-muted-foreground mt-1">
-          Manage system users and their roles
+          {{ t('users.page.subtitle') }}
         </p>
       </div>
       <Button @click="openCreateDialog" :disabled="loading">
         <UserPlus class="mr-2 h-4 w-4" />
-        Add User
+        {{ t('users.page.add') }}
       </Button>
     </div>
 
     <Card>
       <CardHeader>
-        <CardTitle>All Users</CardTitle>
-        <CardDescription>A list of all users in the system</CardDescription>
+        <CardTitle>{{ t('users.page.listTitle') }}</CardTitle>
+        <CardDescription>{{ t('users.page.listDescription') }}</CardDescription>
       </CardHeader>
       <CardContent>
         <DataTable :columns="columns" :data="users" />
@@ -244,22 +245,22 @@ const confirmDelete = async () => {
     <Dialog v-model:open="showCreateDialog">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>{{ t('users.create.title') }}</DialogTitle>
           <DialogDescription>
-            Add a new user to the system
+            {{ t('users.create.description') }}
           </DialogDescription>
         </DialogHeader>
         <div class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="create-name">Full Name</Label>
+            <Label for="create-name">{{ t('users.form.fullName') }}</Label>
             <Input
               id="create-name"
               v-model="formData.name"
-              placeholder="Enter full name"
+              :placeholder="t('users.form.fullNamePlaceholder')"
             />
           </div>
           <div class="space-y-2">
-            <Label for="create-email">Email</Label>
+            <Label for="create-email">{{ t('common.fields.email') }}</Label>
             <Input
               id="create-email"
               v-model="formData.email"
@@ -268,19 +269,19 @@ const confirmDelete = async () => {
             />
           </div>
           <div class="space-y-2">
-            <Label for="create-password">Password</Label>
+            <Label for="create-password">{{ t('common.fields.password') }}</Label>
             <Input
               id="create-password"
               v-model="formData.password"
               type="password"
-              placeholder="Minimum 8 characters"
+              :placeholder="t('users.form.passwordPlaceholder')"
             />
           </div>
           <div class="space-y-2">
-            <Label for="create-role">Role</Label>
+            <Label for="create-role">{{ t('common.fields.role') }}</Label>
             <Select v-model="formData.roleId">
               <SelectTrigger id="create-role">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue :placeholder="t('users.form.rolePlaceholder')" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
@@ -296,9 +297,9 @@ const confirmDelete = async () => {
           <ShopAssignment v-if="showShopAssignment" v-model="formData.shopIds" :shops="assignableShops" />
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="showCreateDialog = false">Cancel</Button>
+          <Button variant="outline" @click="showCreateDialog = false">{{ t('common.actions.cancel') }}</Button>
           <Button @click="handleCreateSubmit" :disabled="loading">
-            Create User
+            {{ t('users.create.submit') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -307,22 +308,22 @@ const confirmDelete = async () => {
     <Dialog v-model:open="showEditDialog">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{{ t('users.edit.title') }}</DialogTitle>
           <DialogDescription>
-            Update user information
+            {{ t('users.edit.description') }}
           </DialogDescription>
         </DialogHeader>
         <div class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="edit-name">Full Name</Label>
+            <Label for="edit-name">{{ t('users.form.fullName') }}</Label>
             <Input
               id="edit-name"
               v-model="formData.name"
-              placeholder="Enter full name"
+              :placeholder="t('users.form.fullNamePlaceholder')"
             />
           </div>
           <div class="space-y-2">
-            <Label for="edit-email">Email</Label>
+            <Label for="edit-email">{{ t('common.fields.email') }}</Label>
             <Input
               id="edit-email"
               v-model="formData.email"
@@ -331,10 +332,10 @@ const confirmDelete = async () => {
             />
           </div>
           <div class="space-y-2">
-            <Label for="edit-role">Role</Label>
+            <Label for="edit-role">{{ t('common.fields.role') }}</Label>
             <Select v-model="formData.roleId">
               <SelectTrigger id="edit-role">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue :placeholder="t('users.form.rolePlaceholder')" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
@@ -350,9 +351,9 @@ const confirmDelete = async () => {
           <ShopAssignment v-if="showShopAssignment" v-model="formData.shopIds" :shops="assignableShops" />
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="showEditDialog = false">Cancel</Button>
+          <Button variant="outline" @click="showEditDialog = false">{{ t('common.actions.cancel') }}</Button>
           <Button @click="handleEditSubmit" :disabled="loading">
-            Update User
+            {{ t('users.edit.submit') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -361,29 +362,29 @@ const confirmDelete = async () => {
     <Dialog v-model:open="showPasswordDialog">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Update Password</DialogTitle>
+          <DialogTitle>{{ t('users.password.title') }}</DialogTitle>
           <DialogDescription>
-            Set a new password for {{ selectedUser?.name }}
+            {{ t('users.password.description', { name: selectedUser?.name ?? '' }) }}
           </DialogDescription>
         </DialogHeader>
         <div class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="new-password">New Password</Label>
+            <Label for="new-password">{{ t('users.password.newPassword') }}</Label>
             <Input
               id="new-password"
               v-model="newPassword"
               type="password"
-              placeholder="Minimum 8 characters"
+              :placeholder="t('users.form.passwordPlaceholder')"
             />
             <p class="text-xs text-muted-foreground">
-              User will be logged out of all sessions after password update
+              {{ t('users.password.signOutNote') }}
             </p>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="showPasswordDialog = false">Cancel</Button>
+          <Button variant="outline" @click="showPasswordDialog = false">{{ t('common.actions.cancel') }}</Button>
           <Button @click="handlePasswordSubmit" :disabled="loading">
-            Update Password
+            {{ t('users.password.submit') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -392,15 +393,15 @@ const confirmDelete = async () => {
     <AlertDialog v-model:open="showDeleteDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Deactivate this user?</AlertDialogTitle>
+          <AlertDialogTitle>{{ t('users.deactivate.title') }}</AlertDialogTitle>
           <AlertDialogDescription>
-            "{{ selectedUser?.name }}" will be signed out everywhere and will no longer be able to sign in. Their history stays intact, and you can reactivate them later.
-            This action cannot be undone.
+            {{ t('users.deactivate.body', { name: selectedUser?.name ?? '' }) }}
+            {{ t('users.deactivate.cannotUndo') }}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="confirmDelete">Deactivate</AlertDialogAction>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
+          <AlertDialogAction @click="confirmDelete">{{ t('users.deactivate.action') }}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

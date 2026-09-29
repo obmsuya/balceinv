@@ -26,6 +26,7 @@ interface DataTableProps {
 }
 
 const props = defineProps<DataTableProps>();
+const { t } = useI18n();
 
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
@@ -68,7 +69,7 @@ const table = useVueTable({
       <div class="relative flex-1">
         <Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search roles..."
+          :placeholder="t('roles.table.searchPlaceholder')"
           :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
           @update:model-value="table.getColumn('name')?.setFilterValue($event)"
           class="pl-8"
@@ -106,7 +107,7 @@ const table = useVueTable({
           </template>
           <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
+              {{ t('common.states.noResults') }}
             </TableCell>
           </TableRow>
         </TableBody>
@@ -115,7 +116,7 @@ const table = useVueTable({
 
     <div class="flex items-center justify-between px-2">
       <div class="text-sm text-muted-foreground">
-        {{ table.getFilteredRowModel().rows.length }} role(s) total
+        {{ t('roles.table.total', { count: table.getFilteredRowModel().rows.length }) }}
       </div>
       <div class="flex items-center gap-2">
         <Button
@@ -124,7 +125,7 @@ const table = useVueTable({
           :disabled="!table.getCanPreviousPage()"
           @click="table.previousPage()"
         >
-          Previous
+          {{ t('common.pagination.previous') }}
         </Button>
         <Button
           variant="outline"
@@ -132,7 +133,7 @@ const table = useVueTable({
           :disabled="!table.getCanNextPage()"
           @click="table.nextPage()"
         >
-          Next
+          {{ t('common.pagination.next') }}
         </Button>
       </div>
     </div>

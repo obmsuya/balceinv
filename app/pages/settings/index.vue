@@ -20,6 +20,7 @@ import {
   CheckCircle2,
   RotateCw,
   Palette,
+  Languages,
 } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -48,6 +49,9 @@ import TeamCatalogDialog from '@/components/catalog/TeamCatalogDialog.vue'
 definePageMeta({ layout: 'default' })
 
 const { settings, loading, fetchSettings, updateSettings } = useSettings()
+const { t } = useI18n()
+const { canEdit } = usePermissions()
+const canEditSettings = computed(() => canEdit('settings'))
 const runningInTauri = isTauri()
 
 // ─── Business form ─────────────────────────────────────────────────────────
@@ -59,6 +63,8 @@ const businessForm = ref({
   business_tin: '',
   receipt_header: '',
   receipt_footer: '',
+  default_locale: 'en',
+  receipt_language: 'en',
 })
 
 // ─── System form ────────────────────────────────────────────────────────────
@@ -129,6 +135,8 @@ const loadForms = () => {
     business_tin: c.tin ?? '',
     receipt_header: c.receipt_header ?? '',
     receipt_footer: c.receipt_footer ?? '',
+    default_locale: c.default_locale || 'en',
+    receipt_language: s.receipt_language || 'en',
   }
 
   systemForm.value = {
@@ -220,7 +228,7 @@ watch(() => settings.value, () => loadForms())
 
 // ─── Save: Business ──────────────────────────────────────────────────────────
 // Sends: business_name, business_phone, business_address, business_tin,
-//        receipt_header, receipt_footer  →  companies table via service layer
+//        receipt_header, receipt_footer, default_locale, receipt_language  →  companies and settings tables via service layer
 const saveBusiness = async () => {
   savingBusiness.value = true
   try {
@@ -297,8 +305,8 @@ const saveNotifications = async () => {
 
 const efdBadgeVariant = computed(() => (settings.value?.efd_enabled ? 'default' as const : 'secondary' as const))
 const efdBadgeLabel = computed(() => {
-  if (!settings.value?.efd_enabled) return 'Disabled'
-  return settings.value.efd_api_key_set ? 'Enabled · key saved' : 'Enabled · no key'
+  if (!settings.value?.efd_enabled) return t('settings.efd.badgeDisabled')
+  return settings.value.efd_api_key_set ? t('settings.efd.badgeKeySaved') : t('settings.efd.badgeNoKey')
 })
 </script>
 
@@ -306,8 +314,8 @@ const efdBadgeLabel = computed(() => {
   <div class="flex flex-col gap-6 p-6 max-w-4xl">
 
     <div>
-      <h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
-      <p class="text-sm text-muted-foreground mt-1">Manage your business and system configuration</p>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ t('settings.page.title') }}</h1>
+      <p class="text-sm text-muted-foreground mt-1">{{ t('settings.page.subtitle') }}</p>
     </div>
 
     <!-- Skeleton while first load -->
@@ -318,31 +326,31 @@ const efdBadgeLabel = computed(() => {
     <Tabs v-else v-model="activeSettingsTab">
       <TabsList class="w-full justify-start overflow-x-auto">
         <TabsTrigger value="business">
-          <Building2 />Business
+          <Building2 />{{ t('settings.tabs.business') }}
         </TabsTrigger>
         <TabsTrigger value="branding">
-          <Palette />Branding
+          <Palette />{{ t('settings.tabs.branding') }}
         </TabsTrigger>
         <TabsTrigger value="system">
-          <Settings2 />System
+          <Settings2 />{{ t('settings.tabs.system') }}
         </TabsTrigger>
         <TabsTrigger value="hardware">
-          <Printer />Hardware
+          <Printer />{{ t('settings.tabs.hardware') }}
         </TabsTrigger>
         <TabsTrigger value="efd">
-          <Wifi />EFD
+          <Wifi />{{ t('settings.tabs.efd') }}
         </TabsTrigger>
         <TabsTrigger value="notifications">
-          <Bell />Notifications
+          <Bell />{{ t('settings.tabs.notifications') }}
         </TabsTrigger>
         <TabsTrigger v-if="showDesktopTabs" value="backups">
-          <DatabaseBackup />Backups
+          <DatabaseBackup />{{ t('settings.tabs.backups') }}
         </TabsTrigger>
         <TabsTrigger v-if="showNetworkTab" value="network">
-          <Network />Network
+          <Network />{{ t('settings.tabs.network') }}
         </TabsTrigger>
         <TabsTrigger v-if="runningInTauri" value="updates">
-          <RefreshCw />Updates
+          <RefreshCw />{{ t('settings.tabs.updates') }}
         </TabsTrigger>
       </TabsList>
 
@@ -354,17 +362,17 @@ const efdBadgeLabel = computed(() => {
         <!-- Details card -->
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Business Details</CardTitle>
-            <CardDescription>Saved to your company profile — shown on receipts and reports</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.business.title') }}</CardTitle>
+            <CardDescription>{{ t('settings.business.description') }}</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="business-name">Business Name</Label>
+                <Label for="business-name">{{ t('settings.business.name') }}</Label>
                 <Input id="business-name" v-model="businessForm.business_name" placeholder="Acme Ltd." />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="business-phone">Phone Number</Label>
+                <Label for="business-phone">{{ t('settings.business.phone') }}</Label>
                 <div class="relative">
                   <Phone class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input id="business-phone" v-model="businessForm.business_phone" class="pl-9" placeholder="+255 XXX XXX XXX" />
@@ -373,7 +381,7 @@ const efdBadgeLabel = computed(() => {
             </div>
 
             <div class="flex flex-col gap-1.5 max-w-xs">
-              <Label for="business-tin">TIN Number</Label>
+              <Label for="business-tin">{{ t('settings.business.tin') }}</Label>
               <div class="relative">
                 <Hash class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input id="business-tin" v-model="businessForm.business_tin" class="pl-9" placeholder="123-456-789" />
@@ -381,28 +389,61 @@ const efdBadgeLabel = computed(() => {
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <Label for="business-address">Address</Label>
+              <Label for="business-address">{{ t('settings.business.address') }}</Label>
               <div class="relative">
                 <MapPin class="absolute left-3 top-3 size-4 text-muted-foreground" />
-                <Textarea id="business-address" v-model="businessForm.business_address" class="pl-9 min-h-20 resize-none" placeholder="Street, City, Region" />
+                <Textarea id="business-address" v-model="businessForm.business_address" class="pl-9 min-h-20 resize-none" :placeholder="t('settings.business.addressPlaceholder')" />
               </div>
             </div>
 
             <Separator />
 
             <div class="flex flex-col gap-1.5">
-              <Label for="receipt-header">Receipt Header</Label>
-              <Textarea id="receipt-header" v-model="businessForm.receipt_header" class="min-h-16 resize-none" placeholder="e.g. Thank you for shopping with us!" />
+              <Label for="receipt-header">{{ t('settings.business.receiptHeader') }}</Label>
+              <Textarea id="receipt-header" v-model="businessForm.receipt_header" class="min-h-16 resize-none" :placeholder="t('settings.business.receiptHeaderPlaceholder')" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="receipt-footer">Receipt Footer</Label>
-              <Textarea id="receipt-footer" v-model="businessForm.receipt_footer" class="min-h-16 resize-none" placeholder="e.g. Goods sold are not returnable." />
+              <Label for="receipt-footer">{{ t('settings.business.receiptFooter') }}</Label>
+              <Textarea id="receipt-footer" v-model="businessForm.receipt_footer" class="min-h-16 resize-none" :placeholder="t('settings.business.receiptFooterPlaceholder')" />
+            </div>
+
+            <Separator />
+
+            <div class="flex flex-col gap-3">
+              <p class="flex items-center gap-2 text-sm font-medium">
+                <Languages class="size-4 text-muted-foreground" />{{ t('settings.language.title') }}
+              </p>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div class="flex min-w-0 flex-col gap-1.5">
+                  <Label for="default-locale">{{ t('settings.language.defaultLocale') }}</Label>
+                  <Select v-model="businessForm.default_locale" :disabled="!canEditSettings">
+                    <SelectTrigger id="default-locale"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">{{ t('common.language.en') }}</SelectItem>
+                      <SelectItem value="sw">{{ t('common.language.sw') }}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.language.defaultLocaleHelp') }}</p>
+                </div>
+                <div class="flex min-w-0 flex-col gap-1.5">
+                  <Label for="receipt-language">{{ t('settings.language.receiptLanguage') }}</Label>
+                  <Select v-model="businessForm.receipt_language" :disabled="!canEditSettings">
+                    <SelectTrigger id="receipt-language"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">{{ t('common.language.en') }}</SelectItem>
+                      <SelectItem value="sw">{{ t('common.language.sw') }}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.language.receiptLanguageHelp') }}</p>
+                </div>
+              </div>
+              <p class="text-xs text-muted-foreground">{{ t('settings.language.personalChoice') }}</p>
             </div>
 
             <div class="flex justify-end pt-1">
               <Button :disabled="savingBusiness" @click="saveBusiness">
                 <Save class="size-4 mr-2" />
-                {{ savingBusiness ? 'Saving…' : 'Save Business Info' }}
+                {{ savingBusiness ? t('common.actions.saving') : t('settings.business.save') }}
               </Button>
             </div>
           </CardContent>
@@ -419,35 +460,35 @@ const efdBadgeLabel = computed(() => {
       <TabsContent value="system" class="flex flex-col gap-4 mt-4">
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Currency &amp; Tax</CardTitle>
-            <CardDescription>Applied to all sales and reports</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.system.currencyTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.system.currencyDescription') }}</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="grid gap-4 sm:grid-cols-3">
               <div class="flex flex-col gap-1.5">
-                <Label for="currency-code">Currency Code</Label>
+                <Label for="currency-code">{{ t('settings.system.currencyCode') }}</Label>
                 <Select v-model="systemForm.currency_code">
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="TZS">TZS — Tanzanian Shilling</SelectItem>
-                    <SelectItem value="USD">USD — US Dollar</SelectItem>
-                    <SelectItem value="KES">KES — Kenyan Shilling</SelectItem>
-                    <SelectItem value="UGX">UGX — Ugandan Shilling</SelectItem>
+                    <SelectItem value="TZS">{{ t('settings.system.currencies.tzs') }}</SelectItem>
+                    <SelectItem value="USD">{{ t('settings.system.currencies.usd') }}</SelectItem>
+                    <SelectItem value="KES">{{ t('settings.system.currencies.kes') }}</SelectItem>
+                    <SelectItem value="UGX">{{ t('settings.system.currencies.ugx') }}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="currency-decimals">Decimal places</Label>
+                <Label for="currency-decimals">{{ t('settings.system.decimalPlaces') }}</Label>
                 <Select v-model="systemForm.currency_decimals">
                   <SelectTrigger id="currency-decimals"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem :value="0">None (1,500)</SelectItem>
-                    <SelectItem :value="2">Two (1,500.00)</SelectItem>
+                    <SelectItem :value="0">{{ t('settings.system.decimalsNone') }}</SelectItem>
+                    <SelectItem :value="2">{{ t('settings.system.decimalsTwo') }}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="tax-rate">Tax Rate (%)</Label>
+                <Label for="tax-rate">{{ t('settings.system.taxRate') }}</Label>
                 <Input id="tax-rate" v-model.number="systemForm.tax_rate" type="number" min="0" max="100" />
               </div>
             </div>
@@ -456,13 +497,13 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Date &amp; Receipt Format</CardTitle>
-            <CardDescription>Controls how dates and receipt numbers are displayed</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.system.formatTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.system.formatDescription') }}</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="date-format">Date Format</Label>
+                <Label for="date-format">{{ t('settings.system.dateFormat') }}</Label>
                 <Select v-model="systemForm.date_format">
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -473,15 +514,15 @@ const efdBadgeLabel = computed(() => {
                 </Select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="receipt-number-format">Receipt Number Format</Label>
+                <Label for="receipt-number-format">{{ t('settings.system.receiptNumberFormat') }}</Label>
                 <Input id="receipt-number-format" v-model="systemForm.receipt_number_format" placeholder="SALE-{DATE}-{COUNTER}" />
-                <p class="text-xs text-muted-foreground">Tokens: <code class="text-xs">{DATE}</code> · <code class="text-xs">{COUNTER}</code></p>
+                <p class="text-xs text-muted-foreground">{{ t('settings.system.tokens') }} <code class="text-xs">{DATE}</code> · <code class="text-xs">{COUNTER}</code></p>
               </div>
             </div>
             <div class="flex justify-end pt-1">
               <Button :disabled="savingSystem" @click="saveSystem">
                 <Save class="size-4 mr-2" />
-                {{ savingSystem ? 'Saving…' : 'Save System Settings' }}
+                {{ savingSystem ? t('common.actions.saving') : t('settings.system.save') }}
               </Button>
             </div>
           </CardContent>
@@ -495,24 +536,24 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Till extras</CardTitle>
-            <CardDescription>Only switch on what your tills use. Everything off stays hidden at the till.</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.hardware.tillTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.hardware.tillDescription') }}</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex flex-col gap-3">
               <div class="flex items-center justify-between gap-4">
                 <div>
-                  <p class="text-sm">On-screen number pad</p>
-                  <p class="text-xs text-muted-foreground">For touch screens: type quantities and cash without a keyboard</p>
+                  <p class="text-sm">{{ t('settings.hardware.numpad') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.numpadHelp') }}</p>
                 </div>
-                <Switch v-model="hardwareForm.till_numpad_enabled" aria-label="On-screen number pad" />
+                <Switch v-model="hardwareForm.till_numpad_enabled" :aria-label="t('settings.hardware.numpad')" />
               </div>
               <div class="flex items-center justify-between gap-4">
                 <div>
-                  <p class="text-sm">Customer display</p>
-                  <p class="text-xs text-muted-foreground">A second screen facing the customer shows the items, total and change</p>
+                  <p class="text-sm">{{ t('settings.hardware.customerDisplay') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.customerDisplayHelp') }}</p>
                 </div>
-                <Switch v-model="hardwareForm.customer_display_enabled" aria-label="Customer display" />
+                <Switch v-model="hardwareForm.customer_display_enabled" :aria-label="t('settings.hardware.customerDisplay')" />
               </div>
             </div>
           </CardContent>
@@ -520,29 +561,29 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Receipt options</CardTitle>
-            <CardDescription>Apply to printed and on-screen receipts</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.hardware.receiptTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.hardware.receiptDescription') }}</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex flex-col gap-3">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm">Print automatically after sale</p>
-                  <p class="text-xs text-muted-foreground">No prompt — prints immediately on completion</p>
+                  <p class="text-sm">{{ t('settings.hardware.autoPrint') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.autoPrintHelp') }}</p>
                 </div>
                 <Switch v-model="hardwareForm.print_receipt_automatically" />
               </div>
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm">Show tax on receipt</p>
-                  <p class="text-xs text-muted-foreground">Display VAT as a separate line item</p>
+                  <p class="text-sm">{{ t('settings.hardware.showTax') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.showTaxHelp') }}</p>
                 </div>
                 <Switch v-model="hardwareForm.show_tax_on_receipt" />
               </div>
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm">Print barcodes on receipt</p>
-                  <p class="text-xs text-muted-foreground">Include product barcodes below line items</p>
+                  <p class="text-sm">{{ t('settings.hardware.barcodes') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.barcodesHelp') }}</p>
                 </div>
                 <Switch v-model="hardwareForm.show_barcodes_on_receipt" />
               </div>
@@ -554,8 +595,8 @@ const efdBadgeLabel = computed(() => {
           <CardHeader class="pb-3">
             <div class="flex items-center justify-between">
               <div>
-                <CardTitle class="text-base">Thermal Receipt Printer</CardTitle>
-                <CardDescription class="mt-0.5">Connect a USB or network thermal printer</CardDescription>
+                <CardTitle class="text-base">{{ t('settings.hardware.printerTitle') }}</CardTitle>
+                <CardDescription class="mt-0.5">{{ t('settings.hardware.printerDescription') }}</CardDescription>
               </div>
               <Switch v-model="hardwareForm.printerEnabled" />
             </div>
@@ -563,15 +604,15 @@ const efdBadgeLabel = computed(() => {
           <CardContent v-if="hardwareForm.printerEnabled" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
               <div class="flex items-center justify-between">
-                <Label>Detected Printers</Label>
+                <Label>{{ t('settings.hardware.detectedPrinters') }}</Label>
                 <Button variant="ghost" size="sm" :disabled="scanning" @click="fetchDevices">
                   <RefreshCw class="size-3.5 mr-1.5" :class="{ 'animate-spin': scanning }" />
-                  {{ scanning ? 'Scanning…' : 'Refresh' }}
+                  {{ scanning ? t('settings.hardware.scanning') : t('common.actions.refresh') }}
                 </Button>
               </div>
 
               <div v-if="detectedPrinters.length === 0" class="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-                No USB or serial printer detected. Plug it in and click Refresh — or enter a network/Bluetooth address manually below.
+                {{ t('settings.hardware.noPrinters') }}
               </div>
               <div v-else class="flex flex-col gap-1.5">
                 <button
@@ -593,12 +634,12 @@ const efdBadgeLabel = computed(() => {
 
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="printer-port">Port <span class="text-muted-foreground text-xs">(pick above, or enter a network/Bluetooth address)</span></Label>
-                <Input id="printer-port" v-model="hardwareForm.printerPort" placeholder="e.g. COM3, /dev/ttyUSB0, or 192.168.1.50" />
+                <Label for="printer-port">{{ t('settings.hardware.port') }} <span class="text-muted-foreground text-xs">{{ t('settings.hardware.portHint') }}</span></Label>
+                <Input id="printer-port" v-model="hardwareForm.printerPort" :placeholder="t('settings.hardware.portPlaceholder')" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="printer-model">Printer Model <span class="text-muted-foreground text-xs">(optional)</span></Label>
-                <Input id="printer-model" v-model="hardwareForm.printerModel" placeholder="e.g. Epson TM-T20III" />
+                <Label for="printer-model">{{ t('settings.hardware.model') }} <span class="text-muted-foreground text-xs">{{ t('settings.hardware.optionalHint') }}</span></Label>
+                <Input id="printer-model" v-model="hardwareForm.printerModel" :placeholder="t('settings.hardware.modelPlaceholder')" />
               </div>
             </div>
 
@@ -610,7 +651,7 @@ const efdBadgeLabel = computed(() => {
               @click="testPrint(hardwareForm.printerPort)"
             >
               <TestTube class="size-4 mr-2" />
-              {{ testingPort ? 'Printing…' : 'Test Print' }}
+              {{ testingPort ? t('settings.hardware.printing') : t('settings.hardware.testPrint') }}
             </Button>
 
           </CardContent>
@@ -619,7 +660,7 @@ const efdBadgeLabel = computed(() => {
         <div class="flex justify-end">
           <Button :disabled="savingHardware" @click="saveHardware">
             <Save class="size-4 mr-2" />
-            {{ savingHardware ? 'Saving…' : 'Save Hardware Settings' }}
+            {{ savingHardware ? t('common.actions.saving') : t('settings.hardware.save') }}
           </Button>
         </div>
       </TabsContent>
@@ -633,47 +674,47 @@ const efdBadgeLabel = computed(() => {
             <div class="flex items-center justify-between">
               <div>
                 <CardTitle class="text-base flex items-center gap-2">
-                  Electronic Fiscal Device
+                  {{ t('settings.efd.title') }}
                   <Badge :variant="efdBadgeVariant">{{ efdBadgeLabel }}</Badge>
                 </CardTitle>
-                <CardDescription class="mt-0.5">Send every sale to your EFD service after it is saved</CardDescription>
+                <CardDescription class="mt-0.5">{{ t('settings.efd.description') }}</CardDescription>
               </div>
-              <Switch v-model="efdForm.efd_enabled" aria-label="Send sales to the EFD" />
+              <Switch v-model="efdForm.efd_enabled" :aria-label="t('settings.efd.switchLabel')" />
             </div>
           </CardHeader>
           <CardContent v-if="efdForm.efd_enabled" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
-              <Label for="efd-endpoint">EFD Endpoint URL</Label>
+              <Label for="efd-endpoint">{{ t('settings.efd.endpoint') }}</Label>
               <Input id="efd-endpoint" v-model="efdForm.efd_endpoint" placeholder="https://efd.tra.go.tz/api/v1" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <Label for="efd-api-key">API Key</Label>
+              <Label for="efd-api-key">{{ t('settings.efd.apiKey') }}</Label>
               <Input
                 id="efd-api-key"
                 v-model="efdForm.efd_api_key"
                 type="password"
                 autocomplete="off"
-                :placeholder="settings?.efd_api_key_set ? 'Saved. Type a new key to replace it' : 'Paste the key from TRA'"
+                :placeholder="settings?.efd_api_key_set ? t('settings.efd.apiKeySavedPlaceholder') : t('settings.efd.apiKeyPlaceholder')"
               />
             </div>
             <div class="flex flex-wrap gap-2 pt-1">
               <Button :disabled="savingEfd" @click="saveEfd">
                 <Save class="size-4 mr-2" />
-                {{ savingEfd ? 'Saving…' : 'Save EFD Settings' }}
+                {{ savingEfd ? t('common.actions.saving') : t('settings.efd.save') }}
               </Button>
               <Button v-if="settings?.efd_api_key_set" variant="outline" :disabled="savingEfd" @click="removeEfdApiKey">
-                Remove saved key
+                {{ t('settings.efd.removeKey') }}
               </Button>
             </div>
           </CardContent>
           <CardContent v-else>
             <div class="rounded-md border bg-muted/40 p-3 flex items-start gap-2">
               <Wifi class="size-4 mt-0.5 text-muted-foreground shrink-0" />
-              <p class="text-sm text-muted-foreground">When on, each sale is sent to the EFD address below. Selling keeps working if the EFD is offline; waiting receipts can be sent again from Sales History.</p>
+              <p class="text-sm text-muted-foreground">{{ t('settings.efd.offHelp') }}</p>
             </div>
             <Button v-if="settings?.efd_enabled" class="mt-3" :disabled="savingEfd" @click="saveEfd">
               <Save class="size-4 mr-2" />
-              {{ savingEfd ? 'Saving…' : 'Turn EFD off' }}
+              {{ savingEfd ? t('common.actions.saving') : t('settings.efd.turnOff') }}
             </Button>
           </CardContent>
         </Card>
@@ -686,14 +727,14 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Alert Sound</CardTitle>
-            <CardDescription>Play a sound when stock alerts are triggered in-app</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.notifications.soundTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.notifications.soundDescription') }}</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <Volume2 class="size-4 text-muted-foreground" />
-                <p class="text-sm">Enable notification sounds</p>
+                <p class="text-sm">{{ t('settings.notifications.soundToggle') }}</p>
               </div>
               <Switch v-model="notificationForm.alert_sound_enabled" />
             </div>
@@ -702,19 +743,19 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Stock Alerts</CardTitle>
-            <CardDescription>Notifications when inventory reaches critical levels</CardDescription>
+            <CardTitle class="text-base">{{ t('settings.notifications.stockTitle') }}</CardTitle>
+            <CardDescription>{{ t('settings.notifications.stockDescription') }}</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm">Low stock alert</p>
-                <p class="text-xs text-muted-foreground">Triggers when quantity falls below the threshold</p>
+                <p class="text-sm">{{ t('settings.notifications.lowStock') }}</p>
+                <p class="text-xs text-muted-foreground">{{ t('settings.notifications.lowStockHelp') }}</p>
               </div>
               <Switch v-model="notificationForm.alert_on_low_stock" />
             </div>
             <div v-if="notificationForm.alert_on_low_stock" class="flex flex-col gap-1.5 max-w-xs">
-              <Label for="low-stock-threshold">Low Stock Threshold (units)</Label>
+              <Label for="low-stock-threshold">{{ t('settings.notifications.lowStockThreshold') }}</Label>
               <Input id="low-stock-threshold" v-model.number="notificationForm.low_stock_threshold" type="number" min="1" />
             </div>
 
@@ -722,8 +763,8 @@ const efdBadgeLabel = computed(() => {
 
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm">Out of stock alert</p>
-                <p class="text-xs text-muted-foreground">Triggers when a product reaches zero units</p>
+                <p class="text-sm">{{ t('settings.notifications.outOfStock') }}</p>
+                <p class="text-xs text-muted-foreground">{{ t('settings.notifications.outOfStockHelp') }}</p>
               </div>
               <Switch v-model="notificationForm.alert_on_out_of_stock" />
             </div>
@@ -732,13 +773,13 @@ const efdBadgeLabel = computed(() => {
 
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm">Dead stock alert</p>
-                <p class="text-xs text-muted-foreground">Items with no sales movement over a set period</p>
+                <p class="text-sm">{{ t('settings.notifications.deadStock') }}</p>
+                <p class="text-xs text-muted-foreground">{{ t('settings.notifications.deadStockHelp') }}</p>
               </div>
               <Switch v-model="notificationForm.alert_on_dead_stock" />
             </div>
             <div v-if="notificationForm.alert_on_dead_stock" class="flex flex-col gap-1.5 max-w-xs">
-              <Label for="dead-stock-period">Dead Stock Period (days)</Label>
+              <Label for="dead-stock-period">{{ t('settings.notifications.deadStockPeriod') }}</Label>
               <Input id="dead-stock-period" v-model.number="notificationForm.dead_stock_days" type="number" min="1" />
             </div>
           </CardContent>
@@ -748,15 +789,15 @@ const efdBadgeLabel = computed(() => {
           <CardHeader class="pb-3">
             <div class="flex items-center justify-between">
               <div>
-                <CardTitle class="text-base">Email Notifications</CardTitle>
-                <CardDescription>Receive stock alerts by email in addition to in-app</CardDescription>
+                <CardTitle class="text-base">{{ t('settings.notifications.emailTitle') }}</CardTitle>
+                <CardDescription>{{ t('settings.notifications.emailDescription') }}</CardDescription>
               </div>
               <Switch v-model="notificationForm.email_notifications_enabled" />
             </div>
           </CardHeader>
           <CardContent v-if="notificationForm.email_notifications_enabled">
             <div class="flex flex-col gap-1.5 max-w-sm">
-              <Label for="notification-email">Notification Email</Label>
+              <Label for="notification-email">{{ t('settings.notifications.emailAddress') }}</Label>
               <div class="relative">
                 <Mail class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input id="notification-email" v-model="notificationForm.notification_email" type="email" class="pl-9" placeholder="you@example.com" />
@@ -768,7 +809,7 @@ const efdBadgeLabel = computed(() => {
         <div class="flex justify-end">
           <Button :disabled="savingNotifications" @click="saveNotifications">
             <Save class="size-4 mr-2" />
-            {{ savingNotifications ? 'Saving…' : 'Save Notification Settings' }}
+            {{ savingNotifications ? t('common.actions.saving') : t('settings.notifications.save') }}
           </Button>
         </div>
       </TabsContent>
@@ -787,20 +828,20 @@ const efdBadgeLabel = computed(() => {
       <TabsContent v-if="runningInTauri" value="updates" class="flex flex-col gap-4 mt-4">
         <Card>
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">App Version</CardTitle>
-            <CardDescription>New versions are checked automatically</CardDescription>
+            <CardTitle class="text-base">{{ t('updates.settings.title') }}</CardTitle>
+            <CardDescription>{{ t('updates.settings.description') }}</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm">Current version</p>
+                <p class="text-sm">{{ t('updates.settings.currentVersion') }}</p>
                 <p class="text-xs text-muted-foreground mt-0.5 select-none" @click="onVersionTap">{{ currentVersion || '—' }}</p>
               </div>
               <Badge v-if="updateStatus === 'up-to-date'" variant="secondary">
-                <CheckCircle2 class="size-3 mr-1" />Up to date
+                <CheckCircle2 class="size-3 mr-1" />{{ t('updates.settings.upToDate') }}
               </Badge>
               <Badge v-else-if="updateStatus === 'available'" variant="default">
-                Update available: {{ latestVersion }}
+                {{ t('updates.settings.available', { version: latestVersion }) }}
               </Badge>
             </div>
 
@@ -810,15 +851,15 @@ const efdBadgeLabel = computed(() => {
               v-if="updateStatus === 'available'"
               class="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm"
             >
-              <p class="font-medium">Version {{ latestVersion }} is ready to install</p>
+              <p class="font-medium">{{ t('updates.settings.readyToInstall', { version: latestVersion }) }}</p>
               <p class="text-muted-foreground mt-0.5">
-                A backup is saved on this PC first. The POS then closes and reopens by itself. Your sales, products and settings are kept.
+                {{ t('updates.settings.backupFirst') }}
               </p>
             </div>
 
             <div v-if="updateStatus === 'downloading' || updateStatus === 'installing'" class="flex flex-col gap-2">
               <div class="flex items-center justify-between text-sm">
-                <span>{{ updateStatus === 'downloading' ? 'Downloading update…' : 'Saving a backup and installing…' }}</span>
+                <span>{{ updateStatus === 'downloading' ? t('updates.settings.downloading') : t('updates.settings.installing') }}</span>
                 <span v-if="updateStatus === 'downloading' && downloadProgress !== null" class="tabular-nums text-muted-foreground">
                   {{ downloadProgress }}%
                 </span>
@@ -830,7 +871,7 @@ const efdBadgeLabel = computed(() => {
                   :style="updateStatus === 'downloading' && downloadProgress !== null ? { width: `${downloadProgress}%` } : undefined"
                 />
               </div>
-              <p class="text-xs text-muted-foreground">Keep the POS open. It will restart by itself when the update is installed.</p>
+              <p class="text-xs text-muted-foreground">{{ t('updates.settings.keepOpen') }}</p>
             </div>
 
             <div class="flex gap-2">
@@ -841,15 +882,15 @@ const efdBadgeLabel = computed(() => {
                 @click="checkForUpdate()"
               >
                 <RefreshCw class="size-4 mr-2" :class="updateStatus === 'checking' ? 'animate-spin' : ''" />
-                {{ updateStatus === 'checking' ? 'Checking…' : 'Check for Updates' }}
+                {{ updateStatus === 'checking' ? t('updates.settings.checking') : t('updates.settings.check') }}
               </Button>
 
               <Button v-if="updateStatus === 'available'" @click="downloadAndInstall">
-                <DownloadCloud class="size-4 mr-2" />Update and restart
+                <DownloadCloud class="size-4 mr-2" />{{ t('updates.updateAndRestart') }}
               </Button>
 
               <Button v-if="updateStatus === 'downloaded'" @click="relaunchApp">
-                <RotateCw class="size-4 mr-2" />Restart to finish
+                <RotateCw class="size-4 mr-2" />{{ t('updates.settings.restartToFinish') }}
               </Button>
             </div>
           </CardContent>

@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface UserRoleSummary {
   id: string
@@ -66,7 +67,7 @@ export const useUsers = () => {
       users.value = userPage.data.items
       totalUsers.value = userPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load users')
+      toast.error(apiErrorMessage(error, 'users.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -79,7 +80,7 @@ export const useUsers = () => {
       selectedUser.value = userResponse.data
       return userResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load user')
+      toast.error(apiErrorMessage(error, 'users.toasts.loadOneFailed'))
     } finally {
       loading.value = false
     }
@@ -99,10 +100,10 @@ export const useUsers = () => {
         },
       })
       await fetchUsers()
-      toast.success(createResponse.message)
+      toast.success(t('users.toasts.created'))
       return createResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create user')
+      toast.error(apiErrorMessage(error, 'users.toasts.createFailed'))
       throw error
     } finally {
       loading.value = false
@@ -123,10 +124,10 @@ export const useUsers = () => {
         },
       })
       await fetchUsers()
-      toast.success(updateResponse.message)
+      toast.success(t('users.toasts.updated'))
       return updateResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update user')
+      toast.error(apiErrorMessage(error, 'users.toasts.updateFailed'))
       throw error
     } finally {
       loading.value = false
@@ -140,9 +141,9 @@ export const useUsers = () => {
         method: 'POST',
         body: { user_id: userId, new_password: newPassword },
       })
-      toast.success(passwordResponse.message)
+      toast.success(t('users.toasts.passwordUpdated'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update password')
+      toast.error(apiErrorMessage(error, 'users.toasts.passwordFailed'))
       throw error
     } finally {
       loading.value = false
@@ -156,9 +157,9 @@ export const useUsers = () => {
         method: 'DELETE',
       })
       await fetchUsers()
-      toast.success(deactivateResponse.message)
+      toast.success(t('users.toasts.deactivated'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to deactivate user')
+      toast.error(apiErrorMessage(error, 'users.toasts.deactivateFailed'))
       throw error
     } finally {
       loading.value = false

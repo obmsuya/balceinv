@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
 
 export interface CompanyProfile {
   id: string
@@ -117,7 +118,7 @@ export const useSettings = () => {
       const settingsResponse = await apiFetch<ApiEnvelope<Settings>>('/api/settings')
       settings.value = settingsResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load settings')
+      toast.error(apiErrorMessage(error, 'settings.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -133,11 +134,11 @@ export const useSettings = () => {
       settings.value = updateResponse.data
       const touchesBranding = brandingFields.some(fieldName => fieldName in changes)
       if (touchesBranding) await fetchCurrentUser()
-      toast.success(updateResponse.message)
+      toast.success(t('settings.toasts.saved'))
     } catch (error: any) {
       const fieldErrors: Array<{ field: string; message: string }> = error?.data?.fields ?? []
-      const firstFieldError = fieldErrors[0]
-      toast.error(firstFieldError ? `${firstFieldError.field} ${firstFieldError.message}` : error?.data?.message || 'Failed to save settings')
+      const firstFieldError = activeLocale.value === 'en' ? fieldErrors[0] : undefined
+      toast.error(firstFieldError ? `${firstFieldError.field} ${firstFieldError.message}` : apiErrorMessage(error, 'settings.toasts.saveFailed'))
       throw error
     } finally {
       loading.value = false
@@ -155,9 +156,9 @@ export const useSettings = () => {
       })
       settings.value = uploadResponse.data
       await fetchCurrentUser()
-      toast.success(uploadResponse.message)
+      toast.success(t('settings.toasts.logoUploaded'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to upload logo')
+      toast.error(apiErrorMessage(error, 'settings.toasts.logoUploadFailed'))
       throw error
     } finally {
       loading.value = false

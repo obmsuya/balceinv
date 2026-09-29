@@ -1,0 +1,40 @@
+{
+  "updateAndRestart": "Sasisha na uanzishe upya",
+  "settings": {
+    "title": "Toleo la programu",
+    "description": "Matoleo mapya hukaguliwa yenyewe",
+    "currentVersion": "Toleo la sasa",
+    "upToDate": "Imesasishwa",
+    "available": "Sasisho linapatikana: {version}",
+    "readyToInstall": "Toleo {version} liko tayari kusakinishwa",
+    "backupFirst": "Nakala rudufu huhifadhiwa kwanza kwenye kompyuta hii. Kisha programu hujifunga na kujifungua yenyewe. Mauzo, bidhaa na mipangilio yako hubaki salama.",
+    "downloading": "Inapakua sasisho…",
+    "installing": "Inahifadhi nakala rudufu na kusakinisha…",
+    "keepOpen": "Usifunge programu. Itajianzisha upya yenyewe sasisho likishasakinishwa.",
+    "checking": "Inakagua…",
+    "check": "Angalia masasisho",
+    "restartToFinish": "Anzisha upya ili kukamilisha"
+  },
+  "indicator": {
+    "installing": "Inasakinisha…",
+    "downloading": "Inapakua…",
+    "progress": "Inasasisha {percent}%",
+    "available": "Sasisho linapatikana",
+    "toastAvailable": "Toleo {version} la Balce linapatikana",
+    "seeUpdate": "Tazama sasisho",
+    "ready": "Toleo {version} liko tayari",
+    "youAreOn": "Unatumia toleo {version}",
+    "installingDetail": "Inahifadhi nakala rudufu na kusakinisha. Programu itajifungua yenyewe.",
+    "downloadingDetail": "Inapakua. Unaweza kuendelea na kazi.",
+    "howItWorks": "Kwa kawaida huchukua dakika moja au mbili. Nakala rudufu huhifadhiwa kwanza, kisha programu hujifunga na kujifungua yenyewe. Mauzo, bidhaa na mipangilio yako hubaki salama.",
+    "later": "Baadaye"
+  },
+  "toasts": {
+    "desktopOnly": "Masasisho yanapatikana tu kwenye programu ya kompyuta",
+    "latest": "Unatumia toleo jipya zaidi",
+    "checkFailed": "Imeshindwa kuangalia masasisho",
+    "backupBeforeFailed": "Imeshindwa kuhifadhi nakala rudufu kabla ya kusasisha",
+    "backupBeforeFailedDetail": "Data yako inabaki kwenye kompyuta hii na haiguswi na sasisho.",
+    "updateFailed": "Imeshindwa kusasisha"
+  }
+}

@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 import type { CurrentUser, Permission } from '~/composables/useAuth'
 
 interface ApiEnvelope<Payload> {
@@ -23,7 +24,7 @@ export const usePermissions = () => {
       const permissionResponse = await apiFetch<ApiEnvelope<Permission[]>>('/api/permissions')
       permissions.value = permissionResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load permissions')
+      toast.error(apiErrorMessage(error, 'roles.toasts.permissionsLoadFailed'))
     } finally {
       loading.value = false
     }
@@ -34,7 +35,7 @@ export const usePermissions = () => {
       const permissionResponse = await apiFetch<ApiEnvelope<Permission[]>>(`/api/permissions/user/${userId}`)
       return permissionResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load user permissions')
+      toast.error(apiErrorMessage(error, 'roles.toasts.userPermissionsLoadFailed'))
       return []
     }
   }
@@ -44,7 +45,7 @@ export const usePermissions = () => {
       const permissionResponse = await apiFetch<ApiEnvelope<Permission[]>>(`/api/permissions/role/${roleId}`)
       return permissionResponse.data ?? []
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load role permissions')
+      toast.error(apiErrorMessage(error, 'roles.toasts.rolePermissionsLoadFailed'))
       return []
     }
   }
@@ -56,9 +57,9 @@ export const usePermissions = () => {
         method: 'POST',
         body: { role_id: roleId, permission_ids: permissionIds },
       })
-      toast.success(assignResponse.message)
+      toast.success(t('roles.toasts.rolePermissionsSaved'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update role permissions')
+      toast.error(apiErrorMessage(error, 'roles.toasts.rolePermissionsFailed'))
       throw error
     } finally {
       loading.value = false
@@ -72,9 +73,9 @@ export const usePermissions = () => {
         method: 'POST',
         body: { user_id: userId, permission_ids: permissionIds },
       })
-      toast.success(assignResponse.message)
+      toast.success(t('roles.toasts.userPermissionsSaved'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update user permissions')
+      toast.error(apiErrorMessage(error, 'roles.toasts.userPermissionsFailed'))
       throw error
     } finally {
       loading.value = false

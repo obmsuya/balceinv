@@ -1,0 +1,40 @@
+{
+  "updateAndRestart": "Update and restart",
+  "settings": {
+    "title": "App Version",
+    "description": "New versions are checked automatically",
+    "currentVersion": "Current version",
+    "upToDate": "Up to date",
+    "available": "Update available: {version}",
+    "readyToInstall": "Version {version} is ready to install",
+    "backupFirst": "A backup is saved on this PC first. The POS then closes and reopens by itself. Your sales, products and settings are kept.",
+    "downloading": "Downloading update…",
+    "installing": "Saving a backup and installing…",
+    "keepOpen": "Keep the POS open. It will restart by itself when the update is installed.",
+    "checking": "Checking…",
+    "check": "Check for Updates",
+    "restartToFinish": "Restart to finish"
+  },
+  "indicator": {
+    "installing": "Installing…",
+    "downloading": "Downloading…",
+    "progress": "Updating {percent}%",
+    "available": "Update available",
+    "toastAvailable": "POS {version} is available",
+    "seeUpdate": "See update",
+    "ready": "Version {version} is ready",
+    "youAreOn": "You are on {version}",
+    "installingDetail": "Saving a backup and installing. The POS will reopen by itself.",
+    "downloadingDetail": "Downloading. You can keep working.",
+    "howItWorks": "Usually takes a minute or two. A backup is saved first, then the POS closes and reopens by itself. Your sales, products and settings are kept.",
+    "later": "Later"
+  },
+  "toasts": {
+    "desktopOnly": "Updates are only available in the desktop app",
+    "latest": "You are on the latest version",
+    "checkFailed": "Could not check for updates",
+    "backupBeforeFailed": "Could not save a backup before updating",
+    "backupBeforeFailedDetail": "Your data stays on this PC and is not touched by the update.",
+    "updateFailed": "Update failed"
+  }
+}

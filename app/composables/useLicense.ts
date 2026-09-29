@@ -1,4 +1,5 @@
 import type { MobileMoneyProvider } from '~/utils/mobileMoney'
+import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
 
 export type LockReason = '' | 'missing' | 'expired' | 'clock'
 
@@ -47,8 +48,8 @@ const paymentWaitLimitMilliseconds = 120000
 
 const wait = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
-export const readLicenseError = (error: any, fallback: string): string =>
-  error?.data?.error || error?.data?.message || fallback
+export const readLicenseError = (error: any, fallbackKey: string): string =>
+  (activeLocale.value === 'en' && error?.data?.error) || apiErrorMessage(error, fallbackKey)
 
 export const useLicense = () => {
   const runtimeConfig = useRuntimeConfig()
@@ -108,7 +109,7 @@ export const useLicense = () => {
       })
       licensePackages.value = [...(response.data ?? [])].sort((first, second) => first.days_granted - second.days_granted)
     } catch (error: any) {
-      packagesError.value = readLicenseError(error, 'Could not load the plans. Check the internet connection.')
+      packagesError.value = readLicenseError(error, 'license.payment.packagesFailed')
     } finally {
       packagesLoading.value = false
     }
@@ -127,7 +128,7 @@ export const useLicense = () => {
       credentials: 'include'
     })
     if (response?.success === false) {
-      throw { data: { error: response.error || response.message || 'The payment could not be started.' } }
+      throw { data: { error: response.error || response.message || t('license.payment.startFailed') } }
     }
   }
 

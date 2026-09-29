@@ -1,0 +1,73 @@
+{
+  "restorePending": {
+    "title": "A restore is waiting to be applied",
+    "body": "Restart the POS now. Anything recorded before the restart will be replaced by the backup.",
+    "restartNow": "Restart now"
+  },
+  "automatic": {
+    "title": "Automatic backups",
+    "description": "A copy is saved on this PC every 6 hours and the last 7 days are kept. With an activated license each copy is also uploaded to the cloud.",
+    "onThisPc": "On this PC",
+    "lastSaved": "Last saved {time}",
+    "copiesKept": "{count} of 7 daily copies kept",
+    "noBackupYet": "No backup yet. Click Back up now.",
+    "cloud": "Cloud",
+    "cloudNeedsLicense": "Available with an activated license. Backups on this PC and to USB still work.",
+    "cloudOffline": "No internet. Your data is safe on this PC and will upload when the internet is back.",
+    "lastUploaded": "Last uploaded {time}",
+    "latestCloudCopy": "Latest cloud copy: {date}",
+    "cloudUnreachable": "Cloud can't be reached right now",
+    "noCloudCopy": "No cloud copy yet",
+    "lastUploadFailed": "Last upload failed: {error}. Retrying automatically.",
+    "backingUp": "Backing up…",
+    "backUpNow": "Back up now",
+    "saveToUsb": "Save to USB / file"
+  },
+  "restore": {
+    "title": "Restore",
+    "description": "Replace the data on this PC with an earlier backup. Your current data is saved on this PC first, so a restore can be undone.",
+    "adminOnly": "Only an admin can restore a backup. Ask your admin to sign in on this PC.",
+    "tabLocal": "On this PC",
+    "tabCloud": "Cloud",
+    "tabFile": "From a file",
+    "undoTitle": "Undo last restore",
+    "undoDescription": "Your data as it was before the last restore, saved {time} · {size}",
+    "undo": "Undo",
+    "noLocalBackups": "No backups on this PC yet.",
+    "savedAt": "Saved {time} · {size}",
+    "restore": "Restore",
+    "noCloudBackups": "No cloud backups yet.",
+    "fileHelp": "Pick a backup file saved with Save to USB / file. Use this to move your data to a new PC or when there is no internet.",
+    "chooseFile": "Choose backup file…"
+  },
+  "confirm": {
+    "title": "Restore {label}?",
+    "beforeLastRestore": "the data from before the last restore",
+    "backupFrom": "the backup from {date}",
+    "replacesEverything": "All data on this PC will be replaced. Sales recorded after this backup was made will no longer show.",
+    "canUndo": "Your current data is kept first, so you can undo this with Undo last restore.",
+    "restartAndSignIn": "The POS will restart and you will need to sign in again.",
+    "action": "Restore and restart"
+  },
+  "preparing": "Preparing your backup…",
+  "doNotClose": "Do not close the POS",
+  "fileFilterName": "POS backup",
+  "toasts": {
+    "statusFailed": "Could not load backup status",
+    "offlineCloudList": "You are offline. Cloud backups will show when the internet is back.",
+    "cloudListFailed": "Could not reach cloud backups",
+    "backupFailed": "Backup failed",
+    "savedOnPc": "Backup saved on this PC",
+    "savedOffline": "You are offline. The cloud copy will upload automatically when the internet is back.",
+    "savedEverywhere": "Backup saved on this PC and in the cloud",
+    "cloudUploadFailedTitle": "Backup saved on this PC, but the cloud upload failed",
+    "cloudUploadFailed": "Cloud upload failed",
+    "retriedAutomatically": "{reason}. It will be retried automatically.",
+    "exportDesktopOnly": "Saving a backup file is only available in the desktop app",
+    "fileSaved": "Backup file saved",
+    "fileSaveFailed": "Could not save the backup file",
+    "restoreDesktopOnly": "Restoring from a file is only available in the desktop app",
+    "readyToRestart": "Backup ready. Close and reopen the POS to finish restoring.",
+    "restoreFailed": "Restore failed"
+  }
+}

@@ -16,6 +16,7 @@ const {
 } = useLicense()
 
 const { user } = useAuth()
+const { t, formatDate } = useI18n()
 
 const showPanel = ref(false)
 const currentUserCanManageBilling = computed(() => user.value?.role === 'Admin')
@@ -28,27 +29,26 @@ const daysLeft = computed(() => {
   return Math.max(0, days ?? 0)
 })
 
-const daysLeftText = computed(() => (daysLeft.value === 1 ? '1 day' : `${daysLeft.value} days`))
-
 const expiryDate = computed(() => {
   const expiresAt = licenseStatus.value?.expires_at
   if (!expiresAt) return ''
-  return new Date(expiresAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })
+  return formatDate(expiresAt, { day: 'numeric', month: 'long' })
 })
 
 const panelTitle = computed(() => {
-  if (isInGracePeriod.value) return 'Subscription ended'
-  if (isTrial.value) return 'Free trial'
-  return 'Subscription ends soon'
+  if (isInGracePeriod.value) return t('license.paywall.endedTitle')
+  if (isTrial.value) return t('license.indicator.freeTrial')
+  return t('license.indicator.endsSoon')
 })
 
 const panelMessage = computed(() => {
-  if (isInGracePeriod.value) return `${daysLeftText.value} left to renew before the POS locks.`
-  if (isTrial.value) return `${daysLeftText.value} left in the free trial.`
-  return `Ends in ${daysLeftText.value}${expiryDate.value ? `, on ${expiryDate.value}` : ''}.`
+  if (isInGracePeriod.value) return t('license.indicator.graceMessage', { count: daysLeft.value })
+  if (isTrial.value) return t('license.indicator.trialMessage', { count: daysLeft.value })
+  if (expiryDate.value) return t('license.indicator.endsOn', { count: daysLeft.value, date: expiryDate.value })
+  return t('license.indicator.endsIn', { count: daysLeft.value })
 })
 
-const actionLabel = computed(() => (isTrial.value ? 'Subscribe' : 'Renew now'))
+const actionLabel = computed(() => (isTrial.value ? t('license.paywall.subscribeTitle') : t('license.indicator.renewNow')))
 const badgeClass = computed(() => (isInGracePeriod.value ? 'bg-destructive text-white' : 'bg-amber-500 text-white'))
 
 const startPayment = () => {
@@ -58,9 +58,9 @@ const startPayment = () => {
 
 watch(isInGracePeriod, (inGrace) => {
   if (!inGrace) return
-  toast.warning('Subscription ended', {
-    description: `${daysLeftText.value} left to renew before the POS locks.`,
-    action: currentUserCanManageBilling.value ? { label: 'Renew', onClick: startPayment } : undefined,
+  toast.warning(t('license.paywall.endedTitle'), {
+    description: t('license.indicator.graceMessage', { count: daysLeft.value }),
+    action: currentUserCanManageBilling.value ? { label: t('license.indicator.renew'), onClick: startPayment } : undefined,
     duration: 10000,
   })
 }, { immediate: true })
@@ -74,7 +74,7 @@ watch(isInGracePeriod, (inGrace) => {
         size="icon"
         class="relative"
         :title="panelTitle"
-        :aria-label="`${panelTitle}: ${daysLeftText} left`"
+        :aria-label="`${panelTitle}: ${t('license.indicator.daysLeft', { count: daysLeft })}`"
       >
         <CreditCard class="h-5 w-5" />
         <span
@@ -101,7 +101,7 @@ watch(isInGracePeriod, (inGrace) => {
         <Button v-if="currentUserCanManageBilling" size="sm" class="w-full" @click="startPayment">
           <Wallet class="size-4 mr-1.5" />{{ actionLabel }}
         </Button>
-        <p v-else class="text-xs text-muted-foreground text-center">Ask the owner or an admin to renew.</p>
+        <p v-else class="text-xs text-muted-foreground text-center">{{ t('license.indicator.askOwner') }}</p>
       </div>
     </PopoverContent>
   </Popover>

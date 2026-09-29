@@ -1,0 +1,73 @@
+{
+  "restorePending": {
+    "title": "Urejeshaji unasubiri kukamilishwa",
+    "body": "Anzisha upya programu sasa. Chochote kilichorekodiwa kabla ya kuanzisha upya kitabadilishwa na nakala rudufu.",
+    "restartNow": "Anzisha upya sasa"
+  },
+  "automatic": {
+    "title": "Nakala rudufu za kiotomatiki",
+    "description": "Nakala huhifadhiwa kwenye kompyuta hii kila baada ya saa 6, na za siku 7 za mwisho hubaki. Ukiwa na leseni hai, kila nakala pia hupakiwa kwenye wingu.",
+    "onThisPc": "Kwenye kompyuta hii",
+    "lastSaved": "Ilihifadhiwa mwisho {time}",
+    "copiesKept": "Nakala {count} kati ya 7 za kila siku zimehifadhiwa",
+    "noBackupYet": "Bado hakuna nakala rudufu. Bofya Hifadhi nakala sasa.",
+    "cloud": "Wingu",
+    "cloudNeedsLicense": "Inapatikana ukiwa na leseni hai. Nakala rudufu kwenye kompyuta hii na kwenye USB bado zinafanya kazi.",
+    "cloudOffline": "Hakuna intaneti. Data yako iko salama kwenye kompyuta hii na itapakiwa intaneti ikirudi.",
+    "lastUploaded": "Ilipakiwa mwisho {time}",
+    "latestCloudCopy": "Nakala ya mwisho kwenye wingu: {date}",
+    "cloudUnreachable": "Wingu halifikiki kwa sasa",
+    "noCloudCopy": "Bado hakuna nakala kwenye wingu",
+    "lastUploadFailed": "Upakiaji wa mwisho umeshindwa: {error}. Itajaribu tena yenyewe.",
+    "backingUp": "Inahifadhi nakala…",
+    "backUpNow": "Hifadhi nakala sasa",
+    "saveToUsb": "Hifadhi kwenye USB / faili"
+  },
+  "restore": {
+    "title": "Rejesha",
+    "description": "Badilisha data iliyo kwenye kompyuta hii kwa nakala rudufu ya awali. Data yako ya sasa huhifadhiwa kwanza kwenye kompyuta hii, hivyo urejeshaji unaweza kutenduliwa.",
+    "adminOnly": "Ni msimamizi tu anayeweza kurejesha nakala rudufu. Mwombe msimamizi wako aingie kwenye kompyuta hii.",
+    "tabLocal": "Kompyuta hii",
+    "tabCloud": "Wingu",
+    "tabFile": "Faili",
+    "undoTitle": "Tendua urejeshaji wa mwisho",
+    "undoDescription": "Data yako ilivyokuwa kabla ya urejeshaji wa mwisho, ilihifadhiwa {time} · {size}",
+    "undo": "Tendua",
+    "noLocalBackups": "Bado hakuna nakala rudufu kwenye kompyuta hii.",
+    "savedAt": "Ilihifadhiwa {time} · {size}",
+    "restore": "Rejesha",
+    "noCloudBackups": "Bado hakuna nakala rudufu kwenye wingu.",
+    "fileHelp": "Chagua faili la nakala rudufu lililohifadhiwa kwa Hifadhi kwenye USB / faili. Tumia hii kuhamishia data yako kwenye kompyuta mpya au pasipo intaneti.",
+    "chooseFile": "Chagua faili la nakala rudufu…"
+  },
+  "confirm": {
+    "title": "Rejesha {label}?",
+    "beforeLastRestore": "data ya kabla ya urejeshaji wa mwisho",
+    "backupFrom": "nakala rudufu ya {date}",
+    "replacesEverything": "Data yote kwenye kompyuta hii itabadilishwa. Mauzo yaliyorekodiwa baada ya nakala hii kutengenezwa hayataonekana tena.",
+    "canUndo": "Data yako ya sasa huhifadhiwa kwanza, hivyo unaweza kutendua hili kwa Tendua urejeshaji wa mwisho.",
+    "restartAndSignIn": "Programu itaanza upya na utahitaji kuingia tena.",
+    "action": "Rejesha na uanzishe upya"
+  },
+  "preparing": "Inaandaa nakala rudufu yako…",
+  "doNotClose": "Usifunge programu",
+  "fileFilterName": "Nakala rudufu ya Balce",
+  "toasts": {
+    "statusFailed": "Imeshindwa kupakia hali ya nakala rudufu",
+    "offlineCloudList": "Huna mtandao. Nakala rudufu za wingu zitaonekana intaneti ikirudi.",
+    "cloudListFailed": "Imeshindwa kufikia nakala rudufu za wingu",
+    "backupFailed": "Imeshindwa kuhifadhi nakala rudufu",
+    "savedOnPc": "Nakala rudufu imehifadhiwa kwenye kompyuta hii",
+    "savedOffline": "Huna mtandao. Nakala ya wingu itapakiwa yenyewe intaneti ikirudi.",
+    "savedEverywhere": "Nakala rudufu imehifadhiwa kwenye kompyuta hii na kwenye wingu",
+    "cloudUploadFailedTitle": "Nakala rudufu imehifadhiwa kwenye kompyuta hii, lakini imeshindwa kupakiwa kwenye wingu",
+    "cloudUploadFailed": "Imeshindwa kupakia kwenye wingu",
+    "retriedAutomatically": "{reason}. Itajaribiwa tena yenyewe.",
+    "exportDesktopOnly": "Kuhifadhi faili la nakala rudufu kunapatikana tu kwenye programu ya kompyuta",
+    "fileSaved": "Faili la nakala rudufu limehifadhiwa",
+    "fileSaveFailed": "Imeshindwa kuhifadhi faili la nakala rudufu",
+    "restoreDesktopOnly": "Kurejesha kutoka kwenye faili kunapatikana tu kwenye programu ya kompyuta",
+    "readyToRestart": "Nakala rudufu iko tayari. Funga programu kisha uifungue tena ili kukamilisha urejeshaji.",
+    "restoreFailed": "Imeshindwa kurejesha"
+  }
+}

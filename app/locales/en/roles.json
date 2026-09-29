@@ -1,0 +1,147 @@
+{
+  "page": {
+    "title": "Roles Management",
+    "subtitle": "Manage user roles and permissions",
+    "add": "Add Role",
+    "listTitle": "All Roles",
+    "listDescription": "A list of all roles in the system"
+  },
+  "form": {
+    "createTitle": "Create New Role",
+    "editTitle": "Edit Role",
+    "createDescription": "Add a new role to the system",
+    "editDescription": "Update the role name",
+    "name": "Role Name",
+    "namePlaceholder": "Enter role name"
+  },
+  "delete": {
+    "title": "Are you sure?",
+    "body": "This will permanently delete the role \"{name}\". This action cannot be undone."
+  },
+  "usersDialog": {
+    "title": "Users with {name} Role",
+    "empty": "No users assigned to this role"
+  },
+  "permissionsDialog": {
+    "title": "Manage Permissions for {name}",
+    "description": "Select the permissions this role should have",
+    "loading": "Loading permissions...",
+    "selectAll": "Select all permissions",
+    "selectedCount": "{selected} / {total} selected",
+    "save": "Save Permissions"
+  },
+  "resources": {
+    "products": "Products",
+    "sales": "Sales",
+    "users": "Users",
+    "roles": "Roles",
+    "shops": "Shops",
+    "stockMovements": "Stock movements",
+    "discounts": "Discounts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "notifications": "Notifications"
+  },
+  "permissions": {
+    "products": {
+      "view": "View products",
+      "create": "Create products",
+      "edit": "Edit products",
+      "delete": "Delete products"
+    },
+    "sales": {
+      "view": "View sales",
+      "create": "Create sales",
+      "edit": "Edit sales",
+      "delete": "Delete sales"
+    },
+    "users": {
+      "view": "View users",
+      "create": "Create users",
+      "edit": "Edit users",
+      "delete": "Delete users"
+    },
+    "roles": {
+      "view": "View roles",
+      "create": "Create roles",
+      "edit": "Edit roles",
+      "delete": "Delete roles"
+    },
+    "shops": {
+      "view": "View shops",
+      "create": "Create shops",
+      "edit": "Edit shops",
+      "delete": "Delete shops"
+    },
+    "stockMovements": {
+      "view": "View stock movements",
+      "create": "Create stock movements",
+      "edit": "Edit stock movements",
+      "delete": "Delete stock movements"
+    },
+    "discounts": {
+      "view": "View discounts",
+      "create": "Create discounts",
+      "edit": "Edit discounts",
+      "delete": "Delete discounts"
+    },
+    "reports": {
+      "view": "View reports",
+      "create": "Create reports",
+      "edit": "Edit reports",
+      "delete": "Delete reports"
+    },
+    "settings": {
+      "view": "View settings",
+      "create": "Create settings",
+      "edit": "Edit settings",
+      "delete": "Delete settings"
+    },
+    "notifications": {
+      "view": "View notifications",
+      "create": "Create notifications",
+      "edit": "Edit notifications",
+      "delete": "Delete notifications"
+    }
+  },
+  "table": {
+    "users": "Users",
+    "userCount": {
+      "one": "{count} user",
+      "other": "{count} users"
+    },
+    "permissions": "Permissions",
+    "granted": "{count} granted",
+    "rename": "Rename",
+    "managePermissions": "Manage permissions",
+    "viewUsers": "View users",
+    "openMenu": "Open menu",
+    "searchPlaceholder": "Search roles...",
+    "total": {
+      "one": "{count} role total",
+      "other": "{count} roles total"
+    }
+  },
+  "validation": {
+    "nameRequired": "Role name is required"
+  },
+  "toasts": {
+    "loadFailed": "Failed to load roles",
+    "loadOneFailed": "Failed to load role",
+    "created": "Role created",
+    "createFailed": "Failed to create role",
+    "updated": "Role updated",
+    "updateFailed": "Failed to update role",
+    "deleted": "Role deleted",
+    "deleteFailed": "Failed to delete role",
+    "assigned": "Role assigned",
+    "assignFailed": "Failed to assign role",
+    "permissionsLoadFailed": "Failed to load permissions",
+    "userPermissionsLoadFailed": "Failed to load user permissions",
+    "rolePermissionsLoadFailed": "Failed to load role permissions",
+    "rolePermissionsSaved": "Role permissions updated",
+    "rolePermissionsFailed": "Failed to update role permissions",
+    "userPermissionsSaved": "User permissions updated",
+    "userPermissionsFailed": "Failed to update user permissions"
+  }
+}
