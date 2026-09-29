@@ -125,6 +125,15 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| support / get help | msaada / pata msaada | |
+| message (to support) | ujumbe (jumbe) | |
+| question | swali | |
+| problem | tatizo | |
+| billing | malipo | |
+| idea | wazo | |
+| screenshot | picha ya skrini | |
+| technical details | maelezo ya kiufundi | |
+| app version | toleo la programu | |
 
 Style:
 - Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".

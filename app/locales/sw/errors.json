@@ -64,5 +64,8 @@
   "already_uploaded": "Kiungo hiki kimeshatumika",
   "expired": "Kiungo hiki kimeisha muda wake. Tengeneza kipya.",
   "invalid_printer_port": "Huo si mlango wa printa. Tumia mlango wa COM, printa ya serial au USB, au printa iliyoshirikiwa kwenye kompyuta hii.",
-  "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN."
+  "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN.",
+  "message_length": "Andika herufi kati ya 5 na 5000",
+  "contact_required": "Weka barua pepe au namba ya simu ili tukupate",
+  "invalid_phone": "Tumia namba ya simu ya Tanzania kama 0712 345 678"
 }
