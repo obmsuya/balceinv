@@ -50,10 +50,12 @@ export const formatPhone = (rawPhone: string): string => {
   return [localDigits.slice(0, 4), localDigits.slice(4, 7), localDigits.slice(7)].filter(Boolean).join(' ')
 }
 
-export const describeDuration = (days: number): string => {
-  if (days % 365 === 0) return days === 365 ? '1 year' : `${days / 365} years`
-  if (days % 30 === 0) return days === 30 ? '1 month' : `${days / 30} months`
-  return days === 1 ? '1 day' : `${days} days`
+export type DurationUnit = 'year' | 'month' | 'day'
+
+export const describeDuration = (days: number): { unit: DurationUnit; count: number } => {
+  if (days % 365 === 0) return { unit: 'year', count: days / 365 }
+  if (days % 30 === 0) return { unit: 'month', count: days / 30 }
+  return { unit: 'day', count: days }
 }
 
 export const formatShillings = (value: string | number): string => {

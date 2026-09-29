@@ -49,6 +49,7 @@ const {
 } = useLicense()
 
 const isOnline = useOnline()
+const { t, formatDate } = useI18n()
 const showResendAfterSeconds = 30
 
 const step = ref<PaymentStep>('plan')
@@ -82,7 +83,7 @@ const orderedPackages = computed(() => {
 })
 
 const providerLabel = computed(() =>
-  mobileMoneyOptions.find(option => option.value === provider.value)?.label ?? 'mobile money',
+  mobileMoneyOptions.find(option => option.value === provider.value)?.label ?? t('license.payment.mobileMoney'),
 )
 
 const stepNumber = computed(() => {
@@ -101,7 +102,7 @@ const waitingClock = computed(() => {
 const paidUntil = computed(() => {
   const expiresAt = licenseStatus.value?.expires_at
   if (!expiresAt) return ''
-  return new Date(expiresAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
+  return formatDate(expiresAt, { day: 'numeric', month: 'long', year: 'numeric' })
 })
 
 const monthsIn = (days: number): number => (days % 365 === 0 ? (days / 365) * 12 : days / 30)
@@ -111,8 +112,15 @@ const monthlyCost = (licensePackage: LicensePackage): number =>
 
 const pricePerMonth = (licensePackage: LicensePackage): string => {
   if (monthsIn(licensePackage.days_granted) < 2) return ''
-  return `${formatShillings(monthlyCost(licensePackage))} / month`
+  return t('license.payment.perMonth', { price: formatShillings(monthlyCost(licensePackage)) })
 }
+
+const durationText = (days: number): string => {
+  const duration = describeDuration(days)
+  return t(`license.duration.${duration.unit}`, { count: duration.count })
+}
+
+const stepLabels = computed(() => [t('license.payment.stepPlan'), t('license.payment.stepPay'), t('license.payment.stepConfirm')])
 
 const bestValuePackageId = computed(() => {
   if (licensePackages.value.length < 2) return null
@@ -184,8 +192,8 @@ const startWaiting = async () => {
 
 const submitPayment = async () => {
   const normalizedPhone = normalizePhone(phoneInput.value)
-  if (!normalizedPhone) phoneError.value = 'Enter a phone number like 0712 345 678'
-  if (!provider.value) providerError.value = 'Choose the network'
+  if (!normalizedPhone) phoneError.value = t('license.payment.phoneInvalid')
+  if (!provider.value) providerError.value = t('license.payment.chooseNetwork')
   if (!normalizedPhone || !provider.value || !selectedPackage.value || isSubmitting.value) return
 
   isSubmitting.value = true
@@ -195,7 +203,7 @@ const submitPayment = async () => {
     await payForLicense({ phone: normalizedPhone, provider: provider.value, package_id: selectedPackage.value.id })
     startWaiting()
   } catch (error: any) {
-    failureMessage.value = readLicenseError(error, 'The payment could not be started. Try again.')
+    failureMessage.value = readLicenseError(error, 'license.payment.startFailed')
     step.value = 'failed'
   } finally {
     isSubmitting.value = false
@@ -210,10 +218,10 @@ const cancelWaiting = () => {
 
 <template>
   <div class="flex flex-col gap-5">
-    <ol class="flex items-center gap-2 text-xs font-medium" aria-label="Payment steps">
+    <ol class="flex items-center gap-2 text-xs font-medium" :aria-label="t('license.payment.stepsLabel')">
       <li
-        v-for="(stepLabel, stepIndex) in ['Plan', 'Pay', 'Confirm']"
-        :key="stepLabel"
+        v-for="(stepLabel, stepIndex) in stepLabels"
+        :key="stepIndex"
         class="flex flex-1 items-center gap-2"
       >
         <span
@@ -244,7 +252,7 @@ const cancelWaiting = () => {
         <WifiOff class="size-8 text-muted-foreground/60" />
         <p class="text-sm text-muted-foreground max-w-xs">{{ packagesError }}</p>
         <Button variant="outline" :disabled="packagesLoading" @click="fetchPackages">
-          <RefreshCw class="size-4 mr-2" :class="packagesLoading ? 'animate-spin' : ''" />Try again
+          <RefreshCw class="size-4 mr-2" :class="packagesLoading ? 'animate-spin' : ''" />{{ t('common.actions.retry') }}
         </Button>
       </div>
 
@@ -253,9 +261,9 @@ const cancelWaiting = () => {
         class="flex flex-col items-center gap-3 rounded-xl border border-dashed py-8 px-4 text-center"
       >
         <Package class="size-8 text-muted-foreground/60" />
-        <p class="text-sm text-muted-foreground">No plans are available right now.</p>
+        <p class="text-sm text-muted-foreground">{{ t('license.payment.noPlans') }}</p>
         <Button variant="outline" @click="fetchPackages">
-          <RefreshCw class="size-4 mr-2" />Try again
+          <RefreshCw class="size-4 mr-2" />{{ t('common.actions.retry') }}
         </Button>
       </div>
 
@@ -280,14 +288,14 @@ const cancelWaiting = () => {
             <span
               v-if="licensePackage.id === currentPackage?.id"
               class="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-            >Current</span>
+            >{{ t('license.payment.current') }}</span>
             <span
               v-else-if="licensePackage.id === bestValuePackageId"
               class="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
-            >Best value</span>
+            >{{ t('license.payment.bestValue') }}</span>
           </div>
           <p class="text-xs text-muted-foreground mt-0.5">
-            {{ describeDuration(licensePackage.days_granted) }} · {{ licensePackage.max_devices }} {{ licensePackage.max_devices === 1 ? 'device' : 'devices' }}
+            {{ durationText(licensePackage.days_granted) }} · {{ t('license.payment.devices', { count: licensePackage.max_devices }) }}
           </p>
         </div>
         <div class="text-right">
@@ -303,14 +311,14 @@ const cancelWaiting = () => {
       <div class="flex items-center gap-3 rounded-xl border bg-muted/40 px-4 py-3">
         <div class="min-w-0 flex-1">
           <p class="text-sm font-medium truncate">{{ selectedPackage?.name }}</p>
-          <p class="text-xs text-muted-foreground">{{ describeDuration(selectedPackage?.days_granted ?? 0) }}</p>
+          <p class="text-xs text-muted-foreground">{{ durationText(selectedPackage?.days_granted ?? 0) }}</p>
         </div>
         <p class="font-bold tabular-nums">{{ formatShillings(selectedPackage?.price ?? 0) }}</p>
-        <Button type="button" variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="step = 'plan'">Change</Button>
+        <Button type="button" variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="step = 'plan'">{{ t('license.payment.change') }}</Button>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label for="payment-phone" class="text-sm font-medium">Phone number that will pay</label>
+        <label for="payment-phone" class="text-sm font-medium">{{ t('license.payment.phoneLabel') }}</label>
         <div class="relative">
           <Phone class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -332,10 +340,10 @@ const cancelWaiting = () => {
 
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-medium">Network</span>
-          <span v-if="provider && !providerPickedByHand" class="text-xs text-muted-foreground">Picked from the number</span>
+          <span class="text-sm font-medium">{{ t('license.payment.network') }}</span>
+          <span v-if="provider && !providerPickedByHand" class="text-xs text-muted-foreground">{{ t('license.payment.pickedFromNumber') }}</span>
         </div>
-        <div class="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Mobile money network">
+        <div class="grid grid-cols-5 gap-2" role="radiogroup" :aria-label="t('license.payment.networkLabel')">
           <button
             v-for="option in mobileMoneyOptions"
             :key="option.value"
@@ -357,16 +365,16 @@ const cancelWaiting = () => {
       </div>
 
       <div v-if="!isOnline" class="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-        <WifiOff class="size-4 shrink-0" />No internet connection. Connect to pay.
+        <WifiOff class="size-4 shrink-0" />{{ t('license.payment.noInternet') }}
       </div>
 
       <Button type="submit" class="h-12 w-full text-base" :disabled="isSubmitting || !isOnline">
         <RefreshCw v-if="isSubmitting" class="size-4 mr-2 animate-spin" />
         <Wallet v-else class="size-4 mr-2" />
-        {{ isSubmitting ? 'Sending request…' : `Pay ${formatShillings(selectedPackage?.price ?? 0)}` }}
+        {{ isSubmitting ? t('license.payment.sendingRequest') : t('license.payment.payAmount', { amount: formatShillings(selectedPackage?.price ?? 0) }) }}
       </Button>
       <p class="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-        <ShieldCheck class="size-3.5" />A pop-up will appear on the phone. Enter the PIN to confirm.
+        <ShieldCheck class="size-3.5" />{{ t('license.payment.popupHint') }}
       </p>
     </form>
 
@@ -378,25 +386,25 @@ const cancelWaiting = () => {
         </span>
       </div>
       <div class="flex flex-col gap-1">
-        <h3 class="text-lg font-semibold">Check the phone</h3>
+        <h3 class="text-lg font-semibold">{{ t('license.payment.checkPhone') }}</h3>
         <p class="text-sm text-muted-foreground">
-          Enter the {{ providerLabel }} PIN on <span class="font-medium text-foreground tabular-nums">{{ phoneInput }}</span>
-          to pay <span class="font-medium text-foreground">{{ formatShillings(selectedPackage?.price ?? 0) }}</span>.
+          {{ t('license.payment.enterPinOn', { provider: providerLabel }) }} <span class="font-medium text-foreground tabular-nums">{{ phoneInput }}</span>
+          {{ t('license.payment.toPay') }} <span class="font-medium text-foreground">{{ formatShillings(selectedPackage?.price ?? 0) }}</span>.
         </p>
       </div>
       <div class="w-full max-w-xs">
         <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div class="h-full w-1/3 animate-[pulse_1.5s_ease-in-out_infinite] rounded-full bg-primary" />
         </div>
-        <p class="mt-2 text-xs text-muted-foreground tabular-nums">Waiting for confirmation · {{ waitingClock }}</p>
+        <p class="mt-2 text-xs text-muted-foreground tabular-nums">{{ t('license.payment.waiting', { clock: waitingClock }) }}</p>
       </div>
       <div class="flex flex-col items-center gap-2">
-        <p v-if="waitingSeconds >= showResendAfterSeconds" class="text-xs text-muted-foreground">Didn't get the pop-up?</p>
+        <p v-if="waitingSeconds >= showResendAfterSeconds" class="text-xs text-muted-foreground">{{ t('license.payment.noPopup') }}</p>
         <div class="flex gap-2">
           <Button v-if="waitingSeconds >= showResendAfterSeconds" variant="outline" size="sm" @click="cancelWaiting">
-            <RefreshCw class="size-3.5 mr-1.5" />Send again
+            <RefreshCw class="size-3.5 mr-1.5" />{{ t('license.payment.sendAgain') }}
           </Button>
-          <Button variant="ghost" size="sm" @click="cancelWaiting">Cancel</Button>
+          <Button variant="ghost" size="sm" @click="cancelWaiting">{{ t('common.actions.cancel') }}</Button>
         </div>
       </div>
     </section>
@@ -406,12 +414,13 @@ const cancelWaiting = () => {
         <CheckCircle2 class="size-10 text-primary" />
       </span>
       <div class="flex flex-col gap-1">
-        <h3 class="text-lg font-semibold">Payment received</h3>
+        <h3 class="text-lg font-semibold">{{ t('license.payment.received') }}</h3>
         <p class="text-sm text-muted-foreground">
-          Your subscription is active<template v-if="paidUntil"> until <span class="font-medium text-foreground">{{ paidUntil }}</span></template>.
+          <template v-if="paidUntil">{{ t('license.payment.activeUntil') }} <span class="font-medium text-foreground">{{ paidUntil }}</span>.</template>
+          <template v-else>{{ t('license.payment.activeNoDate') }}</template>
         </p>
       </div>
-      <Button class="h-11 w-full" @click="emit('finish')">Continue</Button>
+      <Button class="h-11 w-full" @click="emit('finish')">{{ t('common.actions.continue') }}</Button>
     </section>
 
     <section v-else-if="step === 'not-confirmed'" class="flex flex-col gap-4">
@@ -419,16 +428,16 @@ const cancelWaiting = () => {
         <span class="flex size-16 items-center justify-center rounded-full bg-amber-500/15">
           <Clock class="size-8 text-amber-600 dark:text-amber-400" />
         </span>
-        <h3 class="text-lg font-semibold">Not confirmed yet</h3>
+        <h3 class="text-lg font-semibold">{{ t('license.payment.notConfirmedTitle') }}</h3>
         <p class="text-sm text-muted-foreground">
-          If the PIN was already entered, the money may still be on its way.
-          <span class="font-medium text-foreground">Do not pay twice.</span> Press Check again in a minute.
+          {{ t('license.payment.notConfirmedBody') }}
+          <span class="font-medium text-foreground">{{ t('license.payment.doNotPayTwice') }}</span> {{ t('license.payment.checkInAMinute') }}
         </p>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <Button variant="outline" class="h-11" @click="step = 'pay'">Pay again</Button>
+        <Button variant="outline" class="h-11" @click="step = 'pay'">{{ t('license.payment.payAgain') }}</Button>
         <Button class="h-11" @click="startWaiting">
-          <RefreshCw class="size-4 mr-2" />Check again
+          <RefreshCw class="size-4 mr-2" />{{ t('license.payment.checkAgain') }}
         </Button>
       </div>
     </section>
@@ -438,12 +447,12 @@ const cancelWaiting = () => {
         <span class="flex size-16 items-center justify-center rounded-full bg-destructive/10">
           <XCircle class="size-8 text-destructive" />
         </span>
-        <h3 class="text-lg font-semibold">Payment not started</h3>
+        <h3 class="text-lg font-semibold">{{ t('license.payment.notStartedTitle') }}</h3>
         <p class="text-sm text-muted-foreground">{{ failureMessage }}</p>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <Button variant="outline" class="h-11" @click="step = 'plan'">Change plan</Button>
-        <Button class="h-11" @click="step = 'pay'">Try again</Button>
+        <Button variant="outline" class="h-11" @click="step = 'plan'">{{ t('license.payment.changePlan') }}</Button>
+        <Button class="h-11" @click="step = 'pay'">{{ t('common.actions.retry') }}</Button>
       </div>
     </section>
   </div>

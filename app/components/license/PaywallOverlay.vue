@@ -20,6 +20,7 @@ const {
 } = useLicense()
 
 const { user, logout } = useAuth()
+const { t, formatDate } = useI18n()
 
 const licenseStatusPollIntervalMilliseconds = 60000
 const firstStatusRetryMilliseconds = 3000
@@ -28,10 +29,11 @@ const reloadAfterPaymentMilliseconds = 1500
 const currentUserCanManageBilling = computed(() => user.value?.role === 'Admin')
 const isUnlocking = ref(false)
 const lockScreenVisible = computed(() => isHardLocked.value || isUnlocking.value)
-const paymentDialogTitle = ref('Renew subscription')
+const dialogOpenedDuringTrial = ref(false)
+const paymentDialogTitle = computed(() => (dialogOpenedDuringTrial.value ? t('license.paywall.subscribeTitle') : t('license.paywall.renewTitle')))
 
 watch(paymentDialogOpen, (isOpen) => {
-  if (isOpen) paymentDialogTitle.value = isTrial.value ? 'Subscribe' : 'Renew subscription'
+  if (isOpen) dialogOpenedDuringTrial.value = isTrial.value
 })
 
 let licenseStatusPollInterval: ReturnType<typeof setInterval> | null = null
@@ -59,9 +61,9 @@ watch(isHardLocked, (locked, wasLocked) => {
 
 const finishDialogPayment = () => {
   paymentDialogOpen.value = false
-  toast.success('Subscription active', {
+  toast.success(t('license.paywall.subscriptionActive'), {
     description: licenseStatus.value?.expires_at
-      ? `Paid until ${new Date(licenseStatus.value.expires_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`
+      ? t('license.paywall.paidUntil', { date: formatDate(licenseStatus.value.expires_at, { day: 'numeric', month: 'long', year: 'numeric' }) })
       : undefined,
   })
 }
@@ -83,7 +85,7 @@ const copyDeviceId = async () => {
     <DialogContent class="sm:max-w-lg">
       <DialogHeader>
         <DialogTitle>{{ paymentDialogTitle }}</DialogTitle>
-        <DialogDescription>Pay with mobile money. It takes about a minute.</DialogDescription>
+        <DialogDescription>{{ t('license.paywall.dialogDescription') }}</DialogDescription>
       </DialogHeader>
       <PaymentFlow @finish="finishDialogPayment" />
     </DialogContent>
@@ -108,22 +110,22 @@ const copyDeviceId = async () => {
         </span>
 
         <template v-if="isUnlocking">
-          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">All set</h1>
-          <p class="text-sm text-muted-foreground">Opening the POS…</p>
+          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">{{ t('license.paywall.allSet') }}</h1>
+          <p class="text-sm text-muted-foreground">{{ t('license.paywall.opening') }}</p>
         </template>
         <template v-else-if="lockReason === 'clock'">
-          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">The computer's date is wrong</h1>
+          <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">{{ t('license.paywall.clockTitle') }}</h1>
           <p class="text-sm text-muted-foreground max-w-sm">
-            Set the correct date and time on this computer, then press Check again. Your data is safe.
+            {{ t('license.paywall.clockBody') }}
           </p>
         </template>
         <template v-else>
           <h1 id="lock-screen-title" class="text-2xl font-semibold tracking-tight">
-            {{ lockReason === 'missing' ? 'Activate the POS' : 'Subscription ended' }}
+            {{ lockReason === 'missing' ? t('license.paywall.activateTitle') : t('license.paywall.endedTitle') }}
           </h1>
           <p class="text-sm text-muted-foreground max-w-sm">
-            <template v-if="currentUserCanManageBilling">Choose a plan and pay with mobile money to keep selling. Your data is safe.</template>
-            <template v-else>Ask the owner or an admin to renew. Your data is safe.</template>
+            <template v-if="currentUserCanManageBilling">{{ t('license.paywall.choosePlan') }}</template>
+            <template v-else>{{ t('license.paywall.askOwner') }}</template>
           </p>
         </template>
       </div>
@@ -139,9 +141,9 @@ const copyDeviceId = async () => {
         <span class="flex size-12 items-center justify-center rounded-full bg-muted">
           <UserRound class="size-6 text-muted-foreground" />
         </span>
-        <p class="text-sm text-muted-foreground">An admin can sign in here and renew in about a minute.</p>
+        <p class="text-sm text-muted-foreground">{{ t('license.paywall.adminCanRenew') }}</p>
         <Button class="h-11 w-full" @click="logout">
-          <LogOut class="size-4 mr-2" />Sign in as admin
+          <LogOut class="size-4 mr-2" />{{ t('license.paywall.signInAsAdmin') }}
         </Button>
       </div>
 
@@ -151,7 +153,7 @@ const copyDeviceId = async () => {
         :disabled="loading"
         @click="fetchLicenseStatus"
       >
-        <RefreshCw class="size-4 mr-2" :class="loading ? 'animate-spin' : ''" />Check again
+        <RefreshCw class="size-4 mr-2" :class="loading ? 'animate-spin' : ''" />{{ t('license.payment.checkAgain') }}
       </Button>
 
       <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -159,12 +161,12 @@ const copyDeviceId = async () => {
           v-if="hardwareId"
           type="button"
           class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono hover:bg-muted hover:text-foreground"
-          title="Copy the device ID for support"
+          :title="t('license.paywall.copyDeviceId')"
           @click="copyDeviceId"
         >
           <Check v-if="deviceIdCopied" class="size-3 text-primary" />
           <Copy v-else class="size-3" />
-          {{ deviceIdCopied ? 'Device ID copied' : `Device ${hardwareId.slice(0, 12)}…` }}
+          {{ deviceIdCopied ? t('license.paywall.deviceIdCopied') : t('license.paywall.deviceShort', { id: hardwareId.slice(0, 12) }) }}
         </button>
         <button
           v-if="currentUserCanManageBilling || lockReason === 'clock'"
@@ -172,7 +174,7 @@ const copyDeviceId = async () => {
           class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-muted hover:text-foreground"
           @click="logout"
         >
-          <LogOut class="size-3" />Sign out
+          <LogOut class="size-3" />{{ t('license.paywall.signOut') }}
         </button>
       </div>
     </div>
