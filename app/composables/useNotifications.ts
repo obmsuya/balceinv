@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, formatRelativeTime, t } from '~/utils/i18n'
 
 export type NotificationKind = 'low_stock' | 'out_of_stock'
 
@@ -37,18 +38,11 @@ const soundSettingKey = 'notification-sound-enabled'
 
 export const notificationMessage = (notification: StockNotification): string => {
   const productName = notification.variant_label ? `${notification.product_name} · ${notification.variant_label}` : notification.product_name
-  if (notification.kind === 'out_of_stock') return `${productName} ran out`
-  return `${productName} is running low (${notification.quantity} ${notification.unit} left)`
+  if (notification.kind === 'out_of_stock') return t('notifications.messages.outOfStock', { product: productName })
+  return t('notifications.messages.lowStock', { product: productName, quantity: notification.quantity, unit: notification.unit })
 }
 
-export const relativeTime = (isoDate: string): string => {
-  const elapsedMinutes = Math.floor((Date.now() - new Date(isoDate).getTime()) / 60000)
-  if (elapsedMinutes < 1) return 'Just now'
-  if (elapsedMinutes < 60) return `${elapsedMinutes}m ago`
-  const elapsedHours = Math.floor(elapsedMinutes / 60)
-  if (elapsedHours < 24) return `${elapsedHours}h ago`
-  return new Date(isoDate).toLocaleDateString()
-}
+export const relativeTime = formatRelativeTime
 
 let audioContext: AudioContext | null = null
 
@@ -92,7 +86,7 @@ export const useNotifications = () => {
       notifications.value = notificationPage.data.items
       totalNotifications.value = notificationPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load notifications')
+      toast.error(apiErrorMessage(error, 'notifications.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -115,18 +109,18 @@ export const useNotifications = () => {
       if (readNotification) readNotification.is_read = true
       unreadCount.value = Math.max((unreadCount.value ?? 0) - markResponse.data.changed, 0)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not mark it as read')
+      toast.error(apiErrorMessage(error, 'notifications.toasts.markReadFailed'))
     }
   }
 
   const markAllRead = async (): Promise<void> => {
     try {
-      const markResponse = await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read-all', { method: 'POST' })
+      await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read-all', { method: 'POST' })
       notifications.value.forEach(notification => { notification.is_read = true })
       unreadCount.value = 0
-      toast.success(markResponse.message)
+      toast.success(t('notifications.toasts.markedAllRead'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not mark them as read')
+      toast.error(apiErrorMessage(error, 'notifications.toasts.markAllFailed'))
     }
   }
 
@@ -135,9 +129,9 @@ export const useNotifications = () => {
       const clearResponse = await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read', { method: 'DELETE' })
       notifications.value = notifications.value.filter(notification => !notification.is_read)
       totalNotifications.value = Math.max(totalNotifications.value - clearResponse.data.changed, 0)
-      toast.success(clearResponse.message)
+      toast.success(t('notifications.toasts.cleared'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not clear them')
+      toast.error(apiErrorMessage(error, 'notifications.toasts.clearFailed'))
     }
   }
 
@@ -155,7 +149,7 @@ export const useNotifications = () => {
       localStorage.setItem(soundSettingKey, String(soundEnabled.value))
     } catch {
     }
-    toast.success(soundEnabled.value ? 'Notification sound on' : 'Notification sound off')
+    toast.success(soundEnabled.value ? t('notifications.toasts.soundOn') : t('notifications.toasts.soundOff'))
   }
 
   return {
