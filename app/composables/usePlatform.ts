@@ -1,7 +1,9 @@
 export interface PlatformInfo {
   mode: 'cloud' | 'desktop'
+  lan_available: boolean
   lan_enabled: boolean
   lan_urls: string[]
+  listen_address?: string
 }
 
 interface ApiEnvelope<Payload> {
@@ -40,8 +42,8 @@ export const usePlatform = () => {
   const { $apiFetch } = useNuxtApp()
   const platform = useState<PlatformInfo | null>('platform:info', () => null)
 
-  const fetchPlatform = async (): Promise<PlatformInfo | null> => {
-    if (platform.value) return platform.value
+  const fetchPlatform = async (forceRefresh = false): Promise<PlatformInfo | null> => {
+    if (platform.value && !forceRefresh) return platform.value
     try {
       const platformResponse = await ($apiFetch as typeof $fetch)<ApiEnvelope<PlatformInfo>>('/api/platform')
       platform.value = platformResponse.data
@@ -52,11 +54,18 @@ export const usePlatform = () => {
   }
 
   const isCloud = computed(() => platform.value?.mode === 'cloud')
+  const isDesktopInstall = computed(() => platform.value?.mode === 'desktop')
+
+  const setLanEnabled = async (lanEnabled: boolean): Promise<void> => {
+    await ($apiFetch as typeof $fetch)('/api/platform/network', { method: 'PUT', body: { lan_enabled: lanEnabled } })
+  }
 
   return {
     platform,
     fetchPlatform,
+    setLanEnabled,
     isCloud,
+    isDesktopInstall,
     isTauri: isTauri(),
   }
 }

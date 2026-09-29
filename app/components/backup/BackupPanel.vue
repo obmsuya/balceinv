@@ -50,7 +50,7 @@ const {
   restartToFinishRestore,
 } = useBackup()
 
-const userIsAdmin = computed(() => user.value?.role === 'Admin')
+const userIsAdmin = computed(() => user.value?.is_owner === true)
 const localBackups = computed(() => status.value?.local_backups ?? [])
 const latestLocalBackup = computed(() => localBackups.value[0] ?? null)
 const beforeRestoreCopy = computed(() => status.value?.before_restore_copy ?? null)

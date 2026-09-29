@@ -95,6 +95,20 @@ export interface ProductLookup {
   pack_size: number
 }
 
+export interface PhoneUploadLink {
+  token: string
+  upload_urls: string[]
+  reachable: boolean
+  reason: string
+  expires_at: string
+}
+
+export interface PhoneUploadState {
+  status: 'pending' | 'done'
+  content_type?: string
+  image?: string
+}
+
 export const productPageSize = 50
 export const productImageLimitBytes = 2 * 1024 * 1024
 export const productImportLimitBytes = 5 * 1024 * 1024
@@ -134,6 +148,26 @@ export const useProducts = () => {
     try {
       const lookupResponse = await apiFetch<ApiEnvelope<ProductLookup>>('/api/products/lookup', { query: { code } })
       return lookupResponse.data
+    } catch (error: any) {
+      if ((error?.statusCode ?? error?.status) === 404) return null
+      throw error
+    }
+  }
+
+  const startPhoneUpload = async (): Promise<PhoneUploadLink | null> => {
+    try {
+      const linkResponse = await apiFetch<ApiEnvelope<PhoneUploadLink>>('/api/phone-uploads', { method: 'POST' })
+      return linkResponse.data
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Could not make a phone link')
+      return null
+    }
+  }
+
+  const checkPhoneUpload = async (token: string): Promise<PhoneUploadState | null> => {
+    try {
+      const stateResponse = await apiFetch<ApiEnvelope<PhoneUploadState>>(`/api/phone-uploads/${token}`)
+      return stateResponse.data
     } catch (error: any) {
       if ((error?.statusCode ?? error?.status) === 404) return null
       throw error
@@ -286,6 +320,8 @@ export const useProducts = () => {
     fetchProducts,
     fetchCategories,
     lookupProduct,
+    startPhoneUpload,
+    checkPhoneUpload,
     fetchProduct,
     fetchVariants,
     createProduct,

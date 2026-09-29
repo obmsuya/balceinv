@@ -171,8 +171,11 @@ const completeSale = async (payments: PaymentInput[]) => {
   }
 }
 
+const { printSaleReceipt } = usePrint()
+
 const printReceipt = (saleId: string) => {
-  window.open(`/receipts/${saleId}?print=1`, '_blank', 'width=420,height=720')
+  const hasCashPayment = completedSale.value?.payments.some(payment => payment.method === 'cash') ?? false
+  printSaleReceipt(saleId, hasCashPayment)
 }
 
 const sendSaleToEfd = async (saleId: string) => {
