@@ -1,236 +1,204 @@
 <script setup lang="ts">
+import { Boxes, CloudOff, PiggyBank, Receipt, RefreshCw, TrendingUp, Wallet } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Package, ShoppingCart, Users, DollarSign } from 'lucide-vue-next'
-import { Line, Bar } from 'vue-chartjs'
-import { 
-  Chart as ChartJS, 
-  Title, 
-  Tooltip, 
-  Legend, 
-  LineElement, 
-  LinearScale, 
-  PointElement, 
-  CategoryScale, 
-  BarElement 
-} from 'chart.js'
+import ExchangeRatesCard from '@/components/reports/ExchangeRatesCard.vue'
+import StatCard from '@/components/reports/StatCard.vue'
+import TrendChart from '@/components/reports/TrendChart.vue'
+import { formatMoney } from '~/utils/money'
+import { marginText, percentChange } from '~/utils/reportRanges'
 
-ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, BarElement)
+const autoRefreshMilliseconds = 60 * 1000
 
-const { data, pending, error, refresh } = useDashboard()
+const { user } = useAuth()
+const { dashboard, exchangeRates, loading, loadError, ratesError, fetchDashboard, fetchExchangeRates } = useDashboard()
 
-const formatCurrency = (value: number): string => formatMoney(value)
+const allShopsSelected = ref(false)
+const refreshingRates = ref(false)
+let refreshTimer: ReturnType<typeof setInterval> | null = null
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+const hasSeveralShops = computed(() => (user.value?.shops.length ?? 0) > 1 || user.value?.is_owner === true)
+const shopScope = computed(() => (allShopsSelected.value ? 'all' : ''))
+const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name ?? 'This shop')
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  const firstName = user.value?.name.split(' ')[0] ?? ''
+  if (hour < 12) return `Good morning, ${firstName}`
+  if (hour < 17) return `Good afternoon, ${firstName}`
+  return `Good evening, ${firstName}`
+})
+
+const today = computed(() => dashboard.value?.today ?? null)
+const salesChange = computed(() => dashboard.value ? percentChange(dashboard.value.today.total, dashboard.value.yesterday.total) : null)
+const profitChange = computed(() => dashboard.value ? percentChange(dashboard.value.today.gross_profit, dashboard.value.yesterday.gross_profit) : null)
+const stockAlertCount = computed(() => (dashboard.value ? dashboard.value.stock.low_count + dashboard.value.stock.out_count : 0))
+
+const reload = () => fetchDashboard(shopScope.value)
+
+const refreshRates = async () => {
+  refreshingRates.value = true
+  await fetchExchangeRates()
+  refreshingRates.value = false
 }
 
-const lineChartData = computed(() => ({
-  labels: data.value?.dailySales?.map((d: { date: string }) => formatDate(d.date)) || [],
-  datasets: [{
-    label: 'Sales',
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-    data: data.value?.dailySales?.map((d: { total: number }) => d.total) || [],
-    tension: 0.4
-  }]
-}))
+const timeOf = (isoDate: string) => new Date(isoDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
 
-const barChartData = computed(() => ({
-  labels: data.value?.topProducts?.map((p: { name: string }) => p.name) || [],
-  datasets: [{
-    label: 'Units Sold',
-    backgroundColor: '#2563eb',
-    data: data.value?.topProducts?.map((p: { totalSold: number }) => p.totalSold) || []
-  }]
-}))
+watch(allShopsSelected, reload)
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false }
-  }
-}
+onMounted(() => {
+  reload()
+  fetchExchangeRates()
+  refreshTimer = setInterval(() => {
+    if (!document.hidden) reload()
+  }, autoRefreshMilliseconds)
+})
+
+onUnmounted(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+})
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
+  <div class="mx-auto flex max-w-7xl flex-col gap-6 py-2 sm:px-2 sm:py-4">
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p class="text-muted-foreground mt-1">Overview of your inventory and sales</p>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ greeting }}</h1>
+        <p class="mt-1 text-muted-foreground">
+          {{ new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) }} ·
+          {{ allShopsSelected ? 'All shops' : activeShopName }}
+        </p>
       </div>
-      <button 
-        @click="refresh()" 
-        :disabled="pending"
-        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors"
-      >
-        {{ pending ? 'Refreshing...' : 'Refresh' }}
-      </button>
+      <div class="flex items-center gap-2">
+        <div v-if="hasSeveralShops" class="flex rounded-lg bg-muted p-1 text-sm" role="group" aria-label="Which shops">
+          <button
+            type="button"
+            class="rounded-md px-3 py-1 font-medium transition-colors"
+            :class="!allShopsSelected ? 'bg-background shadow-sm' : 'text-muted-foreground'"
+            :aria-pressed="!allShopsSelected"
+            @click="allShopsSelected = false"
+          >
+            This shop
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-1 font-medium transition-colors"
+            :class="allShopsSelected ? 'bg-background shadow-sm' : 'text-muted-foreground'"
+            :aria-pressed="allShopsSelected"
+            @click="allShopsSelected = true"
+          >
+            All shops
+          </button>
+        </div>
+        <Button variant="outline" size="icon" :disabled="loading" aria-label="Refresh the dashboard" @click="reload">
+          <RefreshCw :class="loading ? 'animate-spin' : ''" />
+        </Button>
+      </div>
     </div>
 
-    <!-- Error State -->
-    <Card v-if="error" class="border-destructive/50 bg-destructive/10">
-      <CardContent class="pt-6">
-        <p class="text-destructive">Failed to load dashboard data. Please try again.</p>
-      </CardContent>
-    </Card>
-
-    <!-- Stats Cards -->
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      <!-- Total Users -->
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Users</CardTitle>
-          <Users class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div v-if="pending" class="space-y-2">
-            <Skeleton class="h-8 w-20" />
-            <Skeleton class="h-3 w-24" />
-          </div>
-          <div v-else>
-            <div class="text-2xl font-bold">{{ data?.summary?.userCount || 0 }}</div>
-            <p class="text-xs text-muted-foreground mt-1">Registered users</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <!-- Total Products -->
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Products</CardTitle>
-          <Package class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div v-if="pending" class="space-y-2">
-            <Skeleton class="h-8 w-20" />
-            <Skeleton class="h-3 w-24" />
-          </div>
-          <div v-else>
-            <div class="text-2xl font-bold">{{ data?.summary?.productCount || 0 }}</div>
-            <p class="text-xs text-muted-foreground mt-1">In inventory</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <!-- Total Sales -->
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Sales</CardTitle>
-          <ShoppingCart class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div v-if="pending" class="space-y-2">
-            <Skeleton class="h-8 w-20" />
-            <Skeleton class="h-3 w-24" />
-          </div>
-          <div v-else>
-            <div class="text-2xl font-bold">{{ data?.summary?.saleCount || 0 }}</div>
-            <p class="text-xs text-muted-foreground mt-1">Completed orders</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <!-- Total Revenue -->
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Revenue</CardTitle>
-          <DollarSign class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div v-if="pending" class="space-y-2">
-            <Skeleton class="h-8 w-28" />
-            <Skeleton class="h-3 w-16" />
-          </div>
-          <div v-else>
-            <div class="text-2xl font-bold">{{ formatCurrency(data?.summary?.totalRevenue || 0) }}</div>
-            <p class="text-xs text-muted-foreground mt-1">All time</p>
-          </div>
-        </CardContent>
-      </Card>
+    <div v-if="loadError" class="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+      <CloudOff class="size-4 shrink-0" />
+      {{ loadError }}
     </div>
 
-    <!-- Charts Row -->
-    <div class="grid gap-6 lg:grid-cols-2">
-      <!-- Daily Sales Chart -->
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      <StatCard
+        title="Sales today"
+        :value="today ? formatMoney(today.total) : null"
+        :change="salesChange"
+        :hint="today ? `${today.sale_count} ${today.sale_count === 1 ? 'sale' : 'sales'} · vs yesterday` : ''"
+        :icon="Wallet"
+      />
+      <StatCard
+        title="Profit today"
+        :value="today ? formatMoney(today.gross_profit) : null"
+        :change="profitChange"
+        :hint="today ? `${marginText(today.margin_basis_points)} margin, after tax and cost` : ''"
+        :icon="PiggyBank"
+      />
+      <StatCard
+        title="This month"
+        :value="dashboard ? formatMoney(dashboard.month_to_date.total) : null"
+        :hint="dashboard ? `${dashboard.month_to_date.sale_count} sales · ${formatMoney(dashboard.month_to_date.gross_profit)} profit` : ''"
+        :icon="TrendingUp"
+      />
+      <NuxtLink to="/stock?status=low" class="rounded-xl transition-shadow hover:shadow-md">
+        <StatCard
+          title="Stock alerts"
+          :value="dashboard ? String(stockAlertCount) : null"
+          :hint="dashboard ? `${dashboard.stock.out_count} out · ${dashboard.stock.low_count} running low` : ''"
+          :icon="Boxes"
+        />
+      </NuxtLink>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <Card class="lg:col-span-2">
+        <CardHeader>
+          <CardTitle class="text-base">Last 14 days</CardTitle>
+          <CardDescription>Sales and gross profit per day</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Skeleton v-if="!dashboard" class="h-64 w-full" />
+          <TrendChart v-else :days="dashboard.last_two_weeks" />
+        </CardContent>
+      </Card>
+      <ExchangeRatesCard :rates="exchangeRates" :load-error="ratesError" :refreshing="refreshingRates" @refresh="refreshRates" />
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Daily Sales</CardTitle>
-          <CardDescription>Sales performance over the last 7 days</CardDescription>
+          <CardTitle class="text-base">Best sellers</CardTitle>
+          <CardDescription>By sales over the last 30 days</CardDescription>
         </CardHeader>
         <CardContent>
-          <div v-if="pending" class="space-y-3">
-            <Skeleton class="h-[250px] w-full" />
-          </div>
-          <div v-else-if="!data?.dailySales || data.dailySales.length === 0" 
-               class="h-[250px] flex items-center justify-center">
-            <p class="text-muted-foreground text-sm">No sales data available</p>
-          </div>
-          <div v-else class="h-[250px]">
-            <Line :data="lineChartData" :options="chartOptions" />
-          </div>
+          <Skeleton v-if="!dashboard" class="h-40 w-full" />
+          <p v-else-if="!dashboard.top_products.length" class="py-8 text-center text-sm text-muted-foreground">No sales in the last 30 days.</p>
+          <ol v-else class="flex flex-col gap-3">
+            <li v-for="(product, productIndex) in dashboard.top_products" :key="product.product_id" class="flex items-center gap-3">
+              <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">{{ productIndex + 1 }}</span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium">{{ product.name }}<span v-if="product.variant_label" class="text-muted-foreground"> · {{ product.variant_label }}</span></p>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div class="h-full rounded-full bg-primary" :style="{ width: `${Math.max((product.revenue / (dashboard.top_products[0]!.revenue || 1)) * 100, 2)}%` }" />
+                </div>
+              </div>
+              <div class="shrink-0 text-right">
+                <p class="text-sm font-semibold tabular-nums">{{ formatMoney(product.revenue) }}</p>
+                <p class="text-xs text-muted-foreground tabular-nums">{{ product.quantity }} sold</p>
+              </div>
+            </li>
+          </ol>
         </CardContent>
       </Card>
 
-      <!-- Top Products Chart -->
       <Card>
-        <CardHeader>
-          <CardTitle>Top Products</CardTitle>
-          <CardDescription>Best selling products by quantity</CardDescription>
+        <CardHeader class="flex flex-row items-start justify-between">
+          <div>
+            <CardTitle class="text-base">Latest sales</CardTitle>
+            <CardDescription>The most recent receipts</CardDescription>
+          </div>
+          <Button variant="ghost" size="sm" @click="navigateTo('/sales')">See all</Button>
         </CardHeader>
         <CardContent>
-          <div v-if="pending" class="space-y-3">
-            <Skeleton class="h-[250px] w-full" />
-          </div>
-          <div v-else-if="!data?.topProducts || data.topProducts.length === 0" 
-               class="h-[250px] flex items-center justify-center">
-            <p class="text-muted-foreground text-sm">No products data available</p>
-          </div>
-          <div v-else class="h-[250px]">
-            <Bar :data="barChartData" :options="chartOptions" />
-          </div>
+          <Skeleton v-if="!dashboard" class="h-40 w-full" />
+          <p v-else-if="!dashboard.recent_sales.length" class="py-8 text-center text-sm text-muted-foreground">No sales yet.</p>
+          <ul v-else class="divide-y">
+            <li v-for="recentSale in dashboard.recent_sales" :key="recentSale.id" class="flex items-center gap-3 py-2.5">
+              <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <Receipt class="size-4 text-muted-foreground" />
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-mono text-sm">{{ recentSale.receipt_number }}</p>
+                <p class="truncate text-xs text-muted-foreground">{{ timeOf(recentSale.created_at) }} · {{ recentSale.cashier_name }}<template v-if="allShopsSelected"> · {{ recentSale.shop_name }}</template></p>
+              </div>
+              <span class="shrink-0 font-semibold tabular-nums">{{ formatMoney(recentSale.total) }}</span>
+            </li>
+          </ul>
         </CardContent>
       </Card>
     </div>
-
-    <!-- Products Table -->
-    <Card>
-      <CardHeader>
-        <CardTitle>Top Products Details</CardTitle>
-        <CardDescription>Detailed view of best performing products</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div v-if="pending" class="space-y-3">
-          <Skeleton v-for="i in 5" :key="i" class="h-12 w-full" />
-        </div>
-        <div v-else-if="!data?.topProducts || data.topProducts.length === 0" 
-             class="py-12 text-center">
-          <p class="text-muted-foreground">No products available</p>
-        </div>
-        <div v-else class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b">
-                <th class="text-left py-3 px-4 font-medium text-sm">Product Name</th>
-                <th class="text-left py-3 px-4 font-medium text-sm">SKU</th>
-                <th class="text-right py-3 px-4 font-medium text-sm">Units Sold</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="product in data.topProducts" :key="product.id" 
-                  class="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                <td class="py-3 px-4">{{ product.name }}</td>
-                <td class="py-3 px-4 text-muted-foreground">{{ product.sku }}</td>
-                <td class="py-3 px-4 text-right font-semibold">{{ product.totalSold }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
   </div>
 </template>
