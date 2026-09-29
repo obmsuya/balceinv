@@ -16,7 +16,8 @@
   "paymentMethods": {
     "cash": "Cash",
     "card": "Card",
-    "mobile": "Mobile money"
+    "mobile": "Mobile money",
+    "credit": "Pay later"
   },
   "loadFailed": "This receipt could not be loaded",
   "toasts": {
@@ -25,5 +26,8 @@
     "scanFailed": "Could not scan for printers",
     "testSent": "Test print sent",
     "testFailed": "Test print failed — check the connection"
-  }
+  },
+  "customer": "Customer",
+  "balanceOwed": "Balance owed",
+  "order": "Order"
 }
