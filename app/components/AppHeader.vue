@@ -23,6 +23,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import UpdateIndicator from '@/components/UpdateIndicator.vue';
 import SubscriptionIndicator from '@/components/license/SubscriptionIndicator.vue';
+import ShopSwitcher from '@/components/ShopSwitcher.vue';
 
 // Color mode
 const colorMode = useColorMode();
@@ -209,6 +210,7 @@ onUnmounted(() => {
       </div>
 
       <div class="flex items-center gap-2">
+        <ShopSwitcher />
         <SubscriptionIndicator />
         <UpdateIndicator />
 
