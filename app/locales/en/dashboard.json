@@ -1,0 +1,58 @@
+{
+  "greeting": {
+    "morning": "Good morning, {name}",
+    "afternoon": "Good afternoon, {name}",
+    "evening": "Good evening, {name}"
+  },
+  "scope": {
+    "label": "Which shops",
+    "thisShop": "This shop",
+    "allShops": "All shops"
+  },
+  "refresh": "Refresh the dashboard",
+  "stats": {
+    "salesToday": "Sales today",
+    "vsYesterday": "vs yesterday",
+    "profitToday": "Profit today",
+    "profitHint": "{margin} margin, after tax and cost",
+    "thisMonth": "This month",
+    "monthProfit": "{amount} profit",
+    "stockAlerts": "Stock alerts",
+    "stockHint": "{out} out · {low} running low"
+  },
+  "trend": {
+    "title": "Last 14 days",
+    "description": "Sales and gross profit per day"
+  },
+  "bestSellers": {
+    "title": "Best sellers",
+    "description": "By sales over the last 30 days",
+    "empty": "No sales in the last 30 days.",
+    "sold": "{quantity} sold"
+  },
+  "latestSales": {
+    "title": "Latest sales",
+    "description": "The most recent receipts",
+    "seeAll": "See all",
+    "empty": "No sales yet."
+  },
+  "errors": {
+    "offline": "Cannot reach the server. Showing the last figures loaded.",
+    "loadFailed": "Could not load the dashboard"
+  },
+  "exchangeRates": {
+    "title": "Exchange rates",
+    "perUnit": "1 unit in {currency}",
+    "refresh": "Check the exchange rates again",
+    "stale": "Offline: showing the last rates saved. They refresh once online.",
+    "updated": "Updated {time}",
+    "source": "Rates by {source}",
+    "referenceOnly": "For reference, not for pricing",
+    "loadFailed": "Cannot reach the server for exchange rates.",
+    "problems": {
+      "needsInternet": "Exchange rates need an internet connection the first time. They will show once this computer is online.",
+      "unreadable": "The saved exchange rates could not be read. They will refresh when online.",
+      "notPublished": "No exchange rates are published for {currency}."
+    }
+  }
+}

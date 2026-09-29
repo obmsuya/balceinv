@@ -1,0 +1,58 @@
+{
+  "greeting": {
+    "morning": "Habari za asubuhi, {name}",
+    "afternoon": "Habari za mchana, {name}",
+    "evening": "Habari za jioni, {name}"
+  },
+  "scope": {
+    "label": "Maduka yapi",
+    "thisShop": "Duka hili",
+    "allShops": "Maduka yote"
+  },
+  "refresh": "Onyesha upya dashibodi",
+  "stats": {
+    "salesToday": "Mauzo ya leo",
+    "vsYesterday": "ukilinganisha na jana",
+    "profitToday": "Faida ya leo",
+    "profitHint": "Faida ya {margin}, baada ya kodi na gharama",
+    "thisMonth": "Mwezi huu",
+    "monthProfit": "faida {amount}",
+    "stockAlerts": "Tahadhari za stoku",
+    "stockHint": "{out} zimeisha · {low} zinakaribia kuisha"
+  },
+  "trend": {
+    "title": "Siku 14 zilizopita",
+    "description": "Mauzo na faida ghafi kwa kila siku"
+  },
+  "bestSellers": {
+    "title": "Zinazouzwa zaidi",
+    "description": "Kwa mauzo ya siku 30 zilizopita",
+    "empty": "Hakuna mauzo katika siku 30 zilizopita.",
+    "sold": "{quantity} zimeuzwa"
+  },
+  "latestSales": {
+    "title": "Mauzo ya karibuni",
+    "description": "Risiti za hivi karibuni",
+    "seeAll": "Tazama zote",
+    "empty": "Bado hakuna mauzo."
+  },
+  "errors": {
+    "offline": "Imeshindwa kufikia seva. Inaonyesha takwimu za mwisho zilizopakiwa.",
+    "loadFailed": "Imeshindwa kupakia dashibodi"
+  },
+  "exchangeRates": {
+    "title": "Viwango vya kubadilisha fedha",
+    "perUnit": "Thamani ya sarafu moja kwa {currency}",
+    "refresh": "Angalia tena viwango vya kubadilisha fedha",
+    "stale": "Hakuna mtandao: inaonyesha viwango vya mwisho vilivyohifadhiwa. Vitasasishwa ukiwa mtandaoni.",
+    "updated": "Vimesasishwa {time}",
+    "source": "Viwango kutoka {source}",
+    "referenceOnly": "Kwa marejeleo tu, si kwa kupanga bei",
+    "loadFailed": "Imeshindwa kufikia seva kupata viwango vya kubadilisha fedha.",
+    "problems": {
+      "needsInternet": "Viwango vya kubadilisha fedha vinahitaji intaneti mara ya kwanza. Vitaonekana kompyuta hii ikiunganishwa mtandaoni.",
+      "unreadable": "Viwango vya kubadilisha fedha vilivyohifadhiwa havikuweza kusomwa. Vitasasishwa ukiwa mtandaoni.",
+      "notPublished": "Hakuna viwango vya kubadilisha fedha vilivyotolewa kwa {currency}."
+    }
+  }
+}
