@@ -41,6 +41,15 @@ export const useAddons = () => {
     }
   }
 
+  const fetchActiveAddons = async (productId: string): Promise<ProductAddon[]> => {
+    try {
+      const addonResponse = await apiFetch<ApiEnvelope<ProductAddon[]>>(`/api/products/${productId}/addons`)
+      return (addonResponse.data ?? []).filter(addon => addon.is_active)
+    } catch {
+      return []
+    }
+  }
+
   const createAddon = async (productId: string, addonFields: AddonFields): Promise<ProductAddon | undefined> => {
     loading.value = true
     try {
@@ -98,6 +107,7 @@ export const useAddons = () => {
     addons,
     loading,
     fetchAddons,
+    fetchActiveAddons,
     createAddon,
     updateAddon,
     deleteAddon,
