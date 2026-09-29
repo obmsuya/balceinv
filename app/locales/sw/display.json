@@ -1,0 +1,14 @@
+{
+  "title": "Skrini ya mteja",
+  "welcome": "Karibu",
+  "itemsHint": "Bidhaa zako zitaonekana hapa",
+  "thanks": "Asante!",
+  "paid": "Umelipa",
+  "change": "Chenji",
+  "itemCount": {
+    "one": "Bidhaa {count}",
+    "other": "Bidhaa {count}"
+  },
+  "youSave": "Umepata punguzo la {amount}",
+  "total": "Jumla"
+}

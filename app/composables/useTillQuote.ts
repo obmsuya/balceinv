@@ -1,4 +1,5 @@
 import { useDebounceFn } from '@vueuse/core'
+import { apiErrorMessage, t } from '~/utils/i18n'
 import type { CartLine } from '~/composables/useCart'
 import type { SaleLine, SaleLineInput, SaleQuote } from '~/composables/useSales'
 
@@ -80,7 +81,7 @@ export const useTillQuote = () => {
     } catch (error: any) {
       if (generation !== quoteGeneration) return
       const isOffline = !error?.status && !error?.statusCode
-      quoteError.value = isOffline ? 'Cannot reach the server to price the cart. Check the connection.' : error?.data?.message || 'Could not price the cart'
+      quoteError.value = isOffline ? t('pos.quote.offline') : apiErrorMessage(error, 'pos.quote.failed')
     } finally {
       if (generation === quoteGeneration) quoting.value = false
     }

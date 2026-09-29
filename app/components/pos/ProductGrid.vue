@@ -13,6 +13,7 @@ const props = defineProps<{
   searchText: string
 }>()
 const emit = defineEmits<{ choose: [product: Product]; more: [] }>()
+const { t } = useI18n()
 
 const pulsingId = ref<string | null>(null)
 let pulseTimer: ReturnType<typeof setTimeout> | null = null
@@ -39,7 +40,7 @@ const hasMore = computed(() => props.products.length < props.totalProducts)
 
     <div v-else-if="!products.length" class="flex flex-col items-center gap-2 py-16 text-center text-muted-foreground">
       <PackageSearch class="size-10 opacity-40" />
-      <p class="text-sm">{{ searchText ? `Nothing matches “${searchText}”` : 'No products yet' }}</p>
+      <p class="text-sm">{{ searchText ? t('pos.search.noMatch', { text: searchText }) : t('pos.grid.noProducts') }}</p>
     </div>
 
     <template v-else>
@@ -51,7 +52,7 @@ const hasMore = computed(() => props.products.length < props.totalProducts)
           class="group relative flex h-40 flex-col overflow-hidden rounded-xl border bg-card text-left transition-all duration-150 hover:border-primary/60 hover:shadow-sm active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100"
           :class="pulsingId === product.id ? 'scale-[0.97] border-primary ring-2 ring-primary/40' : ''"
           :disabled="isOut(product)"
-          :aria-label="`${product.name}, ${formatMoney(product.price)}${isOut(product) ? ', out of stock' : ''}`"
+          :aria-label="t(isOut(product) ? 'pos.grid.productLabelOut' : 'pos.grid.productLabel', { name: product.name, price: formatMoney(product.price) })"
           @click="choose(product)"
         >
           <div class="relative flex h-20 shrink-0 items-center justify-center overflow-hidden bg-muted" :class="isOut(product) ? 'opacity-40' : ''">
@@ -69,9 +70,9 @@ const hasMore = computed(() => props.products.length < props.totalProducts)
             <span class="line-clamp-2 text-sm font-medium leading-snug" :class="isOut(product) ? 'text-muted-foreground' : ''">{{ product.name }}</span>
             <span class="flex items-end justify-between gap-1">
               <span class="text-sm font-bold tabular-nums">{{ formatMoney(product.price) }}</span>
-              <span v-if="isOut(product)" class="rounded bg-destructive/10 px-1.5 py-0.5 text-[11px] font-medium text-destructive">Out</span>
+              <span v-if="isOut(product)" class="rounded bg-destructive/10 px-1.5 py-0.5 text-[11px] font-medium text-destructive">{{ t('pos.grid.out') }}</span>
               <span v-else-if="product.variant_count === 0" class="text-[11px] tabular-nums" :class="isLow(product) ? 'font-medium text-amber-600 dark:text-amber-400' : 'text-muted-foreground'">
-                {{ product.quantity ?? 0 }} left
+                {{ t('pos.grid.left', { count: product.quantity ?? 0 }) }}
               </span>
             </span>
           </div>
@@ -79,8 +80,8 @@ const hasMore = computed(() => props.products.length < props.totalProducts)
       </div>
 
       <div v-if="hasMore" class="flex flex-col items-center gap-1 py-4">
-        <Button variant="outline" size="sm" :disabled="loading" @click="emit('more')">Show more</Button>
-        <span class="text-xs text-muted-foreground">{{ products.length }} of {{ totalProducts }} shown · search to find one faster</span>
+        <Button variant="outline" size="sm" :disabled="loading" @click="emit('more')">{{ t('common.actions.showMore') }}</Button>
+        <span class="text-xs text-muted-foreground">{{ t('pos.grid.shownOf', { shown: products.length, total: totalProducts }) }}</span>
       </div>
     </template>
   </div>

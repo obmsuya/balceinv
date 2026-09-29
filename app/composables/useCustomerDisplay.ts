@@ -1,4 +1,5 @@
 import { isTauri } from '~/composables/usePlatform'
+import { t } from '~/utils/i18n'
 
 export interface CustomerDisplayLine {
   name: string
@@ -53,7 +54,7 @@ export const useCustomerDisplay = () => {
         await existingWindow.setFocus()
         return
       }
-      new WebviewWindow(displayWindowLabel, { url: '/display', title: 'Customer display', width: 1024, height: 768 })
+      new WebviewWindow(displayWindowLabel, { url: '/display', title: t('display.title'), width: 1024, height: 768 })
       return
     }
     const displayWindow = window.open('/display', displayWindowLabel, 'popup,width=1024,height=768')

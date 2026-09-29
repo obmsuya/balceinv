@@ -5,8 +5,8 @@ export type NumberPadKey = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' |
 
 const props = withDefaults(defineProps<{ allowDecimal?: boolean; enterLabel?: string }>(), {
   allowDecimal: false,
-  enterLabel: 'OK',
 })
+const { t } = useI18n()
 const emit = defineEmits<{ press: [key: NumberPadKey] }>()
 
 const digitRows: NumberPadKey[][] = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']]
@@ -14,7 +14,7 @@ const bottomRow = computed<NumberPadKey[]>(() => (props.allowDecimal ? ['00', '0
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-1.5 select-none" role="group" aria-label="Number pad">
+  <div class="grid grid-cols-4 gap-1.5 select-none" role="group" :aria-label="t('pos.numpad.label')">
     <template v-for="(digitRow, rowIndex) in digitRows" :key="rowIndex">
       <button
         v-for="digit in digitRow"
@@ -30,7 +30,7 @@ const bottomRow = computed<NumberPadKey[]>(() => (props.allowDecimal ? ['00', '0
         v-if="rowIndex === 0"
         type="button"
         class="flex h-11 items-center justify-center rounded-lg border bg-background transition-colors hover:bg-muted active:scale-95"
-        aria-label="Delete the last digit"
+        :aria-label="t('pos.numpad.deleteLast')"
         @mousedown.prevent
         @click="emit('press', 'back')"
       >
@@ -43,7 +43,7 @@ const bottomRow = computed<NumberPadKey[]>(() => (props.allowDecimal ? ['00', '0
         @mousedown.prevent
         @click="emit('press', 'clear')"
       >
-        Clear
+        {{ t('pos.numpad.clear') }}
       </button>
       <button
         v-else
@@ -53,7 +53,7 @@ const bottomRow = computed<NumberPadKey[]>(() => (props.allowDecimal ? ['00', '0
         @click="emit('press', 'enter')"
       >
         <CornerDownLeft class="size-5" />
-        {{ enterLabel }}
+        {{ enterLabel ?? t('pos.numpad.ok') }}
       </button>
     </template>
     <div class="col-span-3 grid gap-1.5" :class="bottomRow.length === 3 ? 'grid-cols-3' : 'grid-cols-2'">

@@ -4,9 +4,11 @@ import type { CustomerDisplayState } from '~/composables/useCustomerDisplay'
 import { customerDisplayChannelName, customerDisplayStorageKey, readCustomerDisplay } from '~/composables/useCustomerDisplay'
 import { assetUrl } from '~/composables/useSettings'
 import { applyBrandColor, cachedBrandColor } from '~/utils/brandTheme'
+import { restoreSavedLocale } from '~/utils/i18n'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Customer display' })
+const { t, formatDate } = useI18n()
+useHead({ title: computed(() => t('display.title')) })
 
 const pollMilliseconds = 1000
 
@@ -27,11 +29,12 @@ const showState = async (nextState: CustomerDisplayState | null) => {
 }
 
 const tickClock = () => {
-  clockText.value = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+  clockText.value = formatDate(new Date(), { hour: '2-digit', minute: '2-digit' })
 }
 
 const onStorage = (storageEvent: StorageEvent) => {
   if (storageEvent.key === customerDisplayStorageKey) showState(readCustomerDisplay())
+  if (storageEvent.key === 'balce-locale') restoreSavedLocale()
 }
 
 onMounted(() => {
@@ -71,19 +74,19 @@ onUnmounted(() => {
 
     <main v-if="phase === 'idle'" class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
       <ShoppingBag class="size-20 text-primary" />
-      <p class="text-5xl font-bold">Karibu · Welcome</p>
-      <p class="text-2xl text-muted-foreground">Your items will appear here</p>
+      <p class="text-5xl font-bold">{{ t('display.welcome') }}</p>
+      <p class="text-2xl text-muted-foreground">{{ t('display.itemsHint') }}</p>
     </main>
 
     <main v-else-if="phase === 'paid'" class="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-      <p class="text-5xl font-bold">Asante · Thank you!</p>
+      <p class="text-5xl font-bold">{{ t('display.thanks') }}</p>
       <div class="grid grid-cols-2 gap-6 text-left">
         <div class="rounded-2xl bg-muted px-8 py-6">
-          <p class="text-xl text-muted-foreground">Paid</p>
+          <p class="text-xl text-muted-foreground">{{ t('display.paid') }}</p>
           <p class="text-4xl font-bold tabular-nums">{{ displayState?.paid }}</p>
         </div>
         <div class="rounded-2xl bg-primary px-8 py-6 text-primary-foreground">
-          <p class="text-xl opacity-80">Change</p>
+          <p class="text-xl opacity-80">{{ t('display.change') }}</p>
           <p class="text-4xl font-bold tabular-nums">{{ displayState?.change }}</p>
         </div>
       </div>
@@ -103,9 +106,9 @@ onUnmounted(() => {
         </div>
       </div>
       <aside class="flex flex-col justify-end gap-3 border-t bg-muted/40 p-8 lg:border-l lg:border-t-0">
-        <p class="text-xl text-muted-foreground">{{ displayState?.itemCount }} {{ displayState?.itemCount === 1 ? 'item' : 'items' }}</p>
-        <p v-if="displayState?.discount" class="text-xl text-emerald-700 dark:text-emerald-400">You save {{ displayState.discount }}</p>
-        <p class="text-xl text-muted-foreground">Total · Jumla</p>
+        <p class="text-xl text-muted-foreground">{{ t('display.itemCount', { count: displayState?.itemCount ?? 0 }) }}</p>
+        <p v-if="displayState?.discount" class="text-xl text-emerald-700 dark:text-emerald-400">{{ t('display.youSave', { amount: displayState.discount }) }}</p>
+        <p class="text-xl text-muted-foreground">{{ t('display.total') }}</p>
         <p class="break-all text-6xl font-bold tabular-nums">{{ displayState?.total }}</p>
       </aside>
     </main>

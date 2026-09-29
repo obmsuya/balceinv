@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
+const { t } = useI18n()
+
 const display = ref('0')
 const leftOperand = ref<number | null>(null)
 const operator = ref<string | null>(null)
@@ -83,7 +85,7 @@ const operators = [
 <template>
   <Popover>
     <PopoverTrigger as-child>
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" :aria-label="t('pos.calculator.open')">
         <CalculatorIcon />
       </Button>
     </PopoverTrigger>

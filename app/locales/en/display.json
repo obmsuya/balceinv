@@ -1,0 +1,14 @@
+{
+  "title": "Customer display",
+  "welcome": "Karibu · Welcome",
+  "itemsHint": "Your items will appear here",
+  "thanks": "Asante · Thank you!",
+  "paid": "Paid",
+  "change": "Change",
+  "itemCount": {
+    "one": "{count} item",
+    "other": "{count} items"
+  },
+  "youSave": "You save {amount}",
+  "total": "Total · Jumla"
+}

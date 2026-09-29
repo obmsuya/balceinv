@@ -5,13 +5,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import NumberPad from '@/components/pos/NumberPad.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import type { PaymentInput, PaymentMethod } from '@/composables/useSales'
-import { paymentMethodLabels } from '@/composables/useSales'
+import { paymentMethodLabel } from '@/composables/useSales'
 import { currencyCode, currencyDecimals, formatMoney, inputTextToMinor, majorToMinor, minorToInputText } from '~/utils/money'
 
 const props = defineProps<{ total: number; saving: boolean; numpadEnabled: boolean }>()
 const emit = defineEmits<{ pay: [payments: PaymentInput[]] }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const { t } = useI18n()
 
 const methodIcons: Record<PaymentMethod, any> = { cash: Banknote, card: CreditCard, mobile: Smartphone }
 const methods: PaymentMethod[] = ['cash', 'card', 'mobile']
@@ -35,9 +36,9 @@ const stillOwed = computed(() => Math.max(props.total - paidTotal.value, 0))
 const change = computed(() => Math.max(paidTotal.value - props.total, 0))
 
 const problem = computed(() => {
-  if (hasBadAmount.value) return 'Amounts must be numbers'
-  if (paidTotal.value < props.total) return `${formatMoney(stillOwed.value)} still owed`
-  if (nonCashTotal.value > props.total) return 'Card and mobile money cannot be more than the total'
+  if (hasBadAmount.value) return t('pos.payment.badAmount')
+  if (paidTotal.value < props.total) return t('pos.payment.stillOwed', { amount: formatMoney(stillOwed.value) })
+  if (nonCashTotal.value > props.total) return t('pos.payment.nonCashTooMuch')
   return ''
 })
 
@@ -104,14 +105,14 @@ const pressNumpad = (key: NumberPadKey) => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[95dvh] overflow-y-auto" :class="numpadEnabled ? 'sm:max-w-2xl' : 'sm:max-w-md'">
       <DialogHeader>
-        <DialogTitle>Take payment</DialogTitle>
-        <DialogDescription class="sr-only">Enter how the customer pays</DialogDescription>
+        <DialogTitle>{{ t('pos.payment.title') }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('pos.payment.description') }}</DialogDescription>
       </DialogHeader>
 
       <form class="grid gap-4" :class="numpadEnabled ? 'sm:grid-cols-[1fr_15rem]' : ''" @submit.prevent="submit">
         <div class="flex flex-col gap-3">
           <div class="flex items-baseline justify-between rounded-xl bg-muted/60 px-4 py-3">
-            <span class="text-sm text-muted-foreground">To pay</span>
+            <span class="text-sm text-muted-foreground">{{ t('pos.payment.toPay') }}</span>
             <span class="text-3xl font-bold tabular-nums">{{ formatMoney(total) }}</span>
           </div>
 
@@ -120,11 +121,11 @@ const pressNumpad = (key: NumberPadKey) => {
               type="button"
               class="flex w-36 shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
               :class="activeMethod === method ? 'border-primary' : ''"
-              :title="`Pay the rest with ${paymentMethodLabels[method]}`"
+              :title="t('pos.payment.payRestWith', { method: paymentMethodLabel(method) })"
               @click="payRestWith(method)"
             >
-              <component :is="methodIcons[method]" class="size-4 text-muted-foreground" />
-              {{ paymentMethodLabels[method] }}
+              <component :is="methodIcons[method]" class="size-4 shrink-0 text-muted-foreground" />
+              <span class="truncate">{{ paymentMethodLabel(method) }}</span>
             </button>
             <input
               :id="`payment-${method}`"
@@ -132,7 +133,7 @@ const pressNumpad = (key: NumberPadKey) => {
               inputmode="decimal"
               :placeholder="`0 ${currencyCode()}`"
               class="h-11 w-full min-w-0 rounded-lg border bg-transparent px-3 text-right text-lg tabular-nums outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-              :aria-label="`${paymentMethodLabels[method]} amount`"
+              :aria-label="t('pos.payment.amountFor', { method: paymentMethodLabel(method) })"
               @focus="activeMethod = method"
               @input="replaceOnNextKey = false"
             >
@@ -147,12 +148,12 @@ const pressNumpad = (key: NumberPadKey) => {
               class="flex-1 tabular-nums"
               @click="payCashOnly(quickAmount)"
             >
-              {{ quickAmount === total ? 'Exact' : formatMoney(quickAmount) }}
+              {{ quickAmount === total ? t('pos.payment.exact') : formatMoney(quickAmount) }}
             </Button>
           </div>
 
           <div class="flex items-center justify-between rounded-xl px-4 py-3" :class="problem ? 'bg-destructive/10' : 'bg-emerald-500/10'">
-            <span class="text-sm font-medium">{{ problem && paidTotal < total ? 'Still to pay' : 'Change' }}</span>
+            <span class="text-sm font-medium">{{ problem && paidTotal < total ? t('pos.payment.stillToPay') : t('pos.payment.change') }}</span>
             <span class="text-2xl font-bold tabular-nums" :class="problem ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'">
               {{ problem && !hasBadAmount && paidTotal < total ? formatMoney(stillOwed) : formatMoney(change) }}
             </span>
@@ -160,14 +161,14 @@ const pressNumpad = (key: NumberPadKey) => {
           <p v-if="problem && paidTotal >= total" class="text-sm text-destructive">{{ problem }}</p>
 
           <div class="flex gap-2">
-            <Button type="button" variant="outline" class="h-12" @click="open = false">Back</Button>
-            <Button type="submit" class="h-12 flex-1 text-base" :disabled="Boolean(problem) || saving">{{ saving ? 'Saving…' : 'Complete sale' }}</Button>
+            <Button type="button" variant="outline" class="h-12" @click="open = false">{{ t('common.actions.back') }}</Button>
+            <Button type="submit" class="h-12 flex-1 text-base" :disabled="Boolean(problem) || saving">{{ saving ? t('common.actions.saving') : t('pos.payment.completeSale') }}</Button>
           </div>
         </div>
 
         <div v-if="numpadEnabled" class="flex flex-col justify-end gap-2">
-          <p class="text-xs text-muted-foreground">Typing into: <span class="font-medium text-foreground">{{ paymentMethodLabels[activeMethod] }}</span></p>
-          <NumberPad :allow-decimal="currencyDecimals() > 0" enter-label="Done" @press="pressNumpad" />
+          <p class="text-xs text-muted-foreground">{{ t('pos.payment.typingInto') }} <span class="font-medium text-foreground">{{ paymentMethodLabel(activeMethod) }}</span></p>
+          <NumberPad :allow-decimal="currencyDecimals() > 0" :enter-label="t('pos.payment.done')" @press="pressNumpad" />
         </div>
       </form>
     </DialogContent>
