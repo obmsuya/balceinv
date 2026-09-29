@@ -32,6 +32,8 @@ import { formatMoney, majorToMinor } from '~/utils/money'
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t, formatNumber } = useI18n()
+
 const {
   teamUnlocked,
   teamSummary,
@@ -129,7 +131,7 @@ const loadPreview = async () => {
     if (requestedBusinessType === selectedBusinessType.value) previewItems.value = catalogProducts
   } catch (error: any) {
     if (requestedBusinessType === selectedBusinessType.value) {
-      previewError.value = readCatalogError(error, 'Could not load this list')
+      previewError.value = readCatalogError(error, 'catalog.errors.previewFailed')
       previewItems.value = []
     }
   } finally {
@@ -146,7 +148,7 @@ const submitPasscode = async () => {
     passcode.value = ''
     selectedBusinessType.value = companyBusinessType.value || businessTypes[0]!.value
   } catch (error: any) {
-    passcodeError.value = readCatalogError(error, 'Could not check the passcode')
+    passcodeError.value = readCatalogError(error, 'catalog.errors.passcodeFailed')
     passcode.value = ''
     await nextTick()
     passcodeField.value?.$el?.focus?.()
@@ -192,15 +194,15 @@ const runImport = async () => {
   importFailure.value = null
   try {
     importResult.value = await importCatalogFile(selectedFile.value, selectedBusinessType.value, importMode.value)
-    toast.success(`${selectedLabel.value} list saved`, {
-      description: `${importResult.value.added} added, ${importResult.value.updated} updated`,
+    toast.success(t('catalog.team.listSaved', { name: selectedLabel.value }), {
+      description: t('catalog.team.addedUpdated', { added: formatNumber(importResult.value.added), updated: formatNumber(importResult.value.updated) }),
     })
     clearChosenFile()
     await loadPreview()
   } catch (error: any) {
     importFailure.value = error instanceof CatalogImportError
       ? { message: error.message, result: error.result }
-      : { message: 'Could not save the list', result: null }
+      : { message: t('catalog.errors.saveFailed'), result: null }
   } finally {
     importing.value = false
   }
@@ -256,7 +258,7 @@ watch(teamUnlocked, (unlocked) => {
     return
   }
   resetDialog()
-  passcodeError.value = 'The team session ended. Enter the passcode again.'
+  passcodeError.value = t('catalog.team.sessionEnded')
 })
 </script>
 
@@ -273,8 +275,8 @@ watch(teamUnlocked, (unlocked) => {
           <span class="flex size-12 items-center justify-center rounded-2xl bg-primary/10">
             <KeyRound class="size-6 text-primary" />
           </span>
-          <DialogTitle class="pt-2">Team tools</DialogTitle>
-          <DialogDescription>For the sales and support team. Enter the team passcode.</DialogDescription>
+          <DialogTitle class="pt-2">{{ t('catalog.team.lockedTitle') }}</DialogTitle>
+          <DialogDescription>{{ t('catalog.team.lockedDescription') }}</DialogDescription>
         </DialogHeader>
 
         <form class="flex flex-col gap-3" @submit.prevent="submitPasscode">
@@ -284,7 +286,7 @@ watch(teamUnlocked, (unlocked) => {
             type="password"
             autocomplete="off"
             autofocus
-            placeholder="Team passcode"
+            :placeholder="t('catalog.team.passcode')"
             class="h-11 text-center tracking-widest"
             :aria-invalid="passcodeError !== ''"
             :disabled="unlocking"
@@ -295,7 +297,7 @@ watch(teamUnlocked, (unlocked) => {
           <Button type="submit" class="h-11" :disabled="!passcode.trim() || unlocking">
             <Loader2 v-if="unlocking" class="size-4 mr-2 animate-spin" />
             <ShieldCheck v-else class="size-4 mr-2" />
-            Unlock
+            {{ t('catalog.team.unlock') }}
           </Button>
         </form>
       </template>
@@ -308,20 +310,20 @@ watch(teamUnlocked, (unlocked) => {
             </span>
             <div class="text-left">
               <DialogTitle class="flex items-center gap-2">
-                Common products
-                <Badge variant="secondary" class="gap-1 font-normal"><ShieldCheck class="size-3" />Team</Badge>
+                {{ t('catalog.team.title') }}
+                <Badge variant="secondary" class="gap-1 font-normal"><ShieldCheck class="size-3" />{{ t('catalog.team.teamBadge') }}</Badge>
               </DialogTitle>
-              <DialogDescription>Lists shops pick from when they add a product.</DialogDescription>
+              <DialogDescription>{{ t('catalog.team.description') }}</DialogDescription>
             </div>
           </div>
           <Button variant="ghost" size="sm" class="shrink-0" :disabled="importing" @click="lockNow">
-            <Lock class="size-4 mr-1.5" />Lock
+            <Lock class="size-4 mr-1.5" />{{ t('catalog.team.lock') }}
           </Button>
         </DialogHeader>
 
         <div class="flex flex-col gap-5">
           <section class="flex flex-col gap-2">
-            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Business type</p>
+            <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">{{ t('catalog.team.businessType') }}</p>
             <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <button
                 v-for="tile in businessTypeTiles"
@@ -341,21 +343,21 @@ watch(teamUnlocked, (unlocked) => {
                 </span>
                 <span class="text-sm font-medium leading-tight">{{ tile.label }}</span>
                 <span class="text-xs tabular-nums" :class="tile.count ? 'text-foreground' : 'text-muted-foreground'">
-                  {{ tile.count ? `${tile.count.toLocaleString()} products` : 'Empty' }}
+                  {{ tile.count ? t('catalog.team.productCount', { count: tile.count, formatted: formatNumber(tile.count) }) : t('catalog.team.empty') }}
                 </span>
                 <span
                   v-if="tile.value === companyBusinessType"
                   class="absolute right-2 top-2 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400"
-                >This shop</span>
+                >{{ t('catalog.team.thisShop') }}</span>
               </button>
             </div>
           </section>
 
           <section class="flex flex-col gap-3 rounded-xl border p-4">
             <div class="flex items-center justify-between gap-2">
-              <p class="text-sm font-semibold">Upload to {{ selectedLabel }}</p>
+              <p class="text-sm font-semibold">{{ t('catalog.team.uploadTo', { name: selectedLabel }) }}</p>
               <Button variant="link" size="sm" class="h-auto p-0" @click="downloadCatalogTemplate">
-                <FileSpreadsheet class="size-3.5 mr-1" />Get template
+                <FileSpreadsheet class="size-3.5 mr-1" />{{ t('catalog.team.getTemplate') }}
               </Button>
             </div>
 
@@ -368,9 +370,9 @@ watch(teamUnlocked, (unlocked) => {
               @drop.prevent="onFileDropped"
             >
               <UploadCloud class="size-8" :class="dragActive ? 'text-primary' : 'text-muted-foreground'" />
-              <span class="text-sm font-medium">Drop an Excel or CSV file, or click to choose</span>
+              <span class="text-sm font-medium">{{ t('catalog.team.dropFile') }}</span>
               <span class="text-xs text-muted-foreground">
-                Needs a <code class="rounded bg-muted px-1">name</code> column. Extra columns like strength are kept as details.
+                {{ t('catalog.team.needsColumnBefore') }} <code class="rounded bg-muted px-1">name</code> {{ t('catalog.team.needsColumnAfter') }}
               </span>
               <input
                 ref="fileInput"
@@ -389,7 +391,7 @@ watch(teamUnlocked, (unlocked) => {
                 <p class="truncate text-sm font-medium">{{ selectedFile.name }}</p>
                 <p class="text-xs text-muted-foreground">{{ formatFileSize(selectedFile.size) }}</p>
               </div>
-              <Button variant="ghost" size="icon" class="size-8" :disabled="importing" aria-label="Remove file" @click="clearChosenFile">
+              <Button variant="ghost" size="icon" class="size-8" :disabled="importing" :aria-label="t('catalog.team.removeFile')" @click="clearChosenFile">
                 <X class="size-4" />
               </Button>
             </div>
@@ -398,7 +400,7 @@ watch(teamUnlocked, (unlocked) => {
               <CircleAlert class="size-4 shrink-0" />{{ fileProblem }}
             </p>
 
-            <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="How to save the file">
+            <div class="grid grid-cols-2 gap-2" role="radiogroup" :aria-label="t('catalog.team.importMode')">
               <button
                 type="button"
                 role="radio"
@@ -408,8 +410,8 @@ watch(teamUnlocked, (unlocked) => {
                 :disabled="importing"
                 @click="importMode = 'merge'"
               >
-                <span class="block text-sm font-medium">Add and update</span>
-                <span class="block text-xs text-muted-foreground">New names are added, same names are updated</span>
+                <span class="block text-sm font-medium">{{ t('catalog.team.merge') }}</span>
+                <span class="block text-xs text-muted-foreground">{{ t('catalog.team.mergeHint') }}</span>
               </button>
               <button
                 type="button"
@@ -420,9 +422,9 @@ watch(teamUnlocked, (unlocked) => {
                 :disabled="importing"
                 @click="importMode = 'replace'"
               >
-                <span class="block text-sm font-medium">Replace all</span>
+                <span class="block text-sm font-medium">{{ t('catalog.team.replace') }}</span>
                 <span class="block text-xs text-muted-foreground">
-                  {{ selectedCount ? `Removes the ${selectedCount.toLocaleString()} products there now` : 'The list is empty now' }}
+                  {{ selectedCount ? t('catalog.team.replaceHint', { count: selectedCount, formatted: formatNumber(selectedCount) }) : t('catalog.team.replaceHintEmpty') }}
                 </span>
               </button>
             </div>
@@ -435,7 +437,7 @@ watch(teamUnlocked, (unlocked) => {
             >
               <Loader2 v-if="importing" class="size-4 mr-2 animate-spin" />
               <UploadCloud v-else class="size-4 mr-2" />
-              {{ importing ? 'Reading the file…' : importMode === 'replace' ? `Replace the ${selectedLabel} list` : `Upload to ${selectedLabel}` }}
+              {{ importing ? t('catalog.team.reading') : importMode === 'replace' ? t('catalog.team.replaceList', { name: selectedLabel }) : t('catalog.team.uploadTo', { name: selectedLabel }) }}
             </Button>
 
             <div
@@ -444,13 +446,13 @@ watch(teamUnlocked, (unlocked) => {
               role="status"
             >
               <p class="flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <Check class="size-4" />{{ selectedLabel }} list now has {{ importResult.total_in_list.toLocaleString() }} products
+                <Check class="size-4" />{{ t('catalog.team.listNowHas', { name: selectedLabel, count: importResult.total_in_list, formatted: formatNumber(importResult.total_in_list) }) }}
               </p>
               <div class="flex flex-wrap gap-1.5 text-xs">
-                <Badge variant="outline">{{ importResult.added.toLocaleString() }} added</Badge>
-                <Badge variant="outline">{{ importResult.updated.toLocaleString() }} updated</Badge>
+                <Badge variant="outline">{{ t('catalog.team.added', { count: formatNumber(importResult.added) }) }}</Badge>
+                <Badge variant="outline">{{ t('catalog.team.updated', { count: formatNumber(importResult.updated) }) }}</Badge>
                 <Badge v-if="importResult.skipped" variant="outline" class="border-amber-500/40 text-amber-700 dark:text-amber-400">
-                  {{ importResult.skipped.toLocaleString() }} rows skipped
+                  {{ t('catalog.team.rowsSkipped', { count: importResult.skipped, formatted: formatNumber(importResult.skipped) }) }}
                 </Badge>
               </div>
             </div>
@@ -464,16 +466,16 @@ watch(teamUnlocked, (unlocked) => {
             </div>
 
             <div v-if="shownProblems.length" class="flex flex-col gap-1">
-              <p class="text-xs font-medium text-muted-foreground">Rows that were skipped</p>
+              <p class="text-xs font-medium text-muted-foreground">{{ t('catalog.team.skippedRows') }}</p>
               <ul class="max-h-36 overflow-y-auto rounded-lg border divide-y text-xs">
                 <li v-for="problem in shownProblems" :key="problem.row" class="flex gap-3 px-3 py-1.5">
-                  <span class="w-14 shrink-0 tabular-nums text-muted-foreground">Row {{ problem.row }}</span>
+                  <span class="w-14 shrink-0 tabular-nums text-muted-foreground">{{ t('catalog.team.row', { row: problem.row }) }}</span>
                   <span class="min-w-0 flex-1 truncate">{{ problem.name || '—' }}</span>
                   <span class="shrink-0 text-amber-700 dark:text-amber-400">{{ problem.problem }}</span>
                 </li>
               </ul>
               <p v-if="hiddenProblemCount" class="text-xs text-muted-foreground">
-                and {{ hiddenProblemCount.toLocaleString() }} more
+                {{ t('catalog.team.andMore', { count: formatNumber(hiddenProblemCount) }) }}
               </p>
             </div>
           </section>
@@ -481,12 +483,12 @@ watch(teamUnlocked, (unlocked) => {
           <section class="flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
               <p class="text-sm font-semibold">
-                {{ selectedLabel }} list
-                <span class="font-normal text-muted-foreground">· {{ selectedCount.toLocaleString() }}</span>
+                {{ t('catalog.team.listName', { name: selectedLabel }) }}
+                <span class="font-normal text-muted-foreground">· {{ formatNumber(selectedCount) }}</span>
               </p>
               <div class="relative w-48">
                 <Search class="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                <Input v-model="previewSearch" placeholder="Search" class="h-8 pl-8 text-sm" :disabled="!previewItems.length" />
+                <Input v-model="previewSearch" :placeholder="t('common.actions.search')" class="h-8 pl-8 text-sm" :disabled="!previewItems.length" />
               </div>
             </div>
 
@@ -496,13 +498,13 @@ watch(teamUnlocked, (unlocked) => {
               </div>
               <div v-else-if="previewError" class="flex flex-col items-center gap-2 px-4 py-6 text-center text-sm">
                 <p class="text-destructive">{{ previewError }}</p>
-                <Button variant="outline" size="sm" @click="loadPreview">Try again</Button>
+                <Button variant="outline" size="sm" @click="loadPreview">{{ t('common.actions.retry') }}</Button>
               </div>
               <div v-else-if="!previewItems.length" class="px-4 py-8 text-center text-sm text-muted-foreground">
-                No common products for {{ selectedLabel }} yet. Upload a file above.
+                {{ t('catalog.team.emptyList', { name: selectedLabel }) }}
               </div>
               <div v-else-if="!matchingPreviewItems.length" class="px-4 py-8 text-center text-sm text-muted-foreground">
-                Nothing matches “{{ previewSearch }}”.
+                {{ t('catalog.team.noMatch', { search: previewSearch }) }}
               </div>
               <ul v-else class="divide-y text-sm">
                 <li
@@ -513,7 +515,7 @@ watch(teamUnlocked, (unlocked) => {
                   <span class="min-w-0 flex-1">
                     <span class="block truncate font-medium">{{ catalogProduct.name }}</span>
                     <span class="block truncate text-xs text-muted-foreground">
-                      {{ [catalogProduct.category, catalogProduct.sub_category].filter(Boolean).join(' · ') || 'No category' }}
+                      {{ [catalogProduct.category, catalogProduct.sub_category].filter(Boolean).join(' · ') || t('catalog.picker.noCategory') }}
                     </span>
                   </span>
                   <Badge variant="outline" class="shrink-0 font-normal">{{ catalogProduct.unit }}</Badge>
@@ -525,7 +527,7 @@ watch(teamUnlocked, (unlocked) => {
                   v-if="matchingPreviewItems.length > previewLimit"
                   class="px-3 py-2 text-center text-xs text-muted-foreground"
                 >
-                  Showing {{ previewLimit }} of {{ matchingPreviewItems.length.toLocaleString() }}. Search to find the rest.
+                  {{ t('catalog.team.showingSome', { shown: previewLimit, total: formatNumber(matchingPreviewItems.length) }) }}
                 </li>
               </ul>
             </div>
@@ -536,12 +538,12 @@ watch(teamUnlocked, (unlocked) => {
               variant="outline"
               size="sm"
               :disabled="!selectedCount || exporting || importing"
-              title="Save this list as JSON so it can be bundled with the next release"
+              :title="t('catalog.team.exportHint')"
               @click="exportJson"
             >
               <Loader2 v-if="exporting" class="size-4 mr-1.5 animate-spin" />
               <Braces v-else class="size-4 mr-1.5" />
-              Export for bundling
+              {{ t('catalog.team.export') }}
             </Button>
 
             <div v-if="!confirmingClear">
@@ -552,14 +554,14 @@ watch(teamUnlocked, (unlocked) => {
                 :disabled="!selectedCount || importing"
                 @click="confirmingClear = true"
               >
-                <Trash2 class="size-4 mr-1.5" />Clear list
+                <Trash2 class="size-4 mr-1.5" />{{ t('catalog.team.clearList') }}
               </Button>
             </div>
             <div v-else class="flex items-center gap-2">
-              <span class="text-sm">Remove all {{ selectedCount.toLocaleString() }}?</span>
-              <Button variant="outline" size="sm" :disabled="clearing" @click="confirmingClear = false">Keep</Button>
+              <span class="text-sm">{{ t('catalog.team.confirmClear', { count: formatNumber(selectedCount) }) }}</span>
+              <Button variant="outline" size="sm" :disabled="clearing" @click="confirmingClear = false">{{ t('catalog.team.keep') }}</Button>
               <Button variant="destructive" size="sm" :disabled="clearing" @click="confirmClear">
-                <Loader2 v-if="clearing" class="size-4 mr-1.5 animate-spin" />Remove
+                <Loader2 v-if="clearing" class="size-4 mr-1.5 animate-spin" />{{ t('common.actions.remove') }}
               </Button>
             </div>
           </section>

@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface CatalogProduct {
   id: string
@@ -60,19 +61,19 @@ export const catalogFileExtensions = ['.xlsx', '.csv']
 
 const supportPasscodeHeader = 'X-Support-Passcode'
 
-export const readCatalogError = (error: any, fallback: string): string => {
-  if (error?.statusCode === 413 || error?.status === 413) return 'This file is too big. Keep it under 4 MB.'
-  if (!error?.statusCode && !error?.status && error?.name === 'FetchError') return 'The POS service is not responding. Try again in a moment.'
-  return error?.data?.message || error?.data?.error || fallback
+export const readCatalogError = (error: any, fallbackKey: string): string => {
+  if (error?.statusCode === 413 || error?.status === 413) return t('catalog.errors.uploadTooBig')
+  if (!error?.statusCode && !error?.status && error?.name === 'FetchError') return t('catalog.errors.serviceDown')
+  return apiErrorMessage(error, fallbackKey)
 }
 
 export const catalogFileProblem = (file: File): string | null => {
   const lowerName = file.name.toLowerCase()
   if (!catalogFileExtensions.some(extension => lowerName.endsWith(extension))) {
-    return 'Use an Excel (.xlsx) or CSV (.csv) file. Old .xls files must be saved again as .xlsx.'
+    return t('catalog.errors.wrongFileType')
   }
-  if (file.size === 0) return 'This file is empty.'
-  if (file.size > catalogUploadLimitBytes) return 'This file is too big. Keep it under 4 MB, or split it.'
+  if (file.size === 0) return t('catalog.errors.emptyFile')
+  if (file.size > catalogUploadLimitBytes) return t('catalog.errors.fileTooBig')
   return null
 }
 
@@ -108,7 +109,7 @@ export const useCatalog = () => {
       catalog.value = response.data ?? []
       catalogLoaded.value = true
     } catch (error: any) {
-      loadError.value = readCatalogError(error, 'Could not load the common products')
+      loadError.value = readCatalogError(error, 'catalog.errors.loadFailed')
     } finally {
       loading.value = false
     }
@@ -145,7 +146,7 @@ export const useCatalog = () => {
       teamSummary.value = response.data
     } catch (error: any) {
       handleTeamRejection(error)
-      toast.error(readCatalogError(error, 'Could not count the common products'))
+      toast.error(readCatalogError(error, 'catalog.errors.countFailed'))
     }
   }
 
@@ -187,7 +188,7 @@ export const useCatalog = () => {
       return response.data
     } catch (error: any) {
       handleTeamRejection(error)
-      throw new CatalogImportError(readCatalogError(error, 'Could not save the list'), error?.data?.data ?? null)
+      throw new CatalogImportError(readCatalogError(error, 'catalog.errors.saveFailed'), error?.data?.data ?? null)
     }
   }
 
@@ -198,12 +199,12 @@ export const useCatalog = () => {
         query: { business_type: businessType },
         headers: teamHeaders(),
       })
-      toast.success(response.message || 'List cleared')
+      toast.success(t('catalog.team.cleared', { count: response.data?.removed ?? 0 }))
       await afterTeamListChanged(businessType)
       return true
     } catch (error: any) {
       handleTeamRejection(error)
-      toast.error(readCatalogError(error, 'Could not clear the list'))
+      toast.error(readCatalogError(error, 'catalog.errors.clearFailed'))
       return false
     }
   }
@@ -217,12 +218,12 @@ export const useCatalog = () => {
       const savePath = await saveFile(
         new Uint8Array(templateBytes),
         'common-products-template.xlsx',
-        { name: 'Excel Workbook', extensions: ['xlsx'] },
+        { name: t('products.toasts.excelWorkbook'), extensions: ['xlsx'] },
       )
-      if (savePath) toast.success('Template saved', { description: savePath })
+      if (savePath) toast.success(t('products.toasts.templateSaved'), { description: savePath })
     } catch (error: any) {
       handleTeamRejection(error)
-      toast.error(readCatalogError(error, 'Could not save the template'))
+      toast.error(readCatalogError(error, 'catalog.errors.templateFailed'))
     }
   }
 
@@ -230,7 +231,7 @@ export const useCatalog = () => {
     try {
       const catalogProducts = await fetchTeamItems(businessType)
       if (catalogProducts.length === 0) {
-        toast.error('This list is empty, there is nothing to export')
+        toast.error(t('catalog.errors.nothingToExport'))
         return
       }
       const seedEntries = catalogProducts.map(({ id: _id, business_type: _businessType, ...seedEntry }) => seedEntry)
@@ -240,9 +241,9 @@ export const useCatalog = () => {
         `${businessType}.json`,
         { name: 'JSON', extensions: ['json'] },
       )
-      if (savePath) toast.success(`${catalogProducts.length} products exported`, { description: savePath })
+      if (savePath) toast.success(t('catalog.team.exported', { count: catalogProducts.length }), { description: savePath })
     } catch (error: any) {
-      toast.error(readCatalogError(error, 'Could not export the list'))
+      toast.error(readCatalogError(error, 'catalog.errors.exportFailed'))
     }
   }
 

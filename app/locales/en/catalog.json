@@ -1,0 +1,95 @@
+{
+  "picker": {
+    "title": "Pick from common products",
+    "loading": "Loading the list…",
+    "loadFailed": "The list could not load",
+    "hint": "Fills the name, unit, category and price for you",
+    "searchPlaceholder": "Type a product name",
+    "notFound": "Not in the list. Type the details below instead.",
+    "noCategory": "No category",
+    "showingSome": "Showing {shown} of {total}. Keep typing to narrow it down."
+  },
+  "team": {
+    "lockedTitle": "Team tools",
+    "lockedDescription": "For the sales and support team. Enter the team passcode.",
+    "passcode": "Team passcode",
+    "unlock": "Unlock",
+    "sessionEnded": "The team session ended. Enter the passcode again.",
+    "title": "Common products",
+    "teamBadge": "Team",
+    "description": "Lists shops pick from when they add a product.",
+    "lock": "Lock",
+    "businessType": "Business type",
+    "productCount": {
+      "one": "{formatted} product",
+      "other": "{formatted} products"
+    },
+    "empty": "Empty",
+    "thisShop": "This shop",
+    "uploadTo": "Upload to {name}",
+    "getTemplate": "Get template",
+    "dropFile": "Drop an Excel or CSV file, or click to choose",
+    "needsColumnBefore": "Needs a",
+    "needsColumnAfter": "column. Extra columns like strength are kept as details.",
+    "removeFile": "Remove file",
+    "importMode": "How to save the file",
+    "merge": "Add and update",
+    "mergeHint": "New names are added, same names are updated",
+    "replace": "Replace all",
+    "replaceHint": {
+      "one": "Removes the {formatted} product there now",
+      "other": "Removes the {formatted} products there now"
+    },
+    "replaceHintEmpty": "The list is empty now",
+    "reading": "Reading the file…",
+    "replaceList": "Replace the {name} list",
+    "listNowHas": {
+      "one": "{name} list now has {formatted} product",
+      "other": "{name} list now has {formatted} products"
+    },
+    "added": "{count} added",
+    "updated": "{count} updated",
+    "addedUpdated": "{added} added, {updated} updated",
+    "rowsSkipped": {
+      "one": "{formatted} row skipped",
+      "other": "{formatted} rows skipped"
+    },
+    "skippedRows": "Rows that were skipped",
+    "row": "Row {row}",
+    "andMore": "and {count} more",
+    "listName": "{name} list",
+    "emptyList": "No common products for {name} yet. Upload a file above.",
+    "noMatch": "Nothing matches “{search}”.",
+    "showingSome": "Showing {shown} of {total}. Search to find the rest.",
+    "exportHint": "Save this list as JSON so it can be bundled with the next release",
+    "export": "Export for bundling",
+    "clearList": "Clear list",
+    "confirmClear": "Remove all {count}?",
+    "keep": "Keep",
+    "listSaved": "{name} list saved",
+    "cleared": {
+      "one": "Removed {count} common product",
+      "other": "Removed {count} common products"
+    },
+    "exported": {
+      "one": "{count} product exported",
+      "other": "{count} products exported"
+    }
+  },
+  "errors": {
+    "uploadTooBig": "This file is too big. Keep it under 4 MB.",
+    "serviceDown": "The POS service is not responding. Try again in a moment.",
+    "wrongFileType": "Use an Excel (.xlsx) or CSV (.csv) file. Old .xls files must be saved again as .xlsx.",
+    "emptyFile": "This file is empty.",
+    "fileTooBig": "This file is too big. Keep it under 4 MB, or split it.",
+    "loadFailed": "Could not load the common products",
+    "countFailed": "Could not count the common products",
+    "saveFailed": "Could not save the list",
+    "clearFailed": "Could not clear the list",
+    "templateFailed": "Could not save the template",
+    "nothingToExport": "This list is empty, there is nothing to export",
+    "exportFailed": "Could not export the list",
+    "previewFailed": "Could not load this list",
+    "passcodeFailed": "Could not check the passcode"
+  }
+}
