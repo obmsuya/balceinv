@@ -75,6 +75,8 @@ const hardwareForm = ref({
   print_receipt_automatically: false,
   show_tax_on_receipt: true,
   show_barcodes_on_receipt: false,
+  till_numpad_enabled: false,
+  customer_display_enabled: false,
 })
 
 // ─── Printer detection ───────────────────────────────────────────────────────
@@ -156,6 +158,8 @@ const loadForms = () => {
   hardwareForm.value.printerEnabled = s.printer_enabled ?? false
   hardwareForm.value.printerPort = s.printer_port ?? ''
   hardwareForm.value.printerModel = s.printer_model ?? ''
+  hardwareForm.value.till_numpad_enabled = s.till_numpad_enabled ?? false
+  hardwareForm.value.customer_display_enabled = s.customer_display_enabled ?? false
 
 }
 const { user } = useAuth()
@@ -239,6 +243,8 @@ const saveHardware = async () => {
       printer_enabled: hardwareForm.value.printerEnabled,
       printer_port: hardwareForm.value.printerPort,
       printer_model: hardwareForm.value.printerModel,
+      till_numpad_enabled: hardwareForm.value.till_numpad_enabled,
+      customer_display_enabled: hardwareForm.value.customer_display_enabled,
     })
   } catch {} finally {
     savingHardware.value = false
@@ -475,6 +481,31 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
+            <CardTitle class="text-base">Till extras</CardTitle>
+            <CardDescription>Only switch on what your tills use. Everything off stays hidden at the till.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm">On-screen number pad</p>
+                  <p class="text-xs text-muted-foreground">For touch screens: type quantities and cash without a keyboard</p>
+                </div>
+                <Switch v-model="hardwareForm.till_numpad_enabled" aria-label="On-screen number pad" />
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm">Customer display</p>
+                  <p class="text-xs text-muted-foreground">A second screen facing the customer shows the items, total and change</p>
+                </div>
+                <Switch v-model="hardwareForm.customer_display_enabled" aria-label="Customer display" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader class="pb-3">
             <CardTitle class="text-base">Receipt options</CardTitle>
             <CardDescription>Apply to printed and on-screen receipts</CardDescription>
           </CardHeader>
@@ -591,9 +622,9 @@ const efdBadgeLabel = computed(() => {
                   Electronic Fiscal Device
                   <Badge :variant="efdBadgeVariant">{{ efdBadgeLabel }}</Badge>
                 </CardTitle>
-                <CardDescription class="mt-0.5">Connect to TRA's EFD system for fiscal receipt compliance</CardDescription>
+                <CardDescription class="mt-0.5">Send every sale to your EFD service after it is saved</CardDescription>
               </div>
-              <Switch v-model="efdForm.efd_enabled" />
+              <Switch v-model="efdForm.efd_enabled" aria-label="Send sales to the EFD" />
             </div>
           </CardHeader>
           <CardContent v-if="efdForm.efd_enabled" class="flex flex-col gap-4">
@@ -624,8 +655,12 @@ const efdBadgeLabel = computed(() => {
           <CardContent v-else>
             <div class="rounded-md border bg-muted/40 p-3 flex items-start gap-2">
               <Wifi class="size-4 mt-0.5 text-muted-foreground shrink-0" />
-              <p class="text-sm text-muted-foreground">Enable EFD to connect this POS to the Tanzania Revenue Authority's fiscal system for compliant receipt generation.</p>
+              <p class="text-sm text-muted-foreground">When on, each sale is sent to the EFD address below. Selling keeps working if the EFD is offline; waiting receipts can be sent again from Sales History.</p>
             </div>
+            <Button v-if="settings?.efd_enabled" class="mt-3" :disabled="savingEfd" @click="saveEfd">
+              <Save class="size-4 mr-2" />
+              {{ savingEfd ? 'Saving…' : 'Turn EFD off' }}
+            </Button>
           </CardContent>
         </Card>
       </TabsContent>

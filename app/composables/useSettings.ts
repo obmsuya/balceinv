@@ -43,6 +43,8 @@ export interface Settings {
   printer_baud_rate: number
   printer_paper_width: number
   open_cash_drawer: boolean
+  till_numpad_enabled: boolean
+  customer_display_enabled: boolean
   updated_at: string
 }
 
@@ -83,6 +85,8 @@ export interface UpdateSettingsInput {
   printer_baud_rate?: number
   printer_paper_width?: number
   open_cash_drawer?: boolean
+  till_numpad_enabled?: boolean
+  customer_display_enabled?: boolean
 }
 
 interface ApiEnvelope<Payload> {
