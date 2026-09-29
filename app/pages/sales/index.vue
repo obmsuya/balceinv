@@ -1,325 +1,170 @@
 <script setup lang="ts">
-import { TrendingUp, DollarSign, ShoppingCart, Receipt, Upload, Download, FileSpreadsheet } from 'lucide-vue-next';
-import { columns } from '@/components/sales/columns';
-import DataTable from '@/components/sales/DataTable.vue';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'vue-sonner';
-import { useAuth } from '~/composables/useAuth';
-import { usePermissions } from '~/composables/usePermissions';
+import { BadgePercent, Receipt, Search, Wallet } from 'lucide-vue-next'
+import { useDebounceFn } from '@vueuse/core'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import SaleDetailsDialog from '@/components/sales/SaleDetailsDialog.vue'
+import { paymentMethodLabels, salePageSize } from '@/composables/useSales'
+import { formatMoney } from '~/utils/money'
 
-const { user } = useAuth();
-const { canCreate } = usePermissions();
+const { user } = useAuth()
+const { sales, totalSales, totals, loading, fetchSales } = useSales()
 
-const {
-  sales,
-  loading,
-  selectedSale,
-  monthlySummary,
-  fetchSales,
-  fetchSale,
-  fetchMonthlySales,
-  uploadSalesExcel,
-  downloadTemplate,
-  exportSales
-} = useSales();
+const localToday = () => {
+  const now = new Date()
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+}
 
-const showDetailsDialog = ref(false);
-const showUploadDialog = ref(false);
-const uploadFile = ref<File | null>(null);
-const exportDateRange = ref<{ start: Date | null; end: Date | null }>({
-  start: null,
-  end: null
-});
+const searchText = ref('')
+const fromDate = ref(localToday())
+const toDate = ref(localToday())
+const pageOffset = ref(0)
+const openSaleId = ref<string | null>(null)
+const showDetails = ref(false)
 
-const formatCurrency = (value: number): string => formatMoney(value)
+const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
 
-onMounted(async () => {
-  await fetchSales();
-  await fetchMonthlySales();
-});
+const reload = () => fetchSales({ searchText: searchText.value.trim(), fromDate: fromDate.value, toDate: toDate.value, offset: pageOffset.value })
 
-// ✅ FIX: Handle view-sale via direct emit from DataTable — no window listeners
-const handleViewSale = async (sale: any) => {
-  await fetchSale(sale.id);
-  showDetailsDialog.value = true;
-};
+const reloadFromFirstPage = () => {
+  pageOffset.value = 0
+  reload()
+}
 
-const handleDateFilter = async (startDate: Date | null, endDate: Date | null) => {
-  if (startDate && endDate) {
-    await fetchSales({
-      start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0]
-    });
-  } else {
-    await fetchSales();
-  }
-};
+watch(searchText, useDebounceFn(reloadFromFirstPage, 300))
+watch([fromDate, toDate], reloadFromFirstPage)
 
-const handlePaymentFilter = async (paymentType: string) => {
-  await fetchSales({ payment_type: paymentType });
-};
+const goToPage = (nextOffset: number) => {
+  pageOffset.value = Math.max(nextOffset, 0)
+  reload()
+}
 
-const handleTypeFilter = async (saleType: string) => {
-  await fetchSales({ sale_type: saleType });
-};
+const openSale = (saleId: string) => {
+  openSaleId.value = saleId
+  showDetails.value = true
+}
 
-const handleFileUpload = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0]) {
-    uploadFile.value = input.files[0];
-  }
-};
+const formatTime = (isoDate: string): string =>
+  new Date(isoDate).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
 
-const handleUpload = async () => {
-  if (!uploadFile.value) {
-    toast.error('Please select a file');
-    return;
-  }
-  try {
-    await uploadSalesExcel(uploadFile.value);
-    showUploadDialog.value = false;
-    uploadFile.value = null;
-  } catch (error) {
-    console.error('Upload failed:', error);
-  }
-};
-
-const handleExport = () => {
-  if (exportDateRange.value.start && exportDateRange.value.end) {
-    exportSales(exportDateRange.value.start, exportDateRange.value.end);
-  } else {
-    exportSales();
-  }
-};
-
-const totalRevenue = computed(() => monthlySummary.value?.total_revenue || 0);
-const totalTransactions = computed(() => monthlySummary.value?.total_transactions || 0);
-const averageTransaction = computed(() => monthlySummary.value?.average_transaction || 0);
-const totalTax = computed(() => monthlySummary.value?.total_tax || 0);
+onMounted(reload)
 </script>
 
 <template>
-  <div class="container mx-auto py-6 px-4 space-y-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">Sales</h1>
-        <p class="text-muted-foreground mt-1">View and manage sales transactions</p>
+  <div class="container mx-auto flex flex-col gap-6 py-2 sm:px-4 sm:py-6">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Sales</h1>
+      <p class="mt-1 text-muted-foreground">Every receipt<template v-if="activeShopName"> from {{ activeShopName }}</template></p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div class="relative sm:col-span-1">
+        <Label for="sales-search" class="sr-only">Receipt number</Label>
+        <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+        <Input id="sales-search" v-model="searchText" placeholder="Receipt number" class="pl-8" />
       </div>
-      <div class="flex flex-wrap gap-2">
-        <Button
-          v-if="canCreate('sales')"
-          variant="outline"
-          @click="showUploadDialog = true"
-          :disabled="loading"
-        >
-          <Upload class="mr-2 h-4 w-4" />
-          Import Sales
-        </Button>
-        <Button variant="outline" @click="downloadTemplate">
-          <Download class="mr-2 h-4 w-4" />
-          Template
-        </Button>
-        <Button variant="outline" @click="handleExport">
-          <FileSpreadsheet class="mr-2 h-4 w-4" />
-          Export Report
-        </Button>
-        <Button v-if="canCreate('sales')" @click="$router.push('/pos')">
-          <ShoppingCart class="mr-2 h-4 w-4" />
-          Go to POS
-        </Button>
+      <div class="flex items-center gap-2">
+        <Label for="sales-from" class="w-10 shrink-0 text-sm text-muted-foreground">From</Label>
+        <Input id="sales-from" v-model="fromDate" type="date" />
+      </div>
+      <div class="flex items-center gap-2">
+        <Label for="sales-to" class="w-10 shrink-0 text-sm text-muted-foreground">To</Label>
+        <Input id="sales-to" v-model="toDate" type="date" />
       </div>
     </div>
 
-    <!-- <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Revenue</CardTitle>
-          <DollarSign class="h-4 w-4 text-muted-foreground" />
+        <CardHeader class="flex flex-row items-center justify-between pb-2">
+          <CardTitle class="text-sm font-medium">Sales</CardTitle>
+          <Receipt class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div v-if="loading" class="space-y-2"><Skeleton class="h-8 w-32" /></div>
-          <div v-else class="text-2xl font-bold">{{ formatCurrency(totalRevenue) }}</div>
-          <p class="text-xs text-muted-foreground mt-1">This month</p>
+          <Skeleton v-if="!totals" class="h-7 w-12" />
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ totals.sale_count.toLocaleString() }}</p>
         </CardContent>
       </Card>
-
       <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Transactions</CardTitle>
-          <Receipt class="h-4 w-4 text-muted-foreground" />
+        <CardHeader class="flex flex-row items-center justify-between pb-2">
+          <CardTitle class="text-sm font-medium">Takings</CardTitle>
+          <Wallet class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div v-if="loading" class="space-y-2"><Skeleton class="h-8 w-20" /></div>
-          <div v-else class="text-2xl font-bold">{{ totalTransactions }}</div>
-          <p class="text-xs text-muted-foreground mt-1">This month</p>
+          <Skeleton v-if="!totals" class="h-7 w-24" />
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(totals.total) }}</p>
         </CardContent>
       </Card>
-
       <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Average Sale</CardTitle>
-          <TrendingUp class="h-4 w-4 text-muted-foreground" />
+        <CardHeader class="flex flex-row items-center justify-between pb-2">
+          <CardTitle class="text-sm font-medium">Tax included</CardTitle>
+          <Receipt class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div v-if="loading" class="space-y-2"><Skeleton class="h-8 w-28" /></div>
-          <div v-else class="text-2xl font-bold">{{ formatCurrency(averageTransaction) }}</div>
-          <p class="text-xs text-muted-foreground mt-1">Per transaction</p>
+          <Skeleton v-if="!totals" class="h-7 w-24" />
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(totals.tax_total) }}</p>
         </CardContent>
       </Card>
-
       <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Tax</CardTitle>
-          <Receipt class="h-4 w-4 text-muted-foreground" />
+        <CardHeader class="flex flex-row items-center justify-between pb-2">
+          <CardTitle class="text-sm font-medium">Discounts given</CardTitle>
+          <BadgePercent class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div v-if="loading" class="space-y-2"><Skeleton class="h-8 w-28" /></div>
-          <div v-else class="text-2xl font-bold">{{ formatCurrency(totalTax) }}</div>
-          <p class="text-xs text-muted-foreground mt-1">This month</p>
+          <Skeleton v-if="!totals" class="h-7 w-24" />
+          <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(totals.discount_total) }}</p>
         </CardContent>
       </Card>
-    </div> -->
+    </div>
 
     <Card>
-      <CardHeader>
-        <CardTitle>All Sales</CardTitle>
-        <CardDescription>Complete history of sales transactions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div v-if="loading" class="space-y-4">
-          <div class="flex gap-2">
-            <Skeleton class="h-10 flex-1" />
-            <Skeleton class="h-10 w-[180px]" />
-            <Skeleton class="h-10 w-[180px]" />
-          </div>
-          <div class="rounded-md border">
-            <div class="p-4 space-y-3">
-              <Skeleton v-for="i in 5" :key="i" class="h-12 w-full" />
-            </div>
-          </div>
+      <CardContent class="flex flex-col gap-4 px-3 sm:px-6">
+        <div v-if="loading && !sales.length" class="flex flex-col gap-2">
+          <Skeleton v-for="skeletonRow in 5" :key="skeletonRow" class="h-12 w-full" />
         </div>
-
-        <DataTable
-          v-else
-          :columns="columns"
-          :data="sales"
-          @view-sale="handleViewSale"
-          @date-filter="handleDateFilter"
-          @payment-filter="handlePaymentFilter"
-          @type-filter="handleTypeFilter"
-        />
+        <div v-else class="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Receipt</TableHead>
+                <TableHead class="hidden sm:table-cell">Cashier</TableHead>
+                <TableHead class="hidden md:table-cell">Paid by</TableHead>
+                <TableHead class="hidden text-right sm:table-cell">Items</TableHead>
+                <TableHead class="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="sale in sales" :key="sale.id" class="cursor-pointer" @click="openSale(sale.id)">
+                <TableCell>
+                  <p class="font-mono text-sm font-medium">{{ sale.receipt_number }}</p>
+                  <p class="text-xs text-muted-foreground">{{ formatTime(sale.created_at) }}</p>
+                </TableCell>
+                <TableCell class="hidden text-sm sm:table-cell">{{ sale.cashier_name }}</TableCell>
+                <TableCell class="hidden md:table-cell">
+                  <div class="flex flex-wrap gap-1">
+                    <Badge v-for="method in sale.payment_methods" :key="method" variant="outline" class="font-normal">{{ paymentMethodLabels[method] }}</Badge>
+                  </div>
+                </TableCell>
+                <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ sale.unit_count }}</TableCell>
+                <TableCell class="text-right font-semibold tabular-nums">{{ formatMoney(sale.total) }}</TableCell>
+              </TableRow>
+              <TableRow v-if="!sales.length">
+                <TableCell colspan="5" class="h-24 text-center text-muted-foreground">No sales in this period.</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+        <div v-if="totalSales > salePageSize" class="flex justify-end gap-2">
+          <Button variant="outline" size="sm" :disabled="pageOffset === 0 || loading" @click="goToPage(pageOffset - salePageSize)">Previous</Button>
+          <Button variant="outline" size="sm" :disabled="pageOffset + salePageSize >= totalSales || loading" @click="goToPage(pageOffset + salePageSize)">Next</Button>
+        </div>
       </CardContent>
     </Card>
 
-    <Dialog v-model:open="showDetailsDialog">
-      <DialogContent class="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Sale Details</DialogTitle>
-        </DialogHeader>
-        <div v-if="selectedSale" class="space-y-6">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-muted-foreground">Receipt Number</p>
-              <p class="font-mono font-semibold">{{ selectedSale.receipt_number }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Date</p>
-              <p class="font-medium">{{ new Date(selectedSale.created_at).toLocaleString() }}</p>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-muted-foreground">Payment Method</p>
-              <Badge class="mt-1">{{ selectedSale.payment_type }}</Badge>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Sale Type</p>
-              <Badge class="mt-1" :variant="selectedSale.sale_type === 'wholesale' ? 'default' : 'secondary'">
-                {{ selectedSale.sale_type }}
-              </Badge>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <p class="text-sm font-medium mb-3">Items Sold</p>
-            <div class="space-y-2">
-              <div
-                v-for="item in selectedSale.items"
-                :key="item.id"
-                class="flex justify-between items-center p-3 border rounded-lg"
-              >
-                <div class="flex-1">
-                  <p class="font-medium">{{ item.product?.name }}</p>
-                  <p class="text-sm text-muted-foreground">
-                    {{ item.quantity }} × {{ formatCurrency(item.unit_price) }}
-                    <Badge v-if="item.is_wholesale" variant="outline" class="ml-2">Wholesale</Badge>
-                  </p>
-                </div>
-                <p class="font-semibold">{{ formatCurrency(item.total_price) }}</p>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div class="space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-muted-foreground">Total</span>
-              <span class="font-semibold">{{ formatCurrency(selectedSale.total_amount) }}</span>
-            </div>
-            <p class="text-xs text-muted-foreground">* Price includes 18% VAT</p>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-
-    <Dialog v-model:open="showUploadDialog">
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Import Sales from Excel</DialogTitle>
-          <DialogDescription>
-            Upload an Excel file with your sales data. Make sure to use the provided template.
-          </DialogDescription>
-        </DialogHeader>
-        <div class="space-y-4 py-4">
-          <div class="space-y-2">
-            <Label for="file">Select Excel File</Label>
-            <Input id="file" type="file" accept=".xlsx,.xls" @change="handleFileUpload" />
-          </div>
-          <div class="text-sm text-muted-foreground">
-            <p>• Each receipt can have multiple items</p>
-            <p>• Use the same receipt number for items in the same transaction</p>
-            <p>• Date format: YYYY-MM-DD</p>
-            <p>• Payment type: cash, card, or mobile</p>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" @click="showUploadDialog = false">Cancel</Button>
-          <Button @click="handleUpload" :disabled="!uploadFile || loading">
-            <Upload class="mr-2 h-4 w-4" />
-            Import
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <SaleDetailsDialog v-model:open="showDetails" :sale-id="openSaleId" />
   </div>
 </template>
