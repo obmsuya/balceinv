@@ -39,9 +39,9 @@ for (const [key, message] of english) {
 }
 for (const key of swahili.keys()) assert.ok(english.has(key), `en is missing ${key}`)
 
-const bannedSwahiliWords = [/\barifa\b/i]
+const bannedSwahiliWords = [/\barifa\b/i, /\bskani\b/i, /\btengu/i, /\bamilish/i]
 for (const [key, message] of swahili) {
-  for (const bannedWord of bannedSwahiliWords) assert.ok(!bannedWord.test(message), `sw ${key} uses ${bannedWord}; use "taarifa"`)
+  for (const bannedWord of bannedSwahiliWords) assert.ok(!bannedWord.test(message), `sw ${key} uses ${bannedWord}; see app/locales/glossary.md`)
 }
 
 const sourceFiles = (directory: string): string[] => readdirSync(directory).flatMap((entryName) => {

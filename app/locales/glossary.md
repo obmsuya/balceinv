@@ -92,6 +92,22 @@ names. Add a row here before inventing a new term.
 | customer screen | skrini ya mteja | |
 | EFD | EFD | |
 | TIN | TIN | |
+| scan (barcode, QR) | changanua | skani |
+| undo | tendua | tengua |
+| takings | makusanyo | |
+| gross profit | faida ghafi | |
+| renew (subscription) | lipia upya | huisha |
+| activate | washa | amilisha |
+| archive (product) | weka kando | |
+| import / export | ingiza / hamisha | |
+| template | kiolezo | |
+| app / software | programu | |
+| update(s) | sasisho / masasisho | |
+| version | toleo | |
+| cloud | wingu | |
+| device | kifaa | |
+| package (plan) | kifurushi | |
+| business details | maelezo ya biashara | taarifa za biashara |
 
 Style:
 - Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".
