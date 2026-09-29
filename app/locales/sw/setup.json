@@ -60,6 +60,75 @@
   },
   "oldData": {
     "title": "Data zako za Balce ya zamani zipo kwenye kompyuta hii",
-    "body": "Toleo hili jipya huhifadhi data zake peke yake na bado halijahamisha bidhaa na mauzo yako ya zamani. Ukiweka biashara sasa, utaanza bila chochote. Wasiliana kwanza na huduma kwa wateja ya Balce ili wakuhamishie data zako."
+    "body": "Toleo hili jipya huhifadhi data zake peke yake na bado halijahamisha bidhaa na mauzo yako ya zamani. Ukiweka biashara sasa, utaanza bila chochote. Wasiliana kwanza na huduma kwa wateja ya Balce ili wakuhamishie data zako.",
+    "bodyImport": "Hamisha bidhaa, stoku, wafanyakazi na mauzo yako kwenye toleo hili jipya. Faili lako la zamani halibadilishwi."
+  },
+  "importOld": {
+    "button": "Hamisha data zangu za zamani",
+    "startEmpty": "Au weka biashara mpya isiyo na kitu hapa chini.",
+    "title": "Hamisha data zako za zamani",
+    "description": "Kila kitu kutoka Balce ya zamani kinakuja kwenye toleo hili jipya: bidhaa, stoku, wafanyakazi, wasambazaji na historia ya mauzo.",
+    "loading": "Inasoma data zako za zamani…",
+    "untouched": "Faili la data zako za zamani linabaki kama lilivyo. Hakuna kinachobadilishwa wala kufutwa.",
+    "businessName": "Jina la biashara",
+    "owner": "Akaunti ya mmiliki",
+    "ownerHint": "Mtu huyu atakuwa mmiliki na ataingia kwa barua pepe na nenosiri lake la zamani.",
+    "whatComes": "Kitakachohamishwa",
+    "counts": {
+      "products": "Bidhaa",
+      "users": "Akaunti za wafanyakazi",
+      "sales": "Mauzo",
+      "saleLines": "Bidhaa zilizouzwa",
+      "suppliers": "Wasambazaji",
+      "discounts": "Punguzo"
+    },
+    "salesRange": "Mauzo kuanzia {from} hadi {to}",
+    "noSales": "Bado hakuna mauzo",
+    "passwordsKept": "Kila mtu anabaki na nenosiri lake la zamani.",
+    "passwordsNotKept": "Baadhi ya manenosiri ya zamani hayawezi kuhamishwa. Utapewa manenosiri ya muda ya kuwapa watu.",
+    "start": "Hamisha data zangu",
+    "cancel": "Ghairi",
+    "importing": "Inahamisha data zako…",
+    "importingHint": "Kwa duka lenye mauzo mengi hii inaweza kuchukua dakika moja. Usifunge programu.",
+    "doneTitle": "Data zako za zamani zimefika",
+    "checkTitle": "Ukaguzi: programu ya zamani ikilinganishwa na mpya",
+    "check": {
+      "products": "Bidhaa",
+      "users": "Akaunti za wafanyakazi",
+      "sales": "Mauzo",
+      "saleLines": "Bidhaa zilizouzwa",
+      "suppliers": "Wasambazaji",
+      "salesValue": "Thamani ya mauzo",
+      "stockValue": "Thamani ya stoku (kwa bei ya kununua)"
+    },
+    "matched": "Zinalingana",
+    "notMatched": "Hazilingani",
+    "signInWith": "Ingia kwa {email} na nenosiri lako la zamani.",
+    "temporaryTitle": "Manenosiri ya muda",
+    "temporaryHint": "Yaandike sasa. Yanaonyeshwa mara moja tu. Kila mtu atachagua nenosiri jipya akiingia mara ya kwanza.",
+    "copy": "Nakili",
+    "copied": "Imenakiliwa",
+    "changesTitle": "Mabadiliko tuliyofanya ({count})",
+    "renamedSku": "SKU {old} → {new} ({name})",
+    "renamedBarcode": "Msimbopau {old} → {new} ({name})",
+    "changedEmail": "Barua pepe {old} → {new} ({name})",
+    "notes": {
+      "suppliers_not_imported": "Wasambazaji ambao bado hawajahamishwa: {count}",
+      "discounts_skipped": "Punguzo zilizoachwa kwa sababu zilikwisha au hazikukamilika: {count}",
+      "product_images_not_copied": "Picha za bidhaa hazijanakiliwa (ziweke tena): {count}",
+      "history_products_archived": "Bidhaa zilizofutwa, zimewekwa kando kwa ajili ya historia ya mauzo tu: {count}",
+      "negative_stock_set_to_zero": "Bidhaa zenye stoku chini ya sifuri, zimeanza na sifuri: {count}",
+      "purchases_not_imported": "Kumbukumbu za manunuzi ya zamani hazijahamishwa: {count}",
+      "efd_settings_not_copied": "Weka EFD upya kwenye Mipangilio"
+    },
+    "goToSignIn": "Nenda kuingia",
+    "mismatchTitle": "Hakuna kilichohifadhiwa",
+    "mismatchBody": "Ukaguzi umeona tofauti kati ya data za zamani na mpya, kwa hiyo tumesimama bila kuhifadhi chochote. Data zako za zamani ziko salama. Wasiliana na huduma kwa wateja ya Balce.",
+    "setUpEmpty": "Weka biashara mpya badala yake",
+    "toasts": {
+      "previewFailed": "Imeshindwa kusoma data zako za zamani",
+      "imported": "Data zako za zamani zimehamishwa",
+      "failed": "Imeshindwa kuhamisha data zako za zamani"
+    }
   }
 }

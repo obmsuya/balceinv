@@ -64,5 +64,11 @@
   "already_uploaded": "This link was already used",
   "expired": "This link has expired. Make a new one.",
   "invalid_printer_port": "That isn't a printer port. Use a COM port, a serial or USB printer, or a printer shared on this computer.",
-  "invalid_features": "Check the feature switches: credit and customer orders need customers, purchase orders need suppliers, and VAT needs a VRN."
+  "invalid_features": "Check the feature switches: credit and customer orders need customers, purchase orders need suppliers, and VAT needs a VRN.",
+  "old_data_not_found": "No data from the old Balce was found on this computer",
+  "old_data_unreadable": "The old Balce data file can't be read. It may be damaged. Contact Balce support.",
+  "import_mismatch": "The check found a difference, so nothing was saved",
+  "unknown_owner": "Choose one of the old admin accounts as the owner",
+  "no_old_users": "The old data has no staff accounts. Set up a new business instead.",
+  "business_name_missing": "Enter the business name"
 }
