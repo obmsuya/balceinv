@@ -1,37 +1,52 @@
 <script setup lang="ts">
-import { Banknote, CreditCard, Smartphone } from 'lucide-vue-next'
+import { Banknote, CalendarClock, CreditCard, Smartphone } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import NumberPad from '@/components/pos/NumberPad.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
+import type { Customer } from '@/composables/useCustomers'
 import type { PaymentInput, PaymentMethod } from '@/composables/useSales'
 import { paymentMethodLabel } from '@/composables/useSales'
 import { currencyCode, currencyDecimals, formatMoney, inputTextToMinor, majorToMinor, minorToInputText } from '~/utils/money'
 
-const props = defineProps<{ total: number; saving: boolean; numpadEnabled: boolean }>()
+const props = defineProps<{
+  total: number
+  saving: boolean
+  numpadEnabled: boolean
+  customer?: { id: string; name: string } | null
+  confirmLabel?: string
+}>()
 const emit = defineEmits<{ pay: [payments: PaymentInput[]] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 const { t } = useI18n()
+const { creditSalesOn } = useFeatures()
+const { fetchCustomer } = useCustomers()
 
-const methodIcons: Record<PaymentMethod, any> = { cash: Banknote, card: CreditCard, mobile: Smartphone }
-const methods: PaymentMethod[] = ['cash', 'card', 'mobile']
+const methodIcons: Record<PaymentMethod, any> = { cash: Banknote, card: CreditCard, mobile: Smartphone, credit: CalendarClock }
+const allMethods: PaymentMethod[] = ['cash', 'card', 'mobile', 'credit']
 
-const amountTexts = ref<Record<PaymentMethod, string>>({ cash: '', card: '', mobile: '' })
+const amountTexts = ref<Record<PaymentMethod, string>>({ cash: '', card: '', mobile: '', credit: '' })
+const creditCustomer = ref<Customer | null>(null)
+
+const creditAllowed = computed(() => creditSalesOn.value && Boolean(props.customer))
+const methods = computed<PaymentMethod[]>(() => allMethods.filter(method => method !== 'credit' || creditAllowed.value))
 const activeMethod = ref<PaymentMethod>('cash')
 const replaceOnNextKey = ref(true)
 
 const amounts = computed(() => {
   const readAmounts = {} as Record<PaymentMethod, number>
-  for (const method of methods) {
+  for (const method of allMethods) {
     const minorUnits = inputTextToMinor(amountTexts.value[method])
     readAmounts[method] = minorUnits != null && !Number.isNaN(minorUnits) ? minorUnits : 0
   }
   return readAmounts
 })
-const hasBadAmount = computed(() => methods.some(method => Number.isNaN(inputTextToMinor(amountTexts.value[method]) ?? 0)))
-const paidTotal = computed(() => methods.reduce((sum, method) => sum + amounts.value[method], 0))
-const nonCashTotal = computed(() => amounts.value.card + amounts.value.mobile)
+const hasBadAmount = computed(() => methods.value.some(method => Number.isNaN(inputTextToMinor(amountTexts.value[method]) ?? 0)))
+const paidTotal = computed(() => methods.value.reduce((sum, method) => sum + amounts.value[method], 0))
+const creditAmount = computed(() => (creditAllowed.value ? amounts.value.credit : 0))
+const nonCashTotal = computed(() => amounts.value.card + amounts.value.mobile + creditAmount.value)
+const availableCredit = computed(() => creditCustomer.value?.available_credit ?? null)
 const stillOwed = computed(() => Math.max(props.total - paidTotal.value, 0))
 const change = computed(() => Math.max(paidTotal.value - props.total, 0))
 
@@ -39,6 +54,7 @@ const problem = computed(() => {
   if (hasBadAmount.value) return t('pos.payment.badAmount')
   if (paidTotal.value < props.total) return t('pos.payment.stillOwed', { amount: formatMoney(stillOwed.value) })
   if (nonCashTotal.value > props.total) return t('pos.payment.nonCashTooMuch')
+  if (availableCredit.value != null && creditAmount.value > availableCredit.value) return t('pos.payment.overCreditLimit', { amount: formatMoney(availableCredit.value) })
   return ''
 })
 
@@ -61,10 +77,12 @@ const focusAmount = async (method: PaymentMethod) => {
   amountElement?.select()
 }
 
-watch(open, isOpen => {
+watch(open, async isOpen => {
   if (!isOpen) return
-  amountTexts.value = { cash: minorToInputText(props.total), card: '', mobile: '' }
+  amountTexts.value = { cash: minorToInputText(props.total), card: '', mobile: '', credit: '' }
   focusAmount('cash')
+  creditCustomer.value = null
+  if (creditAllowed.value && props.customer) creditCustomer.value = await fetchCustomer(props.customer.id)
 })
 
 const payRestWith = (method: PaymentMethod) => {
@@ -74,13 +92,13 @@ const payRestWith = (method: PaymentMethod) => {
 }
 
 const payCashOnly = (cashAmount: number) => {
-  amountTexts.value = { cash: minorToInputText(cashAmount), card: '', mobile: '' }
+  amountTexts.value = { cash: minorToInputText(cashAmount), card: '', mobile: '', credit: '' }
   focusAmount('cash')
 }
 
 const submit = () => {
   if (problem.value || props.saving) return
-  const payments = methods
+  const payments = methods.value
     .filter(method => amounts.value[method] > 0)
     .map(method => ({ method, amount: amounts.value[method] }))
   emit('pay', payments)
@@ -139,6 +157,15 @@ const pressNumpad = (key: NumberPadKey) => {
             >
           </div>
 
+          <p v-if="creditAllowed" class="-mt-1 text-xs text-muted-foreground">
+            <template v-if="creditCustomer">
+              {{ t('pos.payment.creditOwes', { name: creditCustomer.name, amount: formatMoney(creditCustomer.balance) }) }}
+              ·
+              {{ creditCustomer.credit_limit == null ? t('pos.payment.creditNoLimit') : t('pos.payment.creditCanTake', { amount: formatMoney(creditCustomer.available_credit ?? 0) }) }}
+            </template>
+            <template v-else>{{ t('pos.payment.creditFor', { name: customer?.name ?? '' }) }}</template>
+          </p>
+
           <div class="flex flex-wrap gap-2">
             <Button
               v-for="quickAmount in quickCashAmounts"
@@ -162,7 +189,7 @@ const pressNumpad = (key: NumberPadKey) => {
 
           <div class="flex gap-2">
             <Button type="button" variant="outline" class="h-12" @click="open = false">{{ t('common.actions.back') }}</Button>
-            <Button type="submit" class="h-12 flex-1 text-base" :disabled="Boolean(problem) || saving">{{ saving ? t('common.actions.saving') : t('pos.payment.completeSale') }}</Button>
+            <Button type="submit" class="h-12 flex-1 text-base" :disabled="Boolean(problem) || saving">{{ saving ? t('common.actions.saving') : confirmLabel ?? t('pos.payment.completeSale') }}</Button>
           </div>
         </div>
 

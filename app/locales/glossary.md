@@ -61,7 +61,7 @@ names. Add a row here before inventing a new term.
 | barcode | msimbopau | |
 | SKU | SKU | |
 | unit (pcs, kg) | kipimo | |
-| supplier | msambazaji | |
+| supplier / suppliers | msambazaji / wasambazaji | |
 | backup | nakala rudufu | |
 | restore | rejesha | |
 | network | mtandao | |
@@ -114,6 +114,16 @@ names. Add a row here before inventing a new term.
 | deposit | malipo ya awali | |
 | credit sale / debt | mauzo ya mkopo / deni (madeni) | |
 | debtor (owes the shop) | mdaiwa | |
+| debtors / who owes | wadaiwa | |
+| pay later (payment method) | lipa baadaye | |
+| credit limit (most a customer may owe) | kikomo cha deni | |
+| debt from before (customer's opening balance) | deni la zamani | |
+| customer statement | mwenendo wa deni | taarifa (that is notifications) |
+| how old the debt is (aging) | umri wa deni | |
+| payment reminder | ukumbusho | |
+| cancel a recorded payment (void) | ghairi malipo | futa |
+| hand over (customer collects an order) | kabidhi | |
+| hand back (refund a deposit) | rudisha / mrudishie | |
 | amount owed | deni | |
 | money page | fedha | |
 | accounting | uhasibu | |
@@ -125,6 +135,17 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| supplier debt (what you owe) | deni la msambazaji | |
+| supplier payment | malipo kwa msambazaji | |
+| usual supplier | msambazaji wa kawaida | |
+| invoice (from a supplier) | ankara | invoisi |
+| overdue | imechelewa | |
+| payment terms (days to pay) | siku za kulipa | |
+| void (a payment) | batilisha | futa |
+| return stock to a supplier | rudisha stoku | |
+| account statement | mwenendo wa akaunti | taarifa |
+| turn off / turn back on (a supplier) | zima / washa tena | |
+| bank | benki | |
 | books (accounting records) | vitabu vya hesabu | |
 | record / entry in the books | rekodi (full accounting: ingizo) | |
 | reverse (a record) | batilisha | futa |
@@ -132,7 +153,6 @@ names. Add a row here before inventing a new term.
 | chart of accounts | orodha ya akaunti | |
 | debit / credit | debiti / krediti | |
 | close the month | funga mwezi | |
-| account statement | mwenendo wa akaunti | taarifa (that means notification) |
 | cash book | daftari la fedha | |
 | assets / liabilities / equity | mali / madeni / mtaji | |
 | what I own / what I owe | mali yangu / madeni yangu | |

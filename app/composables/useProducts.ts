@@ -26,6 +26,7 @@ export interface Product {
   quantity: number | null
   min_stock: number | null
   variant_count: number
+  preferred_supplier_id: string | null
   barcodes: ProductBarcode[]
   created_at: string
   updated_at: string
@@ -45,6 +46,7 @@ export interface ProductFields {
   metadata: Record<string, string | number | boolean>
   barcodes: ProductBarcode[]
   min_stock: number
+  preferred_supplier_id?: string
 }
 
 export interface NewProductFields extends ProductFields {

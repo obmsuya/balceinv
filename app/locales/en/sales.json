@@ -5,7 +5,6 @@
   "sending": "Sending…",
   "sendWaiting": "Send waiting to EFD",
   "receiptNumber": "Receipt number",
-  "pdfFileType": "PDF document",
   "cards": {
     "sales": "Sales",
     "takings": "Takings",
@@ -32,6 +31,7 @@
     },
     "sendNow": "Send now",
     "printReceipt": "Print receipt",
+    "customer": "Customer: {name}",
     "a4Invoice": "A4 invoice (PDF)"
   },
   "efd": {
@@ -46,7 +46,8 @@
   "paymentMethods": {
     "cash": "Cash",
     "card": "Card",
-    "mobile": "Mobile money"
+    "mobile": "Mobile money",
+    "credit": "Pay later"
   },
   "toasts": {
     "loadFailed": "Failed to load sales",
@@ -59,5 +60,6 @@
     "serverUnreachable": "Could not reach the server",
     "documentSaved": "Invoice saved",
     "documentFailed": "The invoice could not be saved"
-  }
+  },
+  "pdfFileType": "PDF document"
 }

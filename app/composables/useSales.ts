@@ -2,7 +2,7 @@ import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
-export type PaymentMethod = 'cash' | 'card' | 'mobile'
+export type PaymentMethod = 'cash' | 'card' | 'mobile' | 'credit'
 
 export interface SaleLineInput {
   product_id: string
@@ -91,6 +91,11 @@ export interface Sale {
   currency_code: string
   currency_decimals: number
   note: string | null
+  customer_id: string | null
+  customer_name: string | null
+  customer_phone: string | null
+  credit_amount: number
+  order_number: string | null
   created_at: string
   items: SaleLine[]
   payments: PaymentInput[]
@@ -187,12 +192,12 @@ export const useSales = () => {
     return quoteResponse.data
   }
 
-  const createSale = async (clientRef: string, items: SaleLineInput[], payments: PaymentInput[], note: string | null): Promise<Sale> => {
+  const createSale = async (clientRef: string, items: SaleLineInput[], payments: PaymentInput[], note: string | null, customerId: string | null): Promise<Sale> => {
     saving.value = true
     try {
       const saleResponse = await apiFetch<ApiEnvelope<Sale>>('/api/sales', {
         method: 'POST',
-        body: { client_ref: clientRef, items, payments, note },
+        body: { client_ref: clientRef, items, payments, note, customer_id: customerId ?? undefined },
       })
       return saleResponse.data
     } finally {

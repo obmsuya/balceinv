@@ -55,10 +55,15 @@
     "change": "Chenji",
     "badAmount": "Kiasi lazima kiwe namba",
     "stillOwed": "Bado kiasi cha {amount} hakijalipwa",
-    "nonCashTooMuch": "Kadi na pesa ya simu haziwezi kuzidi jumla",
+    "nonCashTooMuch": "Kadi, pesa ya simu na lipa baadaye visizidi jumla",
     "completeSale": "Kamilisha mauzo",
     "typingInto": "Unaandika kwenye:",
-    "done": "Maliza"
+    "done": "Maliza",
+    "overCreditLimit": "Lipa baadaye imezidi kikomo chake. Anaweza kuchukua hadi {amount} zaidi.",
+    "creditOwes": "{name} anadaiwa {amount}",
+    "creditNoLimit": "hana kikomo",
+    "creditCanTake": "anaweza kuchukua {amount} zaidi",
+    "creditFor": "Lipa baadaye itaingia kwenye deni la {name}"
   },
   "grid": {
     "noProducts": "Bado hakuna bidhaa",
@@ -85,7 +90,8 @@
     "description": "Risiti {number} · {total}",
     "changeToGive": "Chenji ya kurudisha",
     "printReceipt": "Chapisha risiti",
-    "nextSale": "Mteja anayefuata"
+    "nextSale": "Mteja anayefuata",
+    "onAccount": "{amount} imeongezwa kwenye deni la {name}"
   },
   "quote": {
     "offline": "Imeshindwa kufikia seva kupata bei za kikapu. Angalia muunganisho.",
@@ -96,5 +102,10 @@
     "undo": "Tendua",
     "saleOffline": "Mauzo hayajafika kwenye seva. Jaribu tena; hayatarekodiwa mara mbili.",
     "saleFailed": "Imeshindwa kukamilisha mauzo"
+  },
+  "customer": {
+    "add": "Ongeza mteja",
+    "change": "Badilisha mteja",
+    "remove": "Ondoa mteja kwenye mauzo haya"
   }
 }
