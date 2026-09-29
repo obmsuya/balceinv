@@ -1,656 +1,274 @@
-atest
 <script setup lang="ts">
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Package, 
-  ShoppingCart, 
-  Download,
-  FileText,
-  Calendar,
-  AlertTriangle,
-  Users,
-  TrendingDown
-} from 'lucide-vue-next';
-import { Line, Pie, Bar } from 'vue-chartjs';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { BadgePercent, Banknote, CreditCard, FileSpreadsheet, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
+import * as XLSX from 'xlsx'
+import { toast } from 'vue-sonner'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import StatCard from '@/components/reports/StatCard.vue'
+import TrendChart from '@/components/reports/TrendChart.vue'
+import type { ProductSort } from '@/composables/useReports'
+import { currencyDecimals, formatMoney } from '~/utils/money'
+import { saveFile } from '~/utils/download'
+import type { RangePreset } from '~/utils/reportRanges'
+import { marginText, presetRange, rangePresetLabels, todayIn } from '~/utils/reportRanges'
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+const activeShopScope = 'active'
+const allShopsScope = 'all'
 
-const {
-  loading,
-  salesSummary,
-  topProducts,
-  salesByUser,
-  inventoryReport,
-  financialReport,
-  dailyTrend,
-  fetchSalesSummary,
-  fetchTopProducts,
-  fetchSalesByUser,
-  fetchInventoryReport,
-  fetchFinancialReport,
-  fetchDailyTrend,
-  exportExcel,
-  exportPDF
-} = useReports();
+const { user } = useAuth()
+const { summary, days, products, cashiers, shops, inventory, loading, fetchSalesReports, fetchProductRanking, fetchInventory } = useReports()
 
-const dateRange = ref<{ start: Date | null; end: Date | null }>({
-  start: null,
-  end: null
-});
+const today = todayIn(user.value?.branding?.timezone)
+const rangePreset = ref<RangePreset>('last30')
+const fromDate = ref(presetRange('last30', today).from)
+const toDate = ref(today)
+const shopScope = ref(activeShopScope)
+const productSort = ref<ProductSort>('revenue')
+const activeTab = ref('overview')
+const exporting = ref(false)
 
-const formatCurrency = (value: number): string => formatMoney(value)
+const presets: RangePreset[] = ['today', 'yesterday', 'last7', 'last30', 'thisMonth', 'lastMonth']
+const productSorts: { value: ProductSort; label: string }[] = [
+  { value: 'revenue', label: 'Sales' },
+  { value: 'quantity', label: 'Quantity' },
+  { value: 'profit', label: 'Profit' },
+]
 
-const salesTrendData = computed(() => ({
-  labels: dailyTrend.value.map(d => new Date(d.date).toLocaleDateString('en-TZ', { month: 'short', day: 'numeric' })),
-  datasets: [
-    {
-      label: 'Revenue',
-      data: dailyTrend.value.map(d => d.revenue),
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-      tension: 0.4,
-      fill: true
-    },
-    {
-      label: 'Sales Count',
-      data: dailyTrend.value.map(d => d.sales),
-      borderColor: '#10b981',
-      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      tension: 0.4,
-      fill: true,
-      yAxisID: 'y1'
-    }
-  ]
-}));
+const shopChoices = computed(() => user.value?.shops ?? [])
+const showShopPicker = computed(() => shopChoices.value.length > 1 || user.value?.is_owner === true)
+const activeShopName = computed(() => shopChoices.value.find(shop => shop.id === user.value?.shop_id)?.name ?? 'This shop')
+const scopeLabel = computed(() => {
+  if (shopScope.value === allShopsScope) return 'All shops'
+  if (shopScope.value === activeShopScope) return activeShopName.value
+  return shopChoices.value.find(shop => shop.id === shopScope.value)?.name ?? 'Shop'
+})
+const shopQuery = computed(() => (shopScope.value === activeShopScope ? '' : shopScope.value))
+const filter = computed(() => ({ from: fromDate.value, to: toDate.value, shop: shopQuery.value }))
+const rangeLabel = computed(() => {
+  const format = (isoDate: string) => new Date(`${isoDate}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+  return fromDate.value === toDate.value ? format(fromDate.value) : `${format(fromDate.value)} – ${format(toDate.value)}`
+})
+const paymentRows = computed(() => {
+  const paymentTotals = summary.value?.payments
+  if (!paymentTotals) return []
+  const paidTotal = paymentTotals.cash + paymentTotals.card + paymentTotals.mobile
+  return [
+    { label: 'Cash', icon: Banknote, amount: paymentTotals.cash },
+    { label: 'Card', icon: CreditCard, amount: paymentTotals.card },
+    { label: 'Mobile money', icon: Smartphone, amount: paymentTotals.mobile },
+  ].map(paymentRow => ({ ...paymentRow, share: paidTotal ? (paymentRow.amount / paidTotal) * 100 : 0 }))
+})
 
-const salesTrendOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  interaction: {
-    mode: 'index' as const,
-    intersect: false,
-  },
-  plugins: {
-    legend: {
-      position: 'top' as const,
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context: any) {
-          let label = context.dataset.label || '';
-          if (label) {
-            label += ': ';
-          }
-          if (context.parsed.y !== null) {
-            if (context.dataset.label === 'Revenue') {
-              label += formatCurrency(context.parsed.y);
-            } else {
-              label += context.parsed.y;
-            }
-          }
-          return label;
-        }
-      }
-    }
-  },
-  scales: {
-    y: {
-      type: 'linear' as const,
-      display: true,
-      position: 'left' as const,
-      ticks: {
-        callback: function(value: any) {
-          return formatCurrency(value);
-        }
-      }
-    },
-    y1: {
-      type: 'linear' as const,
-      display: true,
-      position: 'right' as const,
-      grid: {
-        drawOnChartArea: false,
-      },
-    }
+const choosePreset = (preset: RangePreset) => {
+  rangePreset.value = preset
+  const chosenRange = presetRange(preset, today)
+  fromDate.value = chosenRange.from
+  toDate.value = chosenRange.to
+}
+
+const onDateTyped = () => {
+  rangePreset.value = 'custom'
+}
+
+const reload = () => {
+  if (!fromDate.value || !toDate.value) return
+  if (fromDate.value > toDate.value) {
+    toast.error('The start date is after the end date')
+    return
   }
-};
+  fetchSalesReports(filter.value, productSort.value)
+  if (activeTab.value === 'stock') fetchInventory(shopQuery.value)
+}
 
-const paymentData = computed(() => ({
-  labels: ['Cash', 'Card', 'Mobile Money'],
-  datasets: [{
-    data: [
-      salesSummary.value?.cashSales || 0,
-      salesSummary.value?.cardSales || 0,
-      salesSummary.value?.mobileSales || 0
-    ],
-    backgroundColor: [
-      '#10b981',
-      '#3b82f6',
-      '#f59e0b'
-    ],
-    borderWidth: 0
-  }]
-}));
+watch([fromDate, toDate, shopScope], reload)
+watch(shopScope, chosenScope => {
+  if (chosenScope !== allShopsScope && activeTab.value === 'shops') activeTab.value = 'overview'
+})
+watch(productSort, () => fetchProductRanking(filter.value, productSort.value))
+watch(activeTab, openedTab => {
+  if (openedTab === 'stock') fetchInventory(shopQuery.value)
+})
 
-const paymentOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom' as const,
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context: any) {
-          const label = context.label || '';
-          const value = context.parsed || 0;
-          return `${label}: ${formatCurrency(value)}`;
-        }
-      }
-    }
+const marginOf = (profit: number, netRevenue: number) => (netRevenue > 0 ? marginText(Math.round((profit / netRevenue) * 10000)) : '—')
+const lastSoldText = (isoDate: string | null) => (isoDate ? new Date(isoDate).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'Never sold')
+
+const toMajor = (minorUnits: number) => minorUnits / 10 ** currencyDecimals()
+
+const exportExcel = async () => {
+  if (!summary.value) return
+  exporting.value = true
+  try {
+    const workbook = XLSX.utils.book_new()
+    const summaryRows = [
+      { Item: 'Period', Value: rangeLabel.value },
+      { Item: 'Shops', Value: scopeLabel.value },
+      { Item: 'Sales', Value: summary.value.sale_count },
+      { Item: 'Items sold', Value: summary.value.units_sold },
+      { Item: 'Takings (incl. tax)', Value: toMajor(summary.value.total) },
+      { Item: 'Tax', Value: toMajor(summary.value.tax_total) },
+      { Item: 'Net sales', Value: toMajor(summary.value.net_sales) },
+      { Item: 'Cost of goods', Value: toMajor(summary.value.cost_total) },
+      { Item: 'Gross profit', Value: toMajor(summary.value.gross_profit) },
+      { Item: 'Margin %', Value: summary.value.margin_basis_points / 100 },
+      { Item: 'Discounts given', Value: toMajor(summary.value.discount_total) },
+      { Item: 'Cash', Value: toMajor(summary.value.payments.cash) },
+      { Item: 'Card', Value: toMajor(summary.value.payments.card) },
+      { Item: 'Mobile money', Value: toMajor(summary.value.payments.mobile) },
+    ]
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(summaryRows), 'Summary')
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(days.value.map(day => ({
+      Date: day.date, Sales: day.sale_count, Takings: toMajor(day.total), Tax: toMajor(day.tax_total), Cost: toMajor(day.cost_total), 'Gross profit': toMajor(day.gross_profit),
+    }))), 'Days')
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(products.value.map(product => ({
+      Product: product.variant_label ? `${product.name} ${product.variant_label}` : product.name, SKU: product.sku, Quantity: product.quantity, Takings: toMajor(product.revenue), 'Net sales': toMajor(product.net_revenue), Cost: toMajor(product.cost_total), 'Gross profit': toMajor(product.gross_profit),
+    }))), 'Products')
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(cashiers.value.map(cashier => ({
+      Staff: cashier.name, Sales: cashier.sale_count, Takings: toMajor(cashier.total), 'Average sale': toMajor(cashier.average_sale),
+    }))), 'Staff')
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(shops.value.map(shopRow => ({
+      Shop: shopRow.name, Sales: shopRow.sale_count, Takings: toMajor(shopRow.total), Tax: toMajor(shopRow.tax_total), Cost: toMajor(shopRow.cost_total), 'Gross profit': toMajor(shopRow.gross_profit),
+    }))), 'Shops')
+    const workbookBytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+    const savedName = await saveFile(new Uint8Array(workbookBytes), `report-${fromDate.value}-to-${toDate.value}.xlsx`, { name: 'Excel Workbook', extensions: ['xlsx'] })
+    if (savedName) toast.success('Report saved', { description: savedName })
+  } catch (error: any) {
+    toast.error(error?.message || 'The report could not be saved')
+  } finally {
+    exporting.value = false
   }
-};
+}
 
-const topProductsData = computed(() => ({
-  labels: topProducts.value.map(p => p.productName),
-  datasets: [{
-    label: 'Revenue',
-    data: topProducts.value.map(p => p.totalRevenue),
-    backgroundColor: '#3b82f6',
-  }]
-}));
+const printReport = () => window.print()
 
-const topProductsOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  indexAxis: 'y' as const,
-  plugins: {
-    legend: {
-      display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context: any) {
-          return `Revenue: ${formatCurrency(context.parsed.x)}`;
-        }
-      }
-    }
-  },
-  scales: {
-    x: {
-      ticks: {
-        callback: function(value: any) {
-          return formatCurrency(value);
-        }
-      }
-    }
-  }
-};
-const { user } = useAuth();
-
-onMounted(async () => {
-  await loadAllReports();
-});
-
-const loadAllReports = async () => {
-  const range = dateRange.value.start && dateRange.value.end
-    ? {
-        startDate: dateRange.value.start.toISOString().split('T')[0],
-        endDate: dateRange.value.end.toISOString().split('T')[0]
-      }
-    : undefined;
-
-  await Promise.all([
-    fetchSalesSummary(range),
-    fetchTopProducts(range, 10),
-    fetchSalesByUser(range),
-    fetchInventoryReport(),
-    fetchFinancialReport(range),
-    fetchDailyTrend(range)
-  ]);
-};
-
-const applyDateFilter = async () => {
-  await loadAllReports();
-};
-
-const clearDateFilter = async () => {
-  dateRange.value = { start: null, end: null };
-  await loadAllReports();
-};
-
-const generateFinancialPDF = () => {
-  if (!financialReport.value || !salesSummary.value) return;
-
-  const dateRangeText = dateRange.value.start && dateRange.value.end
-    ? `From ${dateRange.value.start.toLocaleDateString()} to ${dateRange.value.end.toLocaleDateString()}`
-    : 'All Time';
-
-  const html = `
-    <div class="header">
-      <div class="company-name">Business Financial Report</div>
-      <div class="report-title">Profit & Loss Statement</div>
-      <div class="date-range">${dateRangeText}</div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Executive Summary</div>
-      <div class="metric-card">
-        <div class="metric-label">Total Revenue</div>
-        <div class="metric-value">${formatCurrency(financialReport.value.totalRevenue)}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Net Profit</div>
-        <div class="metric-value text-success">${formatCurrency(financialReport.value.netProfit)}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Profit Margin</div>
-        <div class="metric-value">${financialReport.value.profitMargin.toFixed(2)}%</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Total Transactions</div>
-        <div class="metric-value">${salesSummary.value.totalSales}</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Income Statement</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th class="text-right">Amount ({{ currencyCode() }})</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Revenue</strong></td>
-            <td class="text-right"><strong>${formatCurrency(financialReport.value.totalRevenue)}</strong></td>
-          </tr>
-          <tr>
-            <td style="padding-left: 20px;">Total Sales</td>
-            <td class="text-right">${formatCurrency(financialReport.value.totalRevenue)}</td>
-          </tr>
-          <tr>
-            <td><strong>Cost of Goods Sold</strong></td>
-            <td class="text-right text-danger"><strong>(${formatCurrency(financialReport.value.totalCost)})</strong></td>
-          </tr>
-          <tr style="border-top: 2px solid #cbd5e1;">
-            <td><strong>Gross Profit</strong></td>
-            <td class="text-right text-success"><strong>${formatCurrency(financialReport.value.grossProfit)}</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Operating Expenses</strong></td>
-            <td class="text-right"></td>
-          </tr>
-          <tr>
-            <td style="padding-left: 20px;">Tax</td>
-            <td class="text-right text-danger">(${formatCurrency(financialReport.value.totalTax)})</td>
-          </tr>
-          <tr style="border-top: 2px solid #cbd5e1;">
-            <td><strong>Net Profit</strong></td>
-            <td class="text-right text-success"><strong>${formatCurrency(financialReport.value.netProfit)}</strong></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Payment Breakdown</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Payment Method</th>
-            <th class="text-right">Amount</th>
-            <th class="text-right">Percentage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Cash</td>
-            <td class="text-right">${formatCurrency(salesSummary.value.cashSales)}</td>
-            <td class="text-right">${((salesSummary.value.cashSales / salesSummary.value.totalRevenue) * 100).toFixed(1)}%</td>
-          </tr>
-          <tr>
-            <td>Card</td>
-            <td class="text-right">${formatCurrency(salesSummary.value.cardSales)}</td>
-            <td class="text-right">${((salesSummary.value.cardSales / salesSummary.value.totalRevenue) * 100).toFixed(1)}%</td>
-          </tr>
-          <tr>
-            <td>Mobile Money</td>
-            <td class="text-right">${formatCurrency(salesSummary.value.mobileSales)}</td>
-            <td class="text-right">${((salesSummary.value.mobileSales / salesSummary.value.totalRevenue) * 100).toFixed(1)}%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="footer">
-      <p>Generated on ${new Date().toLocaleDateString('en-TZ', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-      <p>This is a computer-generated report</p>
-    </div>
-  `;
-
-  const filename = `Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-  exportPDF(html, filename);
-};
-
-const generateInventoryPDF = () => {
-  if (!inventoryReport.value) return;
-
-  const html = `
-    <div class="header">
-      <div class="company-name">Inventory Report</div>
-      <div class="report-title">Stock Status & Valuation</div>
-      <div class="date-range">Generated on ${new Date().toLocaleDateString()}</div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Inventory Summary</div>
-      <div class="metric-card">
-        <div class="metric-label">Total Products</div>
-        <div class="metric-value">${inventoryReport.value.totalProducts}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Stock Value</div>
-        <div class="metric-value">${formatCurrency(inventoryReport.value.totalStockValue)}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Low Stock Items</div>
-        <div class="metric-value text-danger">${inventoryReport.value.lowStockCount}</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Out of Stock</div>
-        <div class="metric-value text-danger">${inventoryReport.value.outOfStockCount}</div>
-      </div>
-    </div>
-
-    ${inventoryReport.value.lowStockItems.length > 0 ? `
-    <div class="section">
-      <div class="section-title">Low Stock Items</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>SKU</th>
-            <th class="text-right">Current Stock</th>
-            <th class="text-right">Min Stock</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${inventoryReport.value.lowStockItems.map((item: any) => `
-            <tr>
-              <td>${item.name}</td>
-              <td>${item.sku}</td>
-              <td class="text-right text-danger">${item.quantity}</td>
-              <td class="text-right">${item.minStock}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-    ` : ''}
-
-    ${inventoryReport.value.outOfStockItems.length > 0 ? `
-    <div class="section">
-      <div class="section-title">Out of Stock Items</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>SKU</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${inventoryReport.value.outOfStockItems.map((item: any) => `
-            <tr>
-              <td>${item.name}</td>
-              <td>${item.sku}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-    ` : ''}
-
-    <div class="footer">
-      <p>Generated on ${new Date().toLocaleDateString('en-TZ', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-    </div>
-  `;
-
-  const filename = `Inventory_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-  exportPDF(html, filename);
-};
+onMounted(reload)
 </script>
 
 <template>
-  <div class="container mx-auto py-6 px-4 space-y-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div class="mx-auto flex max-w-7xl flex-col gap-5 py-2 sm:px-2 sm:py-4">
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-        <p class="text-muted-foreground mt-1">
-          Comprehensive business insights and reports
-        </p>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Reports</h1>
+        <p class="mt-1 text-muted-foreground">{{ rangeLabel }} · {{ scopeLabel }}</p>
       </div>
-      
-      <div class="flex flex-wrap gap-2">
-        <Popover>
-          <PopoverTrigger as-child>
-            <Button variant="outline">
-              <Calendar class="mr-2 h-4 w-4" />
-              {{ dateRange.start && dateRange.end 
-                ? `${dateRange.start.toLocaleDateString()} - ${dateRange.end.toLocaleDateString()}` 
-                : 'All Time' }}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0" align="end">
-            <div class="p-3 space-y-3">
-              <div>
-                <p class="text-sm font-medium mb-2">Start Date</p>
-                <CalendarComponent v-model="dateRange.start as any" />
-              </div>
-              <div>
-                <p class="text-sm font-medium mb-2">End Date</p>
-                <CalendarComponent v-model="dateRange.end as any" />
-              </div>
-              <div class="flex gap-2">
-                <Button @click="applyDateFilter" size="sm" class="flex-1">Apply</Button>
-                <Button @click="clearDateFilter" variant="outline" size="sm" class="flex-1">Clear</Button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <Button variant="outline" @click="exportExcel(dateRange.start && dateRange.end ? { startDate: dateRange.start.toISOString().split('T')[0], endDate: dateRange.end.toISOString().split('T')[0] } : undefined)">
-          <Download class="mr-2 h-4 w-4" />
-          Export Excel
+      <div class="flex gap-2 print:hidden">
+        <Button variant="outline" :disabled="!summary || exporting" @click="exportExcel">
+          <FileSpreadsheet />
+          {{ exporting ? 'Saving…' : 'Excel' }}
+        </Button>
+        <Button variant="outline" :disabled="!summary" @click="printReport">
+          <Printer />
+          Print or PDF
         </Button>
       </div>
     </div>
 
-    <Tabs default-value="overview" class="space-y-4">
-      <TabsList>
+    <div class="flex flex-col gap-3 rounded-xl border p-3 print:hidden">
+      <div class="flex gap-1.5 overflow-x-auto pb-1">
+        <button
+          v-for="preset in presets"
+          :key="preset"
+          type="button"
+          class="shrink-0 rounded-full border px-3 py-1 text-sm font-medium transition-colors"
+          :class="rangePreset === preset ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'"
+          @click="choosePreset(preset)"
+        >
+          {{ rangePresetLabels[preset] }}
+        </button>
+      </div>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div class="flex items-center gap-2">
+          <Label for="report-from" class="w-10 shrink-0 text-sm text-muted-foreground">From</Label>
+          <Input id="report-from" v-model="fromDate" type="date" :max="toDate" @input="onDateTyped" />
+        </div>
+        <div class="flex items-center gap-2">
+          <Label for="report-to" class="w-10 shrink-0 text-sm text-muted-foreground">To</Label>
+          <Input id="report-to" v-model="toDate" type="date" :min="fromDate" :max="today" @input="onDateTyped" />
+        </div>
+        <Select v-if="showShopPicker" v-model="shopScope">
+          <SelectTrigger class="w-full" aria-label="Which shops">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem :value="activeShopScope">{{ activeShopName }} (current)</SelectItem>
+            <SelectItem :value="allShopsScope">All shops</SelectItem>
+            <SelectItem v-for="shop in shopChoices.filter(shopChoice => shopChoice.id !== user?.shop_id)" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+
+    <Tabs v-model="activeTab">
+      <TabsList class="print:hidden">
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="sales">Sales</TabsTrigger>
-        <TabsTrigger value="inventory">Inventory</TabsTrigger>
-        <TabsTrigger value="financial">Financial</TabsTrigger>
+        <TabsTrigger value="products">Products</TabsTrigger>
+        <TabsTrigger value="staff">Staff</TabsTrigger>
+        <TabsTrigger v-if="shopScope === allShopsScope" value="shops">Shops</TabsTrigger>
+        <TabsTrigger value="stock">Stock</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading">
-                <Skeleton class="h-8 w-32" />
-              </div>
-              <div v-else class="text-2xl font-bold">
-                {{ formatCurrency(salesSummary?.totalRevenue || 0) }}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Total Sales</CardTitle>
-              <ShoppingCart class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading">
-                <Skeleton class="h-8 w-20" />
-              </div>
-              <div v-else class="text-2xl font-bold">
-                {{ salesSummary?.totalSales || 0 }}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Net Profit</CardTitle>
-              <TrendingUp class="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading">
-                <Skeleton class="h-8 w-32" />
-              </div>
-              <div v-else class="text-2xl font-bold text-green-600">
-                {{ formatCurrency(financialReport?.netProfit || 0) }}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium">Stock Value</CardTitle>
-              <Package class="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading">
-                <Skeleton class="h-8 w-32" />
-              </div>
-              <div v-else class="text-2xl font-bold">
-                {{ formatCurrency(inventoryReport?.totalStockValue || 0) }}
-              </div>
-            </CardContent>
-          </Card>
+      <TabsContent value="overview" class="mt-4 flex flex-col gap-4">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <StatCard
+            title="Takings"
+            :value="summary ? formatMoney(summary.total) : null"
+            :hint="summary ? `${summary.sale_count} sales · ${summary.units_sold} items` : ''"
+            :icon="Wallet"
+          />
+          <StatCard
+            title="Gross profit"
+            :value="summary ? formatMoney(summary.gross_profit) : null"
+            :hint="summary ? `${marginText(summary.margin_basis_points)} of net sales` : ''"
+            :icon="PiggyBank"
+          />
+          <StatCard
+            title="Net sales"
+            :value="summary ? formatMoney(summary.net_sales) : null"
+            :hint="summary ? `After ${formatMoney(summary.tax_total)} tax` : ''"
+            :icon="Receipt"
+          />
+          <StatCard
+            title="Discounts given"
+            :value="summary ? formatMoney(summary.discount_total) : null"
+            :hint="summary ? `Average sale ${formatMoney(summary.average_sale)}` : ''"
+            :icon="BadgePercent"
+          />
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <Card>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <Card class="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Sales Trend</CardTitle>
-              <CardDescription>Daily sales over time</CardDescription>
+              <CardTitle class="text-base">Day by day</CardTitle>
+              <CardDescription>Takings and gross profit, in company time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div v-if="loading" class="h-[300px] flex items-center justify-center">
-                <Skeleton class="h-full w-full" />
-              </div>
-              <div v-else class="h-[300px]">
-                <Line :data="salesTrendData" :options="salesTrendOptions" />
-              </div>
+              <Skeleton v-if="loading && !days.length" class="h-64 w-full" />
+              <TrendChart v-else :days="days" />
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
-              <CardTitle>Payment Methods</CardTitle>
-              <CardDescription>Sales by payment type</CardDescription>
+              <CardTitle class="text-base">How customers paid</CardTitle>
+              <CardDescription>Cash is after change given</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div v-if="loading" class="h-[300px] flex items-center justify-center">
-                <Skeleton class="h-full w-full" />
-              </div>
-              <div v-else class="h-[300px]">
-                <Pie :data="paymentData" :options="paymentOptions" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="sales" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Selling Products</CardTitle>
-              <CardDescription>Best performers by revenue</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading" class="h-[400px] flex items-center justify-center">
-                <Skeleton class="h-full w-full" />
-              </div>
-              <div v-else class="h-[400px]">
-                <Bar :data="topProductsData" :options="topProductsOptions" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales by User</CardTitle>
-              <CardDescription>Performance by team member</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div v-if="loading" class="space-y-2">
-                <Skeleton class="h-12 w-full" v-for="i in 5" :key="i" />
-              </div>
-              <div v-else class="space-y-3">
-                <div v-for="user in salesByUser" :key="user.userId" class="flex items-center justify-between p-3 border rounded-lg">
-                  <div class="flex items-center gap-3">
-                    <Users class="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p class="font-medium">{{ user.userName }}</p>
-                      <p class="text-sm text-muted-foreground">{{ user.totalSales }} sales</p>
-                    </div>
-                  </div>
-                  <p class="font-semibold">{{ formatCurrency(user.totalRevenue) }}</p>
+            <CardContent class="flex flex-col gap-4">
+              <Skeleton v-if="!summary" class="h-32 w-full" />
+              <div v-for="paymentRow in paymentRows" :key="paymentRow.label" class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="flex items-center gap-2">
+                    <component :is="paymentRow.icon" class="size-4 text-muted-foreground" />
+                    {{ paymentRow.label }}
+                  </span>
+                  <span class="font-semibold tabular-nums">{{ formatMoney(paymentRow.amount) }}</span>
+                </div>
+                <div class="h-2 overflow-hidden rounded-full bg-muted">
+                  <div class="h-full rounded-full bg-primary" :style="{ width: `${paymentRow.share}%` }" />
                 </div>
               </div>
             </CardContent>
@@ -658,139 +276,151 @@ const generateInventoryPDF = () => {
         </div>
       </TabsContent>
 
-      <TabsContent value="inventory" class="space-y-4">
-        <div class="flex justify-end mb-4">
-          <Button @click="generateInventoryPDF" variant="outline">
-            <FileText class="mr-2 h-4 w-4" />
-            Download PDF Report
-          </Button>
+      <TabsContent value="products" class="mt-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2 print:hidden">
+          <p class="text-sm text-muted-foreground">Top 100 products in this period</p>
+          <div class="flex rounded-lg bg-muted p-1 text-sm" role="group" aria-label="Rank products by">
+            <button
+              v-for="sortChoice in productSorts"
+              :key="sortChoice.value"
+              type="button"
+              class="rounded-md px-3 py-1 font-medium transition-colors"
+              :class="productSort === sortChoice.value ? 'bg-background shadow-sm' : 'text-muted-foreground'"
+              :aria-pressed="productSort === sortChoice.value"
+              @click="productSort = sortChoice.value"
+            >
+              {{ sortChoice.label }}
+            </button>
+          </div>
         </div>
-
-        <Accordion type="single" collapsible class="w-full">
-          <AccordionItem value="low-stock">
-            <AccordionTrigger>
-              <div class="flex items-center gap-2">
-                <AlertTriangle class="h-5 w-5 text-orange-600" />
-                <span>Low Stock Items ({{ inventoryReport?.lowStockCount || 0 }})</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div v-if="inventoryReport?.lowStockItems.length" class="space-y-2">
-                <div v-for="item in inventoryReport.lowStockItems" :key="item.id" class="flex justify-between items-center p-3 border rounded-lg">
-                  <div>
-                    <p class="font-medium">{{ item.name }}</p>
-                    <p class="text-sm text-muted-foreground">{{ item.sku }}</p>
-                  </div>
-                  <div class="text-right">
-                    <Badge variant="destructive">{{ item.quantity }} / {{ item.minStock }}</Badge>
-                  </div>
-                </div>
-              </div>
-              <p v-else class="text-muted-foreground text-center py-4">No low stock items</p>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="out-stock">
-            <AccordionTrigger>
-              <div class="flex items-center gap-2">
-                <Package class="h-5 w-5 text-red-600" />
-                <span>Out of Stock Items ({{ inventoryReport?.outOfStockCount || 0 }})</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div v-if="inventoryReport?.outOfStockItems.length" class="space-y-2">
-                <div v-for="item in inventoryReport.outOfStockItems" :key="item.id" class="flex justify-between items-center p-3 border rounded-lg">
-                  <div>
-                    <p class="font-medium">{{ item.name }}</p>
-                    <p class="text-sm text-muted-foreground">{{ item.sku }}</p>
-                  </div>
-                  <Badge variant="destructive">Out of Stock</Badge>
-                </div>
-              </div>
-              <p v-else class="text-muted-foreground text-center py-4">No out of stock items</p>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="dead-stock">
-            <AccordionTrigger>
-              <div class="flex items-center gap-2">
-                <TrendingDown class="h-5 w-5 text-gray-600" />
-                <span>Dead Stock ({{ inventoryReport?.deadStockCount || 0 }})</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div v-if="inventoryReport?.deadStockItems.length" class="space-y-2">
-                <div v-for="item in inventoryReport.deadStockItems" :key="item.id" class="flex justify-between items-center p-3 border rounded-lg">
-                  <div>
-                    <p class="font-medium">{{ item.name }}</p>
-                    <p class="text-sm text-muted-foreground">{{ item.sku }}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm">{{ item.quantity }} units</p>
-                    <Badge variant="outline">{{ item.daysSinceLastSale }}+ days</Badge>
-                  </div>
-                </div>
-              </div>
-              <p v-else class="text-muted-foreground text-center py-4">No dead stock</p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <div class="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead class="text-right">Sold</TableHead>
+                <TableHead class="text-right">Takings</TableHead>
+                <TableHead class="hidden text-right md:table-cell">Cost</TableHead>
+                <TableHead class="text-right">Profit</TableHead>
+                <TableHead class="hidden text-right sm:table-cell">Margin</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="product in products" :key="product.product_id">
+                <TableCell>
+                  <p class="font-medium">{{ product.name }}<span v-if="product.variant_label" class="text-muted-foreground"> · {{ product.variant_label }}</span></p>
+                  <p class="font-mono text-xs text-muted-foreground">{{ product.sku }}</p>
+                </TableCell>
+                <TableCell class="text-right tabular-nums">{{ product.quantity }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ formatMoney(product.revenue) }}</TableCell>
+                <TableCell class="hidden text-right tabular-nums md:table-cell">{{ formatMoney(product.cost_total) }}</TableCell>
+                <TableCell class="text-right font-medium tabular-nums" :class="product.gross_profit < 0 ? 'text-destructive' : ''">{{ formatMoney(product.gross_profit) }}</TableCell>
+                <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ marginOf(product.gross_profit, product.net_revenue) }}</TableCell>
+              </TableRow>
+              <TableRow v-if="!products.length">
+                <TableCell colspan="6" class="h-24 text-center text-muted-foreground">No products sold in this period.</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+        <p class="text-xs text-muted-foreground">Profit per product removes tax line by line, so it can differ from the overview by a few units of currency.</p>
       </TabsContent>
 
-      <TabsContent value="financial" class="space-y-4">
-        <div class="flex justify-end mb-4">
-          <Button @click="generateFinancialPDF" variant="outline">
-            <FileText class="mr-2 h-4 w-4" />
-            Download P&L Statement
-          </Button>
+      <TabsContent value="staff" class="mt-4">
+        <div class="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Staff</TableHead>
+                <TableHead class="text-right">Sales</TableHead>
+                <TableHead class="text-right">Takings</TableHead>
+                <TableHead class="text-right">Average sale</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="cashier in cashiers" :key="cashier.user_id">
+                <TableCell class="font-medium">{{ cashier.name }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ cashier.sale_count }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ formatMoney(cashier.total) }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ formatMoney(cashier.average_sale) }}</TableCell>
+              </TableRow>
+              <TableRow v-if="!cashiers.length">
+                <TableCell colspan="4" class="h-24 text-center text-muted-foreground">No sales in this period.</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
+      </TabsContent>
 
+      <TabsContent value="shops" class="mt-4">
+        <div class="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Shop</TableHead>
+                <TableHead class="text-right">Sales</TableHead>
+                <TableHead class="text-right">Takings</TableHead>
+                <TableHead class="hidden text-right sm:table-cell">Tax</TableHead>
+                <TableHead class="text-right">Profit</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="shopRow in shops" :key="shopRow.shop_id">
+                <TableCell class="font-medium">{{ shopRow.name }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ shopRow.sale_count }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ formatMoney(shopRow.total) }}</TableCell>
+                <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ formatMoney(shopRow.tax_total) }}</TableCell>
+                <TableCell class="text-right font-medium tabular-nums">{{ formatMoney(shopRow.gross_profit) }}</TableCell>
+              </TableRow>
+              <TableRow v-if="!shops.length">
+                <TableCell colspan="5" class="h-24 text-center text-muted-foreground">No sales in this period.</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="stock" class="mt-4 flex flex-col gap-4">
+        <p class="text-sm text-muted-foreground">Stock as it is now, whatever the dates above.</p>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <StatCard title="Stock value at cost" :value="inventory ? formatMoney(inventory.stock.value_at_cost) : null" :hint="inventory ? `${inventory.stock.units} items on hand` : ''" />
+          <StatCard title="Stock value at price" :value="inventory ? formatMoney(inventory.stock.value_at_price) : null" :hint="inventory ? `${inventory.stock.product_count} products` : ''" />
+          <StatCard title="Running low" :value="inventory ? String(inventory.stock.low_count) : null" hint="At or below their warning level" />
+          <StatCard title="Out of stock" :value="inventory ? String(inventory.stock.out_count) : null" hint="Nothing left" />
+        </div>
         <Card>
           <CardHeader>
-            <CardTitle>Profit & Loss Summary</CardTitle>
-            <CardDescription>Financial performance overview</CardDescription>
+            <CardTitle class="text-base">Not selling</CardTitle>
+            <CardDescription>In stock but unsold for {{ inventory?.dead_stock_days ?? '…' }} days, most money tied up first</CardDescription>
           </CardHeader>
           <CardContent>
-            <div v-if="loading" class="space-y-4">
-              <Skeleton class="h-16 w-full" v-for="i in 6" :key="i" />
-            </div>
-            <div v-else class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 border rounded-lg">
-                  <p class="text-sm text-muted-foreground mb-1">Total Revenue</p>
-                  <p class="text-2xl font-bold">{{ formatCurrency(financialReport?.totalRevenue || 0) }}</p>
-                </div>
-                <div class="p-4 border rounded-lg">
-                  <p class="text-sm text-muted-foreground mb-1">Total Cost</p>
-                  <p class="text-2xl font-bold text-red-600">{{ formatCurrency(financialReport?.totalCost || 0) }}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 border rounded-lg">
-                  <p class="text-sm text-muted-foreground mb-1">Gross Profit</p>
-                  <p class="text-2xl font-bold text-green-600">{{ formatCurrency(financialReport?.grossProfit || 0) }}</p>
-                </div>
-                <div class="p-4 border rounded-lg">
-                  <p class="text-sm text-muted-foreground mb-1">Profit Margin</p>
-                  <p class="text-2xl font-bold">{{ financialReport?.profitMargin.toFixed(2) || 0 }}%</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 border rounded-lg">
-                  <p class="text-sm text-muted-foreground mb-1">Tax Collected</p>
-                  <p class="text-2xl font-bold">{{ formatCurrency(financialReport?.totalTax || 0) }}</p>
-                </div>
-                <div class="p-4 border rounded-lg bg-green-50 dark:bg-green-950">
-                  <p class="text-sm text-muted-foreground mb-1">Net Profit</p>
-                  <p class="text-2xl font-bold text-green-600">{{ formatCurrency(financialReport?.netProfit || 0) }}</p>
-                </div>
-              </div>
+            <div class="overflow-x-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead class="text-right">On hand</TableHead>
+                    <TableHead class="text-right">Value at cost</TableHead>
+                    <TableHead class="hidden text-right sm:table-cell">Last sold</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow v-for="deadItem in inventory?.dead_stock ?? []" :key="deadItem.product_id">
+                    <TableCell>
+                      <p class="font-medium">{{ deadItem.name }}<span v-if="deadItem.variant_label" class="text-muted-foreground"> · {{ deadItem.variant_label }}</span></p>
+                      <p class="font-mono text-xs text-muted-foreground">{{ deadItem.sku }}</p>
+                    </TableCell>
+                    <TableCell class="text-right tabular-nums">{{ deadItem.quantity }}</TableCell>
+                    <TableCell class="text-right tabular-nums">{{ formatMoney(deadItem.value_at_cost) }}</TableCell>
+                    <TableCell class="hidden text-right sm:table-cell">
+                      <Badge :variant="deadItem.last_sold_at ? 'outline' : 'secondary'" class="font-normal">{{ lastSoldText(deadItem.last_sold_at) }}</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow v-if="inventory && !inventory.dead_stock.length">
+                    <TableCell colspan="4" class="h-24 text-center text-muted-foreground">Everything in stock has sold recently.</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
