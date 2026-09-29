@@ -3,7 +3,7 @@ import type { CurrentUser, Permission } from '~/composables/useAuth'
 import { homePathFor, isPortedRoute } from '~/utils/portedRoutes'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const publicRoutes = ['/', '/login', '/setup', '/admin-page', '/display']
+  const publicRoutes = ['/', '/login', '/setup', '/display']
   if (publicRoutes.includes(to.path)) return
 
   const user = useState<CurrentUser | null>('auth:user')

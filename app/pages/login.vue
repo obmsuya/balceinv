@@ -30,18 +30,9 @@ const { login, isLoading } = useAuth()
 const form = useForm({ validationSchema: formSchema })
 const mounted = ref(false)
 const showPassword = ref(false)
-const devUnlocked = ref(false)
 
 onMounted(() => {
   setTimeout(() => { mounted.value = true }, 60)
-
-  const handler = (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-      devUnlocked.value = !devUnlocked.value
-    }
-  }
-  window.addEventListener('keydown', handler)
-  onUnmounted(() => window.removeEventListener('keydown', handler))
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -153,12 +144,6 @@ const onSubmit = form.handleSubmit(async (values) => {
           <NuxtLink to="/setup?from=login" class="setup-link">
             {{ t('auth.form.setupBusiness') }}
           </NuxtLink>
-
-          <Transition name="fade">
-            <NuxtLink v-if="devUnlocked" to="/admin-page" class="dev-link">
-              {{ t('auth.form.createSuperUser') }}
-            </NuxtLink>
-          </Transition>
         </div>
       </div>
     </main>
@@ -351,17 +336,6 @@ const onSubmit = form.handleSubmit(async (values) => {
   transition: background 0.15s;
 }
 .setup-link:hover { background: var(--accent); }
-
-.dev-link {
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.dev-link:hover { color: var(--foreground); }
-
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
 
 @media (max-width: 840px) {
   .panel { display: none; }
