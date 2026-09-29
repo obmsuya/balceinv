@@ -67,5 +67,16 @@
   "invalid_features": "Check the feature switches: credit and customer orders need customers, purchase orders need suppliers, and VAT needs a VRN.",
   "message_length": "Write between 5 and 5000 characters",
   "contact_required": "Give an email or a phone number so we can reach you",
-  "invalid_phone": "Use a Tanzanian mobile number like 0712 345 678"
+  "feature_off": "This feature is turned off in Settings → Features",
+  "customer_required": "Choose an active customer first",
+  "credit_limit_exceeded": "This would take the customer over their credit limit",
+  "phone_taken": "Another customer already has this phone number",
+  "invalid_phone": "Enter a Tanzanian phone number, like 0712 345 678",
+  "opening_balance_too_low": "The debt from before can't be lowered that much, the customer has already paid part of it",
+  "overpayment": "That is more than the customer owes",
+  "already_voided": "This payment was already cancelled",
+  "invalid_range": "Check the dates: the start must be before the end",
+  "deposit_too_high": "The deposit can't be more than the order total",
+  "invalid_status": "This order can't do that any more. Refresh to see where it is.",
+  "refund_method_required": "Choose how the deposit is handed back"
 }

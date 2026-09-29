@@ -1,0 +1,144 @@
+{
+  "page": {
+    "title": "Customers",
+    "subtitle": "People who buy from you, what they bought and what they still owe",
+    "newCustomer": "Add customer",
+    "customersTab": "Customers",
+    "owingTab": "Who owes",
+    "searchPlaceholder": "Search by name or phone",
+    "showInactive": "Show removed",
+    "emptyTitle": "No customers yet",
+    "emptyHint": "Add a customer here or at the till when you sell",
+    "neverBought": "Not yet",
+    "editCustomer": "Edit {name}"
+  },
+  "fields": {
+    "tin": "TIN",
+    "creditLimit": "Most they can owe ({currency})",
+    "openingBalance": "Debt from before ({currency})",
+    "owes": "Owes",
+    "lastVisit": "Last visit"
+  },
+  "form": {
+    "editTitle": "Edit customer",
+    "description": "Only the name is needed. A phone number lets you call or send a WhatsApp reminder.",
+    "noLimit": "No limit",
+    "creditLimitHint": "Leave empty for no limit",
+    "openingBalanceHint": "What they already owed before you started using Balce",
+    "errors": {
+      "nameRequired": "Enter the customer's name",
+      "badCreditLimit": "The limit must be a number",
+      "badOpeningBalance": "The debt from before must be a number"
+    }
+  },
+  "picker": {
+    "title": "Choose customer",
+    "description": "Search by name or phone number",
+    "newTitle": "New customer",
+    "newDescription": "Just a name and phone. You can add more later.",
+    "searchPlaceholder": "Name or phone",
+    "recent": "Recent customers",
+    "owes": "Owes {amount}",
+    "searchFailed": "Could not search customers. Check the connection.",
+    "noMatch": "No customer matches",
+    "noneYet": "No customers yet",
+    "newCustomer": "New customer",
+    "addAndChoose": "Add and choose"
+  },
+  "status": {
+    "deactivateTitle": "Remove {name}?",
+    "restoreTitle": "Bring back {name}?",
+    "deactivateDescription": "They won't show at the till any more. Their purchases, payments and debt stay in the records.",
+    "restoreDescription": "They will show at the till and in the customer list again.",
+    "stillOwes": "They still owe {amount}.",
+    "deactivate": "Remove",
+    "restore": "Bring back"
+  },
+  "aging": {
+    "days_0_30": "0–30 days",
+    "days_31_60": "31–60 days",
+    "days_61_90": "61–90 days",
+    "days_over_90": "Over 90 days"
+  },
+  "owing": {
+    "hint": "Oldest debts first. Red means the money has been owed for more than 30 days.",
+    "emptyTitle": "Nobody owes you money",
+    "emptyHint": "Customers who buy on pay later will show here",
+    "since": "Owes since {date}",
+    "owesSince": "Owes since",
+    "totalOwed": "Total owed to you"
+  },
+  "detail": {
+    "notFound": "This customer could not be found",
+    "whatsappReminder": "WhatsApp reminder",
+    "owesNow": "Owes now",
+    "overdue": "Owed over 30 days",
+    "canStillTake": "Can still take on credit",
+    "noLimit": "No limit",
+    "limitIs": "Limit {amount}",
+    "howOld": "How old the debt is",
+    "details": "Details",
+    "debtFromBefore": "Debt from before",
+    "customerSince": "Customer since",
+    "purchasesTab": "Purchases",
+    "paymentsTab": "Payments",
+    "statementTab": "Statement",
+    "onCredit": "Pay later",
+    "noPurchases": "No purchases yet"
+  },
+  "payments": {
+    "recordTitle": "Record payment",
+    "recordDescription": "{name} owes {amount}",
+    "amount": "Amount paid ({currency})",
+    "howPaid": "Paid with",
+    "reference": "Reference (optional)",
+    "referencePlaceholder": "e.g. M-Pesa code",
+    "record": "Record payment",
+    "none": "No payments yet",
+    "void": "Cancel payment",
+    "voidTitle": "Cancel the payment of {amount}?",
+    "voidDescription": "The amount goes back onto their debt. The payment stays in the records, marked as cancelled.",
+    "reason": "Why?",
+    "reasonPlaceholder": "e.g. Entered twice",
+    "voidedBy": "Cancelled by {name} on {date}: {reason}",
+    "errors": {
+      "badAmount": "Enter an amount more than zero",
+      "moreThanOwed": "They only owe {amount}",
+      "reasonRequired": "Say why the payment is cancelled"
+    }
+  },
+  "statement": {
+    "show": "Show",
+    "what": "What",
+    "boughtOnCredit": "Took on credit",
+    "paid": "Paid",
+    "balance": "Owes",
+    "opening": "Owed at the start",
+    "closing": "Owed at the end",
+    "nothing": "Nothing happened in these dates",
+    "creditSale": "Pay later · receipt {receipt}",
+    "payment": "Payment · {reference}"
+  },
+  "whatsapp": {
+    "message": "Hello {name}, this is a friendly reminder from {shop}. Your balance with us is {amount}. Please pay when you can. Thank you!"
+  },
+  "toasts": {
+    "loadFailed": "Could not load customers",
+    "customerLoadFailed": "Could not load this customer",
+    "created": "Customer added",
+    "saved": "Customer saved",
+    "saveFailed": "Could not save the customer",
+    "deactivated": "Customer removed",
+    "deactivateFailed": "Could not remove the customer",
+    "restored": "Customer brought back",
+    "restoreFailed": "Could not bring the customer back",
+    "debtorsLoadFailed": "Could not load who owes",
+    "salesLoadFailed": "Could not load the purchases",
+    "paymentsLoadFailed": "Could not load the payments",
+    "paymentRecorded": "Payment recorded",
+    "paymentFailed": "Could not record the payment",
+    "paymentVoided": "Payment cancelled",
+    "voidFailed": "Could not cancel the payment",
+    "statementLoadFailed": "Could not load the statement"
+  }
+}

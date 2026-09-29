@@ -67,5 +67,16 @@
   "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN.",
   "message_length": "Andika herufi kati ya 5 na 5000",
   "contact_required": "Weka barua pepe au namba ya simu ili tukupate",
-  "invalid_phone": "Tumia namba ya simu ya Tanzania kama 0712 345 678"
+  "feature_off": "Kipengele hiki kimezimwa kwenye Mipangilio → Vipengele",
+  "customer_required": "Chagua mteja aliye hai kwanza",
+  "credit_limit_exceeded": "Hii itamfanya mteja azidi kikomo chake cha deni",
+  "phone_taken": "Mteja mwingine tayari ana namba hii ya simu",
+  "invalid_phone": "Weka namba ya simu ya Tanzania, kama 0712 345 678",
+  "opening_balance_too_low": "Deni la zamani haliwezi kupunguzwa kiasi hicho, mteja ameshalipa sehemu yake",
+  "overpayment": "Kiasi hicho kinazidi deni la mteja",
+  "already_voided": "Malipo haya yameshaghairiwa",
+  "invalid_range": "Angalia tarehe: tarehe ya kuanzia iwe kabla ya tarehe ya mwisho",
+  "deposit_too_high": "Malipo ya awali hayawezi kuzidi jumla ya oda",
+  "invalid_status": "Oda hii haiwezi kufanya hivyo tena. Onyesha upya uone ilipofikia.",
+  "refund_method_required": "Chagua jinsi malipo ya awali yatakavyorudishwa"
 }

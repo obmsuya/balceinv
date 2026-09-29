@@ -1,0 +1,113 @@
+{
+  "page": {
+    "title": "Customer orders",
+    "subtitle": "Goods kept aside for customers to collect later",
+    "subtitleShop": "Goods kept aside for customers at {shop}",
+    "newOrder": "New order",
+    "searchPlaceholder": "Search by order number, name or phone",
+    "noMatch": "No order matches"
+  },
+  "status": {
+    "open": "Waiting",
+    "ready": "Ready",
+    "collected": "Collected",
+    "cancelled": "Cancelled"
+  },
+  "statusOne": {
+    "open": "Waiting",
+    "ready": "Ready",
+    "collected": "Collected",
+    "cancelled": "Cancelled"
+  },
+  "empty": {
+    "open": "No orders waiting",
+    "ready": "No orders ready for collection",
+    "collected": "No collected orders yet",
+    "cancelled": "No cancelled orders"
+  },
+  "lineCount": {
+    "one": "{count} product",
+    "other": "{count} products"
+  },
+  "fields": {
+    "order": "Order",
+    "customer": "Customer",
+    "dueDate": "Collect by",
+    "products": "Products",
+    "note": "Note",
+    "deposit": "Deposit ({currency})"
+  },
+  "new": {
+    "description": "The goods are taken off the shelf now and kept for the customer.",
+    "chooseCustomer": "Choose customer",
+    "searchPlaceholder": "Search products to add",
+    "inShop": "{quantity} {unit} here",
+    "quantityOf": "Quantity of {product}",
+    "remove": "Remove {product}",
+    "aboutTotal": "About",
+    "notePlaceholder": "e.g. Wants it wrapped",
+    "create": "Save order",
+    "errors": {
+      "chooseCustomer": "Choose the customer first",
+      "noProducts": "Add at least one product",
+      "badQuantity": "Enter a whole number for {product}",
+      "notEnough": "Only {quantity} {unit} of {product} in this shop"
+    }
+  },
+  "deposit": {
+    "description": "Still to pay: {amount}",
+    "save": "Save deposit",
+    "errors": {
+      "badAmount": "Enter an amount more than zero",
+      "tooMuch": "The deposit can't be more than {amount}"
+    }
+  },
+  "paymentKind": {
+    "deposit": "Deposit",
+    "refund": "Handed back"
+  },
+  "detail": {
+    "title": "Order",
+    "due": "Collect by {date}",
+    "paidSoFar": "Paid so far",
+    "stillToPay": "Still to pay",
+    "payments": "Deposits",
+    "collect": "Hand over",
+    "collectAndPay": "Hand over · take {amount}",
+    "collectedNow": "Handed over. Receipt {receipt}",
+    "collectedOn": "Collected on {date}",
+    "cancelledBy": "Cancelled by {name} on {date}",
+    "markReady": "Mark ready",
+    "addDeposit": "Add deposit",
+    "handOverTitle": "Hand over this order?",
+    "handOverDescription": "It is fully paid. A sale and receipt will be made."
+  },
+  "cancel": {
+    "button": "Cancel order",
+    "title": "Cancel order {number}?",
+    "description": "The goods go back on the shelf. This can't be undone.",
+    "reason": "Why?",
+    "reasonPlaceholder": "e.g. Customer changed their mind",
+    "handBack": "Hand back {amount} to {name}",
+    "handBackHow": "How are you giving the deposit back?",
+    "confirm": "Cancel order",
+    "errors": {
+      "reasonRequired": "Say why the order is cancelled",
+      "chooseRefund": "Choose how the deposit is handed back"
+    }
+  },
+  "toasts": {
+    "loadFailed": "Could not load orders",
+    "orderLoadFailed": "Could not load this order",
+    "created": "Order saved",
+    "createFailed": "Could not save the order",
+    "depositAdded": "Deposit saved",
+    "depositFailed": "Could not save the deposit",
+    "markedReady": "Order is ready",
+    "readyFailed": "Could not mark the order ready",
+    "collected": "Order handed over",
+    "collectFailed": "Could not hand over the order",
+    "cancelled": "Order cancelled",
+    "cancelFailed": "Could not cancel the order"
+  }
+}
