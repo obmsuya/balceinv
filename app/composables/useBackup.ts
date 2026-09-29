@@ -13,7 +13,6 @@ export interface CloudBackup {
   date: string
   key: string
   size: number
-  download_url: string
 }
 
 export interface BackupStatus {
