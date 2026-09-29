@@ -2,7 +2,11 @@
   "title": "Reports",
   "excel": "Excel",
   "excelFileType": "Excel workbook",
+  "pdf": "PDF",
+  "pdfFileType": "PDF document",
   "printOrPdf": "Print or PDF",
+  "print": "Print",
+  "downloadHint": "Overview saves the full report; other tabs save just that tab",
   "presets": {
     "today": "Today",
     "yesterday": "Yesterday",

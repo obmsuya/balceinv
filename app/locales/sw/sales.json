@@ -5,6 +5,7 @@
   "sending": "Inatuma…",
   "sendWaiting": "Tuma zinazosubiri kwa EFD",
   "receiptNumber": "Namba ya risiti",
+  "pdfFileType": "Hati ya PDF",
   "cards": {
     "sales": "Mauzo",
     "takings": "Makusanyo",
@@ -30,7 +31,8 @@
       "other": "Majaribio {count}"
     },
     "sendNow": "Tuma sasa",
-    "printReceipt": "Chapisha risiti"
+    "printReceipt": "Chapisha risiti",
+    "a4Invoice": "Ankara A4 (PDF)"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"
@@ -54,6 +56,8 @@
     "efdSendSummary": "{sent} yametumwa, {waiting} yanasubiri",
     "efdSent": "Mauzo {count} yametumwa kwa EFD",
     "efdNothingWaiting": "Hakuna mauzo yaliyokuwa yanasubiri EFD",
-    "serverUnreachable": "Imeshindwa kufikia seva"
+    "serverUnreachable": "Imeshindwa kufikia seva",
+    "documentSaved": "Ankara imehifadhiwa",
+    "documentFailed": "Imeshindwa kuhifadhi ankara"
   }
 }
