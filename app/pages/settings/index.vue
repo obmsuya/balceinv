@@ -14,6 +14,8 @@ import {
   Volume2,
   TestTube,
   RefreshCw,
+  DatabaseBackup,
+  Network,
   DownloadCloud,
   CheckCircle2,
   RotateCw,
@@ -28,6 +30,8 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import BackupPanel from '@/components/backup/BackupPanel.vue'
+import NetworkPanel from '@/components/settings/NetworkPanel.vue'
 import {
   Select,
   SelectContent,
@@ -163,6 +167,9 @@ const loadForms = () => {
 
 }
 const { user } = useAuth()
+const { isDesktopInstall, fetchPlatform } = usePlatform()
+const showDesktopTabs = computed(() => runningInTauri && isDesktopInstall.value)
+const showNetworkTab = computed(() => showDesktopTabs.value && user.value?.is_owner === true)
 
 // ─── Updates ─────────────────────────────────────────────────────────────────
 const {
@@ -199,6 +206,7 @@ watch(() => route.query.tab, (requestedTab) => {
 })
 
 onMounted(async () => {
+  fetchPlatform()
   await fetchSettings()
   loadForms()
   if (runningInTauri) {
@@ -326,6 +334,12 @@ const efdBadgeLabel = computed(() => {
         </TabsTrigger>
         <TabsTrigger value="notifications">
           <Bell />Notifications
+        </TabsTrigger>
+        <TabsTrigger v-if="showDesktopTabs" value="backups">
+          <DatabaseBackup />Backups
+        </TabsTrigger>
+        <TabsTrigger v-if="showNetworkTab" value="network">
+          <Network />Network
         </TabsTrigger>
         <TabsTrigger v-if="runningInTauri" value="updates">
           <RefreshCw />Updates
@@ -762,6 +776,14 @@ const efdBadgeLabel = computed(() => {
       <!-- ══════════════════════════════════════════════ -->
       <!-- UPDATES                                        -->
       <!-- ══════════════════════════════════════════════ -->
+      <TabsContent v-if="showDesktopTabs" value="backups" class="mt-4">
+        <BackupPanel />
+      </TabsContent>
+
+      <TabsContent v-if="showNetworkTab" value="network" class="mt-4">
+        <NetworkPanel />
+      </TabsContent>
+
       <TabsContent v-if="runningInTauri" value="updates" class="flex flex-col gap-4 mt-4">
         <Card>
           <CardHeader class="pb-3">
