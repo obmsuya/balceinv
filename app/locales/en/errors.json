@@ -64,5 +64,6 @@
   "already_uploaded": "This link was already used",
   "expired": "This link has expired. Make a new one.",
   "invalid_printer_port": "That isn't a printer port. Use a COM port, a serial or USB printer, or a printer shared on this computer.",
-  "invalid_features": "Check the feature switches: credit and customer orders need customers, purchase orders need suppliers, and VAT needs a VRN."
+  "invalid_features": "Check the feature switches: credit and customer orders need customers, purchase orders need suppliers, and VAT needs a VRN.",
+  "invalid_format": "Choose Excel or PDF"
 }

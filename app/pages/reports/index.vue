@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { BadgePercent, Banknote, CreditCard, FileSpreadsheet, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
-import * as XLSX from 'xlsx'
+import { BadgePercent, Banknote, CreditCard, FileSpreadsheet, FileText, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,9 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import StatCard from '@/components/reports/StatCard.vue'
 import TrendChart from '@/components/reports/TrendChart.vue'
-import type { ProductSort } from '@/composables/useReports'
-import { currencyDecimals, formatMoney } from '~/utils/money'
-import { saveFile } from '~/utils/download'
+import type { ExportFormat, ProductSort, ReportExport } from '@/composables/useReports'
+import { formatMoney } from '~/utils/money'
 import type { RangePreset } from '~/utils/reportRanges'
 import { marginText, presetRange, rangePresetLabel, todayIn } from '~/utils/reportRanges'
 
@@ -24,7 +22,7 @@ const allShopsScope = 'all'
 
 const { user } = useAuth()
 const { t, formatDate } = useI18n()
-const { summary, days, products, cashiers, shops, inventory, loading, fetchSalesReports, fetchProductRanking, fetchInventory } = useReports()
+const { summary, days, products, cashiers, shops, inventory, loading, exporting, exportReport, fetchSalesReports, fetchProductRanking, fetchInventory } = useReports()
 
 const today = todayIn(user.value?.branding?.timezone)
 const rangePreset = ref<RangePreset>('last30')
@@ -33,7 +31,6 @@ const toDate = ref(today)
 const shopScope = ref(activeShopScope)
 const productSort = ref<ProductSort>('revenue')
 const activeTab = ref('overview')
-const exporting = ref(false)
 
 const presets: RangePreset[] = ['today', 'yesterday', 'last7', 'last30', 'thisMonth', 'lastMonth']
 const productSorts: ProductSort[] = ['revenue', 'quantity', 'profit']
@@ -96,54 +93,15 @@ watch(activeTab, openedTab => {
 const marginOf = (profit: number, netRevenue: number) => (netRevenue > 0 ? marginText(Math.round((profit / netRevenue) * 10000)) : '—')
 const lastSoldText = (isoDate: string | null) => (isoDate ? formatDate(isoDate) : t('reports.deadStock.neverSold'))
 
-const toMajor = (minorUnits: number) => minorUnits / 10 ** currencyDecimals()
-
-const exportExcel = async () => {
-  if (!summary.value) return
-  exporting.value = true
-  try {
-    const workbook = XLSX.utils.book_new()
-    const column = (key: string) => t(`reports.columns.${key}`)
-    const itemColumn = column('item')
-    const valueColumn = column('value')
-    const summaryRows = [
-      { [itemColumn]: column('period'), [valueColumn]: rangeLabel.value },
-      { [itemColumn]: column('shops'), [valueColumn]: scopeLabel.value },
-      { [itemColumn]: column('sales'), [valueColumn]: summary.value.sale_count },
-      { [itemColumn]: column('itemsSold'), [valueColumn]: summary.value.units_sold },
-      { [itemColumn]: column('takingsInclTax'), [valueColumn]: toMajor(summary.value.total) },
-      { [itemColumn]: column('tax'), [valueColumn]: toMajor(summary.value.tax_total) },
-      { [itemColumn]: column('netSales'), [valueColumn]: toMajor(summary.value.net_sales) },
-      { [itemColumn]: column('costOfGoods'), [valueColumn]: toMajor(summary.value.cost_total) },
-      { [itemColumn]: column('grossProfit'), [valueColumn]: toMajor(summary.value.gross_profit) },
-      { [itemColumn]: column('marginPercent'), [valueColumn]: summary.value.margin_basis_points / 100 },
-      { [itemColumn]: column('discountsGiven'), [valueColumn]: toMajor(summary.value.discount_total) },
-      { [itemColumn]: column('cash'), [valueColumn]: toMajor(summary.value.payments.cash) },
-      { [itemColumn]: column('card'), [valueColumn]: toMajor(summary.value.payments.card) },
-      { [itemColumn]: column('mobileMoney'), [valueColumn]: toMajor(summary.value.payments.mobile) },
-    ]
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(summaryRows), t('reports.sheets.summary'))
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(days.value.map(day => ({
-      [column('date')]: day.date, [column('sales')]: day.sale_count, [column('takings')]: toMajor(day.total), [column('tax')]: toMajor(day.tax_total), [column('cost')]: toMajor(day.cost_total), [column('grossProfit')]: toMajor(day.gross_profit),
-    }))), t('reports.sheets.days'))
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(products.value.map(product => ({
-      [column('product')]: product.variant_label ? `${product.name} ${product.variant_label}` : product.name, [column('sku')]: product.sku, [column('quantity')]: product.quantity, [column('takings')]: toMajor(product.revenue), [column('netSales')]: toMajor(product.net_revenue), [column('cost')]: toMajor(product.cost_total), [column('grossProfit')]: toMajor(product.gross_profit),
-    }))), t('reports.sheets.products'))
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(cashiers.value.map(cashier => ({
-      [column('staff')]: cashier.name, [column('sales')]: cashier.sale_count, [column('takings')]: toMajor(cashier.total), [column('averageSale')]: toMajor(cashier.average_sale),
-    }))), t('reports.sheets.staff'))
-    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(shops.value.map(shopRow => ({
-      [column('shop')]: shopRow.name, [column('sales')]: shopRow.sale_count, [column('takings')]: toMajor(shopRow.total), [column('tax')]: toMajor(shopRow.tax_total), [column('cost')]: toMajor(shopRow.cost_total), [column('grossProfit')]: toMajor(shopRow.gross_profit),
-    }))), t('reports.sheets.shops'))
-    const workbookBytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
-    const savedName = await saveFile(new Uint8Array(workbookBytes), `report-${fromDate.value}-to-${toDate.value}.xlsx`, { name: t('reports.excelFileType'), extensions: ['xlsx'] })
-    if (savedName) toast.success(t('reports.toasts.saved'), { description: savedName })
-  } catch (error: any) {
-    toast.error(t('reports.toasts.saveFailed'), { description: error?.message })
-  } finally {
-    exporting.value = false
-  }
+const exportsByTab: Record<string, ReportExport> = {
+  overview: 'summary',
+  products: 'products',
+  staff: 'cashiers',
+  shops: 'shops',
+  stock: 'inventory',
 }
+
+const downloadReport = (format: ExportFormat) => exportReport(exportsByTab[activeTab.value] ?? 'summary', format, filter.value, productSort.value)
 
 const printReport = () => window.print()
 
@@ -158,13 +116,17 @@ onMounted(reload)
         <p class="mt-1 text-muted-foreground">{{ rangeLabel }} · {{ scopeLabel }}</p>
       </div>
       <div class="flex gap-2 print:hidden">
-        <Button variant="outline" :disabled="!summary || exporting" @click="exportExcel">
+        <Button variant="outline" :disabled="!summary || exporting !== null" :title="t('reports.downloadHint')" @click="downloadReport('xlsx')">
           <FileSpreadsheet />
-          {{ exporting ? t('common.actions.saving') : t('reports.excel') }}
+          {{ exporting === 'xlsx' ? t('common.actions.saving') : t('reports.excel') }}
+        </Button>
+        <Button variant="outline" :disabled="!summary || exporting !== null" :title="t('reports.downloadHint')" @click="downloadReport('pdf')">
+          <FileText />
+          {{ exporting === 'pdf' ? t('common.actions.saving') : t('reports.pdf') }}
         </Button>
         <Button variant="outline" :disabled="!summary" @click="printReport">
           <Printer />
-          {{ t('reports.printOrPdf') }}
+          {{ t('reports.print') }}
         </Button>
       </div>
     </div>

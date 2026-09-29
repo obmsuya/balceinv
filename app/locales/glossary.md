@@ -125,6 +125,10 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| invoice | ankara | |
+| filter(s) | kichujio / vichujio | |
+| tab (on a page) | kichupo / vichupo | |
+| PDF document | hati ya PDF | |
 
 Style:
 - Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".
