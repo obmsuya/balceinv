@@ -70,5 +70,8 @@
   "import_mismatch": "Ukaguzi umeona tofauti, kwa hiyo hakuna kilichohifadhiwa",
   "unknown_owner": "Chagua mojawapo ya akaunti za zamani za msimamizi kuwa mmiliki",
   "no_old_users": "Data za zamani hazina akaunti za wafanyakazi. Weka biashara mpya badala yake.",
-  "business_name_missing": "Weka jina la biashara"
+  "business_name_missing": "Weka jina la biashara",
+  "message_length": "Andika herufi kati ya 5 na 5000",
+  "contact_required": "Weka barua pepe au namba ya simu ili tukupate",
+  "invalid_phone": "Tumia namba ya simu ya Tanzania kama 0712 345 678"
 }

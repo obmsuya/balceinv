@@ -70,5 +70,8 @@
   "import_mismatch": "The check found a difference, so nothing was saved",
   "unknown_owner": "Choose one of the old admin accounts as the owner",
   "no_old_users": "The old data has no staff accounts. Set up a new business instead.",
-  "business_name_missing": "Enter the business name"
+  "business_name_missing": "Enter the business name",
+  "message_length": "Write between 5 and 5000 characters",
+  "contact_required": "Give an email or a phone number so we can reach you",
+  "invalid_phone": "Use a Tanzanian mobile number like 0712 345 678"
 }
