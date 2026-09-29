@@ -57,5 +57,9 @@
     "created": "Akaunti ya biashara imeundwa!",
     "createdHint": "Sasa unaweza kuingia kwa barua pepe na nenosiri lako.",
     "failed": "Imeshindwa kuweka biashara"
+  },
+  "oldData": {
+    "title": "Data zako za Balce ya zamani zipo kwenye kompyuta hii",
+    "body": "Toleo hili jipya huhifadhi data zake peke yake na bado halijahamisha bidhaa na mauzo yako ya zamani. Ukiweka biashara sasa, utaanza bila chochote. Wasiliana kwanza na huduma kwa wateja ya Balce ili wakuhamishie data zako."
   }
 }

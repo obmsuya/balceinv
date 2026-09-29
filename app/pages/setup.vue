@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { TriangleAlert } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 import {
@@ -25,11 +26,12 @@ import { apiErrorMessage } from '~/utils/i18n'
 
 definePageMeta({ layout: false })
 
-const { setup, checkSetup, isLoading } = useAuth()
+const { setup, fetchSetupStatus, isLoading } = useAuth()
 const { t } = useI18n()
 
 const mounted = ref(false)
 const step = ref<1 | 2>(1)
+const oldDataFound = ref(false)
 
 const formSchema = toTypedSchema(z.object({
   business_name:  z.string().min(2, { error: () => t('setup.validation.businessNameRequired') }),
@@ -48,13 +50,12 @@ onMounted(async () => {
   const route = useRoute()
   const comingFromLogin = route.query.from === 'login'
 
-  if (!comingFromLogin) {
-    const configured = await checkSetup()
-    if (configured) {
-      await navigateTo('/login')
-      return
-    }
+  const setupStatus = await fetchSetupStatus()
+  if (setupStatus.configured && !comingFromLogin) {
+    await navigateTo('/login')
+    return
   }
+  oldDataFound.value = setupStatus.old_data_found
 
   setTimeout(() => { mounted.value = true }, 60)
 })
@@ -133,6 +134,13 @@ const onSubmit = form.handleSubmit(async (values) => {
         <LanguageSwitcher />
       </div>
       <div class="form-box">
+        <div v-if="oldDataFound" role="alert" class="mb-6 flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+          <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <div class="min-w-0 space-y-1">
+            <p class="font-medium">{{ t('setup.oldData.title') }}</p>
+            <p class="text-muted-foreground">{{ t('setup.oldData.body') }}</p>
+          </div>
+        </div>
 
         <div v-show="step === 1">
           <div class="form-head">

@@ -53,6 +53,11 @@ interface LoginPayload {
   session_token?: string
 }
 
+export interface SetupStatus {
+  configured: boolean
+  old_data_found: boolean
+}
+
 export interface SetupValues {
   business_name: string
   business_type: string
@@ -156,14 +161,19 @@ export const useAuth = () => {
     }
   }
 
-  const checkSetup = async (): Promise<boolean> => {
+  const fetchSetupStatus = async (): Promise<SetupStatus> => {
     try {
-      const statusResponse = await apiFetch<ApiEnvelope<{ configured: boolean }>>('/api/setup/status')
-      return statusResponse.data?.configured ?? false
+      const statusResponse = await apiFetch<ApiEnvelope<SetupStatus>>('/api/setup/status')
+      return {
+        configured: statusResponse.data?.configured ?? false,
+        old_data_found: statusResponse.data?.old_data_found ?? false,
+      }
     } catch {
-      return false
+      return { configured: false, old_data_found: false }
     }
   }
+
+  const checkSetup = async (): Promise<boolean> => (await fetchSetupStatus()).configured
 
   return {
     user: readonly(user),
@@ -172,6 +182,7 @@ export const useAuth = () => {
     logout,
     setup,
     checkSetup,
+    fetchSetupStatus,
     fetchCurrentUser,
     switchShop,
     applyCurrentUser,
