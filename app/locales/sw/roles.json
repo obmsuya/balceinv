@@ -40,7 +40,12 @@
     "discounts": "Punguzo",
     "reports": "Ripoti",
     "settings": "Mipangilio",
-    "notifications": "Taarifa"
+    "notifications": "Taarifa",
+    "suppliers": "Wasambazaji",
+    "purchases": "Manunuzi",
+    "customers": "Wateja",
+    "orders": "Oda za wateja",
+    "accounting": "Uhasibu"
   },
   "permissions": {
     "products": {
@@ -102,6 +107,36 @@
       "create": "Unda taarifa",
       "edit": "Hariri taarifa",
       "delete": "Futa taarifa"
+    },
+    "suppliers": {
+      "view": "Tazama wasambazaji",
+      "create": "Ongeza wasambazaji",
+      "edit": "Hariri wasambazaji",
+      "delete": "Ondoa wasambazaji"
+    },
+    "purchases": {
+      "view": "Tazama manunuzi",
+      "create": "Rekodi stoku iliyonunuliwa",
+      "edit": "Hariri manunuzi na lipa wasambazaji",
+      "delete": "Ghairi manunuzi"
+    },
+    "customers": {
+      "view": "Tazama wateja",
+      "create": "Ongeza wateja",
+      "edit": "Hariri wateja na pokea malipo ya madeni",
+      "delete": "Ondoa wateja"
+    },
+    "orders": {
+      "view": "Tazama oda za wateja",
+      "create": "Pokea oda za wateja",
+      "edit": "Sasisha oda za wateja",
+      "delete": "Ghairi oda za wateja"
+    },
+    "accounting": {
+      "view": "Tazama vitabu vya hesabu",
+      "create": "Rekodi pesa inayoingia na kutoka",
+      "edit": "Rekebisha na funga vitabu",
+      "delete": "Batilisha maingizo"
     }
   },
   "table": {

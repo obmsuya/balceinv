@@ -16,7 +16,11 @@
     "shops": "Maduka",
     "users": "Watumiaji",
     "roles": "Majukumu",
-    "settings": "Mipangilio"
+    "settings": "Mipangilio",
+    "orders": "Oda",
+    "customers": "Wateja",
+    "suppliers": "Wasambazaji",
+    "money": "Fedha"
   },
   "header": {
     "toggleNavigation": "Onyesha au ficha menyu",

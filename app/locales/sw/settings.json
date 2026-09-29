@@ -12,7 +12,8 @@
     "notifications": "Taarifa",
     "backups": "Nakala rudufu",
     "network": "Mtandao",
-    "updates": "Masasisho"
+    "updates": "Masasisho",
+    "features": "Vipengele"
   },
   "business": {
     "title": "Maelezo ya biashara",
@@ -184,5 +185,45 @@
     "logoUploaded": "Nembo imepakiwa",
     "logoUploadFailed": "Imeshindwa kupakia nembo",
     "logoTooLarge": "Nembo lazima iwe MB 1 au chini"
+  },
+  "features": {
+    "buying": {
+      "title": "Kununua stoku",
+      "description": "Washa tu kile duka lako linachotumia. Kila kitu kinafanya kazi bila hivi.",
+      "suppliers": "Wasambazaji",
+      "suppliersHelp": "Weka orodha ya unaonunua kwao na urekodi stoku wanayoleta. Ikizimwa: ongeza stoku kama kawaida.",
+      "purchaseOrders": "Oda kwa wasambazaji",
+      "purchaseOrdersHelp": "Andika ulichoagiza kwa msambazaji na ukiweke alama kinapofika."
+    },
+    "selling": {
+      "title": "Wateja na mkopo",
+      "description": "Mauzo mengi hubaki bila jina. Washa hivi ukihitaji kujua aliyenunua.",
+      "customers": "Wateja",
+      "customersHelp": "Hifadhi wateja kwa jina na namba ya simu na uone walichonunua.",
+      "credit": "Kuuza kwa mkopo (madeni)",
+      "creditHelp": "Mruhusu mteja alipe baadaye. Balce inahifadhi deni la kila mmoja na kukukumbusha.",
+      "orders": "Oda za wateja",
+      "ordersHelp": "Pokea oda na malipo ya awali, weka stoku pembeni, kisha kamilisha mauzo mteja anapochukua."
+    },
+    "accounting": {
+      "title": "Uhasibu",
+      "description": "Balce inatunza hesabu kutokana na mauzo na stoku zako. Wewe unarekodi tu pesa inayotoka.",
+      "off": "Imezimwa",
+      "offHelp": "Hakuna vitabu vya hesabu. Mauzo na ripoti vinaendelea kama sasa.",
+      "simple": "Hesabu rahisi",
+      "simpleHelp": "Rekodi pesa inayotoka, pesa unayoweka au kutoa, na uone faida, ulichonacho na unachodaiwa.",
+      "full": "Uhasibu kamili",
+      "fullHelp": "Kwa mhasibu: orodha ya akaunti, marekebisho, kufunga mwezi, mizania ya majaribio na mizania."
+    },
+    "vat": {
+      "registered": "Umesajiliwa kwa VAT",
+      "help": "Ikiwa tu TRA imesajili biashara yako kwa VAT. Balce itaonyesha VAT kwenye manunuzi na kiasi cha kulipa kila mwezi.",
+      "number": "Namba ya usajili wa VAT (VRN)",
+      "numberRequired": "Weka VRN ili kuwasha VAT."
+    },
+    "toasts": {
+      "saved": "Vipengele vimehifadhiwa",
+      "saveFailed": "Imeshindwa kuhifadhi vipengele"
+    }
   }
 }

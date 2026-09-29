@@ -63,5 +63,6 @@
   "already_configured": "Biashara hii tayari imewekwa",
   "already_uploaded": "Kiungo hiki kimeshatumika",
   "expired": "Kiungo hiki kimeisha muda wake. Tengeneza kipya.",
-  "invalid_printer_port": "Huo si mlango wa printa. Tumia mlango wa COM, printa ya serial au USB, au printa iliyoshirikiwa kwenye kompyuta hii."
+  "invalid_printer_port": "Huo si mlango wa printa. Tumia mlango wa COM, printa ya serial au USB, au printa iliyoshirikiwa kwenye kompyuta hii.",
+  "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN."
 }

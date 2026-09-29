@@ -21,6 +21,7 @@ import {
   RotateCw,
   Palette,
   Languages,
+  ToggleRight,
 } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import BackupPanel from '@/components/backup/BackupPanel.vue'
 import NetworkPanel from '@/components/settings/NetworkPanel.vue'
+import FeaturesPanel from '@/components/settings/FeaturesPanel.vue'
 import {
   Select,
   SelectContent,
@@ -328,6 +330,9 @@ const efdBadgeLabel = computed(() => {
         <TabsTrigger value="business">
           <Building2 />{{ t('settings.tabs.business') }}
         </TabsTrigger>
+        <TabsTrigger value="features">
+          <ToggleRight />{{ t('settings.tabs.features') }}
+        </TabsTrigger>
         <TabsTrigger value="branding">
           <Palette />{{ t('settings.tabs.branding') }}
         </TabsTrigger>
@@ -448,6 +453,10 @@ const efdBadgeLabel = computed(() => {
             </div>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="features" class="mt-4">
+        <FeaturesPanel />
       </TabsContent>
 
       <TabsContent value="branding" class="mt-4">

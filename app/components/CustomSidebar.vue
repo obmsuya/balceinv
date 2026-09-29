@@ -11,7 +11,11 @@ import {
   FileText,
   BadgePercent,
   Store,
-  LayoutDashboard
+  LayoutDashboard,
+  ClipboardList,
+  Contact,
+  Truck,
+  Wallet
 } from 'lucide-vue-next';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +28,7 @@ interface NavigationItem {
   icon: any;
   label: string;
   resource: string;
+  isFeatureOn?: boolean;
   badge?: number;
 }
 
@@ -33,6 +38,7 @@ const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 const { user, logout } = useAuth();
 const { canView } = usePermissions();
 const { isCloud, fetchPlatform } = usePlatform();
+const { suppliersOn, customersOn, customerOrdersOn, accountingOn } = useFeatures();
 
 onMounted(fetchPlatform);
 
@@ -54,12 +60,16 @@ const navigationItems = computed(() => {
     { path: '/dashboard', icon: LayoutDashboard, label: t('nav.items.dashboard'), resource: 'reports' },
     { path: '/pos', icon: CreditCard, label: t('nav.items.pos'), resource: 'sales' },
     { path: '/sales', icon: ShoppingCart, label: t('nav.items.sales'), resource: 'sales' },
+    { path: '/orders', icon: ClipboardList, label: t('nav.items.orders'), resource: 'orders', isFeatureOn: customerOrdersOn.value },
+    { path: '/customers', icon: Contact, label: t('nav.items.customers'), resource: 'customers', isFeatureOn: customersOn.value },
     { path: '/products', icon: Package, label: t('nav.items.products'), resource: 'products' },
     { path: '/stock', icon: Boxes, label: t('nav.items.stock'), resource: 'stock_movements' },
+    { path: '/suppliers', icon: Truck, label: t('nav.items.suppliers'), resource: 'suppliers', isFeatureOn: suppliersOn.value },
     { path: '/discounts', icon: BadgePercent, label: t('nav.items.discounts'), resource: 'discounts' },
   ];
 
   const management: NavigationItem[] = [
+    { path: '/money', icon: Wallet, label: t('nav.items.money'), resource: 'accounting', isFeatureOn: accountingOn.value },
     { path: '/reports', icon: FileText, label: t('nav.items.reports'), resource: 'reports' },
     { path: '/notifications', icon: Bell, label: t('nav.items.notifications'), resource: 'notifications' },
   ];
@@ -74,6 +84,7 @@ const navigationItems = computed(() => {
   const isVisible = (item: NavigationItem) => {
     const isCloudOnly = item.path === '/shops';
     if (isCloudOnly && !isCloud.value) return false;
+    if (item.isFeatureOn === false) return false;
     return canView(item.resource);
   };
 

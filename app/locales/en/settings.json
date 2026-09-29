@@ -12,7 +12,8 @@
     "notifications": "Notifications",
     "backups": "Backups",
     "network": "Network",
-    "updates": "Updates"
+    "updates": "Updates",
+    "features": "Features"
   },
   "business": {
     "title": "Business Details",
@@ -184,5 +185,45 @@
     "logoUploaded": "Logo uploaded",
     "logoUploadFailed": "Failed to upload logo",
     "logoTooLarge": "The logo must be 1 MB or smaller"
+  },
+  "features": {
+    "buying": {
+      "title": "Buying stock",
+      "description": "Turn on only what your shop uses. Everything works without these.",
+      "suppliers": "Suppliers",
+      "suppliersHelp": "Keep a list of the people you buy from and record the stock they deliver. Off: just add stock as today.",
+      "purchaseOrders": "Purchase orders",
+      "purchaseOrdersHelp": "Write down what you ordered from a supplier and tick it off when it arrives."
+    },
+    "selling": {
+      "title": "Customers and credit",
+      "description": "Most sales stay anonymous. Turn these on when you need to know who bought.",
+      "customers": "Customers",
+      "customersHelp": "Save customers with a name and phone number and see what they bought.",
+      "credit": "Sell on credit (madeni)",
+      "creditHelp": "Let a customer pay later. Balce keeps what each one owes and reminds you.",
+      "orders": "Customer orders",
+      "ordersHelp": "Take an order with a deposit, keep the stock aside, and finish the sale when they collect."
+    },
+    "accounting": {
+      "title": "Accounting",
+      "description": "Balce keeps the books from your sales and stock. You only record the money that goes out.",
+      "off": "Off",
+      "offHelp": "No books. Sales and reports work as they do now.",
+      "simple": "Simple books",
+      "simpleHelp": "Record money out, money you put in or take out, and see profit, what you own and what you owe.",
+      "full": "Full accounting",
+      "fullHelp": "For an accountant: chart of accounts, adjustments, month-end closing, trial balance and balance sheet."
+    },
+    "vat": {
+      "registered": "Registered for VAT",
+      "help": "Only if TRA registered your business for VAT. Balce then shows VAT on purchases and what to pay each month.",
+      "number": "VAT registration number (VRN)",
+      "numberRequired": "Enter the VRN to turn VAT on."
+    },
+    "toasts": {
+      "saved": "Features saved",
+      "saveFailed": "Could not save the features"
+    }
   }
 }
