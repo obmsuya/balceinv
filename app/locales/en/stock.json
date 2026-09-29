@@ -73,7 +73,8 @@
       "countMatches": "The count matches the stock already",
       "quantityRequired": "Enter a quantity above zero",
       "notEnough": "Only {quantity} {unit} in stock"
-    }
+    },
+    "booksTip": "With the books on, stock received here counts as stock the owner brought in. To record stock bought from a supplier and what you paid, use Stock arrived."
   },
   "send": {
     "thisShop": "this shop",

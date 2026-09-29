@@ -125,6 +125,27 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| books (accounting records) | vitabu vya hesabu | |
+| record / entry in the books | rekodi (full accounting: ingizo) | |
+| reverse (a record) | batilisha | futa |
+| account (in the books) | akaunti | |
+| chart of accounts | orodha ya akaunti | |
+| debit / credit | debiti / krediti | |
+| close the month | funga mwezi | |
+| account statement | mwenendo wa akaunti | taarifa (that means notification) |
+| cash book | daftari la fedha | |
+| assets / liabilities / equity | mali / madeni / mtaji | |
+| what I own / what I owe | mali yangu / madeni yangu | |
+| owner's capital | mtaji wa mmiliki | |
+| cost of goods sold | gharama ya bidhaa zilizouzwa | |
+| rent (for a building) | kodi ya pango | kodi alone (that means tax) |
+| salaries | mishahara | |
+| electricity and water | umeme na maji (LUKU) | |
+| VAT charged / VAT reclaimable | VAT iliyotozwa / VAT ya kurudishiwa | |
+| manual entry | ingizo la mkono | |
+| books check | ukaguzi wa hesabu | |
+| receipt photo | picha ya risiti | |
+| stock gains / stock losses | ongezeko la stoku / hasara ya stoku | |
 | invoice | ankara | |
 | filter(s) | kichujio / vichujio | |
 | tab (on a page) | kichupo / vichupo | |
