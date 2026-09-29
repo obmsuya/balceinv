@@ -119,11 +119,7 @@ const metadataFields = ref<Array<{ key: string; value: string }>>([])
 const formatCurrency = (value: string | number): string => {
   const number = typeof value === 'number' ? value : Number.parseFloat(value.replace(/[^0-9.]/g, ''))
   if (Number.isNaN(number)) return ''
-  return new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(number)
+  return formatMoney(number)
 }
 
 const parseCurrency = (value: string): number =>
@@ -788,20 +784,20 @@ const lowStockCount = computed(() =>
             <!-- Pricing -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <Label for="price">Selling Price (TZS) *</Label>
+                <Label for="price">Selling Price ({{ currencyCode() }}) *</Label>
                 <Input
                   id="price"
                   v-model="formData.price"
-                  placeholder="TZS 1,000"
+                  placeholder="1,000"
                   @input="handlePriceInput('price', $event)"
                 />
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="cost-price">Cost Price (TZS) *</Label>
+                <Label for="cost-price">Cost Price ({{ currencyCode() }}) *</Label>
                 <Input
                   id="cost-price"
                   v-model="formData.cost_price"
-                  placeholder="TZS 700"
+                  placeholder="700"
                   @input="handlePriceInput('cost_price', $event)"
                 />
               </div>
@@ -813,7 +809,7 @@ const lowStockCount = computed(() =>
                 <Input
                   id="wholesale-price"
                   v-model="formData.wholesale_price"
-                  placeholder="TZS 850"
+                  placeholder="850"
                   @input="handlePriceInput('wholesale_price', $event)"
                 />
               </div>
@@ -893,7 +889,7 @@ const lowStockCount = computed(() =>
                 />
                 <Input
                   v-model="newAddonPrice"
-                  placeholder="Extra price (TZS)"
+                  :placeholder="`Extra price (${currencyCode()})`"
                   class="w-full sm:w-40"
                 />
                 <Button

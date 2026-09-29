@@ -1,5 +1,7 @@
 import { toast } from 'vue-sonner'
 import { isTauri } from '~/composables/usePlatform'
+import { applyBrandColor } from '~/utils/brandTheme'
+import { setMoneyFormat } from '~/utils/money'
 
 export interface ShopSummary {
   id: string
@@ -13,6 +15,15 @@ export interface Permission {
   description: string
 }
 
+export interface Branding {
+  logo_url: string | null
+  primary_color: string
+  currency_code: string
+  currency_decimals: number
+  timezone: string
+  default_locale: string
+}
+
 export interface CurrentUser {
   id: string
   name: string
@@ -22,6 +33,7 @@ export interface CurrentUser {
   is_owner: boolean
   company_id: string
   company_name: string
+  branding: Branding
   shop_id: string | null
   shops: ShopSummary[]
   permissions: Permission[]
@@ -63,6 +75,8 @@ export const useAuth = () => {
   const applyCurrentUser = (currentUser: CurrentUser) => {
     user.value = currentUser
     userPermissions.value = currentUser.permissions ?? []
+    applyBrandColor(currentUser.branding?.primary_color)
+    setMoneyFormat(currentUser.branding?.currency_code ?? 'TZS', currentUser.branding?.currency_decimals ?? 0)
   }
 
   const login = async (credentials: { email: string; password: string }): Promise<CurrentUser> => {
@@ -154,5 +168,6 @@ export const useAuth = () => {
     checkSetup,
     fetchCurrentUser,
     switchShop,
+    applyCurrentUser,
   }
 }

@@ -5,7 +5,6 @@ import {
   Wifi,
   Bell,
   Printer,
-  Calculator,
   Save,
   Upload,
   Phone,
@@ -18,7 +17,7 @@ import {
   DownloadCloud,
   CheckCircle2,
   RotateCw,
-  DatabaseBackup,
+  Palette,
 } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -38,13 +37,14 @@ import {
 } from '@/components/ui/select'
 import { useSettings } from '~/composables/useSettings'
 import { usePrint } from '~/composables/usePrint'
-import BackupPanel from '@/components/backup/BackupPanel.vue'
+import BrandingPanel from '@/components/settings/BrandingPanel.vue'
+import { isTauri } from '~/composables/usePlatform'
 import TeamCatalogDialog from '@/components/catalog/TeamCatalogDialog.vue'
 
 definePageMeta({ layout: 'default' })
 
-const { settings, loading, testing, fetchSettings, updateSettings, testEFDConnection, uploadLogo } =
-  useSettings()
+const { settings, loading, fetchSettings, updateSettings } = useSettings()
+const runningInTauri = isTauri()
 
 // ─── Business form ─────────────────────────────────────────────────────────
 // Source: settings.company.* (companies table)
@@ -61,18 +61,14 @@ const businessForm = ref({
 // Source: settings.* (settings table)
 const systemForm = ref({
   tax_rate: 18,
-  currency: 'TZS',
-  currency_symbol: 'TZS',
+  currency_code: 'TZS',
+  currency_decimals: 0,
   date_format: 'DD/MM/YYYY',
   receipt_number_format: 'SALE-{DATE}-{COUNTER}',
 })
 
 // ─── Hardware form ──────────────────────────────────────────────────────────
-// changeCounterEnabled has no backend field yet (see CardDescription below).
-// Everything else — including printerEnabled/printerPort/printerModel — maps
-// straight to settings table columns and is sent in saveHardware().
 const hardwareForm = ref({
-  changeCounterEnabled: false,
   printerEnabled: false,
   printerPort: '',
   printerModel: '',
@@ -105,11 +101,6 @@ const notificationForm = ref({
   dead_stock_days: 30,
 })
 
-// ─── Logo ────────────────────────────────────────────────────────────────────
-const logoPreview = ref<string | null>(null)
-const logoFile = ref<File | null>(null)
-const logoInputRef = ref<HTMLInputElement | null>(null)
-
 // ─── Per-section saving state ─────────────────────────────────────────────────
 const savingBusiness = ref(false)
 const savingSystem = ref(false)
@@ -136,8 +127,8 @@ const loadForms = () => {
 
   systemForm.value = {
     tax_rate: s.tax_rate ?? 18,
-    currency: s.currency ?? 'TZS',
-    currency_symbol: s.currency_symbol ?? 'TZS',
+    currency_code: c.currency_code ?? 'TZS',
+    currency_decimals: c.currency_decimals ?? 0,
     date_format: s.date_format ?? 'DD/MM/YYYY',
     receipt_number_format: s.receipt_number_format ?? 'SALE-{DATE}-{COUNTER}',
   }
@@ -145,7 +136,7 @@ const loadForms = () => {
   efdForm.value = {
     efd_enabled: s.efd_enabled ?? false,
     efd_endpoint: s.efd_endpoint ?? '',
-    efd_api_key: s.efd_api_key ?? '',
+    efd_api_key: '',
   }
 
   notificationForm.value = {
@@ -166,8 +157,6 @@ const loadForms = () => {
   hardwareForm.value.printerPort = s.printer_port ?? ''
   hardwareForm.value.printerModel = s.printer_model ?? ''
 
-  // Show current logo if one was already uploaded
-  if (c.logo) logoPreview.value = c.logo
 }
 const { user } = useAuth()
 
@@ -208,55 +197,38 @@ watch(() => route.query.tab, (requestedTab) => {
 onMounted(async () => {
   await fetchSettings()
   loadForms()
-  await fetchCurrentVersion()
-  await fetchDevices()
+  if (runningInTauri) {
+    await fetchCurrentVersion()
+    await fetchDevices()
+  }
 })
 
 // Re-populate whenever settings refreshes (e.g. after a save returns the updated record)
 watch(() => settings.value, () => loadForms())
 
-// ─── Logo handlers ────────────────────────────────────────────────────────────
-const onLogoChange = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  logoFile.value = file
-  const reader = new FileReader()
-  reader.onload = (e) => { logoPreview.value = e.target?.result as string }
-  reader.readAsDataURL(file)
-}
-
 // ─── Save: Business ──────────────────────────────────────────────────────────
 // Sends: business_name, business_phone, business_address, business_tin,
 //        receipt_header, receipt_footer  →  companies table via service layer
-// Logo uses a separate multipart endpoint: POST /api/settings/upload-logo
 const saveBusiness = async () => {
   savingBusiness.value = true
   try {
-    if (logoFile.value) {
-      await uploadLogo(logoFile.value)
-      logoFile.value = null
-    }
     await updateSettings({ ...businessForm.value })
-  } finally {
+  } catch {} finally {
     savingBusiness.value = false
   }
 }
 
 // ─── Save: System ────────────────────────────────────────────────────────────
-// Sends: tax_rate, currency, currency_symbol, date_format, receipt_number_format
-// → settings table
 const saveSystem = async () => {
   savingSystem.value = true
   try {
     await updateSettings({ ...systemForm.value })
-  } finally {
+  } catch {} finally {
     savingSystem.value = false
   }
 }
 
 // ─── Save: Hardware ──────────────────────────────────────────────────────────
-// changeCounterEnabled has no backend field yet — everything else here,
-// including the printer fields, is sent and actually persists.
 const saveHardware = async () => {
   savingHardware.value = true
   try {
@@ -268,18 +240,32 @@ const saveHardware = async () => {
       printer_port: hardwareForm.value.printerPort,
       printer_model: hardwareForm.value.printerModel,
     })
-  } finally {
+  } catch {} finally {
     savingHardware.value = false
   }
 }
 
 // ─── Save: EFD ───────────────────────────────────────────────────────────────
-// Sends: efd_enabled, efd_endpoint, efd_api_key → settings table
 const saveEfd = async () => {
   savingEfd.value = true
   try {
-    await updateSettings({ ...efdForm.value })
-  } finally {
+    const hasNewApiKey = efdForm.value.efd_api_key.trim() !== ''
+    await updateSettings({
+      efd_enabled: efdForm.value.efd_enabled,
+      efd_endpoint: efdForm.value.efd_endpoint,
+      ...(hasNewApiKey ? { efd_api_key: efdForm.value.efd_api_key } : {}),
+    })
+    efdForm.value.efd_api_key = ''
+  } catch {} finally {
+    savingEfd.value = false
+  }
+}
+
+const removeEfdApiKey = async () => {
+  savingEfd.value = true
+  try {
+    await updateSettings({ efd_api_key: '' })
+  } catch {} finally {
     savingEfd.value = false
   }
 }
@@ -290,23 +276,15 @@ const saveNotifications = async () => {
   savingNotifications.value = true
   try {
     await updateSettings({ ...notificationForm.value })
-  } finally {
+  } catch {} finally {
     savingNotifications.value = false
   }
 }
 
-const handleTestEFD = async () => {
-  await testEFDConnection(efdForm.value.efd_endpoint, efdForm.value.efd_api_key)
-}
-
-// ─── EFD badge ────────────────────────────────────────────────────────────────
-const efdBadgeVariant = computed(() => {
-  if (!settings.value?.efd_enabled) return 'secondary' as const
-  return settings.value.efd_test_status === 'success' ? 'default' as const : 'destructive' as const
-})
+const efdBadgeVariant = computed(() => (settings.value?.efd_enabled ? 'default' as const : 'secondary' as const))
 const efdBadgeLabel = computed(() => {
   if (!settings.value?.efd_enabled) return 'Disabled'
-  return settings.value.efd_test_status === 'success' ? 'Connected' : 'Not Tested'
+  return settings.value.efd_api_key_set ? 'Enabled · key saved' : 'Enabled · no key'
 })
 </script>
 
@@ -324,9 +302,12 @@ const efdBadgeLabel = computed(() => {
     </div>
 
     <Tabs v-else v-model="activeSettingsTab">
-      <TabsList>
+      <TabsList class="w-full justify-start overflow-x-auto">
         <TabsTrigger value="business">
           <Building2 />Business
+        </TabsTrigger>
+        <TabsTrigger value="branding">
+          <Palette />Branding
         </TabsTrigger>
         <TabsTrigger value="system">
           <Settings2 />System
@@ -340,10 +321,7 @@ const efdBadgeLabel = computed(() => {
         <TabsTrigger value="notifications">
           <Bell />Notifications
         </TabsTrigger>
-        <TabsTrigger value="backup">
-          <DatabaseBackup />Backup
-        </TabsTrigger>
-        <TabsTrigger value="updates">
+        <TabsTrigger v-if="runningInTauri" value="updates">
           <RefreshCw />Updates
         </TabsTrigger>
       </TabsList>
@@ -352,30 +330,6 @@ const efdBadgeLabel = computed(() => {
       <!-- BUSINESS                                       -->
       <!-- ══════════════════════════════════════════════ -->
       <TabsContent value="business" class="flex flex-col gap-4 mt-4">
-
-        <!-- Logo card -->
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">Business Logo</CardTitle>
-            <CardDescription>Displayed on receipts and reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="flex items-center gap-4">
-              <div class="size-20 rounded-lg border bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                <img v-if="logoPreview" :src="logoPreview" alt="Logo" class="size-full object-contain" />
-                <Building2 v-else class="size-8 text-muted-foreground" />
-              </div>
-              <div class="flex flex-col gap-2">
-                <input ref="logoInputRef" type="file" accept="image/png,image/jpeg" class="hidden" @change="onLogoChange" />
-                <Button variant="outline" size="sm" @click="logoInputRef?.click()">
-                  <Upload class="size-4 mr-2" />Choose image
-                </Button>
-                <p class="text-xs text-muted-foreground">PNG or JPG · max 2 MB</p>
-                <p v-if="logoFile" class="text-xs text-muted-foreground truncate max-w-48">{{ logoFile.name }}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <!-- Details card -->
         <Card>
@@ -435,6 +389,10 @@ const efdBadgeLabel = computed(() => {
         </Card>
       </TabsContent>
 
+      <TabsContent value="branding" class="mt-4">
+        <BrandingPanel />
+      </TabsContent>
+
       <!-- ══════════════════════════════════════════════ -->
       <!-- SYSTEM                                         -->
       <!-- ══════════════════════════════════════════════ -->
@@ -445,10 +403,10 @@ const efdBadgeLabel = computed(() => {
             <CardDescription>Applied to all sales and reports</CardDescription>
           </CardHeader>
           <CardContent class="flex flex-col gap-4">
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid gap-4 sm:grid-cols-3">
               <div class="flex flex-col gap-1.5">
                 <Label for="currency-code">Currency Code</Label>
-                <Select v-model="systemForm.currency">
+                <Select v-model="systemForm.currency_code">
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="TZS">TZS — Tanzanian Shilling</SelectItem>
@@ -459,8 +417,14 @@ const efdBadgeLabel = computed(() => {
                 </Select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <Label for="currency-symbol">Currency Symbol</Label>
-                <Input id="currency-symbol" v-model="systemForm.currency_symbol" placeholder="TZS" />
+                <Label for="currency-decimals">Decimal places</Label>
+                <Select v-model="systemForm.currency_decimals">
+                  <SelectTrigger id="currency-decimals"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem :value="0">None (1,500)</SelectItem>
+                    <SelectItem :value="2">Two (1,500.00)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div class="flex flex-col gap-1.5">
                 <Label for="tax-rate">Tax Rate (%)</Label>
@@ -511,23 +475,37 @@ const efdBadgeLabel = computed(() => {
 
         <Card>
           <CardHeader class="pb-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <CardTitle class="text-base">Change Counter</CardTitle>
-                <CardDescription class="mt-0.5">Calculates and shows change owed to the customer at checkout</CardDescription>
-              </div>
-              <Switch v-model="hardwareForm.changeCounterEnabled" />
-            </div>
+            <CardTitle class="text-base">Receipt options</CardTitle>
+            <CardDescription>Apply to printed and on-screen receipts</CardDescription>
           </CardHeader>
-          <CardContent v-if="hardwareForm.changeCounterEnabled">
-            <div class="rounded-md border bg-muted/40 p-3 flex items-start gap-2">
-              <Calculator class="size-4 mt-0.5 text-muted-foreground shrink-0" />
-              <p class="text-sm text-muted-foreground">When enabled, cashiers will see a <strong>Cash Received</strong> field at checkout and the system will display change automatically.</p>
+          <CardContent>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm">Print automatically after sale</p>
+                  <p class="text-xs text-muted-foreground">No prompt — prints immediately on completion</p>
+                </div>
+                <Switch v-model="hardwareForm.print_receipt_automatically" />
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm">Show tax on receipt</p>
+                  <p class="text-xs text-muted-foreground">Display VAT as a separate line item</p>
+                </div>
+                <Switch v-model="hardwareForm.show_tax_on_receipt" />
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm">Print barcodes on receipt</p>
+                  <p class="text-xs text-muted-foreground">Include product barcodes below line items</p>
+                </div>
+                <Switch v-model="hardwareForm.show_barcodes_on_receipt" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card v-if="runningInTauri">
           <CardHeader class="pb-3">
             <div class="flex items-center justify-between">
               <div>
@@ -590,32 +568,6 @@ const efdBadgeLabel = computed(() => {
               {{ testingPort ? 'Printing…' : 'Test Print' }}
             </Button>
 
-            <Separator />
-
-            <p class="text-sm font-medium">Receipt Options</p>
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm">Print automatically after sale</p>
-                  <p class="text-xs text-muted-foreground">No prompt — prints immediately on completion</p>
-                </div>
-                <Switch v-model="hardwareForm.print_receipt_automatically" />
-              </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm">Show tax on receipt</p>
-                  <p class="text-xs text-muted-foreground">Display VAT as a separate line item</p>
-                </div>
-                <Switch v-model="hardwareForm.show_tax_on_receipt" />
-              </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm">Print barcodes on receipt</p>
-                  <p class="text-xs text-muted-foreground">Include product barcodes below line items</p>
-                </div>
-                <Switch v-model="hardwareForm.show_barcodes_on_receipt" />
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -651,19 +603,21 @@ const efdBadgeLabel = computed(() => {
             </div>
             <div class="flex flex-col gap-1.5">
               <Label for="efd-api-key">API Key</Label>
-              <Input id="efd-api-key" v-model="efdForm.efd_api_key" type="password" placeholder="••••••••••••••••" />
+              <Input
+                id="efd-api-key"
+                v-model="efdForm.efd_api_key"
+                type="password"
+                autocomplete="off"
+                :placeholder="settings?.efd_api_key_set ? 'Saved. Type a new key to replace it' : 'Paste the key from TRA'"
+              />
             </div>
-            <p v-if="settings?.efd_last_test_date" class="text-xs text-muted-foreground">
-              Last tested: {{ new Date(settings.efd_last_test_date).toLocaleString() }}
-            </p>
-            <div class="flex gap-2 pt-1">
-              <Button variant="outline" :disabled="testing" @click="handleTestEFD">
-                <TestTube class="size-4 mr-2" />
-                {{ testing ? 'Testing…' : 'Test Connection' }}
-              </Button>
+            <div class="flex flex-wrap gap-2 pt-1">
               <Button :disabled="savingEfd" @click="saveEfd">
                 <Save class="size-4 mr-2" />
                 {{ savingEfd ? 'Saving…' : 'Save EFD Settings' }}
+              </Button>
+              <Button v-if="settings?.efd_api_key_set" variant="outline" :disabled="savingEfd" @click="removeEfdApiKey">
+                Remove saved key
               </Button>
             </div>
           </CardContent>
@@ -773,11 +727,7 @@ const efdBadgeLabel = computed(() => {
       <!-- ══════════════════════════════════════════════ -->
       <!-- UPDATES                                        -->
       <!-- ══════════════════════════════════════════════ -->
-      <TabsContent value="backup" class="mt-4">
-        <BackupPanel />
-      </TabsContent>
-
-      <TabsContent value="updates" class="flex flex-col gap-4 mt-4">
+      <TabsContent v-if="runningInTauri" value="updates" class="flex flex-col gap-4 mt-4">
         <Card>
           <CardHeader class="pb-3">
             <CardTitle class="text-base">App Version</CardTitle>

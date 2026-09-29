@@ -81,19 +81,13 @@ const dateRange = ref<{ start: Date | null; end: Date | null }>({
   end: null
 });
 
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const salesTrendData = computed(() => ({
   labels: dailyTrend.value.map(d => new Date(d.date).toLocaleDateString('en-TZ', { month: 'short', day: 'numeric' })),
   datasets: [
     {
-      label: 'Revenue (TZS)',
+      label: 'Revenue',
       data: dailyTrend.value.map(d => d.revenue),
       borderColor: '#3b82f6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -131,7 +125,7 @@ const salesTrendOptions = {
             label += ': ';
           }
           if (context.parsed.y !== null) {
-            if (context.dataset.label === 'Revenue (TZS)') {
+            if (context.dataset.label === 'Revenue') {
               label += formatCurrency(context.parsed.y);
             } else {
               label += context.parsed.y;
@@ -308,7 +302,7 @@ const generateFinancialPDF = () => {
         <thead>
           <tr>
             <th>Description</th>
-            <th class="text-right">Amount (TZS)</th>
+            <th class="text-right">Amount ({{ currencyCode() }})</th>
           </tr>
         </thead>
         <tbody>

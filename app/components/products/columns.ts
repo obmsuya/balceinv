@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/vue-table'
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Eye, AlertTriangle, ImageOff, GitBranch } from 'lucide-vue-next'
 import { h } from 'vue'
+import { formatMoney } from '~/utils/money'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -23,12 +24,7 @@ export interface ActionHandlers {
   canDelete: boolean
 }
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value)
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const renderImageFrame = (imageDataURI: string | null | undefined, productName: string) => {
   const frameClasses = 'relative flex items-center justify-center rounded-md border bg-muted overflow-hidden flex-shrink-0'

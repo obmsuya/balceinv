@@ -336,12 +336,7 @@ const getLineTotalPrice = (item: CartItem): number =>
 
 // ── Format helpers ────────────────────────────────────────────────────────
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value)
+const formatCurrency = (value: number): string => formatMoney(value)
 
 // ── Barcode handler ───────────────────────────────────────────────────────
 

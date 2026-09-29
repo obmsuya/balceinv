@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { Menu, Bell, Volume2, VolumeX, Fingerprint, RefreshCw } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { Menu, Bell, Volume2, VolumeX, Fingerprint, RefreshCw, Moon, Sun, Store } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
-import { Icon } from '@iconify/vue';
+import { assetUrl } from '~/composables/useSettings';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +62,7 @@ const copyHardwareId = async () => {
 const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 
 const { user, logout } = useAuth();
+const companyLogoSource = computed(() => assetUrl(user.value?.branding?.logo_url));
 
 const showNotificationPopover = ref(false);
 const notificationInterval = ref<NodeJS.Timeout | null>(null);
@@ -189,14 +190,22 @@ onUnmounted(() => {
   <header class="fixed top-0 left-0 right-0 h-16 border-b bg-background z-50">
     <div class="flex items-center justify-between h-full px-4 gap-4">
       <div class="flex items-center gap-3">
-        <button 
+        <button
+          type="button"
+          aria-label="Toggle navigation"
           @click="toggleSidebar"
-          class="flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors shrink-0"
+          class="flex items-center justify-center size-9 rounded-md hover:bg-accent transition-colors shrink-0"
         >
-          <Menu class="h-5 w-5" />
+          <Menu class="size-5" />
         </button>
-        
-        <h1 class="text-lg font-semibold hidden sm:block">POS System</h1>
+
+        <div class="flex min-w-0 items-center gap-2.5">
+          <div class="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+            <img v-if="companyLogoSource" :src="companyLogoSource" alt="" class="size-full bg-background object-contain">
+            <Store v-else class="size-4" />
+          </div>
+          <span class="hidden truncate text-base font-semibold sm:block">{{ user?.company_name || 'Balce' }}</span>
+        </div>
       </div>
 
       <div class="flex items-center gap-2">
@@ -207,8 +216,8 @@ onUnmounted(() => {
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <Button variant="ghost" size="icon">
-              <Icon icon="radix-icons:moon" class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Icon icon="radix-icons:sun" class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <Moon class="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Sun class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span class="sr-only">Toggle theme</span>
             </Button>
           </DropdownMenuTrigger>
