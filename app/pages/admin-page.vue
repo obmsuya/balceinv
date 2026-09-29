@@ -12,13 +12,16 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { apiErrorMessage } from '~/utils/i18n'
 
 definePageMeta({ layout: false })
 
+const { t } = useI18n()
+
 const formSchema = toTypedSchema(z.object({
-  name: z.string().min(2, 'At least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'At least 6 characters')
+  name: z.string().min(2, { error: () => t('admin.validation.nameMin') }),
+  email: z.string().email({ error: () => t('admin.validation.emailInvalid') }),
+  password: z.string().min(6, { error: () => t('admin.validation.passwordMin') })
 }))
 
 const { setupAdmin, isLoading } = useAuth()
@@ -31,11 +34,11 @@ const onSubmit = form.handleSubmit(async (values) => {
   try {
     const response = await setupAdmin(values)
     if (response.success) {
-      toast.success('Super User created', { description: 'Admin account set up successfully' })
+      toast.success(t('admin.toasts.created'), { description: t('admin.toasts.createdHint') })
       await navigateTo('/login')
     }
   } catch (error: any) {
-    toast.error('Setup failed', { description: error.data?.message || 'Error connecting to server' })
+    toast.error(t('admin.toasts.failed'), { description: apiErrorMessage(error, 'admin.toasts.connectionFailed') })
   }
 })
 </script>
@@ -54,30 +57,30 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
 
         <div class="pitch">
-          <h1>One setup.<br>Total control.</h1>
-          <p>The Super User account owns everything — users, roles, permissions, and system settings. Set it up once.</p>
+          <h1>{{ t('admin.pitch.titleLine1') }}<br>{{ t('admin.pitch.titleLine2') }}</h1>
+          <p>{{ t('admin.pitch.body') }}</p>
         </div>
 
         <div class="steps">
           <div class="step">
             <span class="n">01</span>
             <div>
-              <strong>Create this account</strong>
-              <p>Unrestricted access to all modules</p>
+              <strong>{{ t('admin.steps.createTitle') }}</strong>
+              <p>{{ t('admin.steps.createHint') }}</p>
             </div>
           </div>
           <div class="step">
             <span class="n">02</span>
             <div>
-              <strong>Configure roles</strong>
-              <p>Define what each team member can do</p>
+              <strong>{{ t('admin.steps.rolesTitle') }}</strong>
+              <p>{{ t('admin.steps.rolesHint') }}</p>
             </div>
           </div>
           <div class="step">
             <span class="n">03</span>
             <div>
-              <strong>Start operating</strong>
-              <p>Add products, sell, and track stock</p>
+              <strong>{{ t('admin.steps.operateTitle') }}</strong>
+              <p>{{ t('admin.steps.operateHint') }}</p>
             </div>
           </div>
         </div>
@@ -94,18 +97,18 @@ const onSubmit = form.handleSubmit(async (values) => {
     <main class="form-side" :class="{ show: mounted }">
       <div class="form-box">
         <div class="form-head">
-          <div class="badge">Initial Setup</div>
-          <h2>Create Super User</h2>
-          <p>This account has full, unrestricted system access.</p>
+          <div class="badge">{{ t('admin.form.badge') }}</div>
+          <h2>{{ t('admin.form.title') }}</h2>
+          <p>{{ t('admin.form.subtitle') }}</p>
         </div>
 
         <form @submit="onSubmit" class="fields">
           <FormField v-slot="{ componentField }" name="name">
             <FormItem>
-              <FormLabel>Full name</FormLabel>
+              <FormLabel>{{ t('admin.form.fullName') }}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Admin Name"
+                  :placeholder="t('admin.form.fullNamePlaceholder')"
                   autocomplete="name"
                   :disabled="isLoading"
                   v-bind="componentField"
@@ -117,7 +120,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
           <FormField v-slot="{ componentField }" name="email">
             <FormItem>
-              <FormLabel>Email address</FormLabel>
+              <FormLabel>{{ t('admin.form.email') }}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -133,11 +136,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
           <FormField v-slot="{ componentField }" name="password">
             <FormItem>
-              <FormLabel>Root password</FormLabel>
+              <FormLabel>{{ t('admin.form.password') }}</FormLabel>
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Minimum 6 characters"
+                  :placeholder="t('admin.form.passwordPlaceholder')"
                   autocomplete="new-password"
                   :disabled="isLoading"
                   v-bind="componentField"
@@ -150,17 +153,17 @@ const onSubmit = form.handleSubmit(async (values) => {
           <Button as-child>
             <button type="submit" class="w-full h-11" :disabled="isLoading">
               <span v-if="isLoading" class="spin"/>
-              {{ isLoading ? 'Creating account…' : 'Create account' }}
+              {{ isLoading ? t('admin.form.creating') : t('admin.form.create') }}
             </button>
           </Button>
         </form>
 
         <div class="or-row">
-          <span/><em>already set up?</em><span/>
+          <span/><em>{{ t('admin.form.alreadySetUp') }}</em><span/>
         </div>
 
         <NuxtLink to="/login" class="ghost-btn">
-          Sign in instead
+          {{ t('admin.form.signInInstead') }}
         </NuxtLink>
       </div>
     </main>
