@@ -65,6 +65,7 @@
   "expired": "Kiungo hiki kimeisha muda wake. Tengeneza kipya.",
   "invalid_printer_port": "Huo si mlango wa printa. Tumia mlango wa COM, printa ya serial au USB, au printa iliyoshirikiwa kwenye kompyuta hii.",
   "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN.",
+  "invalid_format": "Chagua Excel au PDF",
   "old_data_not_found": "Hakuna data za Balce ya zamani zilizopatikana kwenye kompyuta hii",
   "old_data_unreadable": "Faili la data za Balce ya zamani halisomeki. Huenda limeharibika. Wasiliana na huduma kwa wateja ya Balce.",
   "import_mismatch": "Ukaguzi umeona tofauti, kwa hiyo hakuna kilichohifadhiwa",
