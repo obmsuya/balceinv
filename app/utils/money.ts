@@ -33,6 +33,8 @@ export const formatMoney = (minorUnits: number | null | undefined): string => {
 
 export const currencyCode = (): string => activeMoneyFormat.value.currencyCode
 
+export const currencyDecimals = (): number => activeMoneyFormat.value.decimals
+
 export const majorToMinor = (majorUnits: number): number =>
   Math.round(majorUnits * 10 ** activeMoneyFormat.value.decimals)
 
