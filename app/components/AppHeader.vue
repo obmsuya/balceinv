@@ -61,11 +61,7 @@ const copyHardwareId = async () => {
 
 const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 
-const user = ref<{
-  name: string;
-  email: string;
-  role: string;
-} | null>(null);
+const { user, logout } = useAuth();
 
 const showNotificationPopover = ref(false);
 const notificationInterval = ref<NodeJS.Timeout | null>(null);
@@ -98,15 +94,7 @@ const hardRefresh = () => {
 };
 
 const handleLogout = async () => {
-  try {
-    await $fetch('/api/auth/logout', { method: 'POST' });
-    if (process.client) {
-      localStorage.removeItem('user');
-    }
-    await navigateTo('/login');
-  } catch (error) {
-    console.error('Logout failed:', error);
-  }
+  await logout();
 };
 
 /**
@@ -175,17 +163,11 @@ const clearNotificationPolling = () => {
 
 onMounted(() => {
   if (process.client) {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        user.value = JSON.parse(storedUser);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-      }
-    }
-
     const savedState = localStorage.getItem('sidebar-collapsed');
-    if (savedState !== null) {
+    const isPhoneWidth = window.matchMedia('(max-width: 767px)').matches;
+    if (isPhoneWidth) {
+      sidebarCollapsed.value = true;
+    } else if (savedState !== null) {
       sidebarCollapsed.value = savedState === 'true';
     }
 
