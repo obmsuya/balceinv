@@ -1,0 +1,29 @@
+{
+  "receipt": "Risiti",
+  "cashier": "Umehudumiwa na",
+  "subtotal": "Jumla ndogo",
+  "discounts": "Punguzo",
+  "total": "Jumla",
+  "tax": "Inajumuisha VAT",
+  "paid": "Umelipa",
+  "change": "Chenji",
+  "tin": "TIN",
+  "wholesale": "jumla",
+  "thanks": "Asante kwa kununua kwetu",
+  "note": "Maelezo",
+  "efd": "Uthibitisho wa EFD",
+  "efdPending": "Risiti ya EFD itafuata",
+  "paymentMethods": {
+    "cash": "Taslimu",
+    "card": "Kadi",
+    "mobile": "Pesa ya simu"
+  },
+  "loadFailed": "Imeshindwa kupakia risiti hii",
+  "toasts": {
+    "printed": "Risiti imechapishwa",
+    "printerUnreachable": "Imeshindwa kufikia printa",
+    "scanFailed": "Imeshindwa kutafuta printa",
+    "testSent": "Jaribio la kuchapisha limetumwa",
+    "testFailed": "Jaribio la kuchapisha limeshindwa — angalia muunganisho"
+  }
+}
