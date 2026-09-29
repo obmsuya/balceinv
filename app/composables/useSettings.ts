@@ -1,39 +1,31 @@
 import { toast } from 'vue-sonner'
 
-// Company fields live in the `companies` table.
-// The backend returns them nested under `settings.company`.
-interface Company {
-  id: number
+export interface CompanyProfile {
+  id: string
   name: string
   business_type: string
   phone: string | null
   address: string | null
   tin: string | null
-  logo: string | null
+  logo_url: string | null
+  primary_color: string
+  currency_code: string
+  currency_decimals: number
+  timezone: string
+  default_locale: string
   receipt_header: string | null
   receipt_footer: string | null
-  primary_color: string | null
 }
 
-// All other fields live in the `settings` table.
-// Keys match the Go json tags exactly (snake_case).
-interface Settings {
-  id: number
-  company_id: number
-  company: Company
-
+export interface Settings {
+  company: CompanyProfile
   tax_rate: number
-  currency: string
-  currency_symbol: string
   date_format: string
   receipt_number_format: string
-
+  receipt_language: string
   efd_enabled: boolean
   efd_endpoint: string | null
-  efd_api_key: string | null
-  efd_last_test_date: string | null
-  efd_test_status: string | null
-
+  efd_api_key_set: boolean
   low_stock_threshold: number
   email_notifications_enabled: boolean
   notification_email: string | null
@@ -42,45 +34,38 @@ interface Settings {
   alert_on_out_of_stock: boolean
   alert_on_dead_stock: boolean
   dead_stock_days: number
-
   print_receipt_automatically: boolean
   show_tax_on_receipt: boolean
   show_barcodes_on_receipt: boolean
-
   printer_enabled: boolean
   printer_port: string
   printer_model: string
   printer_baud_rate: number
   printer_paper_width: number
   open_cash_drawer: boolean
-
-  updated_by: number | null
-  created_at: string
   updated_at: string
 }
 
-// Keys match Go's UpdateSettingsInput json tags exactly (snake_case).
-// Business fields go to the `companies` table via the service layer.
-// All other fields go to the `settings` table.
-interface UpdateSettingsInput {
-  // → companies table
+export interface UpdateSettingsInput {
   business_name?: string
-  business_address?: string
+  business_type?: string
   business_phone?: string
+  business_address?: string
   business_tin?: string
   receipt_header?: string
   receipt_footer?: string
-  // system → settings table
+  primary_color?: string
+  currency_code?: string
+  currency_decimals?: number
+  timezone?: string
+  default_locale?: string
   tax_rate?: number
-  currency?: string
-  currency_symbol?: string
   date_format?: string
   receipt_number_format?: string
-  // EFD → settings table
+  receipt_language?: string
   efd_enabled?: boolean
   efd_endpoint?: string
   efd_api_key?: string
-  // notifications → settings table
   low_stock_threshold?: number
   email_notifications_enabled?: boolean
   notification_email?: string
@@ -89,11 +74,9 @@ interface UpdateSettingsInput {
   alert_on_out_of_stock?: boolean
   alert_on_dead_stock?: boolean
   dead_stock_days?: number
-  // hardware / receipt → settings table
   print_receipt_automatically?: boolean
   show_tax_on_receipt?: boolean
   show_barcodes_on_receipt?: boolean
-  // printer hardware → settings table
   printer_enabled?: boolean
   printer_port?: string
   printer_model?: string
@@ -102,92 +85,76 @@ interface UpdateSettingsInput {
   open_cash_drawer?: boolean
 }
 
-interface ApiResponse<T> {
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
+}
+
+const brandingFields: Array<keyof UpdateSettingsInput> = ['business_name', 'primary_color', 'currency_code', 'currency_decimals', 'timezone', 'default_locale']
+
+export const assetUrl = (assetPath: string | null | undefined): string | null => {
+  if (!assetPath) return null
+  const { public: { apiBase } } = useRuntimeConfig()
+  return `${apiBase}${assetPath}`
 }
 
 export const useSettings = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
+  const { fetchCurrentUser } = useAuth()
 
-  const settings = ref<Settings | null>(null)
+  const settings = useState<Settings | null>('settings:current', () => null)
   const loading = ref(false)
-  const testing = ref(false)
 
   const fetchSettings = async (): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Settings>>(`${apiBase}/api/settings`, {
-        credentials: 'include'
-      })
-      settings.value = res.data
+      const settingsResponse = await apiFetch<ApiEnvelope<Settings>>('/api/settings')
+      settings.value = settingsResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch settings')
+      toast.error(error?.data?.message || 'Failed to load settings')
     } finally {
       loading.value = false
     }
   }
 
-  // The backend accepts a single PUT /api/settings.
-  // The service layer internally splits fields between companies and settings tables.
-  // We just pass the correct snake_case keys and the backend handles routing.
-  const updateSettings = async (data: UpdateSettingsInput): Promise<void> => {
+  const updateSettings = async (changes: UpdateSettingsInput): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Settings>>(`${apiBase}/api/settings`, {
+      const updateResponse = await apiFetch<ApiEnvelope<Settings>>('/api/settings', {
         method: 'PUT',
-        body: data,
-        credentials: 'include'
+        body: changes,
       })
-      settings.value = res.data
-      toast.success(res.message)
+      settings.value = updateResponse.data
+      const touchesBranding = brandingFields.some(fieldName => fieldName in changes)
+      if (touchesBranding) await fetchCurrentUser()
+      toast.success(updateResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update settings')
+      const fieldErrors: Array<{ field: string; message: string }> = error?.data?.fields ?? []
+      const firstFieldError = fieldErrors[0]
+      toast.error(firstFieldError ? `${firstFieldError.field} ${firstFieldError.message}` : error?.data?.message || 'Failed to save settings')
       throw error
     } finally {
       loading.value = false
     }
   }
 
-  const testEFDConnection = async (endpoint: string, apiKey: string): Promise<boolean> => {
-    testing.value = true
-    try {
-      const res = await $apiFetch<ApiResponse<{ status: string; message: string }>>(
-        `${apiBase}/api/settings/test-efd`,
-        { method: 'POST', body: { endpoint, apiKey }, credentials: 'include' }
-      )
-      if (res.data.status === 'success') {
-        toast.success(res.message)
-        await fetchSettings()
-        return true
-      }
-      toast.error(res.data.message)
-      return false
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to test EFD connection')
-      return false
-    } finally {
-      testing.value = false
-    }
-  }
-
-  const uploadLogo = async (file: File): Promise<string | null> => {
+  const uploadLogo = async (logoFile: File): Promise<void> => {
     loading.value = true
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await $apiFetch<ApiResponse<{ logoUrl: string }>>(
-        `${apiBase}/api/settings/upload-logo`,
-        { method: 'POST', body: formData, credentials: 'include' }
-      )
-      toast.success(res.message)
-      await fetchSettings()
-      return res.data.logoUrl
+      const logoForm = new FormData()
+      logoForm.append('file', logoFile)
+      const uploadResponse = await apiFetch<ApiEnvelope<Settings>>('/api/settings/upload-logo', {
+        method: 'POST',
+        body: logoForm,
+      })
+      settings.value = uploadResponse.data
+      await fetchCurrentUser()
+      toast.success(uploadResponse.message)
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to upload logo')
-      return null
+      throw error
     } finally {
       loading.value = false
     }
@@ -196,10 +163,8 @@ export const useSettings = () => {
   return {
     settings,
     loading,
-    testing,
     fetchSettings,
     updateSettings,
-    testEFDConnection,
     uploadLogo,
   }
 }
