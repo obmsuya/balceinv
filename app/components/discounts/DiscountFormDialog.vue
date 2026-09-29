@@ -14,6 +14,7 @@ const emit = defineEmits<{ saved: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
 const { saveDiscount, saving } = useDiscounts()
 
 const name = ref('')
@@ -54,18 +55,18 @@ const readValue = (): number | null => {
 
 const submit = async () => {
   if (!name.value.trim()) {
-    toast.error('Give the discount a name')
+    toast.error(t('discounts.form.errors.nameRequired'))
     return
   }
   const discountValue = readValue()
   if (discountValue == null) {
-    toast.error(kind.value === 'percent' ? 'Enter a percentage between 0.01 and 100' : 'Enter an amount above zero')
+    toast.error(kind.value === 'percent' ? t('discounts.form.errors.badPercent') : t('discounts.form.errors.badAmount'))
     return
   }
   const startDate = new Date(startsAt.value)
   const endDate = new Date(endsAt.value)
   if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
-    toast.error('The discount must end after it starts')
+    toast.error(t('discounts.form.errors.badWindow'))
     return
   }
   try {
@@ -89,31 +90,31 @@ const submit = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>{{ discount ? 'Edit discount' : 'New discount' }}</DialogTitle>
-        <DialogDescription>The till applies the best running discount to each item. Wholesale prices are never discounted.</DialogDescription>
+        <DialogTitle>{{ discount ? t('discounts.form.editTitle') : t('discounts.page.newDiscount') }}</DialogTitle>
+        <DialogDescription>{{ t('discounts.form.description') }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <Label for="discount-name">Name</Label>
-          <Input id="discount-name" v-model="name" placeholder="Weekend offer" />
+          <Label for="discount-name">{{ t('common.fields.name') }}</Label>
+          <Input id="discount-name" v-model="name" :placeholder="t('discounts.form.namePlaceholder')" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <Label>Applies to</Label>
+          <Label>{{ t('discounts.form.appliesTo') }}</Label>
           <div v-if="target" class="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
             <span class="flex-1 truncate">{{ target.label }}</span>
-            <Button variant="ghost" size="icon" class="size-7" aria-label="Apply to every product" @click="target = null"><X /></Button>
+            <Button variant="ghost" size="icon" class="size-7" :aria-label="t('discounts.form.applyToAll')" @click="target = null"><X /></Button>
           </div>
           <template v-else>
-            <p class="text-sm text-muted-foreground">Every product. Pick one below to limit it.</p>
+            <p class="text-sm text-muted-foreground">{{ t('discounts.form.everyProductHint') }}</p>
             <ProductSearch @pick="product => target = { id: product.id, label: product.name }" />
           </template>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <button
-            v-for="choice in [{ kind: 'percent', label: 'Percentage', icon: Percent }, { kind: 'fixed', label: 'Amount off each', icon: Tag }]"
+            v-for="choice in [{ kind: 'percent', label: t('discounts.form.percentage'), icon: Percent }, { kind: 'fixed', label: t('discounts.form.amountOffEach'), icon: Tag }]"
             :key="choice.kind"
             type="button"
             class="flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors hover:bg-accent"
@@ -127,25 +128,25 @@ const submit = async () => {
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <Label for="discount-value">{{ kind === 'percent' ? 'Percent off' : `Amount off each (${currencyCode()})` }}</Label>
+          <Label for="discount-value">{{ kind === 'percent' ? t('discounts.form.percentOff') : t('discounts.form.amountOffEachCurrency', { currency: currencyCode() }) }}</Label>
           <Input id="discount-value" v-model="valueText" inputmode="decimal" :placeholder="kind === 'percent' ? '10' : '500'" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1.5">
-            <Label for="discount-starts">Starts</Label>
+            <Label for="discount-starts">{{ t('discounts.form.starts') }}</Label>
             <Input id="discount-starts" v-model="startsAt" type="datetime-local" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <Label for="discount-ends">Ends</Label>
+            <Label for="discount-ends">{{ t('discounts.form.ends') }}</Label>
             <Input id="discount-ends" v-model="endsAt" type="datetime-local" />
           </div>
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" @click="open = false">Cancel</Button>
-        <Button :disabled="saving" @click="submit">{{ discount ? 'Save' : 'Create discount' }}</Button>
+        <Button variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
+        <Button :disabled="saving" @click="submit">{{ discount ? t('common.actions.save') : t('discounts.form.create') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

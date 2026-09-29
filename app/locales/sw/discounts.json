@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Punguzo",
+    "subtitle": "Ofa ambazo kaunta inatumia yenyewe zikiwa hai",
+    "newDiscount": "Punguzo jipya",
+    "emptyTitle": "Bado hakuna punguzo",
+    "emptyHint": "Unda punguzo na kaunta italitumia likiwa hai.",
+    "stop": "Sitisha",
+    "stopTitle": "Sitisha {name}?",
+    "stopDescription": "Kaunta itaacha kulitumia mara moja. Mauzo ya zamani yanabaki na punguzo yaliyopata, na unaweza kulianzisha tena kwa kulihariri.",
+    "stopDiscount": "Sitisha punguzo"
+  },
+  "status": {
+    "active": "Linaendelea",
+    "scheduled": "Limepangwa",
+    "expired": "Limeisha",
+    "stopped": "Limesitishwa"
+  },
+  "form": {
+    "editTitle": "Hariri punguzo",
+    "description": "Kaunta inatumia punguzo bora lililo hai kwa kila bidhaa. Bei za jumla hazipunguzwi kamwe.",
+    "namePlaceholder": "Ofa ya wikendi",
+    "appliesTo": "Linahusu",
+    "applyToAll": "Tumia kwa kila bidhaa",
+    "everyProductHint": "Kila bidhaa. Chagua bidhaa moja hapa chini ili kulibana kwake.",
+    "percentage": "Asilimia",
+    "amountOffEach": "Kiasi kwa kila moja",
+    "percentOff": "Asilimia ya punguzo",
+    "amountOffEachCurrency": "Kiasi kinachopunguzwa kwa kila moja ({currency})",
+    "starts": "Linaanza",
+    "ends": "Linaisha",
+    "create": "Unda punguzo",
+    "errors": {
+      "nameRequired": "Lipe punguzo jina",
+      "badPercent": "Weka asilimia kati ya 0.01 na 100",
+      "badAmount": "Weka kiasi zaidi ya sifuri",
+      "badWindow": "Punguzo lazima liishe baada ya kuanza"
+    }
+  },
+  "labels": {
+    "percentOff": "Punguzo {percent}%",
+    "amountOffEach": "Punguzo {amount} kwa kila moja",
+    "everyProduct": "Kila bidhaa",
+    "aProduct": "Bidhaa"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia punguzo",
+    "created": "Punguzo limeongezwa",
+    "saved": "Punguzo limehifadhiwa",
+    "saveFailed": "Imeshindwa kuhifadhi punguzo",
+    "stopped": "Punguzo limesitishwa",
+    "stopFailed": "Imeshindwa kusitisha punguzo"
+  }
+}

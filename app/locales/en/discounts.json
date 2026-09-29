@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Discounts",
+    "subtitle": "Offers the till applies on its own while they run",
+    "newDiscount": "New discount",
+    "emptyTitle": "No discounts yet",
+    "emptyHint": "Create one and the till picks it up while it runs.",
+    "stop": "Stop",
+    "stopTitle": "Stop {name}?",
+    "stopDescription": "The till stops applying it straight away. Past sales keep the discount they got, and you can restart it by editing it.",
+    "stopDiscount": "Stop discount"
+  },
+  "status": {
+    "active": "Running",
+    "scheduled": "Scheduled",
+    "expired": "Ended",
+    "stopped": "Stopped"
+  },
+  "form": {
+    "editTitle": "Edit discount",
+    "description": "The till applies the best running discount to each item. Wholesale prices are never discounted.",
+    "namePlaceholder": "Weekend offer",
+    "appliesTo": "Applies to",
+    "applyToAll": "Apply to every product",
+    "everyProductHint": "Every product. Pick one below to limit it.",
+    "percentage": "Percentage",
+    "amountOffEach": "Amount off each",
+    "percentOff": "Percent off",
+    "amountOffEachCurrency": "Amount off each ({currency})",
+    "starts": "Starts",
+    "ends": "Ends",
+    "create": "Create discount",
+    "errors": {
+      "nameRequired": "Give the discount a name",
+      "badPercent": "Enter a percentage between 0.01 and 100",
+      "badAmount": "Enter an amount above zero",
+      "badWindow": "The discount must end after it starts"
+    }
+  },
+  "labels": {
+    "percentOff": "{percent}% off",
+    "amountOffEach": "{amount} off each",
+    "everyProduct": "Every product",
+    "aProduct": "A product"
+  },
+  "toasts": {
+    "loadFailed": "Failed to load discounts",
+    "created": "Discount added",
+    "saved": "Discount saved",
+    "saveFailed": "Failed to save the discount",
+    "stopped": "Discount stopped",
+    "stopFailed": "Failed to stop the discount"
+  }
+}
