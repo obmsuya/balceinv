@@ -170,7 +170,6 @@ const loadForms = () => {
   if (c.logo) logoPreview.value = c.logo
 }
 const { user } = useAuth()
-const { fetchUserPermissions } = usePermissions()
 
 // ─── Updates ─────────────────────────────────────────────────────────────────
 const {
@@ -207,7 +206,6 @@ watch(() => route.query.tab, (requestedTab) => {
 })
 
 onMounted(async () => {
-  if (user.value) await fetchUserPermissions(user.value.id)
   await fetchSettings()
   loadForms()
   await fetchCurrentVersion()

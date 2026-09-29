@@ -30,7 +30,7 @@ import { useAuth } from '~/composables/useAuth';
 import { usePermissions } from '~/composables/usePermissions';
 
 const { user } = useAuth();
-const { canCreate, canView, fetchUserPermissions } = usePermissions();
+const { canCreate, canView } = usePermissions();
 
 const { 
   movements, 
@@ -76,9 +76,6 @@ const columns = computed(() =>
 );
 
 onMounted(async () => {
-  if (user.value) {
-    await fetchUserPermissions(user.value.id)
-  }
   await fetchMovements();
   await fetchSummary();
   await fetchProducts();

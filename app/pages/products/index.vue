@@ -51,7 +51,7 @@ import CatalogPicker from '@/components/catalog/CatalogPicker.vue'
 import { useAddons } from '@/composables/useAddons'
 
 const { user } = useAuth()
-const { canCreate, canEdit, canDelete, fetchUserPermissions } = usePermissions()
+const { canCreate, canEdit, canDelete } = usePermissions()
 
 const {
   products,
@@ -223,7 +223,6 @@ onUnmounted(stopPhoneUploadPolling)
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(async () => {
-  if (user.value) await fetchUserPermissions(user.value.id)
   await fetchProducts()
 })
 
