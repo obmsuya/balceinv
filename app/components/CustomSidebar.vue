@@ -52,24 +52,24 @@ const isActive = (path: string): boolean => {
 
 const navigationItems = computed(() => {
   const operations: NavigationItem[] = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', resource: 'reports' },
-    { path: '/pos', icon: CreditCard, label: 'Point of Sale', resource: 'sales' },
-    { path: '/sales', icon: ShoppingCart, label: 'Sales History', resource: 'sales' },
-    { path: '/products', icon: Package, label: 'Products', resource: 'products' },
-    { path: '/stock', icon: Boxes, label: 'Stock', resource: 'stock_movements' },
-    { path: '/discounts', icon: BadgePercent, label: 'Discounts', resource: 'discounts' },
+    { path: '/dashboard', icon: LayoutDashboard, label: t('nav.items.dashboard'), resource: 'reports' },
+    { path: '/pos', icon: CreditCard, label: t('nav.items.pos'), resource: 'sales' },
+    { path: '/sales', icon: ShoppingCart, label: t('nav.items.sales'), resource: 'sales' },
+    { path: '/products', icon: Package, label: t('nav.items.products'), resource: 'products' },
+    { path: '/stock', icon: Boxes, label: t('nav.items.stock'), resource: 'stock_movements' },
+    { path: '/discounts', icon: BadgePercent, label: t('nav.items.discounts'), resource: 'discounts' },
   ];
 
   const management: NavigationItem[] = [
-    { path: '/reports', icon: FileText, label: 'Reports', resource: 'reports' },
-    { path: '/notifications', icon: Bell, label: 'Notifications', resource: 'notifications' },
+    { path: '/reports', icon: FileText, label: t('nav.items.reports'), resource: 'reports' },
+    { path: '/notifications', icon: Bell, label: t('nav.items.notifications'), resource: 'notifications' },
   ];
 
   const admin: NavigationItem[] = [
-    { path: '/shops', icon: Store, label: 'Shops', resource: 'shops' },
-    { path: '/users', icon: Users, label: 'Users', resource: 'users' },
-    { path: '/roles', icon: Shield, label: 'Roles', resource: 'roles' },
-    { path: '/settings', icon: Settings, label: 'Settings', resource: 'settings' },
+    { path: '/shops', icon: Store, label: t('nav.items.shops'), resource: 'shops' },
+    { path: '/users', icon: Users, label: t('nav.items.users'), resource: 'users' },
+    { path: '/roles', icon: Shield, label: t('nav.items.roles'), resource: 'roles' },
+    { path: '/settings', icon: Settings, label: t('nav.items.settings'), resource: 'settings' },
   ];
 
   const isVisible = (item: NavigationItem) => {
@@ -96,7 +96,7 @@ const navigationItems = computed(() => {
     <div class="flex flex-col h-full p-3">
       <div class="flex-1 space-y-4">
         <div v-if="navigationItems.operations.length > 0">
-          <p v-if="!sidebarCollapsed" class="text-xs font-semibold text-muted-foreground px-3 mb-2">OPERATIONS</p>
+          <p v-if="!sidebarCollapsed" class="text-xs font-semibold uppercase text-muted-foreground px-3 mb-2">{{ t('nav.groups.operations') }}</p>
           <NuxtLink
             v-for="item in navigationItems.operations"
             :key="item.path"
@@ -116,7 +116,7 @@ const navigationItems = computed(() => {
         <Separator v-if="navigationItems.management.length > 0" />
 
         <div v-if="navigationItems.management.length > 0">
-          <p v-if="!sidebarCollapsed" class="text-xs font-semibold text-muted-foreground px-3 mb-2">MANAGEMENT</p>
+          <p v-if="!sidebarCollapsed" class="text-xs font-semibold uppercase text-muted-foreground px-3 mb-2">{{ t('nav.groups.management') }}</p>
           <NuxtLink
             v-for="item in navigationItems.management"
             :key="item.path"
@@ -135,7 +135,7 @@ const navigationItems = computed(() => {
         <Separator v-if="navigationItems.admin.length > 0" />
 
         <div v-if="navigationItems.admin.length > 0">
-          <p v-if="!sidebarCollapsed" class="text-xs font-semibold text-muted-foreground px-3 mb-2">ADMIN</p>
+          <p v-if="!sidebarCollapsed" class="text-xs font-semibold uppercase text-muted-foreground px-3 mb-2">{{ t('nav.groups.admin') }}</p>
           <NuxtLink
             v-for="item in navigationItems.admin"
             :key="item.path"

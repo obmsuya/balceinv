@@ -1,0 +1,91 @@
+{
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "refresh": "Refresh",
+    "print": "Print",
+    "export": "Export",
+    "download": "Download",
+    "upload": "Upload",
+    "remove": "Remove",
+    "clear": "Clear",
+    "apply": "Apply",
+    "reset": "Reset",
+    "view": "View",
+    "select": "Select",
+    "done": "Done",
+    "continue": "Continue",
+    "copy": "Copy",
+    "send": "Send",
+    "update": "Update",
+    "open": "Open",
+    "showMore": "Show more"
+  },
+  "answers": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "states": {
+    "loading": "Loading…",
+    "empty": "Nothing here yet",
+    "noResults": "No results",
+    "offline": "Offline",
+    "active": "Active",
+    "inactive": "Inactive",
+    "on": "On",
+    "off": "Off",
+    "all": "All",
+    "none": "None",
+    "optional": "Optional",
+    "required": "Required"
+  },
+  "fields": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "date": "Date",
+    "time": "Time",
+    "from": "From",
+    "to": "To",
+    "status": "Status",
+    "notes": "Notes",
+    "total": "Total",
+    "price": "Price",
+    "quantity": "Quantity",
+    "amount": "Amount",
+    "shop": "Shop",
+    "user": "User",
+    "role": "Role",
+    "password": "Password",
+    "actions": "Actions"
+  },
+  "time": {
+    "justNow": "Just now",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "pagination": {
+    "showing": "Showing {from}–{to} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "sw": "Kiswahili",
+    "saveFailed": "Could not save your language. Try again."
+  }
+}

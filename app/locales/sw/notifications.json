@@ -1,0 +1,16 @@
+{
+  "messages": {
+    "outOfStock": "{product} imeisha",
+    "lowStock": "{product} inakaribia kuisha (salio {quantity} {unit})"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia taarifa",
+    "markReadFailed": "Imeshindwa kuiweka kuwa imesomwa",
+    "markedAllRead": "Taarifa zote zimewekwa kuwa zimesomwa",
+    "markAllFailed": "Imeshindwa kuziweka kuwa zimesomwa",
+    "cleared": "Taarifa zilizosomwa zimefutwa",
+    "clearFailed": "Imeshindwa kuzifuta",
+    "soundOn": "Sauti ya taarifa imewashwa",
+    "soundOff": "Sauti ya taarifa imezimwa"
+  }
+}

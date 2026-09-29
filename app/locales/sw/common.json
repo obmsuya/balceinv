@@ -1,0 +1,91 @@
+{
+  "actions": {
+    "save": "Hifadhi",
+    "saving": "Inahifadhi…",
+    "saveChanges": "Hifadhi mabadiliko",
+    "cancel": "Ghairi",
+    "close": "Funga",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "add": "Ongeza",
+    "create": "Unda",
+    "search": "Tafuta",
+    "back": "Rudi",
+    "next": "Endelea",
+    "confirm": "Thibitisha",
+    "retry": "Jaribu tena",
+    "refresh": "Onyesha upya",
+    "print": "Chapisha",
+    "export": "Hamisha",
+    "download": "Pakua",
+    "upload": "Pakia",
+    "remove": "Ondoa",
+    "clear": "Futa yote",
+    "apply": "Tumia",
+    "reset": "Weka upya",
+    "view": "Tazama",
+    "select": "Chagua",
+    "done": "Imekamilika",
+    "continue": "Endelea",
+    "copy": "Nakili",
+    "send": "Tuma",
+    "update": "Sasisha",
+    "open": "Fungua",
+    "showMore": "Onyesha zaidi"
+  },
+  "answers": {
+    "yes": "Ndiyo",
+    "no": "Hapana"
+  },
+  "states": {
+    "loading": "Inapakia…",
+    "empty": "Hakuna kitu hapa bado",
+    "noResults": "Hakuna matokeo",
+    "offline": "Hakuna mtandao",
+    "active": "Hai",
+    "inactive": "Imezimwa",
+    "on": "Imewashwa",
+    "off": "Imezimwa",
+    "all": "Zote",
+    "none": "Hakuna",
+    "optional": "Si lazima",
+    "required": "Lazima"
+  },
+  "fields": {
+    "name": "Jina",
+    "email": "Barua pepe",
+    "phone": "Simu",
+    "address": "Anwani",
+    "date": "Tarehe",
+    "time": "Saa",
+    "from": "Kuanzia",
+    "to": "Hadi",
+    "status": "Hali",
+    "notes": "Maelezo",
+    "total": "Jumla",
+    "price": "Bei",
+    "quantity": "Idadi",
+    "amount": "Kiasi",
+    "shop": "Duka",
+    "user": "Mtumiaji",
+    "role": "Jukumu",
+    "password": "Nenosiri",
+    "actions": "Vitendo"
+  },
+  "time": {
+    "justNow": "Sasa hivi",
+    "today": "Leo",
+    "yesterday": "Jana"
+  },
+  "pagination": {
+    "showing": "Inaonyesha {from}–{to} kati ya {total}",
+    "previous": "Iliyotangulia",
+    "next": "Inayofuata"
+  },
+  "language": {
+    "label": "Lugha",
+    "en": "English",
+    "sw": "Kiswahili",
+    "saveFailed": "Imeshindwa kuhifadhi lugha yako. Jaribu tena."
+  }
+}

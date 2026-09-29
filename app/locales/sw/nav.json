@@ -1,0 +1,52 @@
+{
+  "groups": {
+    "operations": "Shughuli",
+    "management": "Usimamizi",
+    "admin": "Utawala"
+  },
+  "items": {
+    "dashboard": "Dashibodi",
+    "pos": "Kaunta ya Mauzo",
+    "sales": "Historia ya Mauzo",
+    "products": "Bidhaa",
+    "stock": "Stoku",
+    "discounts": "Punguzo",
+    "reports": "Ripoti",
+    "notifications": "Taarifa",
+    "shops": "Maduka",
+    "users": "Watumiaji",
+    "roles": "Majukumu",
+    "settings": "Mipangilio"
+  },
+  "header": {
+    "toggleNavigation": "Onyesha au ficha menyu",
+    "theme": "Mandhari",
+    "light": "Mwanga",
+    "dark": "Giza",
+    "system": "Kama kifaa",
+    "refresh": "Onyesha upya",
+    "muteSound": "Zima sauti ya taarifa",
+    "unmuteSound": "Washa sauti ya taarifa",
+    "notifications": "Taarifa",
+    "newCount": "{count} mpya",
+    "nothingNew": "Hakuna taarifa mpya",
+    "seeAll": "Tazama taarifa zote",
+    "settings": "Mipangilio",
+    "checkUpdates": "Angalia masasisho",
+    "checkingUpdates": "Inaangalia masasisho…",
+    "hardwareId": "Kitambulisho cha kifaa",
+    "hardwareIdCopied": "Kitambulisho cha kifaa kimenakiliwa",
+    "signOut": "Toka",
+    "signedOut": "Umetoka"
+  },
+  "footer": {
+    "rights": "Haki zote zimehifadhiwa"
+  },
+  "shopSwitcher": {
+    "label": "Badilisha duka",
+    "placeholder": "Chagua duka",
+    "switched": "Sasa unafanya kazi katika {name}",
+    "selectedShop": "duka ulilochagua",
+    "failed": "Imeshindwa kubadilisha duka"
+  }
+}

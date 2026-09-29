@@ -1,0 +1,16 @@
+{
+  "messages": {
+    "outOfStock": "{product} ran out",
+    "lowStock": "{product} is running low ({quantity} {unit} left)"
+  },
+  "toasts": {
+    "loadFailed": "Could not load notifications",
+    "markReadFailed": "Could not mark it as read",
+    "markedAllRead": "All notifications marked as read",
+    "markAllFailed": "Could not mark them as read",
+    "cleared": "Read notifications cleared",
+    "clearFailed": "Could not clear them",
+    "soundOn": "Notification sound on",
+    "soundOff": "Notification sound off"
+  }
+}
