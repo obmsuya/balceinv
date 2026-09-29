@@ -1,6 +1,7 @@
 import type { CurrentUser, Permission } from '~/composables/useAuth'
 
 const routePermissions: Record<string, { resource: string; action: string }> = {
+  '/dashboard': { resource: 'reports', action: 'view' },
   '/pos': { resource: 'sales', action: 'create' },
   '/sales': { resource: 'sales', action: 'view' },
   '/products': { resource: 'products', action: 'view' },

@@ -10,7 +10,8 @@ import {
   Boxes,
   FileText,
   BadgePercent,
-  Store
+  Store,
+  LayoutDashboard
 } from 'lucide-vue-next';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +52,7 @@ const isActive = (path: string): boolean => {
 
 const navigationItems = computed(() => {
   const operations: NavigationItem[] = [
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', resource: 'reports' },
     { path: '/pos', icon: CreditCard, label: 'Point of Sale', resource: 'sales' },
     { path: '/sales', icon: ShoppingCart, label: 'Sales History', resource: 'sales' },
     { path: '/products', icon: Package, label: 'Products', resource: 'products' },
@@ -59,6 +61,7 @@ const navigationItems = computed(() => {
   ];
 
   const management: NavigationItem[] = [
+    { path: '/reports', icon: FileText, label: 'Reports', resource: 'reports' },
     { path: '/notifications', icon: Bell, label: 'Notifications', resource: 'notifications' },
   ];
 
@@ -66,7 +69,6 @@ const navigationItems = computed(() => {
     { path: '/shops', icon: Store, label: 'Shops', resource: 'shops' },
     { path: '/users', icon: Users, label: 'Users', resource: 'users' },
     { path: '/roles', icon: Shield, label: 'Roles', resource: 'roles' },
-    { path: '/reports', icon: FileText, label: 'Reports', resource: 'reports' },
     { path: '/settings', icon: Settings, label: 'Settings', resource: 'settings' },
   ];
 
