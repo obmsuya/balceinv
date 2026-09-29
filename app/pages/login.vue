@@ -44,9 +44,9 @@ onMounted(() => {
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     const signedInUser = await login(values)
-    const { canView } = usePermissions()
+    const { hasPermission } = usePermissions()
     toast.success('Welcome back!', { description: `Signed in as ${signedInUser.name}` })
-    await navigateTo(homePathFor(canView))
+    await navigateTo(homePathFor(hasPermission))
   } catch (error: any) {
     toast.error('Sign in failed', {
       description: error?.statusCode === 401

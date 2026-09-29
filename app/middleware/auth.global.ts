@@ -23,8 +23,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (!isPortedRoute(to.path)) {
-    const canView = (resource: string) =>
-      user.value?.is_owner === true || userPermissions.value.some(permission => permission.resource === resource && permission.action === 'view')
-    return navigateTo(homePathFor(canView))
+    const can = (resource: string, action: string) =>
+      user.value?.is_owner === true || userPermissions.value.some(permission => permission.resource === resource && permission.action === action)
+    return navigateTo(homePathFor(can))
   }
 })
