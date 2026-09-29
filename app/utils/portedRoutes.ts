@@ -1,4 +1,4 @@
-export const portedRoutePaths = ['/users', '/roles', '/unauthorized']
+export const portedRoutePaths = ['/users', '/roles', '/settings', '/unauthorized']
 
 export const isPortedRoute = (path: string): boolean =>
   portedRoutePaths.some(portedPath => path === portedPath || path.startsWith(`${portedPath}/`))
