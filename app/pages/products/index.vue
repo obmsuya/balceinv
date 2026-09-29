@@ -1,31 +1,12 @@
 <script setup lang="ts">
-import {
-  Plus,
-  Upload,
-  Download,
-  Package,
-  DollarSign,
-  AlertTriangle,
-  X,
-  ImageOff,
-  GitBranch,
-  Puzzle,
-  Trash2,
-  Smartphone,
-} from 'lucide-vue-next'
-import { toast } from 'vue-sonner'
-import QRCode from 'qrcode'
+import { Download, Package, Plus, Search, Tags, Upload } from 'lucide-vue-next'
+import { useDebounceFn } from '@vueuse/core'
 import { createColumns } from '@/components/products/columns'
 import DataTable from '@/components/products/DataTable.vue'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import ProductDetailsDialog from '@/components/products/ProductDetailsDialog.vue'
+import ProductFormDialog from '@/components/products/ProductFormDialog.vue'
+import type { ProductFormMode } from '@/components/products/ProductFormDialog.vue'
+import ProductImportDialog from '@/components/products/ProductImportDialog.vue'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,998 +17,264 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type { Product, ProductAddon } from '@/composables/useProducts'
-import { useAuth } from '@/composables/useAuth'
-import { usePermissions } from '@/composables/usePermissions'
-import type { CatalogProduct } from '@/composables/useCatalog'
-import CatalogPicker from '@/components/catalog/CatalogPicker.vue'
-import { useAddons } from '@/composables/useAddons'
+import { Switch } from '@/components/ui/switch'
+import type { Product } from '@/composables/useProducts'
+import { productPageSize } from '@/composables/useProducts'
 
-const { user } = useAuth()
+const allCategories = 'all'
+
 const { canCreate, canEdit, canDelete } = usePermissions()
-
 const {
   products,
+  totalProducts,
+  categories,
   loading,
-  selectedProduct,
+  saving,
   fetchProducts,
+  fetchCategories,
   fetchProduct,
-  createProduct,
-  updateProduct,
-  updateProductImage,
-  createImageUploadSession,
-  getImageUploadStatus,
-  deleteProduct,
-  uploadExcel,
+  archiveProduct,
+  restoreProduct,
   downloadTemplate,
 } = useProducts()
 
-const { addons, fetchAddons, createAddon, deleteAddon } = useAddons()
+const searchText = ref('')
+const categoryFilter = ref(allCategories)
+const includeArchived = ref(false)
+const pageOffset = ref(0)
 
-// ── Dialog visibility ─────────────────────────────────────────────────────
-const showProductDialog = ref(false)
-const showDeleteDialog = ref(false)
+const showFormDialog = ref(false)
+const formMode = ref<ProductFormMode>('create')
+const formProduct = ref<Product | null>(null)
+const formParent = ref<Product | null>(null)
 const showDetailsDialog = ref(false)
-const showUploadDialog = ref(false)
+const detailsProduct = ref<Product | null>(null)
+const showImportDialog = ref(false)
+const showArchiveDialog = ref(false)
+const archiveTarget = ref<Product | null>(null)
 
-// ── Form mode ─────────────────────────────────────────────────────────────
-const isEditing = ref(false)
-const isAddingVariant = ref(false)
-const parentProductForVariant = ref<Product | null>(null)
-const activeDialogTab = ref('details')
+const pageEnd = computed(() => Math.min(pageOffset.value + products.value.length, totalProducts.value))
+const hasPreviousPage = computed(() => pageOffset.value > 0)
+const hasNextPage = computed(() => pageOffset.value + productPageSize < totalProducts.value)
+const hasActiveFilter = computed(() => searchText.value.trim() !== '' || categoryFilter.value !== allCategories)
 
-// ── Upload ────────────────────────────────────────────────────────────────
-const uploadFile = ref<File | null>(null)
-
-// ── Image handling ────────────────────────────────────────────────────────
-const imagePreview = ref<string | null>(null)
-const imageFile = ref<File | null>(null)
-const imageInputRef = ref<HTMLInputElement | null>(null)
-
-// ── Addon form ────────────────────────────────────────────────────────────
-const newAddonName = ref('')
-const newAddonPrice = ref('')
-const addonLoading = ref(false)
-
-// ── Product form ──────────────────────────────────────────────────────────
-const formData = ref({
-  name: '',
-  sku: '',
-  barcode: '',
-  price: '',
-  cost_price: '',
-  quantity: '0',
-  min_stock: '5',
-  wholesale_price: '',
-  wholesale_min: '10',
-  category: '',
-  unit: 'pcs',
-  pieces_per_unit: '1',
-  variant_label: '',
+const loadProducts = () => fetchProducts({
+  searchText: searchText.value.trim(),
+  category: categoryFilter.value === allCategories ? '' : categoryFilter.value,
+  includeArchived: includeArchived.value,
+  offset: pageOffset.value,
 })
 
-const metadataFields = ref<Array<{ key: string; value: string }>>([])
-
-// ── Currency helpers ──────────────────────────────────────────────────────
-const formatCurrency = (value: string | number): string => {
-  const number = typeof value === 'number' ? value : Number.parseFloat(value.replace(/[^0-9.]/g, ''))
-  if (Number.isNaN(number)) return ''
-  return formatMoney(number)
+const reloadFromFirstPage = () => {
+  pageOffset.value = 0
+  loadProducts()
 }
 
-const parseCurrency = (value: string): number =>
-  Number.parseFloat(value.replace(/[^0-9.]/g, '')) || 0
-
-const handlePriceInput = (field: 'price' | 'cost_price' | 'wholesale_price', event: Event) => {
-  const raw = (event.target as HTMLInputElement).value
-  formData.value[field] = raw
-  nextTick(() => {
-    if (raw) formData.value[field] = formatCurrency(raw)
-  })
+const refreshAfterChange = () => {
+  loadProducts()
+  fetchCategories()
 }
 
-// ── Metadata helpers ──────────────────────────────────────────────────────
-const addMetadataField = () => metadataFields.value.push({ key: '', value: '' })
-const removeMetadataField = (index: number) => metadataFields.value.splice(index, 1)
+const searchAfterTyping = useDebounceFn(reloadFromFirstPage, 300)
 
-const buildMetadata = (): Record<string, string> | null => {
-  const entries = metadataFields.value.filter(field => field.key.trim() !== '')
-  return entries.length === 0
-    ? null
-    : Object.fromEntries(entries.map(field => [field.key.trim(), field.value]))
+watch(searchText, searchAfterTyping)
+watch([categoryFilter, includeArchived], reloadFromFirstPage)
+
+const goToPage = (nextOffset: number) => {
+  pageOffset.value = Math.max(nextOffset, 0)
+  loadProducts()
 }
 
-// ── Image helpers ─────────────────────────────────────────────────────────
-const onImageFileChange = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    toast.error('Image must be under 2 MB')
-    return
+const openForm = (mode: ProductFormMode, product: Product | null, parent: Product | null) => {
+  formMode.value = mode
+  formProduct.value = product
+  formParent.value = parent
+  showFormDialog.value = true
+}
+
+const openDetails = (product: Product) => {
+  detailsProduct.value = product
+  showDetailsDialog.value = true
+}
+
+const onProductSaved = (savedProduct: Product) => {
+  refreshAfterChange()
+  if (detailsProduct.value?.id === savedProduct.id) detailsProduct.value = savedProduct
+}
+
+const confirmArchive = async () => {
+  if (!archiveTarget.value) return
+  try {
+    await archiveProduct(archiveTarget.value.id)
+    showArchiveDialog.value = false
+    archiveTarget.value = null
+    refreshAfterChange()
+  } catch {
   }
-  imageFile.value = file
-  const reader = new FileReader()
-  reader.onload = readerEvent => {
-    imagePreview.value = readerEvent.target?.result as string
+}
+
+const restore = async (product: Product) => {
+  try {
+    await restoreProduct(product.id)
+    refreshAfterChange()
+  } catch {
   }
-  reader.readAsDataURL(file)
 }
 
-const removeImage = () => {
-  imagePreview.value = null
-  imageFile.value = null
-  if (imageInputRef.value) imageInputRef.value.value = ''
-}
+const columns = computed(() => createColumns({
+  canEdit: canEdit('products'),
+  canDelete: canDelete('products'),
+  onView: openDetails,
+  onEdit: product => openForm('edit', product, null),
+  onAddVariant: product => openForm('variant', null, product),
+  onArchive: product => {
+    archiveTarget.value = product
+    showArchiveDialog.value = true
+  },
+  onRestore: restore,
+}))
 
-// ── Phone upload — the default way to add a product photo, since POS
-// machines have no camera and the cashier's phone does. ────────────────────
-const showPhoneUploadDialog = ref(false)
-const phoneUploadQRCode = ref<string | null>(null)
-const phoneUploadStatusText = ref('')
-let phoneUploadPollInterval: ReturnType<typeof setInterval> | null = null
-let phoneUploadToken: string | null = null
-
-const stopPhoneUploadPolling = () => {
-  if (phoneUploadPollInterval) clearInterval(phoneUploadPollInterval)
-  phoneUploadPollInterval = null
-}
-
-const startPhoneUpload = async () => {
-  phoneUploadQRCode.value = null
-  phoneUploadStatusText.value = 'Waiting for photo…'
-  showPhoneUploadDialog.value = true
-
-  const session = await createImageUploadSession().catch(() => null)
-  if (!session) {
-    showPhoneUploadDialog.value = false
-    return
-  }
-  phoneUploadToken = session.token
-  phoneUploadQRCode.value = await QRCode.toDataURL(session.upload_url, { width: 240, margin: 1 })
-
-  phoneUploadPollInterval = setInterval(async () => {
-    if (!phoneUploadToken) return
-    try {
-      const result = await getImageUploadStatus(phoneUploadToken)
-      if (result.status === 'done' && result.image) {
-        imagePreview.value = result.image
-        imageFile.value = null
-        stopPhoneUploadPolling()
-        showPhoneUploadDialog.value = false
-        toast.success('Photo received from phone')
-      }
-    } catch {
-      stopPhoneUploadPolling()
-      phoneUploadStatusText.value = 'This code expired. Close and try again.'
-    }
-  }, 2000)
-}
-
-const cancelPhoneUpload = () => {
-  stopPhoneUploadPolling()
-  showPhoneUploadDialog.value = false
-}
-
-onUnmounted(stopPhoneUploadPolling)
-
-// ── Lifecycle ─────────────────────────────────────────────────────────────
-onMounted(async () => {
-  await fetchProducts()
+onMounted(() => {
+  loadProducts()
+  fetchCategories()
 })
 
 const route = useRoute()
 
-watch(() => route.query.view, async (viewProductId) => {
-  if (!viewProductId) return
-  const product = await fetchProduct(Number(viewProductId))
-  if (product) showDetailsDialog.value = true
+watch(() => route.query.view, async viewedProductId => {
+  if (typeof viewedProductId !== 'string' || viewedProductId === '') return
+  const viewedProduct = await fetchProduct(viewedProductId)
+  if (viewedProduct) openDetails(viewedProduct)
 }, { immediate: true })
-
-// ── Catalog ───────────────────────────────────────────────────────────────
-const prefillFromCatalog = (item: CatalogProduct) => {
-  formData.value.name = item.name
-  formData.value.category = item.category ?? ''
-  formData.value.unit = item.unit
-  formData.value.sku = item.sku_prefix ? `${item.sku_prefix}-` : ''
-  formData.value.price = item.default_price ? formatCurrency(item.default_price) : ''
-  metadataFields.value = item.metadata
-    ? Object.entries(item.metadata).map(([key, value]) => ({ key, value: String(value) }))
-    : []
-}
-
-// ── Columns ───────────────────────────────────────────────────────────────
-const columns = computed(() =>
-  createColumns({
-    canEdit: canEdit('products'),
-    canDelete: canDelete('products'),
-    onView: product => {
-      selectedProduct.value = product
-      showDetailsDialog.value = true
-    },
-    onEdit: async product => {
-      isEditing.value = true
-      isAddingVariant.value = false
-      parentProductForVariant.value = null
-      activeDialogTab.value = 'details'
-      imagePreview.value = product.image ?? null
-      imageFile.value = null
-
-      formData.value = {
-        name: product.name,
-        sku: product.sku,
-        barcode: product.barcode ?? '',
-        price: formatCurrency(product.price),
-        cost_price: formatCurrency(product.cost_price),
-        quantity: product.quantity.toString(),
-        min_stock: product.min_stock.toString(),
-        wholesale_price: product.wholesale_price ? formatCurrency(product.wholesale_price) : '',
-        wholesale_min: product.wholesale_min?.toString() ?? '10',
-        category: product.category ?? '',
-        unit: product.unit,
-        pieces_per_unit: product.pieces_per_unit.toString(),
-        variant_label: product.variant_label ?? '',
-      }
-
-      metadataFields.value = product.metadata
-        ? Object.entries(product.metadata).map(([key, value]) => ({ key, value: String(value) }))
-        : []
-
-      selectedProduct.value = product
-      showProductDialog.value = true
-
-      await fetchAddons(product.id)
-    },
-    onDelete: product => {
-      selectedProduct.value = product
-      showDeleteDialog.value = true
-    },
-    onAddVariant: product => {
-      isEditing.value = false
-      isAddingVariant.value = true
-      parentProductForVariant.value = product
-      activeDialogTab.value = 'details'
-      imagePreview.value = null
-      imageFile.value = null
-
-      formData.value = {
-        name: product.name,
-        sku: '',
-        barcode: '',
-        price: formatCurrency(product.price),
-        cost_price: formatCurrency(product.cost_price),
-        quantity: '0',
-        min_stock: product.min_stock.toString(),
-        wholesale_price: product.wholesale_price ? formatCurrency(product.wholesale_price) : '',
-        wholesale_min: product.wholesale_min?.toString() ?? '10',
-        category: product.category ?? '',
-        unit: product.unit,
-        pieces_per_unit: product.pieces_per_unit.toString(),
-        variant_label: '',
-      }
-
-      metadataFields.value = []
-      showProductDialog.value = true
-    },
-  }),
-)
-
-// ── Open create dialog ────────────────────────────────────────────────────
-const openCreateDialog = () => {
-  isEditing.value = false
-  isAddingVariant.value = false
-  parentProductForVariant.value = null
-  selectedProduct.value = null
-  activeDialogTab.value = 'details'
-  imagePreview.value = null
-  imageFile.value = null
-
-  formData.value = {
-    name: '',
-    sku: '',
-    barcode: '',
-    price: '',
-    cost_price: '',
-    quantity: '0',
-    min_stock: '5',
-    wholesale_price: '',
-    wholesale_min: '10',
-    category: '',
-    unit: 'pcs',
-    pieces_per_unit: '1',
-    variant_label: '',
-  }
-
-  metadataFields.value = []
-  showProductDialog.value = true
-}
-
-// ── Dialog title/description ──────────────────────────────────────────────
-const dialogTitle = computed(() => {
-  if (isAddingVariant.value) return `Add Variant — ${parentProductForVariant.value?.name}`
-  if (isEditing.value) return 'Edit Product'
-  return 'Add New Product'
-})
-
-const dialogDescription = computed(() => {
-  if (isAddingVariant.value)
-    return 'A variant shares the parent name but has its own SKU, price, and stock.'
-  if (isEditing.value) return 'Update product information, image, and add-ons.'
-  return 'Fill in the details to add a product to your inventory.'
-})
-
-// ── Submit ────────────────────────────────────────────────────────────────
-const handleSubmit = async () => {
-  if (!formData.value.name || !formData.value.sku || !formData.value.price || !formData.value.cost_price) {
-    toast.error('Name, SKU, selling price and cost price are required')
-    return
-  }
-
-  if (isAddingVariant.value && !formData.value.variant_label) {
-    toast.error('Variant label is required — e.g. "Blue / Large"')
-    return
-  }
-
-  const payload: Partial<Product> = {
-    name: formData.value.name,
-    sku: formData.value.sku,
-    barcode: formData.value.barcode || null,
-    price: parseCurrency(formData.value.price),
-    cost_price: parseCurrency(formData.value.cost_price),
-    quantity: Number.parseInt(formData.value.quantity) || 0,
-    min_stock: Number.parseInt(formData.value.min_stock) || 5,
-    wholesale_price: formData.value.wholesale_price
-      ? parseCurrency(formData.value.wholesale_price)
-      : null,
-    wholesale_min: Number.parseInt(formData.value.wholesale_min) || 10,
-    category: formData.value.category || null,
-    unit: formData.value.unit,
-    pieces_per_unit: Number.parseInt(formData.value.pieces_per_unit) || 1,
-    metadata: buildMetadata(),
-    variant_label: formData.value.variant_label || '',
-    parent_id:
-      isAddingVariant.value && parentProductForVariant.value
-        ? parentProductForVariant.value.id
-        : null,
-    image: imagePreview.value ?? null,
-  }
-
-  try {
-    if (isEditing.value && selectedProduct.value) {
-      await updateProduct(selectedProduct.value.id, payload)
-      if (imageFile.value && imagePreview.value) {
-        await updateProductImage(selectedProduct.value.id, imagePreview.value)
-      }
-    } else {
-      await createProduct(payload)
-    }
-    showProductDialog.value = false
-  } catch {
-    // toast already shown inside composable
-  }
-}
-
-// ── Delete ────────────────────────────────────────────────────────────────
-const confirmDelete = async () => {
-  if (!selectedProduct.value) return
-  try {
-    await deleteProduct(selectedProduct.value.id)
-    showDeleteDialog.value = false
-    selectedProduct.value = null
-  } catch {
-    // toast already shown inside composable
-  }
-}
-
-// ── File upload ───────────────────────────────────────────────────────────
-const handleFileUpload = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (input.files?.[0]) uploadFile.value = input.files[0]
-}
-
-const handleUpload = async () => {
-  if (!uploadFile.value) {
-    toast.error('Please select a file')
-    return
-  }
-  try {
-    await uploadExcel(uploadFile.value)
-    showUploadDialog.value = false
-    uploadFile.value = null
-  } catch {
-    // toast already shown inside composable
-  }
-}
-
-// ── Addon actions ─────────────────────────────────────────────────────────
-const handleCreateAddon = async () => {
-  if (!newAddonName.value.trim()) {
-    toast.error('Add-on name is required')
-    return
-  }
-  if (!selectedProduct.value) return
-
-  addonLoading.value = true
-  try {
-    await createAddon(selectedProduct.value.id, {
-      name: newAddonName.value.trim(),
-      price: parseCurrency(newAddonPrice.value),
-    })
-    newAddonName.value = ''
-    newAddonPrice.value = ''
-  } finally {
-    addonLoading.value = false
-  }
-}
-
-const handleDeleteAddon = async (addon: ProductAddon) => {
-  addonLoading.value = true
-  try {
-    await deleteAddon(addon.id)
-  } finally {
-    addonLoading.value = false
-  }
-}
-
-// ── Stats ─────────────────────────────────────────────────────────────────
-const totalStockValue = computed(() =>
-  products.value.reduce((sum, product) => sum + product.price * product.quantity, 0),
-)
-
-const lowStockCount = computed(() =>
-  products.value.filter(product => product.quantity <= product.min_stock).length,
-)
 </script>
 
 <template>
-  <div class="container mx-auto py-6 px-4 flex flex-col gap-6">
-
-    <!-- Page header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div class="container mx-auto flex flex-col gap-6 py-2 sm:px-4 sm:py-6">
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Products</h1>
-        <p class="text-muted-foreground mt-1">Manage your inventory, variants and add-ons</p>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Products</h1>
+        <p class="mt-1 text-muted-foreground">Your items, variants and add-ons</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <Button v-if="canCreate('products')" variant="outline" @click="showUploadDialog = true" :disabled="loading">
-          <Upload class="mr-2 h-4 w-4" />
-          Import Excel
+        <Button v-if="canCreate('products')" variant="outline" @click="showImportDialog = true">
+          <Upload />
+          Import
         </Button>
-        <Button variant="outline" @click="downloadTemplate">
-          <Download class="mr-2 h-4 w-4" />
+        <Button v-if="canCreate('products')" variant="outline" @click="downloadTemplate">
+          <Download />
           Template
         </Button>
-        <Button v-if="canCreate('products')" @click="openCreateDialog" :disabled="loading">
-          <Plus class="mr-2 h-4 w-4" />
-          Add Product
+        <Button v-if="canCreate('products')" @click="openForm('create', null, null)">
+          <Plus />
+          Add product
         </Button>
       </div>
     </div>
 
-    <!-- Stats row -->
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid grid-cols-2 gap-4">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Total Products</CardTitle>
-          <Package class="h-4 w-4 text-muted-foreground" />
+          <CardTitle class="text-sm font-medium">{{ hasActiveFilter ? 'Matching products' : 'Products' }}</CardTitle>
+          <Package class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <Skeleton v-if="loading" class="h-8 w-20" />
-          <div v-else class="text-2xl font-bold">{{ products.length }}</div>
+          <Skeleton v-if="loading && !products.length" class="h-8 w-16" />
+          <p v-else class="text-2xl font-bold tabular-nums">{{ totalProducts.toLocaleString() }}</p>
         </CardContent>
       </Card>
-
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Stock Value</CardTitle>
-          <DollarSign class="h-4 w-4 text-muted-foreground" />
+          <CardTitle class="text-sm font-medium">Categories</CardTitle>
+          <Tags class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <Skeleton v-if="loading" class="h-8 w-32" />
-          <div v-else class="text-2xl font-bold">{{ formatCurrency(totalStockValue) }}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Low Stock</CardTitle>
-          <AlertTriangle class="h-4 w-4 text-destructive" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton v-if="loading" class="h-8 w-16" />
-          <div v-else class="text-2xl font-bold text-destructive">{{ lowStockCount }}</div>
+          <p class="text-2xl font-bold tabular-nums">{{ categories.length.toLocaleString() }}</p>
         </CardContent>
       </Card>
     </div>
 
-    <!-- Table -->
     <Card>
-      <CardHeader>
-        <CardTitle>All Products</CardTitle>
-        <CardDescription>Your full inventory including variants</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div v-if="loading" class="flex flex-col gap-3">
-          <Skeleton class="h-10 w-full" />
-          <Skeleton v-for="i in 7" :key="i" class="h-14 w-full" />
+      <CardContent class="flex flex-col gap-4 px-3 sm:px-6">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center">
+          <div class="relative flex-1">
+            <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input v-model="searchText" placeholder="Search by name, SKU or barcode" class="pl-8" aria-label="Search products" />
+          </div>
+          <Select v-model="categoryFilter">
+            <SelectTrigger class="w-full md:w-48" aria-label="Filter by category">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem :value="allCategories">All categories</SelectItem>
+              <SelectItem v-for="category in categories" :key="category" :value="category">{{ category }}</SelectItem>
+            </SelectContent>
+          </Select>
+          <div class="flex items-center gap-2">
+            <Switch id="show-archived" v-model="includeArchived" />
+            <Label for="show-archived" class="whitespace-nowrap font-normal">Show archived</Label>
+          </div>
         </div>
-        <DataTable v-else :columns="columns" :data="products" />
+
+        <div v-if="loading && !products.length" class="flex flex-col gap-2">
+          <Skeleton v-for="skeletonRow in 6" :key="skeletonRow" class="h-14 w-full" />
+        </div>
+        <DataTable v-else :columns="columns" :data="products">
+          <template #empty>
+            {{ hasActiveFilter ? 'No products match this search.' : 'No products yet. Add one or import a spreadsheet.' }}
+          </template>
+        </DataTable>
+
+        <div class="flex flex-col items-center justify-between gap-2 sm:flex-row">
+          <p class="text-sm text-muted-foreground tabular-nums">
+            <template v-if="totalProducts">Showing {{ pageOffset + 1 }}–{{ pageEnd }} of {{ totalProducts.toLocaleString() }}</template>
+          </p>
+          <div class="flex gap-2">
+            <Button variant="outline" size="sm" :disabled="!hasPreviousPage || loading" @click="goToPage(pageOffset - productPageSize)">Previous</Button>
+            <Button variant="outline" size="sm" :disabled="!hasNextPage || loading" @click="goToPage(pageOffset + productPageSize)">Next</Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
 
-    <!-- ── View Details dialog ─────────────────────────────────────────── -->
-    <Dialog v-model:open="showDetailsDialog">
-      <DialogContent class="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Product Details</DialogTitle>
-        </DialogHeader>
-        <div v-if="selectedProduct" class="flex flex-col gap-5 py-2">
+    <ProductFormDialog
+      v-model:open="showFormDialog"
+      :mode="formMode"
+      :product="formProduct"
+      :parent="formParent"
+      :categories="categories"
+      @saved="onProductSaved"
+    />
 
-          <div class="flex items-start gap-4">
-            <div class="size-20 rounded-lg border bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                v-if="selectedProduct.image"
-                :src="selectedProduct.image"
-                :alt="selectedProduct.name"
-                class="size-full object-cover"
-              />
-              <ImageOff v-else class="size-8 text-muted-foreground/30" />
-            </div>
-            <div class="flex flex-col gap-1 min-w-0">
-              <h2 class="text-lg font-semibold truncate">{{ selectedProduct.name }}</h2>
-              <p class="text-sm font-mono text-muted-foreground">{{ selectedProduct.sku }}</p>
-              <div class="flex items-center gap-2 flex-wrap mt-1">
-                <Badge v-if="selectedProduct.category" variant="outline">
-                  {{ selectedProduct.category }}
-                </Badge>
-                <Badge v-if="selectedProduct.variant_label" variant="secondary">
-                  <GitBranch class="mr-1 h-3 w-3" />
-                  {{ selectedProduct.variant_label }}
-                </Badge>
-              </div>
-            </div>
-          </div>
+    <ProductDetailsDialog
+      v-model:open="showDetailsDialog"
+      :product="detailsProduct"
+      :can-edit="canEdit('products')"
+      @edit="product => openForm('edit', product, null)"
+    />
 
-          <Separator />
+    <ProductImportDialog v-model:open="showImportDialog" @imported="refreshAfterChange" />
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-muted-foreground">Selling Price</p>
-              <p class="font-semibold">{{ formatCurrency(selectedProduct.price) }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Cost Price</p>
-              <p class="font-semibold">{{ formatCurrency(selectedProduct.cost_price) }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Current Stock</p>
-              <Badge
-                :variant="
-                  selectedProduct.quantity === 0
-                    ? 'destructive'
-                    : selectedProduct.quantity <= selectedProduct.min_stock
-                    ? 'outline'
-                    : 'secondary'
-                "
-              >
-                {{ selectedProduct.quantity }} {{ selectedProduct.unit }}
-              </Badge>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Alert Below</p>
-              <p class="font-medium">{{ selectedProduct.min_stock }} {{ selectedProduct.unit }}</p>
-            </div>
-          </div>
-
-          <template
-            v-if="selectedProduct.metadata && Object.keys(selectedProduct.metadata).length > 0"
-          >
-            <Separator />
-            <div class="flex flex-col gap-2">
-              <p class="text-sm font-medium">Additional Details</p>
-              <div class="grid grid-cols-2 gap-2">
-                <div
-                  v-for="(value, key) in selectedProduct.metadata"
-                  :key="key"
-                  class="rounded-md border px-3 py-2 bg-muted/30"
-                >
-                  <p class="text-xs text-muted-foreground capitalize">{{ key }}</p>
-                  <p class="text-sm font-medium">{{ value }}</p>
-                </div>
-              </div>
-            </div>
-          </template>
-        </div>
-      </DialogContent>
-    </Dialog>
-
-    <!-- ── Create / Edit / Add Variant dialog ─────────────────────────── -->
-    <Dialog v-model:open="showProductDialog">
-      <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{{ dialogTitle }}</DialogTitle>
-          <DialogDescription>{{ dialogDescription }}</DialogDescription>
-        </DialogHeader>
-
-        <Tabs v-model="activeDialogTab" class="mt-2">
-          <TabsList class="w-full">
-            <TabsTrigger value="details" class="flex-1">Details</TabsTrigger>
-            <TabsTrigger value="addons" class="flex-1" :disabled="!isEditing">
-              <Puzzle />
-              Add-ons
-              <span
-                v-if="addons.length > 0"
-                class="rounded-full bg-primary/10 px-1.5 text-xs tabular-nums"
-              >
-                {{ addons.length }}
-              </span>
-            </TabsTrigger>
-          </TabsList>
-
-          <!-- ── Details tab ──────────────────────────────────────────── -->
-          <TabsContent value="details" class="flex flex-col gap-4 mt-4">
-
-            <CatalogPicker v-if="!isEditing && !isAddingVariant" @pick="prefillFromCatalog" />
-
-            <!-- Variant context banner -->
-            <div
-              v-if="isAddingVariant"
-              class="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 flex flex-col gap-0.5"
-            >
-              <p class="text-sm font-medium">Variant of: {{ parentProductForVariant?.name }}</p>
-              <p class="text-xs text-muted-foreground">
-                Give this variant a clear label so cashiers know which one they are selling.
-              </p>
-            </div>
-
-            <!-- Image upload -->
-            <div class="flex flex-col gap-2">
-              <Label for="product-image">
-                Product Image
-                <span class="text-muted-foreground text-xs ml-1">(optional)</span>
-              </Label>
-              <div class="flex items-center gap-4">
-                <div
-                  class="size-20 rounded-lg border bg-muted flex items-center justify-center shrink-0 overflow-hidden"
-                >
-                  <img
-                    v-if="imagePreview"
-                    :src="imagePreview"
-                    alt="Preview"
-                    class="size-full object-cover"
-                  />
-                  <ImageOff v-else class="size-8 text-muted-foreground/30" />
-                </div>
-                <div class="flex flex-col gap-2">
-                  <input
-                    id="product-image"
-                    ref="imageInputRef"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    class="hidden"
-                    @change="onImageFileChange"
-                  />
-                  <Button variant="default" size="sm" type="button" @click="startPhoneUpload">
-                    <Smartphone class="mr-2 h-4 w-4" />
-                    Scan with Phone
-                  </Button>
-                  <Button variant="outline" size="sm" type="button" @click="imageInputRef?.click()">
-                    <Upload class="mr-2 h-4 w-4" />
-                    Choose Image
-                  </Button>
-                  <Button
-                    v-if="imagePreview"
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    class="text-destructive hover:text-destructive"
-                    @click="removeImage"
-                  >
-                    <X class="mr-2 h-4 w-4" />
-                    Remove
-                  </Button>
-                  <p class="text-xs text-muted-foreground">Scan opens the camera on your phone</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <!-- Core fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <Label for="name">Product Name *</Label>
-                <Input
-                  id="name"
-                  v-model="formData.name"
-                  placeholder="e.g. Coca Cola 500ml"
-                  :disabled="isAddingVariant"
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="sku">SKU *</Label>
-                <Input id="sku" v-model="formData.sku" placeholder="e.g. COCA-500-RED" />
-              </div>
-            </div>
-
-            <div v-if="isAddingVariant" class="flex flex-col gap-1.5">
-              <Label for="variant-label">Variant Label *</Label>
-              <Input
-                id="variant-label"
-                v-model="formData.variant_label"
-                placeholder="e.g. Red / Large"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <Label for="barcode">
-                  Barcode
-                  <span class="text-muted-foreground text-xs ml-1">(optional)</span>
-                </Label>
-                <Input id="barcode" v-model="formData.barcode" placeholder="Scan or type" />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="category">Category</Label>
-                <Input id="category" v-model="formData.category" placeholder="e.g. Drinks" />
-              </div>
-            </div>
-
-            <Separator />
-
-            <!-- Pricing -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <Label for="price">Selling Price ({{ currencyCode() }}) *</Label>
-                <Input
-                  id="price"
-                  v-model="formData.price"
-                  placeholder="1,000"
-                  @input="handlePriceInput('price', $event)"
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="cost-price">Cost Price ({{ currencyCode() }}) *</Label>
-                <Input
-                  id="cost-price"
-                  v-model="formData.cost_price"
-                  placeholder="700"
-                  @input="handlePriceInput('cost_price', $event)"
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="wholesale-price">
-                  Wholesale Price
-                  <span class="text-muted-foreground text-xs ml-1">(optional)</span>
-                </Label>
-                <Input
-                  id="wholesale-price"
-                  v-model="formData.wholesale_price"
-                  placeholder="850"
-                  @input="handlePriceInput('wholesale_price', $event)"
-                />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="wholesale-min">Min Wholesale Qty</Label>
-                <Input
-                  id="wholesale-min"
-                  v-model="formData.wholesale_min"
-                  type="number"
-                  min="1"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            <!-- Stock -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <Label for="quantity">Opening Stock</Label>
-                <Input id="quantity" v-model="formData.quantity" type="number" min="0" />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="min-stock">Alert Below</Label>
-                <Input id="min-stock" v-model="formData.min_stock" type="number" min="0" />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <Label for="unit">Unit</Label>
-                <Input id="unit" v-model="formData.unit" placeholder="pcs, btl, kg" />
-              </div>
-            </div>
-
-            <Separator />
-
-            <!-- Extra fields -->
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <Label for="extra-details">Extra Details</Label>
-                  <p class="text-xs text-muted-foreground mt-0.5">
-                    Add any other info for this product.
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" type="button" @click="addMetadataField">
-                  + Add Field
-                </Button>
-              </div>
-              <div
-                v-for="(field, index) in metadataFields"
-                :key="index"
-                class="flex gap-2 items-center"
-              >
-                <Input v-model="field.key" placeholder="Field name" class="w-2/5" />
-                <Input v-model="field.value" placeholder="Value" class="flex-1" />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  class="text-destructive hover:text-destructive shrink-0"
-                  @click="removeMetadataField(index)"
-                >
-                  <X class="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-
-          <!-- ── Add-ons tab ───────────────────────────────────────────── -->
-          <TabsContent value="addons" class="flex flex-col gap-4 mt-4">
-            <div class="rounded-lg border bg-muted/30 p-4 flex flex-col gap-3">
-              <p class="text-sm font-medium">Add a new add-on</p>
-              <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                <Input
-                  v-model="newAddonName"
-                  placeholder="Name (e.g. Delivery, Warranty)"
-                  class="flex-1"
-                />
-                <Input
-                  v-model="newAddonPrice"
-                  :placeholder="`Extra price (${currencyCode()})`"
-                  class="w-full sm:w-40"
-                />
-                <Button
-                  type="button"
-                  :disabled="addonLoading || !newAddonName.trim()"
-                  @click="handleCreateAddon"
-                >
-                  <Plus class="mr-2 h-4 w-4" />
-                  Add
-                </Button>
-              </div>
-            </div>
-
-            <div
-              v-if="addons.length === 0"
-              class="py-10 text-center text-sm text-muted-foreground"
-            >
-              No add-ons yet. Add one above.
-            </div>
-
-            <div v-else class="flex flex-col gap-2">
-              <div
-                v-for="addon in addons"
-                :key="addon.id"
-                class="flex items-center justify-between rounded-md border px-4 py-3"
-              >
-                <div class="flex flex-col gap-0.5">
-                  <p class="text-sm font-medium">{{ addon.name }}</p>
-                  <p class="text-xs text-muted-foreground">+ {{ formatCurrency(addon.price) }}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  class="text-destructive hover:text-destructive"
-                  :disabled="addonLoading"
-                  @click="handleDeleteAddon(addon)"
-                >
-                  <Trash2 class="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <DialogFooter class="mt-4">
-          <Button variant="outline" @click="showProductDialog = false">Cancel</Button>
-          <Button
-            v-if="activeDialogTab === 'details'"
-            @click="handleSubmit"
-            :disabled="loading"
-          >
-            {{
-              isEditing
-                ? 'Save Changes'
-                : isAddingVariant
-                ? 'Create Variant'
-                : 'Add Product'
-            }}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-
-    <!-- ── Delete confirmation ─────────────────────────────────────────── -->
-    <AlertDialog v-model:open="showDeleteDialog">
+    <AlertDialog v-model:open="showArchiveDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete "{{ selectedProduct?.name }}"?</AlertDialogTitle>
+          <AlertDialogTitle>Archive {{ archiveTarget?.name }}?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently remove the product from your inventory. This cannot be undone.
+            It disappears from the till and product list, together with its variants. Past sales keep it, and you can restore it from “Show archived”.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            class="bg-destructive hover:bg-destructive/90"
-            @click="confirmDelete"
-          >
-            Delete
+          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click="confirmArchive">
+            Archive
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-
-    <!-- ── Upload dialog ───────────────────────────────────────────────── -->
-    <Dialog v-model:open="showUploadDialog">
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Import Products from Excel</DialogTitle>
-          <DialogDescription>
-            Upload a filled Excel file to add multiple products at once.
-          </DialogDescription>
-        </DialogHeader>
-        <div class="flex flex-col gap-4 py-2">
-          <div class="flex flex-col gap-1.5">
-            <Label for="upload-file">Excel File (.xlsx)</Label>
-            <Input
-              id="upload-file"
-              type="file"
-              accept=".xlsx,.xls"
-              @change="handleFileUpload"
-            />
-          </div>
-          <Button variant="outline" size="sm" class="self-start" @click="downloadTemplate">
-            <Download class="mr-2 h-4 w-4" />
-            Download Template First
-          </Button>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" @click="showUploadDialog = false">Cancel</Button>
-          <Button @click="handleUpload" :disabled="!uploadFile || loading">
-            <Upload class="mr-2 h-4 w-4" />
-            Import
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-
-    <Dialog v-model:open="showPhoneUploadDialog">
-      <DialogContent class="max-w-xs">
-        <DialogHeader>
-          <DialogTitle>Scan with your phone</DialogTitle>
-          <DialogDescription>
-            Open your phone's camera app and scan this code to take the product photo.
-          </DialogDescription>
-        </DialogHeader>
-        <div class="flex flex-col items-center gap-3 py-2">
-          <div class="size-60 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
-            <img v-if="phoneUploadQRCode" :src="phoneUploadQRCode" alt="QR code" class="size-full" />
-            <Skeleton v-else class="size-full" />
-          </div>
-          <p class="text-sm text-muted-foreground">{{ phoneUploadStatusText }}</p>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" @click="cancelPhoneUpload">Cancel</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-
   </div>
 </template>
