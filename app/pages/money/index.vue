@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Banknote, BookPlus, CircleAlert, CreditCard, HandCoins, Landmark, Lock, PiggyBank, ReceiptText, Smartphone, TrendingUp, Wallet,
+  ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Banknote, BookPlus, CircleAlert, CreditCard, HandCoins, Landmark, Lock, PiggyBank, ReceiptText, Smartphone, TrendingUp, Truck, UserRound, Wallet,
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,7 +31,7 @@ const presets: RangePreset[] = ['thisMonth', 'lastMonth', 'today', 'last7', 'las
 
 const { t, formatDate } = useI18n()
 const { user } = useAuth()
-const { fullAccountingOn } = useFeatures()
+const { fullAccountingOn, customersOn, suppliersOn } = useFeatures()
 const { canCreate, canEdit } = usePermissions()
 const { status, fetchStatus, fetchOverview, catchUp, saving } = useMoney()
 
@@ -77,6 +77,14 @@ const balanceRows = computed(() => {
     { key: 'bank', label: t('money.accounts.bank'), icon: Landmark, amount: balances.bank },
   ]
   if (balances.card_clearing !== 0) rows.push({ key: 'card_clearing', label: t('money.balances.cardWaiting'), icon: CreditCard, amount: balances.card_clearing })
+  return rows
+})
+
+const debtRows = computed(() => {
+  if (!overview.value) return []
+  const rows = []
+  if (customersOn.value || overview.value.customers_owe !== 0) rows.push({ key: 'customers', label: t('money.balances.customersOwe'), icon: UserRound, amount: overview.value.customers_owe })
+  if (suppliersOn.value || overview.value.owed_to_suppliers !== 0) rows.push({ key: 'suppliers', label: t('money.balances.owedToSuppliers'), icon: Truck, amount: overview.value.owed_to_suppliers })
   return rows
 })
 
@@ -241,6 +249,14 @@ onMounted(async () => {
                 <span class="flex-1 text-sm">{{ row.label }}</span>
                 <span class="font-semibold tabular-nums" :class="row.amount < 0 ? 'text-destructive' : ''">{{ formatMoney(row.amount) }}</span>
               </div>
+            </div>
+          </div>
+
+          <div v-if="debtRows.length > 0" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div v-for="row in debtRows" :key="row.key" class="flex items-center gap-3 rounded-xl border p-3">
+              <component :is="row.icon" class="size-5 text-muted-foreground" />
+              <span class="flex-1 text-sm">{{ row.label }}</span>
+              <span class="font-semibold tabular-nums">{{ formatMoney(row.amount) }}</span>
             </div>
           </div>
 

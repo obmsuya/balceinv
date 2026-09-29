@@ -58,7 +58,9 @@
   },
   "balances": {
     "title": "Where the money is now",
-    "cardWaiting": "Card payments not yet in the bank"
+    "cardWaiting": "Card payments not yet in the bank",
+    "customersOwe": "Customers owe you",
+    "owedToSuppliers": "You owe suppliers"
   },
   "actions": {
     "moneyOut": "Money out",

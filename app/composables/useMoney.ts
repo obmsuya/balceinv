@@ -92,6 +92,8 @@ export interface BooksOverview {
   balances: { cash: number; mobile_money: number; bank: number; card_clearing: number }
   what_i_own: number
   what_i_owe: number
+  customers_owe: number
+  owed_to_suppliers: number
   vat: { charged: number; reclaimable: number; to_pay: number; due_date: string } | null
 }
 
@@ -134,7 +136,7 @@ export interface TrialBalance {
   is_balanced: boolean
 }
 
-export interface StatementLine {
+export interface BooksStatementLine {
   entry_id: string
   number: string
   entry_date: string
@@ -154,7 +156,7 @@ export interface AccountStatement {
   total_debit: number
   total_credit: number
   closing_balance: number
-  lines: StatementLine[]
+  lines: BooksStatementLine[]
 }
 
 export interface VatReport {

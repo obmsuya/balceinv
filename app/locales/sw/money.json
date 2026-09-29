@@ -58,7 +58,9 @@
   },
   "balances": {
     "title": "Pesa iko wapi sasa",
-    "cardWaiting": "Malipo ya kadi ambayo bado hayajafika benki"
+    "cardWaiting": "Malipo ya kadi ambayo bado hayajafika benki",
+    "customersOwe": "Wateja wanakudai",
+    "owedToSuppliers": "Unadaiwa na wasambazaji"
   },
   "actions": {
     "moneyOut": "Pesa iliyotoka",
