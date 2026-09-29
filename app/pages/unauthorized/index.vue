@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const router = useRouter();
+const { t } = useI18n();
 
 const goBack = () => {
   router.back();
@@ -21,21 +22,21 @@ const goHome = () => {
         <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
           <ShieldAlert class="h-8 w-8 text-destructive" />
         </div>
-        <CardTitle class="text-2xl">Access Denied</CardTitle>
+        <CardTitle class="text-2xl">{{ t('misc.unauthorized.title') }}</CardTitle>
         <CardDescription>
-          You do not have permission to access this page
+          {{ t('misc.unauthorized.description') }}
         </CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
         <p class="text-sm text-muted-foreground text-center">
-          This page is restricted to users with specific permissions. If you believe you should have access, please contact your administrator.
+          {{ t('misc.unauthorized.body') }}
         </p>
-        <div class="flex gap-2 justify-center">
+        <div class="flex flex-wrap gap-2 justify-center">
           <Button variant="outline" @click="goBack">
-            Go Back
+            {{ t('misc.unauthorized.goBack') }}
           </Button>
           <Button @click="goHome">
-            Go to Dashboard
+            {{ t('misc.unauthorized.goHome') }}
           </Button>
         </div>
       </CardContent>

@@ -1,0 +1,15 @@
+{
+  "splash": {
+    "tagline": "Smart. Fast. Always in control.",
+    "initializing": "Initializing system…",
+    "loadingInventory": "Loading inventory…",
+    "almostReady": "Almost ready…"
+  },
+  "unauthorized": {
+    "title": "Access Denied",
+    "description": "You do not have permission to access this page",
+    "body": "This page is restricted to users with specific permissions. If you believe you should have access, please contact your administrator.",
+    "goBack": "Go Back",
+    "goHome": "Go to Dashboard"
+  }
+}

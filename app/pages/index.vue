@@ -25,7 +25,7 @@
         <span class="brand-inv">INVENTORY</span>
       </div>
 
-      <p class="tagline">Smart. Fast. Always in control.</p>
+      <p class="tagline">{{ t('misc.splash.tagline') }}</p>
 
       <!-- Progress bar -->
       <div class="progress-track">
@@ -47,8 +47,9 @@ const show = ref(false)
 const progress = ref(0)
 const isDark = ref(false)
 
-const steps = ['Initializing system...', 'Loading inventory...', 'Almost ready...']
-const loadingText = ref(steps[0])
+const { t } = useI18n()
+const loadingStep = ref(0)
+const loadingText = computed(() => [t('misc.splash.initializing'), t('misc.splash.loadingInventory'), t('misc.splash.almostReady')][loadingStep.value])
 
 onMounted(async () => {
   // Detect color scheme
@@ -82,8 +83,8 @@ onMounted(async () => {
   let step = 0
   const interval = setInterval(() => {
     progress.value += Math.random() * 18 + 8
-    if (progress.value >= 40 && step === 0) { step = 1; loadingText.value = steps[1] }
-    if (progress.value >= 75 && step === 1) { step = 2; loadingText.value = steps[2] }
+    if (progress.value >= 40 && step === 0) { step = 1; loadingStep.value = 1 }
+    if (progress.value >= 75 && step === 1) { step = 2; loadingStep.value = 2 }
     if (progress.value >= 100) {
       progress.value = 100
       clearInterval(interval)
