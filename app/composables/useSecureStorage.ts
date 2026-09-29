@@ -49,8 +49,11 @@ export const useSecureStorage = () => {
   const clearTokens = async () => {
     const stronghold = await getStronghold()
     const client = await getClient()
-    await client.getStore().remove('access_token')
-    await client.getStore().remove('refresh_token')
+    for (const storedKey of ['session_token', 'access_token', 'refresh_token']) {
+      try {
+        await client.getStore().remove(storedKey)
+      } catch {}
+    }
     await stronghold.save()
   }
 
