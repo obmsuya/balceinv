@@ -1,221 +1,121 @@
 import { toast } from 'vue-sonner'
+import { formatMoney } from '~/utils/money'
+
+export type DiscountKind = 'percent' | 'fixed'
+export type DiscountStatus = 'scheduled' | 'active' | 'expired' | 'stopped'
 
 export interface Discount {
-  id: number
+  id: string
   name: string
-  product_id: number | null
-  discount_type: 'percent' | 'fixed'
+  product_id: string | null
+  product_name: string | null
+  variant_label: string | null
+  kind: DiscountKind
   value: number
   starts_at: string
   ends_at: string
   is_active: boolean
-  created_by: number
-  created_at?: string
-  updated_at?: string
-  product?: {
-    id: number
-    name: string
-    sku: string
-  } | null
-  creator?: {
-    id: number
-    name: string
-  }
+  status: DiscountStatus
+  created_at: string
+  updated_at: string
 }
 
-export interface AppliedDiscount {
-  discount_id: number
+export interface DiscountFields {
   name: string
-  discount_type: 'percent' | 'fixed'
-  value: number
-  final_price: number
-}
-
-interface CreateDiscountInput {
-  name: string
-  product_id?: number | null
-  discount_type: 'percent' | 'fixed'
+  product_id: string | null
+  kind: DiscountKind
   value: number
   starts_at: string
   ends_at: string
+  is_active?: boolean
 }
 
-interface UpdateDiscountInput {
-  name: string
-  product_id?: number | null
-  discount_type: 'percent' | 'fixed'
-  value: number
-  starts_at: string
-  ends_at: string
-  is_active: boolean
-}
-
-interface ApiResponse<T> {
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
+}
+
+interface Page<Item> {
+  items: Item[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export const discountPageSize = 50
+
+export const discountValueLabel = (discount: Pick<Discount, 'kind' | 'value'>): string =>
+  discount.kind === 'percent'
+    ? `${(discount.value / 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}% off`
+    : `${formatMoney(discount.value)} off each`
+
+export const discountTargetLabel = (discount: Discount): string => {
+  if (!discount.product_id) return 'Every product'
+  return discount.variant_label ? `${discount.product_name} · ${discount.variant_label}` : discount.product_name ?? 'A product'
 }
 
 export const useDiscounts = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
   const discounts = ref<Discount[]>([])
+  const totalDiscounts = ref(0)
   const loading = ref(false)
+  const saving = ref(false)
 
-  const fetchDiscounts = async (): Promise<void> => {
+  const fetchDiscounts = async (offset = 0): Promise<void> => {
     loading.value = true
     try {
-      const response = await $apiFetch<ApiResponse<Discount[]>>(
-        `${apiBase}/api/discounts`,
-        { credentials: 'include' as const },
-      )
-      discounts.value = response.data ?? []
+      const discountPage = await apiFetch<ApiEnvelope<Page<Discount>>>('/api/discounts', {
+        query: { limit: discountPageSize, offset },
+      })
+      discounts.value = discountPage.data.items
+      totalDiscounts.value = discountPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch discounts')
+      toast.error(error?.data?.message || 'Failed to load discounts')
     } finally {
       loading.value = false
     }
   }
 
-  const fetchActiveDiscount = async (
-    productId: number,
-    originalPrice: number,
-  ): Promise<AppliedDiscount | null> => {
+  const saveDiscount = async (discountId: string | null, discountFields: DiscountFields): Promise<Discount | undefined> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<AppliedDiscount | null>>(
-        `${apiBase}/api/discounts/active?productId=${productId}&price=${originalPrice}`,
-        { credentials: 'include' as const },
-      )
-      return response.data ?? null
-    } catch {
-      return null
-    }
-  }
-
-  const createDiscount = async (
-    input: CreateDiscountInput,
-  ): Promise<Discount | undefined> => {
-    loading.value = true
-    try {
-      const response = await $apiFetch<ApiResponse<Discount>>(
-        `${apiBase}/api/discounts`,
-        {
-          method: 'POST' as const,
-          body: input,
-          credentials: 'include' as const,
-        },
-      )
-      discounts.value.unshift(response.data)
-      toast.success(response.message)
-      return response.data
+      const saveResponse = await apiFetch<ApiEnvelope<Discount>>(discountId ? `/api/discounts/${discountId}` : '/api/discounts', {
+        method: discountId ? 'PUT' : 'POST',
+        body: discountFields,
+      })
+      toast.success(saveResponse.message)
+      return saveResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to create discount')
+      toast.error(error?.data?.message || 'Failed to save the discount')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
-  const updateDiscount = async (
-    id: number,
-    input: UpdateDiscountInput,
-  ): Promise<Discount | undefined> => {
-    loading.value = true
+  const stopDiscount = async (discountId: string): Promise<void> => {
+    saving.value = true
     try {
-      const response = await $apiFetch<ApiResponse<Discount>>(
-        `${apiBase}/api/discounts/${id}`,
-        {
-          method: 'PUT' as const,
-          body: input,
-          credentials: 'include' as const,
-        },
-      )
-      const discountIndex = discounts.value.findIndex(
-        existingDiscount => existingDiscount.id === id,
-      )
-      if (discountIndex !== -1) discounts.value[discountIndex] = response.data
-      toast.success(response.message)
-      return response.data
+      const stopResponse = await apiFetch<ApiEnvelope<Discount>>(`/api/discounts/${discountId}`, { method: 'DELETE' })
+      toast.success(stopResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to update discount')
+      toast.error(error?.data?.message || 'Failed to stop the discount')
       throw error
     } finally {
-      loading.value = false
+      saving.value = false
     }
-  }
-
-  const deleteDiscount = async (id: number): Promise<void> => {
-    loading.value = true
-    try {
-      const response = await $apiFetch<ApiResponse<null>>(
-        `${apiBase}/api/discounts/${id}`,
-        {
-          method: 'DELETE' as const,
-          credentials: 'include' as const,
-        },
-      )
-      discounts.value = discounts.value.filter(discount => discount.id !== id)
-      toast.success(response.message)
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete discount')
-      throw error
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const deactivateDiscount = async (id: number): Promise<void> => {
-    loading.value = true
-    try {
-      const response = await $apiFetch<ApiResponse<null>>(
-        `${apiBase}/api/discounts/${id}/deactivate`,
-        {
-          method: 'POST' as const,
-          credentials: 'include' as const,
-        },
-      )
-      const discountIndex = discounts.value.findIndex(
-        existingDiscount => existingDiscount.id === id,
-      )
-      if (discountIndex !== -1) {
-        discounts.value[discountIndex]!.is_active = false
-      }
-      toast.success(response.message)
-    } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to deactivate discount')
-      throw error
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const isDiscountExpired = (discount: Discount): boolean => {
-    return new Date(discount.ends_at) < new Date()
-  }
-
-  const isDiscountScheduled = (discount: Discount): boolean => {
-    return new Date(discount.starts_at) > new Date()
-  }
-
-  const getDiscountStatus = (discount: Discount): 'active' | 'scheduled' | 'expired' | 'inactive' => {
-    if (!discount.is_active) return 'inactive'
-    if (isDiscountExpired(discount)) return 'expired'
-    if (isDiscountScheduled(discount)) return 'scheduled'
-    return 'active'
   }
 
   return {
     discounts,
+    totalDiscounts,
     loading,
+    saving,
     fetchDiscounts,
-    fetchActiveDiscount,
-    createDiscount,
-    updateDiscount,
-    deleteDiscount,
-    deactivateDiscount,
-    isDiscountExpired,
-    isDiscountScheduled,
-    getDiscountStatus,
+    saveDiscount,
+    stopDiscount,
   }
 }
