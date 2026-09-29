@@ -1,53 +1,10 @@
-const isTauri = () => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+import { isTauri } from '~/composables/usePlatform'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig()
-  const baseUrl = config.public.apiBase
-  const { getToken, setToken } = useSecureStorage()
+  const runtimeConfig = useRuntimeConfig()
+  const { getToken } = useSecureStorage()
 
-  let refreshPromise: Promise<void> | null = null
   let licenseRecheck: Promise<void> | null = null
-
-  const doRefresh = (): Promise<void> => {
-    if (refreshPromise !== null) return refreshPromise
-
-    refreshPromise = (async () => {
-      if (isTauri()) {
-        const refreshToken = await getToken('refresh_token')
-        const res = await $fetch<{ data?: { access_token: string; refresh_token: string } }>(
-          `${baseUrl}/api/auth/refresh`,
-          { method: 'POST', headers: { Authorization: `Bearer ${refreshToken}` } },
-        )
-        if (res.data) {
-          await setToken('access_token', res.data.access_token)
-          await setToken('refresh_token', res.data.refresh_token)
-        }
-        return
-      }
-
-      await $fetch(`${baseUrl}/api/auth/refresh`, {
-        method: 'POST' as const,
-        credentials: 'include' as const,
-      })
-    })()
-      .then(() => {
-        refreshPromise = null
-      })
-      .catch(async () => {
-        refreshPromise = null
-        const user = useState('auth:user')
-        const userPermissions = useState('perms:user')
-        user.value = null
-        userPermissions.value = []
-        if (import.meta.client) {
-          localStorage.removeItem('user')
-          localStorage.removeItem('pos-cart-state')
-        }
-        await nuxtApp.runWithContext(() => navigateTo('/login'))
-      })
-
-    return refreshPromise
-  }
 
   const resolveRequestUrl = (request: Parameters<typeof $fetch>[0]): string => {
     if (typeof request === 'string') return request
@@ -55,28 +12,32 @@ export default defineNuxtPlugin((nuxtApp) => {
     return request.url
   }
 
+  const forgetSession = async () => {
+    useState('auth:user').value = null
+    useState('perms:user').value = []
+    try {
+      localStorage.removeItem('pos-cart-state')
+    } catch {}
+    await nuxtApp.runWithContext(() => navigateTo('/login'))
+  }
+
   const apiFetch = $fetch.create({
+    baseURL: String(runtimeConfig.public.apiBase),
     credentials: 'include',
     async onRequest({ options }) {
-      if (isTauri()) {
-        const token = await getToken('access_token')
-        if (token) {
-          const headers = new Headers(options.headers)
-          headers.set('Authorization', `Bearer ${token}`)
-          options.headers = headers
-        }
-      }
+      if (!isTauri()) return
+      const sessionToken = await getToken('session_token')
+      if (!sessionToken) return
+      const headers = new Headers(options.headers)
+      headers.set('Authorization', `Bearer ${sessionToken}`)
+      options.headers = headers
     },
     async onResponseError({ response, request }) {
       const requestUrl = resolveRequestUrl(request)
+      const isSignInRequest = requestUrl.includes('/api/auth/login')
 
-      const isAuthEndpoint =
-        requestUrl.includes('/auth/refresh') ||
-        requestUrl.includes('/auth/login') ||
-        requestUrl.includes('/auth/me')
-
-      if (response.status === 401 && !isAuthEndpoint) {
-        await doRefresh()
+      if (response.status === 401 && !isSignInRequest) {
+        await forgetSession()
       }
 
       if (response.status === 402 && !licenseRecheck) {
@@ -87,5 +48,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   })
 
-  return { provide: { apiFetch, refreshSession: doRefresh } }
+  return { provide: { apiFetch } }
 })

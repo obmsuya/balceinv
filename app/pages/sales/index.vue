@@ -22,7 +22,7 @@ import { useAuth } from '~/composables/useAuth';
 import { usePermissions } from '~/composables/usePermissions';
 
 const { user } = useAuth();
-const { canCreate, fetchUserPermissions } = usePermissions();
+const { canCreate } = usePermissions();
 
 const {
   sales,
@@ -54,9 +54,6 @@ const formatCurrency = (value: number): string => {
 };
 
 onMounted(async () => {
-  if (user.value) {
-    await fetchUserPermissions(user.value.id);
-  }
   await fetchSales();
   await fetchMonthlySales();
 });

@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '~/composables/useAuth';
 import { usePermissions } from '~/composables/usePermissions';
+import { isPortedRoute } from '~/utils/portedRoutes';
 
 interface NavigationItem {
   path: string;
@@ -34,6 +35,11 @@ const { canView } = usePermissions();
 const getInitials = (name: string): string => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 };
+
+watch(() => route.path, () => {
+  const isPhoneWidth = window.matchMedia('(max-width: 767px)').matches;
+  if (isPhoneWidth) sidebarCollapsed.value = true;
+});
 
 const isActive = (path: string): boolean => {
   return route.path === path || route.path.startsWith(path + '/');
@@ -59,10 +65,12 @@ const navigationItems = computed(() => {
     { path: '/settings', icon: Settings, label: 'Settings', resource: 'settings' },
   ];
 
+  const isVisible = (item: NavigationItem) => isPortedRoute(item.path) && canView(item.resource);
+
   return {
-    operations: operations.filter(item => canView(item.resource)),
-    management: management.filter(item => canView(item.resource)),
-    admin: admin.filter(item => canView(item.resource)),
+    operations: operations.filter(isVisible),
+    management: management.filter(isVisible),
+    admin: admin.filter(isVisible),
   };
 });
 </script>
@@ -71,7 +79,7 @@ const navigationItems = computed(() => {
   <aside
     :class="[
       'fixed left-0 top-16 bottom-0 border-r bg-background transition-all duration-200 z-40',
-      sidebarCollapsed ? 'w-16' : 'w-64'
+      sidebarCollapsed ? 'w-16 -translate-x-full md:translate-x-0' : 'w-64 shadow-lg md:shadow-none'
     ]"
   >
     <div class="flex flex-col h-full p-3">

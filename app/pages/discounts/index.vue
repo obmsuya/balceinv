@@ -83,12 +83,10 @@ const formData = ref({
 })
 
 const { user } = useAuth();
-const { fetchUserPermissions } = usePermissions();
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(async () => {
 if (user.value) {
-    await fetchUserPermissions(user.value.id)
     await Promise.all([fetchDiscounts(), fetchProducts()])
   } else {
     await Promise.all([fetchDiscounts(), fetchProducts()])

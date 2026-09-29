@@ -35,7 +35,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useUsers } from '~/composables/useUsers';
 
 
-const { users, loading, fetchUsers, createUser, updateUser, updatePassword, deleteUser } = useUsers();
+const { users, loading, fetchUsers, createUser, updateUser, updatePassword, deactivateUser } = useUsers();
 const { roles, fetchRoles } = useRoles();
 
 const showCreateDialog = ref(false);
@@ -48,15 +48,13 @@ const formData = ref({
   name: '',
   email: '',
   password: '',
-  roleId: 0,
+  roleId: '',
 });
 
 const newPassword = ref('');
 
 const { user } = useAuth()
-const { fetchUserPermissions } = usePermissions()
 onMounted(async () => {
-  if (user.value) await fetchUserPermissions(user.value.id)
   await fetchUsers();
   await fetchRoles();
   
@@ -77,7 +75,7 @@ const handleEdit = (event: any) => {
     name: event.detail.name,
     email: event.detail.email,
     password: '',
-    roleId: event.detail.roleId,
+    roleId: event.detail.role_id,
   };
   showEditDialog.value = true;
 };
@@ -98,7 +96,7 @@ const openCreateDialog = () => {
     name: '',
     email: '',
     password: '',
-    roleId: 0,
+    roleId: '',
   };
   showCreateDialog.value = true;
 };
@@ -120,8 +118,8 @@ const handleCreateSubmit = async () => {
     return;
   }
   
-  if (formData.value.password.length < 6) {
-    toast.error('Password must be at least 6 characters');
+  if (formData.value.password.length < 8) {
+    toast.error('Password must be at least 8 characters');
     return;
   }
   
@@ -137,7 +135,7 @@ const handleCreateSubmit = async () => {
       name: '',
       email: '',
       password: '',
-      roleId: 0,
+      roleId: '',
     };
   } catch (error) {
     console.error('Failed to create user:', error);
@@ -179,8 +177,8 @@ const handlePasswordSubmit = async () => {
     return;
   }
   
-  if (newPassword.value.length < 6) {
-    toast.error('Password must be at least 6 characters');
+  if (newPassword.value.length < 8) {
+    toast.error('Password must be at least 8 characters');
     return;
   }
 
@@ -197,11 +195,11 @@ const handlePasswordSubmit = async () => {
 const confirmDelete = async () => {
   if (selectedUser.value) {
     try {
-      await deleteUser(selectedUser.value.id);
+      await deactivateUser(selectedUser.value.id);
       showDeleteDialog.value = false;
       selectedUser.value = null;
     } catch (error) {
-      console.error('Failed to delete user:', error);
+      console.error('Failed to deactivate user:', error);
     }
   }
 };
@@ -264,7 +262,7 @@ const confirmDelete = async () => {
               id="create-password"
               v-model="formData.password"
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder="Minimum 8 characters"
             />
           </div>
           <div class="space-y-2">
@@ -362,7 +360,7 @@ const confirmDelete = async () => {
               id="new-password"
               v-model="newPassword"
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder="Minimum 8 characters"
             />
             <p class="text-xs text-muted-foreground">
               User will be logged out of all sessions after password update
@@ -381,15 +379,15 @@ const confirmDelete = async () => {
     <AlertDialog v-model:open="showDeleteDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Deactivate this user?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the user "{{ selectedUser?.name }}" and all associated data.
+            "{{ selectedUser?.name }}" will be signed out everywhere and will no longer be able to sign in. Their history stays intact, and you can reactivate them later.
             This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="confirmDelete">Delete</AlertDialogAction>
+          <AlertDialogAction @click="confirmDelete">Deactivate</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

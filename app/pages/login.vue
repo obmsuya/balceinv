@@ -14,12 +14,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import { homePathFor } from '~/utils/portedRoutes'
 
 definePageMeta({ layout: 'auth' })
 
 const formSchema = toTypedSchema(z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(1, 'Password is required').min(6, 'At least 6 characters')
+  password: z.string().min(1, 'Password is required')
 }))
 
 const { login, isLoading } = useAuth()
@@ -42,17 +43,17 @@ onMounted(() => {
 
 const onSubmit = form.handleSubmit(async (values) => {
   try {
-    const response = await login(values)
-    if (response.success && response.data?.user) {
-      const { role, name } = response.data.user
-      toast.success('Welcome back!', { description: `Signed in as ${name}` })
-      await navigateTo(role === 'SuperAdmin' || role === 'Admin' ? '/pos' : '/pos')
-    }
+    const signedInUser = await login(values)
+    const { canView } = usePermissions()
+    toast.success('Welcome back!', { description: `Signed in as ${signedInUser.name}` })
+    await navigateTo(homePathFor(canView))
   } catch (error: any) {
     toast.error('Sign in failed', {
       description: error?.statusCode === 401
         ? 'Invalid email or password'
-        : error?.data?.message || 'Something went wrong'
+        : error?.statusCode === 429
+          ? 'Too many attempts. Wait a minute and try again.'
+          : error?.data?.message || 'Something went wrong'
     })
   }
 })

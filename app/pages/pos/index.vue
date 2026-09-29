@@ -91,7 +91,6 @@ interface PaymentLine {
 
 // ── Composables ───────────────────────────────────────────────────────────
 const { user } = useAuth()
-const { fetchUserPermissions } = usePermissions()
 
 
 const { products, fetchProducts } = useProducts()
@@ -268,7 +267,6 @@ const canCheckout = computed(() => {
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-  if (user.value) await fetchUserPermissions(user.value.id)
   await Promise.all([fetchProducts(), fetchPrinterStatus()])
   loadSettings()
 })

@@ -1,7 +1,7 @@
-import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Users, Shield } from 'lucide-vue-next';
-import { h } from 'vue';
-import { Button } from '@/components/ui/button';
+import type { ColumnDef } from '@tanstack/vue-table'
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Users, Shield, Crown } from 'lucide-vue-next'
+import { h } from 'vue'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,105 +9,93 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
+import type { Role } from '~/composables/useRoles'
 
-interface Role {
-  id: number;
-  name: string;
-  users?: Array<{ id: number; name: string; email: string }>;
+const dispatchRoleAction = (actionName: string, role: Role) => {
+  window.dispatchEvent(new CustomEvent(actionName, { detail: role }))
 }
 
 export const columns: ColumnDef<Role>[] = [
   {
-    accessorKey: 'id',
-    header: ({ column }) => {
-      return h(Button, {
-        variant: 'ghost',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-      }, () => ['ID', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })]);
-    },
-    cell: ({ row }) => h('div', { class: 'font-medium' }, row.getValue('id')),
-  },
-  {
     accessorKey: 'name',
-    header: ({ column }) => {
-      return h(Button, {
-        variant: 'ghost',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-      }, () => ['Role Name', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })]);
-    },
-    cell: ({ row }) => h('div', { class: 'font-semibold' }, row.getValue('name')),
+    header: ({ column }) => h(Button, {
+      variant: 'ghost',
+      class: '-ml-3',
+      onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+    }, () => ['Role', h(ArrowUpDown, { class: 'ml-2 size-4' })]),
+    cell: ({ row }) => h('div', { class: 'flex items-center gap-2 font-medium' }, [
+      row.original.is_owner ? h(Crown, { class: 'size-4 text-primary' }) : null,
+      row.original.name,
+    ]),
   },
   {
-    accessorKey: 'users',
+    accessorKey: 'user_count',
     header: 'Users',
     cell: ({ row }) => {
-      const users = row.original.users || [];
-      return h(Badge, { variant: 'secondary' }, () => [
-        h(Users, { class: 'mr-1 h-3 w-3' }),
-        `${users.length} user${users.length !== 1 ? 's' : ''}`
-      ]);
+      const userCount = row.original.user_count
+      return h(Badge, { variant: 'secondary', class: 'whitespace-nowrap tabular-nums' }, () => `${userCount} user${userCount === 1 ? '' : 's'}`)
     },
+  },
+  {
+    id: 'permissions',
+    header: 'Permissions',
+    cell: ({ row }) => row.original.is_owner
+      ? h(Badge, { variant: 'default' }, () => 'All')
+      : h('span', { class: 'text-sm text-muted-foreground tabular-nums' }, `${row.original.permission_ids.length} granted`),
   },
   {
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const role = row.original;
+      const role = row.original
+      const menuItems = [
+        h(DropdownMenuLabel, null, () => 'Actions'),
+        h(DropdownMenuSeparator),
+      ]
+
+      if (!role.is_owner) {
+        menuItems.push(
+          h(DropdownMenuItem, { onClick: () => dispatchRoleAction('edit-role', role) }, () => [
+            h(Pencil, { class: 'mr-2 size-4' }),
+            'Rename',
+          ]),
+          h(DropdownMenuItem, { onClick: () => dispatchRoleAction('manage-permissions', role) }, () => [
+            h(Shield, { class: 'mr-2 size-4' }),
+            'Manage permissions',
+          ]),
+        )
+      }
+
+      menuItems.push(
+        h(DropdownMenuItem, { onClick: () => dispatchRoleAction('view-users', role) }, () => [
+          h(Users, { class: 'mr-2 size-4' }),
+          'View users',
+        ]),
+      )
+
+      if (!role.is_owner) {
+        menuItems.push(
+          h(DropdownMenuSeparator),
+          h(DropdownMenuItem, { class: 'text-destructive', onClick: () => dispatchRoleAction('delete-role', role) }, () => [
+            h(Trash2, { class: 'mr-2 size-4' }),
+            'Delete',
+          ]),
+        )
+      }
 
       return h(DropdownMenu, null, {
         default: () => [
           h(DropdownMenuTrigger, { asChild: true }, () =>
-            h(Button, { variant: 'ghost', class: 'h-8 w-8 p-0' }, () => [
+            h(Button, { variant: 'ghost', class: 'size-8 p-0' }, () => [
               h('span', { class: 'sr-only' }, 'Open menu'),
-              h(MoreHorizontal, { class: 'h-4 w-4' })
-            ])
+              h(MoreHorizontal, { class: 'size-4' }),
+            ]),
           ),
-          h(DropdownMenuContent, { align: 'end' }, () => [
-            h(DropdownMenuLabel, null, () => 'Actions'),
-            h(DropdownMenuSeparator),
-            h(DropdownMenuItem, {
-              onClick: () => {
-                const event = new CustomEvent('edit-role', { detail: role });
-                window.dispatchEvent(event);
-              }
-            }, () => [
-              h(Pencil, { class: 'mr-2 h-4 w-4' }),
-              'Edit'
-            ]),
-            h(DropdownMenuItem, {
-              onClick: () => {
-                const event = new CustomEvent('manage-permissions', { detail: role });
-                window.dispatchEvent(event);
-              }
-            }, () => [
-              h(Shield, { class: 'mr-2 h-4 w-4' }),
-              'Manage Permissions'
-            ]),
-            h(DropdownMenuItem, {
-              onClick: () => {
-                const event = new CustomEvent('view-users', { detail: role });
-                window.dispatchEvent(event);
-              }
-            }, () => [
-              h(Users, { class: 'mr-2 h-4 w-4' }),
-              'View Users'
-            ]),
-            h(DropdownMenuSeparator),
-            h(DropdownMenuItem, {
-              class: 'text-destructive',
-              onClick: () => {
-                const event = new CustomEvent('delete-role', { detail: role });
-                window.dispatchEvent(event);
-              }
-            }, () => [
-              h(Trash2, { class: 'mr-2 h-4 w-4' }),
-              'Delete'
-            ]),
-          ])
-        ]
-      });
+          h(DropdownMenuContent, { align: 'end' }, () => menuItems),
+        ],
+      })
     },
   },
-];
+]

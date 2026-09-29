@@ -1,79 +1,106 @@
 import { toast } from 'vue-sonner'
 
-interface Role {
-  id: number
+export interface UserRoleSummary {
+  id: string
   name: string
+  is_owner: boolean
 }
 
-interface User {
-  id: number
+export interface ManagedUser {
+  id: string
   name: string
   email: string
-  roleId: number
-  role: Role
-  createdAt: Date
-  updatedAt?: Date
+  role_id: string
+  role: UserRoleSummary
+  shop_ids: string[]
+  locale: string | null
+  is_active: boolean
+  must_change_password: boolean
+  created_at: string
+  updated_at: string
 }
 
-interface ApiResponse<T> {
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
+}
+
+interface Page<Item> {
+  items: Item[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export interface UserFormValues {
+  name: string
+  email: string
+  password?: string
+  roleId: string
+  shopIds?: string[]
+  isActive?: boolean
 }
 
 export const useUsers = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
+  const { user: currentUser } = useAuth()
 
-  const users = ref<User[]>([])
+  const users = ref<ManagedUser[]>([])
+  const totalUsers = ref(0)
   const loading = ref(false)
-  const selectedUser = ref<User | null>(null)
+  const selectedUser = ref<ManagedUser | null>(null)
 
-  const fetchUsers = async (): Promise<void> => {
+  const defaultShopIds = (): string[] => {
+    const activeShopId = currentUser.value?.shop_id
+    return activeShopId ? [activeShopId] : []
+  }
+
+  const fetchUsers = async (searchText = ''): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<User[]>>(`${apiBase}/api/users`, {
-        credentials: 'include' as const,
+      const userPage = await apiFetch<ApiEnvelope<Page<ManagedUser>>>('/api/users', {
+        query: { limit: 100, q: searchText || undefined },
       })
-      users.value = res.data
+      users.value = userPage.data.items
+      totalUsers.value = userPage.data.total
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch users')
+      toast.error(error?.data?.message || 'Failed to load users')
     } finally {
       loading.value = false
     }
   }
 
-  const fetchUser = async (id: number): Promise<User | undefined> => {
+  const fetchUser = async (userId: string): Promise<ManagedUser | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<User>>(`${apiBase}/api/users/${id}`, {
-        credentials: 'include' as const,
-      })
-      selectedUser.value = res.data
-      return res.data
+      const userResponse = await apiFetch<ApiEnvelope<ManagedUser>>(`/api/users/${userId}`)
+      selectedUser.value = userResponse.data
+      return userResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch user')
+      toast.error(error?.data?.message || 'Failed to load user')
     } finally {
       loading.value = false
     }
   }
 
-  const createUser = async (data: {
-    name: string
-    email: string
-    password: string
-    roleId: number
-  }): Promise<User | undefined> => {
+  const createUser = async (formValues: UserFormValues): Promise<ManagedUser | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<User>>(`${apiBase}/api/users`, {
-        method: 'POST' as const,
-        body: data,
-        credentials: 'include' as const,
+      const createResponse = await apiFetch<ApiEnvelope<ManagedUser>>('/api/users', {
+        method: 'POST',
+        body: {
+          name: formValues.name,
+          email: formValues.email,
+          password: formValues.password,
+          role_id: formValues.roleId,
+          shop_ids: formValues.shopIds ?? defaultShopIds(),
+        },
       })
       await fetchUsers()
-      toast.success(res.message)
-      return res.data
+      toast.success(createResponse.message)
+      return createResponse.data
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to create user')
       throw error
@@ -82,20 +109,22 @@ export const useUsers = () => {
     }
   }
 
-  const updateUser = async (
-    id: number,
-    data: { name?: string; email?: string; roleId?: number }
-  ): Promise<User | undefined> => {
+  const updateUser = async (userId: string, formValues: UserFormValues): Promise<ManagedUser | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<User>>(`${apiBase}/api/users/${id}`, {
-        method: 'PUT' as const,
-        body: data,
-        credentials: 'include' as const,
+      const updateResponse = await apiFetch<ApiEnvelope<ManagedUser>>(`/api/users/${userId}`, {
+        method: 'PUT',
+        body: {
+          name: formValues.name,
+          email: formValues.email,
+          role_id: formValues.roleId,
+          shop_ids: formValues.shopIds,
+          is_active: formValues.isActive,
+        },
       })
       await fetchUsers()
-      toast.success(res.message)
-      return res.data
+      toast.success(updateResponse.message)
+      return updateResponse.data
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to update user')
       throw error
@@ -104,15 +133,14 @@ export const useUsers = () => {
     }
   }
 
-  const updatePassword = async (userId: number, newPassword: string): Promise<void> => {
+  const updatePassword = async (userId: string, newPassword: string): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<null>>(`${apiBase}/api/users/update-password`, {
-        method: 'POST' as const,
-        body: { userId, newPassword },
-        credentials: 'include' as const,
+      const passwordResponse = await apiFetch<ApiEnvelope<null>>('/api/users/update-password', {
+        method: 'POST',
+        body: { user_id: userId, new_password: newPassword },
       })
-      toast.success(res.message)
+      toast.success(passwordResponse.message)
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to update password')
       throw error
@@ -121,17 +149,16 @@ export const useUsers = () => {
     }
   }
 
-  const deleteUser = async (id: number): Promise<void> => {
+  const deactivateUser = async (userId: string): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<null>>(`${apiBase}/api/users/${id}`, {
-        method: 'DELETE' as const,
-        credentials: 'include' as const,
+      const deactivateResponse = await apiFetch<ApiEnvelope<null>>(`/api/users/${userId}`, {
+        method: 'DELETE',
       })
-      users.value = users.value.filter(u => u.id !== id)
-      toast.success(res.message)
+      await fetchUsers()
+      toast.success(deactivateResponse.message)
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to delete user')
+      toast.error(error?.data?.message || 'Failed to deactivate user')
       throw error
     } finally {
       loading.value = false
@@ -140,6 +167,7 @@ export const useUsers = () => {
 
   return {
     users,
+    totalUsers,
     loading,
     selectedUser,
     fetchUsers,
@@ -147,6 +175,7 @@ export const useUsers = () => {
     createUser,
     updateUser,
     updatePassword,
-    deleteUser,
+    deactivateUser,
+    deleteUser: deactivateUser,
   }
 }

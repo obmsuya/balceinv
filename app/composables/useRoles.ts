@@ -1,24 +1,31 @@
 import { toast } from 'vue-sonner'
 
-interface Role {
-  id: number
+export interface Role {
+  id: string
   name: string
-  users?: Array<{
-    id: number
-    name: string
-    email: string
-  }>
+  is_owner: boolean
+  user_count: number
+  permission_ids: string[]
+  created_at: string
+  updated_at: string
 }
 
-interface ApiResponse<T> {
+interface ApiEnvelope<Payload> {
   success: boolean
   message: string
-  data: T
+  data: Payload
+}
+
+interface Page<Item> {
+  items: Item[]
+  total: number
+  limit: number
+  offset: number
 }
 
 export const useRoles = () => {
-  const { public: { apiBase } } = useRuntimeConfig()
   const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
   const roles = ref<Role[]>([])
   const loading = ref(false)
@@ -27,43 +34,38 @@ export const useRoles = () => {
   const fetchRoles = async (): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Role[]>>(`${apiBase}/api/roles`, {
-        credentials: 'include' as const,
-      })
-      roles.value = res.data
+      const rolePage = await apiFetch<ApiEnvelope<Page<Role>>>('/api/roles', { query: { limit: 100 } })
+      roles.value = rolePage.data.items
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch roles')
+      toast.error(error?.data?.message || 'Failed to load roles')
     } finally {
       loading.value = false
     }
   }
 
-  const fetchRole = async (id: number): Promise<Role | undefined> => {
+  const fetchRole = async (roleId: string): Promise<Role | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Role>>(`${apiBase}/api/roles/${id}`, {
-        credentials: 'include' as const,
-      })
-      selectedRole.value = res.data
-      return res.data
+      const roleResponse = await apiFetch<ApiEnvelope<Role>>(`/api/roles/${roleId}`)
+      selectedRole.value = roleResponse.data
+      return roleResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to fetch role')
+      toast.error(error?.data?.message || 'Failed to load role')
     } finally {
       loading.value = false
     }
   }
 
-  const createRole = async (name: string): Promise<Role | undefined> => {
+  const createRole = async (roleName: string, permissionIds: string[] = []): Promise<Role | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Role>>(`${apiBase}/api/roles`, {
-        method: 'POST' as const,
-        body: { name },
-        credentials: 'include' as const,
+      const createResponse = await apiFetch<ApiEnvelope<Role>>('/api/roles', {
+        method: 'POST',
+        body: { name: roleName, permission_ids: permissionIds },
       })
-      roles.value.push(res.data)
-      toast.success(res.message)
-      return res.data
+      await fetchRoles()
+      toast.success(createResponse.message)
+      return createResponse.data
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to create role')
       throw error
@@ -72,18 +74,16 @@ export const useRoles = () => {
     }
   }
 
-  const updateRole = async (id: number, name: string): Promise<Role | undefined> => {
+  const updateRole = async (roleId: string, roleName: string): Promise<Role | undefined> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<Role>>(`${apiBase}/api/roles/${id}`, {
-        method: 'PUT' as const,
-        body: { name },
-        credentials: 'include' as const,
+      const updateResponse = await apiFetch<ApiEnvelope<Role>>(`/api/roles/${roleId}`, {
+        method: 'PUT',
+        body: { name: roleName },
       })
-      const index = roles.value.findIndex(r => r.id === id)
-      if (index !== -1) roles.value[index] = res.data
-      toast.success(res.message)
-      return res.data
+      await fetchRoles()
+      toast.success(updateResponse.message)
+      return updateResponse.data
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to update role')
       throw error
@@ -92,15 +92,12 @@ export const useRoles = () => {
     }
   }
 
-  const deleteRole = async (id: number): Promise<void> => {
+  const deleteRole = async (roleId: string): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<null>>(`${apiBase}/api/roles/${id}`, {
-        method: 'DELETE' as const,
-        credentials: 'include' as const,
-      })
-      roles.value = roles.value.filter(r => r.id !== id)
-      toast.success(res.message)
+      const deleteResponse = await apiFetch<ApiEnvelope<null>>(`/api/roles/${roleId}`, { method: 'DELETE' })
+      roles.value = roles.value.filter(role => role.id !== roleId)
+      toast.success(deleteResponse.message)
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to delete role')
       throw error
@@ -109,15 +106,14 @@ export const useRoles = () => {
     }
   }
 
-  const assignRole = async (userId: number, roleId: number): Promise<void> => {
+  const assignRole = async (userId: string, roleId: string): Promise<void> => {
     loading.value = true
     try {
-      const res = await $apiFetch<ApiResponse<null>>(`${apiBase}/api/roles/assign`, {
-        method: 'POST' as const,
-        body: { userId, roleId },
-        credentials: 'include' as const,
+      const assignResponse = await apiFetch<ApiEnvelope<unknown>>('/api/roles/assign', {
+        method: 'POST',
+        body: { user_id: userId, role_id: roleId },
       })
-      toast.success(res.message)
+      toast.success(assignResponse.message)
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to assign role')
       throw error
