@@ -61,7 +61,10 @@ export const useCustomerDisplay = () => {
     displayWindow?.focus()
   }
 
-  onBeforeUnmount(() => displayChannel?.close())
+  onBeforeUnmount(() => {
+    displayChannel?.close()
+    displayChannel = null
+  })
 
   return { publish, openDisplay }
 }
