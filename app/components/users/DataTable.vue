@@ -76,7 +76,7 @@ const table = useVueTable({
       </div>
     </div>
 
-    <div class="rounded-md border">
+    <div class="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
