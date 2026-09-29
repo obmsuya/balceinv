@@ -6,6 +6,7 @@ import { Toaster as Sonner } from "vue-sonner"
 
 const props = defineProps<ToasterProps>()
 const delegatedProps = reactiveOmit(props, "toastOptions")
+const { t } = useI18n()
 </script>
 
 <template>
@@ -22,6 +23,7 @@ const delegatedProps = reactiveOmit(props, "toastOptions")
       },
     }"
     v-bind="delegatedProps"
+    :container-aria-label="t('nav.header.notifications')"
   >
     <template #success-icon>
       <CircleCheckIcon class="size-4" />
