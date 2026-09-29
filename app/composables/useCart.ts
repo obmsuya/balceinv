@@ -55,6 +55,8 @@ export const useCart = () => {
 
   const slots = useState<CartSlot[]>('pos:slots', () => Array.from({ length: cartSlotCount }, emptySlot))
   const activeSlotIndex = useState<number>('pos:active-slot', () => 0)
+  const lastAddedKey = useState<string | null>('pos:last-added', () => null)
+  const selectedKey = useState<string | null>('pos:selected-line', () => null)
 
   const activeSlot = computed(() => slots.value[activeSlotIndex.value]!)
   const unitCount = computed(() => activeSlot.value.lines.reduce((sum, line) => sum + line.quantity, 0))
@@ -79,26 +81,43 @@ export const useCart = () => {
   const addLine = (line: Omit<CartLine, 'key' | 'quantity'>, quantity: number) => {
     const key = lineKeyFor(line.productId, line.addons)
     const existingLine = activeSlot.value.lines.find(cartLine => cartLine.key === key)
-    if (existingLine) existingLine.quantity += quantity
+    if (existingLine) existingLine.quantity = Math.min(existingLine.quantity + quantity, 100000)
     else activeSlot.value.lines.push({ ...line, key, quantity })
+    lastAddedKey.value = key
     touch()
   }
 
   const setQuantity = (key: string, quantity: number) => {
     const cartLine = activeSlot.value.lines.find(line => line.key === key)
     if (!cartLine) return
-    if (quantity <= 0) activeSlot.value.lines = activeSlot.value.lines.filter(line => line.key !== key)
-    else cartLine.quantity = Math.min(Math.floor(quantity), 100000)
+    if (quantity <= 0) {
+      activeSlot.value.lines = activeSlot.value.lines.filter(line => line.key !== key)
+      if (selectedKey.value === key) selectedKey.value = null
+    } else cartLine.quantity = Math.min(Math.floor(quantity), 100000)
     touch()
   }
 
-  const clearActive = () => {
+  const clearActive = (): CartSlot => {
+    const clearedSlot = activeSlot.value
     slots.value[activeSlotIndex.value] = emptySlot()
+    selectedKey.value = null
     persist()
+    return clearedSlot
+  }
+
+  const restoreSlot = (slotIndex: number, slot: CartSlot) => {
+    slots.value[slotIndex] = slot
+    persist()
+  }
+
+  const setNote = (note: string) => {
+    activeSlot.value.note = note
+    touch()
   }
 
   const selectSlot = (slotIndex: number) => {
     activeSlotIndex.value = slotIndex
+    selectedKey.value = null
   }
 
   const checkoutReference = (): string => {
@@ -113,6 +132,8 @@ export const useCart = () => {
     slots,
     activeSlotIndex,
     activeSlot,
+    lastAddedKey,
+    selectedKey,
     unitCount,
     slotUnitCounts,
     loadCarts,
@@ -120,6 +141,8 @@ export const useCart = () => {
     addLine,
     setQuantity,
     clearActive,
+    restoreSlot,
+    setNote,
     selectSlot,
     checkoutReference,
   }
