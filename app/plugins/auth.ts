@@ -1,4 +1,5 @@
 import { isTauri } from '~/composables/usePlatform'
+import { lastErrorRequestId } from '~/composables/useSupport'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig()
@@ -40,6 +41,11 @@ export default defineNuxtPlugin((nuxtApp) => {
         try {
           response._data = JSON.parse(new TextDecoder().decode(response._data))
         } catch {}
+      }
+
+      const isSupportRequest = requestUrl.includes('/api/support')
+      if (response.status !== 401 && !isSupportRequest) {
+        lastErrorRequestId.value = response._data?.requestId || response.headers.get('X-Request-Id') || lastErrorRequestId.value
       }
 
       if (response.status === 401 && !isSignInRequest) {

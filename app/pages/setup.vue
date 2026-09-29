@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import OldDataImportDialog from '@/components/setup/OldDataImportDialog.vue'
 import { businessTypes } from '~/utils/businessTypes'
 import { apiErrorMessage } from '~/utils/i18n'
 
@@ -32,6 +33,7 @@ const { t } = useI18n()
 const mounted = ref(false)
 const step = ref<1 | 2>(1)
 const oldDataFound = ref(false)
+const showOldDataImport = ref(false)
 
 const formSchema = toTypedSchema(z.object({
   business_name:  z.string().min(2, { error: () => t('setup.validation.businessNameRequired') }),
@@ -136,11 +138,14 @@ const onSubmit = form.handleSubmit(async (values) => {
       <div class="form-box">
         <div v-if="oldDataFound" role="alert" class="mb-6 flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
           <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600" />
-          <div class="min-w-0 space-y-1">
+          <div class="min-w-0 space-y-2">
             <p class="font-medium">{{ t('setup.oldData.title') }}</p>
-            <p class="text-muted-foreground">{{ t('setup.oldData.body') }}</p>
+            <p class="text-muted-foreground">{{ t('setup.oldData.bodyImport') }}</p>
+            <Button class="w-full" @click="showOldDataImport = true">{{ t('setup.importOld.button') }}</Button>
+            <p class="text-xs text-muted-foreground">{{ t('setup.importOld.startEmpty') }}</p>
           </div>
         </div>
+        <OldDataImportDialog v-if="oldDataFound" v-model:open="showOldDataImport" />
 
         <div v-show="step === 1">
           <div class="form-head">

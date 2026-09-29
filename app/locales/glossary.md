@@ -129,6 +129,19 @@ names. Add a row here before inventing a new term.
 | filter(s) | kichujio / vichujio | |
 | tab (on a page) | kichupo / vichupo | |
 | PDF document | hati ya PDF | |
+| bring over (old data to the new app) | hamisha (data za zamani) | |
+| admin (old app role) | msimamizi | |
+| temporary password | nenosiri la muda | |
+| check (compare old and new) | ukaguzi | |
+| support / get help | msaada / pata msaada | |
+| message (to support) | ujumbe (jumbe) | |
+| question | swali | |
+| problem | tatizo | |
+| billing | malipo | |
+| idea | wazo | |
+| screenshot | picha ya skrini | |
+| technical details | maelezo ya kiufundi | |
+| app version | toleo la programu | |
 
 Style:
 - Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".
