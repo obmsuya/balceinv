@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "Maduka",
+    "subtitle": "Matawi yote ya {company}",
+    "add": "Ongeza duka",
+    "youAreHere": "Uko hapa",
+    "receiptsStartWith": "Risiti zinaanza na {prefix}",
+    "editShop": "Hariri {name}",
+    "closeShop": "Funga duka",
+    "closed": "Yaliyofungwa",
+    "reopen": "Fungua tena"
+  },
+  "form": {
+    "editTitle": "Hariri duka",
+    "description": "Wafanyakazi wanaona tu maduka unayowapangia kwenye ukurasa wa Watumiaji.",
+    "namePlaceholder": "Tawi la Kariakoo",
+    "address": "Anwani (si lazima)",
+    "addressPlaceholder": "Mtaa wa Msimbazi",
+    "phone": "Simu (si lazima)",
+    "receiptPrefix": "Mwanzo wa namba ya risiti"
+  },
+  "close": {
+    "title": "Funga {name}?",
+    "body": "Hakuna atakayeweza kuuza au kuhamisha stoku huko hadi utakapolifungua tena. Historia na stoku yake vinabaki kama vilivyo."
+  },
+  "validation": {
+    "nameRequired": "Andika jina la duka",
+    "prefixInvalid": "Mwanzo wa namba ya risiti unaweza kuwa na herufi na namba tu, hadi 12"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia maduka",
+    "created": "Duka limeongezwa",
+    "saved": "Duka limehifadhiwa",
+    "saveFailed": "Imeshindwa kuhifadhi duka",
+    "closed": "Duka limefungwa",
+    "closeFailed": "Imeshindwa kufunga duka"
+  }
+}

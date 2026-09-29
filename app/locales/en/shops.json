@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "Shops",
+    "subtitle": "Every branch of {company}",
+    "add": "Add shop",
+    "youAreHere": "You are here",
+    "receiptsStartWith": "Receipts start with {prefix}",
+    "editShop": "Edit {name}",
+    "closeShop": "Close shop",
+    "closed": "Closed",
+    "reopen": "Reopen"
+  },
+  "form": {
+    "editTitle": "Edit shop",
+    "description": "Staff only see the shops you assign to them on the Users page.",
+    "namePlaceholder": "Kariakoo Branch",
+    "address": "Address (optional)",
+    "addressPlaceholder": "Msimbazi Street",
+    "phone": "Phone (optional)",
+    "receiptPrefix": "Receipt prefix"
+  },
+  "close": {
+    "title": "Close {name}?",
+    "body": "Nobody can sell or move stock there until you reopen it. Its history and stock stay as they are."
+  },
+  "validation": {
+    "nameRequired": "Enter the shop name",
+    "prefixInvalid": "The receipt prefix can only use letters and numbers, up to 12"
+  },
+  "toasts": {
+    "loadFailed": "Failed to load shops",
+    "created": "Shop added",
+    "saved": "Shop saved",
+    "saveFailed": "Failed to save the shop",
+    "closed": "Shop closed",
+    "closeFailed": "Failed to close the shop"
+  }
+}

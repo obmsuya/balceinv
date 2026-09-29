@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface Shop {
   id: string
@@ -47,7 +48,7 @@ export const useShops = () => {
       const shopPage = await apiFetch<ApiEnvelope<Page<Shop>>>('/api/shops', { query: { limit: 100 } })
       shops.value = shopPage.data.items
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to load shops')
+      toast.error(apiErrorMessage(error, 'shops.toasts.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -61,10 +62,10 @@ export const useShops = () => {
         body: shopFields,
       })
       await Promise.all([fetchShops(), fetchCurrentUser()])
-      toast.success(saveResponse.message)
+      toast.success(shopId ? t('shops.toasts.saved') : t('shops.toasts.created'))
       return saveResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to save the shop')
+      toast.error(apiErrorMessage(error, 'shops.toasts.saveFailed'))
       throw error
     } finally {
       saving.value = false
@@ -76,9 +77,9 @@ export const useShops = () => {
     try {
       const closeResponse = await apiFetch<ApiEnvelope<Shop>>(`/api/shops/${shopId}`, { method: 'DELETE' })
       await Promise.all([fetchShops(), fetchCurrentUser()])
-      toast.success(closeResponse.message)
+      toast.success(t('shops.toasts.closed'))
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to close the shop')
+      toast.error(apiErrorMessage(error, 'shops.toasts.closeFailed'))
       throw error
     } finally {
       saving.value = false
