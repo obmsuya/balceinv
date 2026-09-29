@@ -1,4 +1,6 @@
 import type { CurrentUser, Permission } from '~/composables/useAuth'
+import { featuresOff } from '~/composables/useFeatures'
+import type { CompanyFeatures } from '~/composables/useFeatures'
 
 const routePermissions: Record<string, { resource: string; action: string }> = {
   '/dashboard': { resource: 'reports', action: 'view' },
@@ -13,6 +15,17 @@ const routePermissions: Record<string, { resource: string; action: string }> = {
   '/users': { resource: 'users', action: 'view' },
   '/roles': { resource: 'roles', action: 'view' },
   '/settings': { resource: 'settings', action: 'view' },
+  '/suppliers': { resource: 'suppliers', action: 'view' },
+  '/customers': { resource: 'customers', action: 'view' },
+  '/orders': { resource: 'orders', action: 'view' },
+  '/money': { resource: 'accounting', action: 'view' },
+}
+
+const routeFeatures: Record<string, (companyFeatures: CompanyFeatures) => boolean> = {
+  '/suppliers': companyFeatures => companyFeatures.suppliers_enabled,
+  '/customers': companyFeatures => companyFeatures.customers_enabled,
+  '/orders': companyFeatures => companyFeatures.customers_enabled && companyFeatures.customer_orders_enabled,
+  '/money': companyFeatures => companyFeatures.accounting_mode !== 'off',
 }
 
 const publicRoutes = ['/', '/login', '/setup', '/unauthorized', '/display']
@@ -24,6 +37,13 @@ export default defineNuxtRouteMiddleware((to) => {
   const userPermissions = useState<Permission[]>('perms:user', () => [])
 
   if (!user.value) return navigateTo('/login')
+
+  const featurePath = Object.keys(routeFeatures).find(
+    routePath => to.path === routePath || to.path.startsWith(`${routePath}/`),
+  )
+  const isFeatureOff = featurePath !== undefined && !routeFeatures[featurePath]!(user.value.features ?? featuresOff)
+  if (isFeatureOff) return navigateTo('/settings?tab=features')
+
   if (user.value.is_owner) return
 
   const matchedPath = Object.keys(routePermissions).find(

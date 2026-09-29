@@ -2,6 +2,7 @@ import { toast } from 'vue-sonner'
 import { isTauri } from '~/composables/usePlatform'
 import { applyBrandColor } from '~/utils/brandTheme'
 import { setMoneyFormat } from '~/utils/money'
+import type { CompanyFeatures } from '~/composables/useFeatures'
 import { activeLocale, apiErrorMessage, setActiveLocale, t } from '~/utils/i18n'
 
 export interface ShopSummary {
@@ -40,6 +41,7 @@ export interface CurrentUser {
   permissions: Permission[]
   locale: string | null
   must_change_password: boolean
+  features: CompanyFeatures
 }
 
 interface ApiEnvelope<Payload> {

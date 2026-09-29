@@ -40,7 +40,12 @@
     "discounts": "Discounts",
     "reports": "Reports",
     "settings": "Settings",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "suppliers": "Suppliers",
+    "purchases": "Purchases",
+    "customers": "Customers",
+    "orders": "Customer orders",
+    "accounting": "Accounting"
   },
   "permissions": {
     "products": {
@@ -102,6 +107,36 @@
       "create": "Create notifications",
       "edit": "Edit notifications",
       "delete": "Delete notifications"
+    },
+    "suppliers": {
+      "view": "View suppliers",
+      "create": "Add suppliers",
+      "edit": "Edit suppliers",
+      "delete": "Remove suppliers"
+    },
+    "purchases": {
+      "view": "View purchases",
+      "create": "Record stock bought",
+      "edit": "Edit purchases and pay suppliers",
+      "delete": "Cancel purchases"
+    },
+    "customers": {
+      "view": "View customers",
+      "create": "Add customers",
+      "edit": "Edit customers and take debt payments",
+      "delete": "Remove customers"
+    },
+    "orders": {
+      "view": "View customer orders",
+      "create": "Take customer orders",
+      "edit": "Update customer orders",
+      "delete": "Cancel customer orders"
+    },
+    "accounting": {
+      "view": "View the books",
+      "create": "Record money in and out",
+      "edit": "Adjust and close the books",
+      "delete": "Reverse entries"
     }
   },
   "table": {

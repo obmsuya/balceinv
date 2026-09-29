@@ -108,6 +108,23 @@ names. Add a row here before inventing a new term.
 | device | kifaa | |
 | package (plan) | kifurushi | |
 | business details | maelezo ya biashara | taarifa za biashara |
+| features (settings) | vipengele | |
+| order (customer or purchase) | oda | |
+| purchase order | oda kwa msambazaji | |
+| deposit | malipo ya awali | |
+| credit sale / debt | mauzo ya mkopo / deni (madeni) | |
+| debtor (owes the shop) | mdaiwa | |
+| amount owed | deni | |
+| money page | fedha | |
+| accounting | uhasibu | |
+| simple books | hesabu rahisi | |
+| expense / money out | matumizi / pesa iliyotoka | |
+| owner's money in / out | mtaji ulioongezwa / pesa aliyochukua mmiliki | |
+| balance sheet | mizania | |
+| trial balance | mizania ya majaribio | |
+| profit and loss | faida na hasara | |
+| opening balance | salio la kuanzia | |
+| goods received (stock arrived) | stoku imefika | |
 
 Style:
 - Address the user as "wewe" in the singular: "Huna ruhusa", "Chagua duka".
