@@ -6,6 +6,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 const backgroundCheckIntervalHours = 6
 
+const { t } = useI18n()
+
 const {
   status,
   currentVersion,
@@ -21,11 +23,11 @@ const updateIsRunning = computed(() => status.value === 'downloading' || status.
 const indicatorIsVisible = computed(() => status.value === 'available' || updateIsRunning.value)
 
 const indicatorLabel = computed(() => {
-  if (status.value === 'installing') return 'Installing…'
+  if (status.value === 'installing') return t('updates.indicator.installing')
   if (status.value === 'downloading') {
-    return downloadProgress.value === null ? 'Downloading…' : `Updating ${downloadProgress.value}%`
+    return downloadProgress.value === null ? t('updates.indicator.downloading') : t('updates.indicator.progress', { percent: downloadProgress.value })
   }
-  return 'Update available'
+  return t('updates.indicator.available')
 })
 
 const checkQuietly = () => checkForUpdate(true)
@@ -47,8 +49,8 @@ onUnmounted(() => {
 watch(latestVersion, (newVersion, previousVersion) => {
   const newUpdateWasFound = newVersion && newVersion !== previousVersion && status.value === 'available'
   if (!newUpdateWasFound) return
-  toast.info(`POS ${newVersion} is available`, {
-    action: { label: 'See update', onClick: () => { showUpdatePanel.value = true } },
+  toast.info(t('updates.indicator.toastAvailable', { version: newVersion }), {
+    action: { label: t('updates.indicator.seeUpdate'), onClick: () => { showUpdatePanel.value = true } },
   })
 })
 
@@ -96,8 +98,8 @@ const startUpdate = async () => {
           <Sparkles class="size-4 text-primary" />
         </div>
         <div class="min-w-0">
-          <p class="text-sm font-semibold">Version {{ latestVersion }} is ready</p>
-          <p v-if="currentVersion" class="text-xs text-muted-foreground mt-0.5">You are on {{ currentVersion }}</p>
+          <p class="text-sm font-semibold">{{ t('updates.indicator.ready', { version: latestVersion }) }}</p>
+          <p v-if="currentVersion" class="text-xs text-muted-foreground mt-0.5">{{ t('updates.indicator.youAreOn', { version: currentVersion }) }}</p>
         </div>
       </div>
 
@@ -110,18 +112,18 @@ const startUpdate = async () => {
           />
         </div>
         <p class="text-xs text-muted-foreground">
-          {{ status === 'installing' ? 'Saving a backup and installing. The POS will reopen by itself.' : 'Downloading. You can keep working.' }}
+          {{ status === 'installing' ? t('updates.indicator.installingDetail') : t('updates.indicator.downloadingDetail') }}
         </p>
       </div>
 
       <template v-else>
         <p class="px-4 pb-4 text-xs text-muted-foreground leading-relaxed">
-          Usually takes a minute or two. A backup is saved first, then the POS closes and reopens by itself. Your sales, products and settings are kept.
+          {{ t('updates.indicator.howItWorks') }}
         </p>
         <div class="flex justify-end gap-2 border-t bg-muted/30 px-4 py-3">
-          <Button variant="ghost" size="sm" @click="showUpdatePanel = false">Later</Button>
+          <Button variant="ghost" size="sm" @click="showUpdatePanel = false">{{ t('updates.indicator.later') }}</Button>
           <Button size="sm" @click="startUpdate">
-            <Download class="size-4 mr-1.5" />Update and restart
+            <Download class="size-4 mr-1.5" />{{ t('updates.updateAndRestart') }}
           </Button>
         </div>
       </template>

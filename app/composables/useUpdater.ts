@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import type { Update } from '@tauri-apps/plugin-updater'
+import { t } from '~/utils/i18n'
 
 type UpdaterStatus = 'idle' | 'checking' | 'up-to-date' | 'available' | 'downloading' | 'installing' | 'downloaded' | 'error'
 
@@ -26,7 +27,7 @@ export const useUpdater = () => {
 
   const checkForUpdate = async (silent = false): Promise<void> => {
     if (!isTauri()) {
-      if (!silent) toast.error('Updates are only available in the desktop app')
+      if (!silent) toast.error(t('updates.toasts.desktopOnly'))
       return
     }
 
@@ -50,13 +51,13 @@ export const useUpdater = () => {
       } else {
         pendingUpdate = null
         status.value = 'up-to-date'
-        if (!silent) toast.success('You are on the latest version')
+        if (!silent) toast.success(t('updates.toasts.latest'))
       }
     } catch (error: any) {
       if (silent) return
       status.value = 'error'
-      errorMessage.value = error?.message ?? 'Could not check for updates'
-      toast.error(errorMessage.value)
+      errorMessage.value = error?.message ?? t('updates.toasts.checkFailed')
+      toast.error(t('updates.toasts.checkFailed'), { description: error?.message })
     }
   }
 
@@ -90,8 +91,8 @@ export const useUpdater = () => {
       try {
         await saveBackupOnThisPC()
       } catch {
-        toast.warning('Could not save a backup before updating', {
-          description: 'Your data stays on this PC and is not touched by the update.',
+        toast.warning(t('updates.toasts.backupBeforeFailed'), {
+          description: t('updates.toasts.backupBeforeFailedDetail'),
         })
       }
 
@@ -107,8 +108,8 @@ export const useUpdater = () => {
       await relaunchApp()
     } catch (error: any) {
       status.value = pendingUpdate ? 'available' : 'error'
-      errorMessage.value = error?.message ?? String(error ?? 'Update failed')
-      toast.error('Update failed', { description: errorMessage.value })
+      errorMessage.value = error?.message ?? String(error ?? t('updates.toasts.updateFailed'))
+      toast.error(t('updates.toasts.updateFailed'), { description: errorMessage.value })
       if (backendWasStopped) await relaunchApp()
     }
   }
