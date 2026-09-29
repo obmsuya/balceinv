@@ -1,0 +1,59 @@
+{
+  "link": "Msaada",
+  "menu": "Pata msaada",
+  "title": "Wasiliana na msaada wa Balce",
+  "description": "Tuambie unachohitaji. Timu ya Balce itakujibu kwa barua pepe au simu.",
+  "topics": {
+    "label": "Inahusu nini?",
+    "question": "Swali",
+    "problem": "Tatizo",
+    "billing": "Malipo",
+    "idea": "Wazo"
+  },
+  "form": {
+    "message": "Ujumbe",
+    "messagePlaceholder": "Eleza swali au tatizo. Ulikuwa unafanya nini lilipotokea?",
+    "characters": "{count} / {limit}",
+    "messageTooShort": "Andika angalau herufi 5",
+    "messageTooLong": "Ujumbe usizidi herufi 5000",
+    "email": "Barua pepe yako",
+    "emailInvalid": "Angalia barua pepe",
+    "phone": "Namba ya simu (si lazima)",
+    "phonePlaceholder": "0712 345 678",
+    "phoneInvalid": "Tumia namba ya simu ya Tanzania kama 0712 345 678",
+    "contactRequired": "Weka barua pepe au namba ya simu ili tukupate",
+    "screenshot": "Ambatisha picha ya skrini",
+    "changeScreenshot": "Chagua nyingine",
+    "removeScreenshot": "Ondoa picha ya skrini",
+    "screenshotAlt": "Picha ya skrini",
+    "screenshotInvalid": "Chagua picha ya PNG, JPEG au WebP isiyozidi MB 2",
+    "includeDetails": "Jumuisha maelezo ya kiufundi (toleo la programu, kifaa, duka)",
+    "whatsIncluded": "Kinachojumuishwa",
+    "includedItems": "Toleo la programu, kitambulisho cha kompyuta (desktop), mfumo wa kompyuta au kivinjari, duka, lugha na namba ya hitilafu ya mwisho uliyoiona.",
+    "send": "Tuma ujumbe",
+    "sending": "Inatuma…",
+    "notSetUp": "Barua pepe ya msaada bado haijawekwa. Ujumbe wako utahifadhiwa na kutumwa baadaye."
+  },
+  "result": {
+    "sentTitle": "Umetumwa ✓",
+    "sentText": "Timu ya Balce imepokea ujumbe wako na itakujibu.",
+    "waitingTitle": "Umehifadhiwa",
+    "waitingText": "Utatumwa mara intaneti itakapopatikana.",
+    "notSetUpText": "Utatumwa barua pepe ya msaada itakapowekwa.",
+    "sendAnother": "Tuma ujumbe mwingine",
+    "close": "Funga"
+  },
+  "recent": {
+    "title": "Jumbe zako za karibuni",
+    "sent": "Umetumwa ✓",
+    "sending": "Inatuma…",
+    "pending": "Inasubiri intaneti",
+    "failed": "Itajaribu tena"
+  },
+  "toasts": {
+    "sent": "Ujumbe umetumwa kwa msaada wa Balce",
+    "saved": "Ujumbe umehifadhiwa. Utatumwa baadaye.",
+    "sendFailed": "Imeshindwa kutuma ujumbe",
+    "rateLimited": "Biashara yako imetuma jumbe 5 ndani ya saa moja. Jaribu tena baadaye."
+  }
+}

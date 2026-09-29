@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bell, BellOff, Fingerprint, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
+import { Bell, BellOff, Fingerprint, LifeBuoy, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { assetUrl } from '~/composables/useSettings'
 import { notificationMessage } from '~/composables/useNotifications'
@@ -38,6 +38,7 @@ const selectLanguage = (chosenLocale: unknown) => {
 }
 const { user, logout } = useAuth()
 const { canView } = usePermissions()
+const { openSupport } = useSupport()
 const { status: updateStatus, checkForUpdate } = useUpdater()
 const { hardwareId, fetchHardwareId } = useLicense()
 const {
@@ -261,6 +262,7 @@ onUnmounted(() => {
             <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
               {{ updateStatus === 'checking' ? t('nav.header.checkingUpdates') : t('nav.header.checkUpdates') }}
             </DropdownMenuItem>
+            <DropdownMenuItem @click="openSupport"><LifeBuoy class="size-4" /> {{ t('support.menu') }}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">

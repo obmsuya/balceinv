@@ -1,0 +1,59 @@
+{
+  "link": "Support",
+  "menu": "Get help",
+  "title": "Contact Balce support",
+  "description": "Tell us what you need. The Balce team will reply by email or phone.",
+  "topics": {
+    "label": "What is it about?",
+    "question": "Question",
+    "problem": "Problem",
+    "billing": "Billing",
+    "idea": "Idea"
+  },
+  "form": {
+    "message": "Message",
+    "messagePlaceholder": "Describe the question or problem. What were you doing when it happened?",
+    "characters": "{count} / {limit}",
+    "messageTooShort": "Write at least 5 characters",
+    "messageTooLong": "Keep the message under 5000 characters",
+    "email": "Your email",
+    "emailInvalid": "Check the email address",
+    "phone": "Phone number (optional)",
+    "phonePlaceholder": "0712 345 678",
+    "phoneInvalid": "Use a Tanzanian mobile number like 0712 345 678",
+    "contactRequired": "Give an email or a phone number so we can reach you",
+    "screenshot": "Attach a screenshot",
+    "changeScreenshot": "Choose another",
+    "removeScreenshot": "Remove screenshot",
+    "screenshotAlt": "Screenshot preview",
+    "screenshotInvalid": "Choose a PNG, JPEG or WebP image of 2 MB or less",
+    "includeDetails": "Include technical details (app version, device, shop)",
+    "whatsIncluded": "What's included",
+    "includedItems": "App version, computer ID (desktop), operating system or browser, shop, language and the code of the last error you saw.",
+    "send": "Send message",
+    "sending": "Sending…",
+    "notSetUp": "Support email isn't set up yet. Your message will be saved and sent later."
+  },
+  "result": {
+    "sentTitle": "Sent ✓",
+    "sentText": "The Balce team has your message and will get back to you.",
+    "waitingTitle": "Saved",
+    "waitingText": "It will be sent as soon as there is internet.",
+    "notSetUpText": "It will be sent when support email is set up.",
+    "sendAnother": "Send another message",
+    "close": "Close"
+  },
+  "recent": {
+    "title": "Your recent messages",
+    "sent": "Sent ✓",
+    "sending": "Sending…",
+    "pending": "Waiting for internet",
+    "failed": "Will try again"
+  },
+  "toasts": {
+    "sent": "Message sent to Balce support",
+    "saved": "Message saved. It will be sent later.",
+    "sendFailed": "Couldn't send the message",
+    "rateLimited": "Your business has sent 5 messages in the last hour. Try again later."
+  }
+}
