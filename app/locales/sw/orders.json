@@ -1,0 +1,113 @@
+{
+  "page": {
+    "title": "Oda za wateja",
+    "subtitle": "Bidhaa zilizowekwa pembeni ili wateja wazichukue baadaye",
+    "subtitleShop": "Bidhaa zilizowekwa pembeni kwa wateja wa {shop}",
+    "newOrder": "Oda mpya",
+    "searchPlaceholder": "Tafuta kwa namba ya oda, jina au simu",
+    "noMatch": "Hakuna oda inayolingana"
+  },
+  "status": {
+    "open": "Zinasubiri",
+    "ready": "Tayari",
+    "collected": "Zimechukuliwa",
+    "cancelled": "Zimeghairiwa"
+  },
+  "statusOne": {
+    "open": "Inasubiri",
+    "ready": "Iko tayari",
+    "collected": "Imechukuliwa",
+    "cancelled": "Imeghairiwa"
+  },
+  "empty": {
+    "open": "Hakuna oda zinazosubiri",
+    "ready": "Hakuna oda zilizo tayari kuchukuliwa",
+    "collected": "Bado hakuna oda zilizochukuliwa",
+    "cancelled": "Hakuna oda zilizoghairiwa"
+  },
+  "lineCount": {
+    "one": "bidhaa {count}",
+    "other": "bidhaa {count}"
+  },
+  "fields": {
+    "order": "Oda",
+    "customer": "Mteja",
+    "dueDate": "Achukue kabla ya",
+    "products": "Bidhaa",
+    "note": "Maelezo",
+    "deposit": "Malipo ya awali ({currency})"
+  },
+  "new": {
+    "description": "Bidhaa zinatolewa kwenye stoku sasa na kuwekwa kwa ajili ya mteja.",
+    "chooseCustomer": "Chagua mteja",
+    "searchPlaceholder": "Tafuta bidhaa za kuongeza",
+    "inShop": "{quantity} {unit} zipo hapa",
+    "quantityOf": "Idadi ya {product}",
+    "remove": "Ondoa {product}",
+    "aboutTotal": "Takriban",
+    "notePlaceholder": "mf. Anataka ifungwe vizuri",
+    "create": "Hifadhi oda",
+    "errors": {
+      "chooseCustomer": "Chagua mteja kwanza",
+      "noProducts": "Ongeza angalau bidhaa moja",
+      "badQuantity": "Weka namba kamili kwa {product}",
+      "notEnough": "Kuna {quantity} {unit} tu za {product} kwenye duka hili"
+    }
+  },
+  "deposit": {
+    "description": "Kiasi kilichobaki: {amount}",
+    "save": "Hifadhi malipo ya awali",
+    "errors": {
+      "badAmount": "Weka kiasi kinachozidi sifuri",
+      "tooMuch": "Malipo ya awali hayawezi kuzidi {amount}"
+    }
+  },
+  "paymentKind": {
+    "deposit": "Malipo ya awali",
+    "refund": "Yamerudishwa"
+  },
+  "detail": {
+    "title": "Oda",
+    "due": "Achukue kabla ya {date}",
+    "paidSoFar": "Amelipa hadi sasa",
+    "stillToPay": "Kiasi kilichobaki",
+    "payments": "Malipo ya awali",
+    "collect": "Kabidhi oda",
+    "collectAndPay": "Kabidhi · pokea {amount}",
+    "collectedNow": "Imekabidhiwa. Risiti {receipt}",
+    "collectedOn": "Ilichukuliwa tarehe {date}",
+    "cancelledBy": "Imeghairiwa na {name} tarehe {date}",
+    "markReady": "Weka tayari",
+    "addDeposit": "Ongeza malipo ya awali",
+    "handOverTitle": "Kabidhi oda hii?",
+    "handOverDescription": "Imelipwa yote. Mauzo na risiti vitatengenezwa."
+  },
+  "cancel": {
+    "button": "Ghairi oda",
+    "title": "Ghairi oda {number}?",
+    "description": "Bidhaa zinarudi kwenye stoku. Hili haliwezi kutenduliwa.",
+    "reason": "Kwa nini?",
+    "reasonPlaceholder": "mf. Mteja amebadilisha nia",
+    "handBack": "Mrudishie {name} {amount}",
+    "handBackHow": "Unarudisha malipo ya awali kwa njia gani?",
+    "confirm": "Ghairi oda",
+    "errors": {
+      "reasonRequired": "Eleza kwa nini oda inaghairiwa",
+      "chooseRefund": "Chagua jinsi malipo ya awali yatakavyorudishwa"
+    }
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia oda",
+    "orderLoadFailed": "Imeshindwa kupakia oda hii",
+    "created": "Oda imehifadhiwa",
+    "createFailed": "Imeshindwa kuhifadhi oda",
+    "depositAdded": "Malipo ya awali yamehifadhiwa",
+    "depositFailed": "Imeshindwa kuhifadhi malipo ya awali",
+    "markedReady": "Oda iko tayari",
+    "readyFailed": "Imeshindwa kuweka oda tayari",
+    "collected": "Oda imekabidhiwa",
+    "collectFailed": "Imeshindwa kukabidhi oda",
+    "cancelled": "Oda imeghairiwa",
+    "cancelFailed": "Imeshindwa kughairi oda"
+  }
+}

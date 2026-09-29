@@ -114,6 +114,16 @@ names. Add a row here before inventing a new term.
 | deposit | malipo ya awali | |
 | credit sale / debt | mauzo ya mkopo / deni (madeni) | |
 | debtor (owes the shop) | mdaiwa | |
+| debtors / who owes | wadaiwa | |
+| pay later (payment method) | lipa baadaye | |
+| credit limit (most a customer may owe) | kikomo cha deni | |
+| debt from before (customer's opening balance) | deni la zamani | |
+| customer statement | mwenendo wa deni | taarifa (that is notifications) |
+| how old the debt is (aging) | umri wa deni | |
+| payment reminder | ukumbusho | |
+| cancel a recorded payment (void) | ghairi malipo | futa |
+| hand over (customer collects an order) | kabidhi | |
+| hand back (refund a deposit) | rudisha / mrudishie | |
 | amount owed | deni | |
 | money page | fedha | |
 | accounting | uhasibu | |

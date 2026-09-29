@@ -1,0 +1,144 @@
+{
+  "page": {
+    "title": "Wateja",
+    "subtitle": "Watu wanaonunua kwako, walichonunua na deni walilobaki nalo",
+    "newCustomer": "Ongeza mteja",
+    "customersTab": "Wateja",
+    "owingTab": "Wadaiwa",
+    "searchPlaceholder": "Tafuta kwa jina au simu",
+    "showInactive": "Onyesha walioondolewa",
+    "emptyTitle": "Bado hakuna wateja",
+    "emptyHint": "Ongeza mteja hapa au kwenye kaunta unapouza",
+    "neverBought": "Bado",
+    "editCustomer": "Hariri {name}"
+  },
+  "fields": {
+    "tin": "TIN",
+    "creditLimit": "Kikomo cha deni ({currency})",
+    "openingBalance": "Deni la zamani ({currency})",
+    "owes": "Deni",
+    "lastVisit": "Alikuja mwisho"
+  },
+  "form": {
+    "editTitle": "Hariri mteja",
+    "description": "Jina tu linatosha. Namba ya simu inakuwezesha kupiga au kutuma ukumbusho kwa WhatsApp.",
+    "noLimit": "Hana kikomo",
+    "creditLimitHint": "Acha wazi kama hana kikomo",
+    "openingBalanceHint": "Deni alilokuwa nalo kabla hujaanza kutumia Balce",
+    "errors": {
+      "nameRequired": "Weka jina la mteja",
+      "badCreditLimit": "Kikomo lazima kiwe namba",
+      "badOpeningBalance": "Deni la zamani lazima liwe namba"
+    }
+  },
+  "picker": {
+    "title": "Chagua mteja",
+    "description": "Tafuta kwa jina au namba ya simu",
+    "newTitle": "Mteja mpya",
+    "newDescription": "Jina na simu tu. Unaweza kuongeza zaidi baadaye.",
+    "searchPlaceholder": "Jina au simu",
+    "recent": "Wateja wa karibuni",
+    "owes": "Anadaiwa {amount}",
+    "searchFailed": "Imeshindwa kutafuta wateja. Angalia muunganisho.",
+    "noMatch": "Hakuna mteja anayelingana",
+    "noneYet": "Bado hakuna wateja",
+    "newCustomer": "Mteja mpya",
+    "addAndChoose": "Ongeza na uchague"
+  },
+  "status": {
+    "deactivateTitle": "Ondoa {name}?",
+    "restoreTitle": "Rudisha {name}?",
+    "deactivateDescription": "Hataonekana tena kwenye kaunta. Manunuzi, malipo na deni lake vinabaki kwenye kumbukumbu.",
+    "restoreDescription": "Ataonekana tena kwenye kaunta na kwenye orodha ya wateja.",
+    "stillOwes": "Bado anadaiwa {amount}.",
+    "deactivate": "Ondoa",
+    "restore": "Rudisha"
+  },
+  "aging": {
+    "days_0_30": "Siku 0–30",
+    "days_31_60": "Siku 31–60",
+    "days_61_90": "Siku 61–90",
+    "days_over_90": "Zaidi ya siku 90"
+  },
+  "owing": {
+    "hint": "Madeni ya zamani zaidi yanaanza. Nyekundu ina maana deni limezidi siku 30.",
+    "emptyTitle": "Hakuna anayekudai",
+    "emptyHint": "Wateja wanaonunua kwa lipa baadaye wataonekana hapa",
+    "since": "Anadaiwa tangu {date}",
+    "owesSince": "Anadaiwa tangu",
+    "totalOwed": "Jumla ya madeni yako"
+  },
+  "detail": {
+    "notFound": "Mteja huyu hakupatikana",
+    "whatsappReminder": "Ukumbusho wa WhatsApp",
+    "owesNow": "Deni la sasa",
+    "overdue": "Deni la zaidi ya siku 30",
+    "canStillTake": "Anaweza kukopa zaidi",
+    "noLimit": "Hana kikomo",
+    "limitIs": "Kikomo {amount}",
+    "howOld": "Umri wa deni",
+    "details": "Maelezo",
+    "debtFromBefore": "Deni la zamani",
+    "customerSince": "Mteja tangu",
+    "purchasesTab": "Manunuzi",
+    "paymentsTab": "Malipo",
+    "statementTab": "Mwenendo wa deni",
+    "onCredit": "Lipa baadaye",
+    "noPurchases": "Bado hajanunua"
+  },
+  "payments": {
+    "recordTitle": "Pokea malipo ya deni",
+    "recordDescription": "{name} anadaiwa {amount}",
+    "amount": "Kiasi alicholipa ({currency})",
+    "howPaid": "Amelipa kwa",
+    "reference": "Kumbukumbu (si lazima)",
+    "referencePlaceholder": "mf. namba ya muamala wa M-Pesa",
+    "record": "Hifadhi malipo",
+    "none": "Bado hakuna malipo",
+    "void": "Ghairi malipo",
+    "voidTitle": "Ghairi malipo ya {amount}?",
+    "voidDescription": "Kiasi hiki kinarudi kwenye deni lake. Malipo yanabaki kwenye kumbukumbu yakionyeshwa kuwa yameghairiwa.",
+    "reason": "Kwa nini?",
+    "reasonPlaceholder": "mf. Yaliingizwa mara mbili",
+    "voidedBy": "Yameghairiwa na {name} tarehe {date}: {reason}",
+    "errors": {
+      "badAmount": "Weka kiasi kinachozidi sifuri",
+      "moreThanOwed": "Anadaiwa {amount} tu",
+      "reasonRequired": "Eleza kwa nini malipo yanaghairiwa"
+    }
+  },
+  "statement": {
+    "show": "Onyesha",
+    "what": "Nini",
+    "boughtOnCredit": "Alichukua kwa mkopo",
+    "paid": "Alilipa",
+    "balance": "Deni",
+    "opening": "Deni mwanzoni",
+    "closing": "Deni mwishoni",
+    "nothing": "Hakuna kilichotokea katika tarehe hizi",
+    "creditSale": "Lipa baadaye · risiti {receipt}",
+    "payment": "Malipo · {reference}"
+  },
+  "whatsapp": {
+    "message": "Habari {name}, huu ni ukumbusho wa kirafiki kutoka {shop}. Deni lako kwetu ni {amount}. Tafadhali lipa utakapoweza. Asante!"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia wateja",
+    "customerLoadFailed": "Imeshindwa kupakia mteja huyu",
+    "created": "Mteja ameongezwa",
+    "saved": "Mteja amehifadhiwa",
+    "saveFailed": "Imeshindwa kuhifadhi mteja",
+    "deactivated": "Mteja ameondolewa",
+    "deactivateFailed": "Imeshindwa kumwondoa mteja",
+    "restored": "Mteja amerudishwa",
+    "restoreFailed": "Imeshindwa kumrudisha mteja",
+    "debtorsLoadFailed": "Imeshindwa kupakia wadaiwa",
+    "salesLoadFailed": "Imeshindwa kupakia manunuzi",
+    "paymentsLoadFailed": "Imeshindwa kupakia malipo",
+    "paymentRecorded": "Malipo yamehifadhiwa",
+    "paymentFailed": "Imeshindwa kuhifadhi malipo",
+    "paymentVoided": "Malipo yameghairiwa",
+    "voidFailed": "Imeshindwa kughairi malipo",
+    "statementLoadFailed": "Imeshindwa kupakia mwenendo wa deni"
+  }
+}

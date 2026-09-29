@@ -40,6 +40,8 @@ const money = (minorUnits: number): string => {
 
 const soldAt = computed(() => receipt.value ? new Intl.DateTimeFormat(receiptIntlLocale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(receipt.value.sale.created_at)) : '')
 
+const paidPayments = computed(() => receipt.value?.sale.payments.filter(payment => payment.method !== 'credit') ?? [])
+
 const printNow = () => window.print()
 
 const loadReceipt = async (willPrint: boolean) => {
@@ -95,6 +97,8 @@ onMounted(async () => {
       <p>{{ label('receipt') }}: {{ receipt.sale.receipt_number }}</p>
       <p>{{ soldAt }}</p>
       <p>{{ label('cashier') }}: {{ receipt.sale.cashier_name }}</p>
+      <p v-if="receipt.sale.customer_name">{{ label('customer') }}: {{ receipt.sale.customer_name }}</p>
+      <p v-if="receipt.sale.order_number">{{ label('order') }}: {{ receipt.sale.order_number }}</p>
       <div class="my-2 border-t border-dashed border-black" />
 
       <div v-for="(saleLine, lineIndex) in receipt.sale.items" :key="lineIndex" class="mb-1.5">
@@ -122,11 +126,12 @@ onMounted(async () => {
         <span>{{ money(receipt.sale.tax_total) }}</span>
       </div>
       <div class="my-2 border-t border-dashed border-black" />
-      <div v-for="payment in receipt.sale.payments" :key="payment.method" class="flex justify-between">
+      <div v-for="payment in paidPayments" :key="payment.method" class="flex justify-between">
         <span>{{ label('paid') }} ({{ label(`paymentMethods.${payment.method}`) }})</span>
         <span>{{ money(payment.amount) }}</span>
       </div>
       <div v-if="receipt.sale.change_given" class="flex justify-between font-bold"><span>{{ label('change') }}</span><span>{{ money(receipt.sale.change_given) }}</span></div>
+      <div v-if="receipt.sale.credit_amount > 0" class="flex justify-between font-bold"><span>{{ label('balanceOwed') }}</span><span>{{ money(receipt.sale.credit_amount) }}</span></div>
       <p v-if="receipt.sale.note" class="mt-2 whitespace-pre-line">{{ label('note') }}: {{ receipt.sale.note }}</p>
 
       <template v-if="receipt.sale.fiscal">

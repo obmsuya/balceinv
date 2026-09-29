@@ -55,10 +55,15 @@
     "change": "Change",
     "badAmount": "Amounts must be numbers",
     "stillOwed": "{amount} still owed",
-    "nonCashTooMuch": "Card and mobile money cannot be more than the total",
+    "nonCashTooMuch": "Card, mobile money and pay later cannot be more than the total",
     "completeSale": "Complete sale",
     "typingInto": "Typing into:",
-    "done": "Done"
+    "done": "Done",
+    "overCreditLimit": "Pay later is over their limit. They can take up to {amount} more.",
+    "creditOwes": "{name} owes {amount}",
+    "creditNoLimit": "no limit",
+    "creditCanTake": "can take {amount} more",
+    "creditFor": "Pay later goes on {name}'s account"
   },
   "grid": {
     "noProducts": "No products yet",
@@ -85,7 +90,8 @@
     "description": "Receipt {number} · {total}",
     "changeToGive": "Change to give",
     "printReceipt": "Print receipt",
-    "nextSale": "Next sale"
+    "nextSale": "Next sale",
+    "onAccount": "{amount} added to {name}'s debt"
   },
   "quote": {
     "offline": "Cannot reach the server to price the cart. Check the connection.",
@@ -96,5 +102,10 @@
     "undo": "Undo",
     "saleOffline": "The sale did not reach the server. Try again; it will not be charged twice.",
     "saleFailed": "The sale failed"
+  },
+  "customer": {
+    "add": "Add customer",
+    "change": "Change the customer",
+    "remove": "Remove the customer from this sale"
   }
 }

@@ -16,7 +16,8 @@
   "paymentMethods": {
     "cash": "Taslimu",
     "card": "Kadi",
-    "mobile": "Pesa ya simu"
+    "mobile": "Pesa ya simu",
+    "credit": "Lipa baadaye"
   },
   "loadFailed": "Imeshindwa kupakia risiti hii",
   "toasts": {
@@ -25,5 +26,8 @@
     "scanFailed": "Imeshindwa kutafuta printa",
     "testSent": "Jaribio la kuchapisha limetumwa",
     "testFailed": "Jaribio la kuchapisha limeshindwa — angalia muunganisho"
-  }
+  },
+  "customer": "Mteja",
+  "balanceOwed": "Deni",
+  "order": "Oda"
 }

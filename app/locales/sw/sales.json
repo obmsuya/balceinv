@@ -5,7 +5,6 @@
   "sending": "Inatuma…",
   "sendWaiting": "Tuma zinazosubiri kwa EFD",
   "receiptNumber": "Namba ya risiti",
-  "pdfFileType": "Hati ya PDF",
   "cards": {
     "sales": "Mauzo",
     "takings": "Makusanyo",
@@ -32,6 +31,7 @@
     },
     "sendNow": "Tuma sasa",
     "printReceipt": "Chapisha risiti",
+    "customer": "Mteja: {name}",
     "a4Invoice": "Ankara A4 (PDF)"
   },
   "efd": {
@@ -46,7 +46,8 @@
   "paymentMethods": {
     "cash": "Taslimu",
     "card": "Kadi",
-    "mobile": "Pesa ya simu"
+    "mobile": "Pesa ya simu",
+    "credit": "Lipa baadaye"
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia mauzo",
@@ -59,5 +60,6 @@
     "serverUnreachable": "Imeshindwa kufikia seva",
     "documentSaved": "Ankara imehifadhiwa",
     "documentFailed": "Imeshindwa kuhifadhi ankara"
-  }
+  },
+  "pdfFileType": "Hati ya PDF"
 }

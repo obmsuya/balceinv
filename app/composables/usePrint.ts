@@ -52,8 +52,8 @@ export const usePrint = () => {
     }
   }
 
-  const openBrowserReceipt = (saleId: string) => {
-    window.open(`/receipts/${saleId}?print=1`, '_blank', 'width=420,height=720')
+  const openBrowserReceipt = (saleId: string, printAtOnce = true) => {
+    window.open(`/receipts/${saleId}${printAtOnce ? '?print=1' : ''}`, '_blank', 'width=420,height=720')
   }
 
   const printSaleReceipt = async (saleId: string, openDrawer = false): Promise<void> => {
@@ -131,6 +131,7 @@ export const usePrint = () => {
     fetchPrinterStatus,
     printReceipt,
     printSaleReceipt,
+    openBrowserReceipt,
     fetchDevices,
     testPrint,
   }

@@ -29,6 +29,7 @@ const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd } = us
 const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
 const { user } = useAuth()
 const { t } = useI18n()
+const { customersOn } = useFeatures()
 const { quote, quoteError, quoting, cartItems, linePrices, total, isExact, shortLineCount, requestQuote, settleQuote } = useTillQuote()
 
 const searchText = ref('')
@@ -52,6 +53,7 @@ const sendingFiscal = ref(false)
 let efdRetryTimer: ReturnType<typeof setInterval> | null = null
 
 const numpadEnabled = computed(() => tillOptions.value?.numpad_enabled ?? false)
+const saleCustomer = computed(() => (customersOn.value ? activeSlot.value.customer ?? null : null))
 const customerDisplayEnabled = computed(() => tillOptions.value?.customer_display_enabled ?? false)
 
 const productFilter = () => ({ searchText: searchText.value.trim(), category: categoryFilter.value })
@@ -153,7 +155,7 @@ const startPayment = async () => {
 const completeSale = async (payments: PaymentInput[]) => {
   const clientRef = checkoutReference()
   try {
-    const sale = await createSale(clientRef, cartItems.value, payments, activeSlot.value.note.trim() || null)
+    const sale = await createSale(clientRef, cartItems.value, payments, activeSlot.value.note.trim() || null, saleCustomer.value?.id ?? null)
     showPayment.value = false
     clearActive()
     saleFiscal.value = sale.fiscal
@@ -360,7 +362,7 @@ onBeforeUnmount(() => {
       </SheetContent>
     </Sheet>
 
-    <PaymentDialog v-model:open="showPayment" :total="quote?.total ?? 0" :saving="saving" :numpad-enabled="numpadEnabled" @pay="completeSale" />
+    <PaymentDialog v-model:open="showPayment" :total="quote?.total ?? 0" :saving="saving" :numpad-enabled="numpadEnabled" :customer="saleCustomer" @pay="completeSale" />
     <VariantPicker v-model:open="showVariants" :parent="variantParent" @pick="variant => chooseProduct(variant, pendingQuantity, false)" />
     <AddonPicker v-model:open="showAddons" :product-name="addonProduct?.name ?? ''" :addons="addonChoices" @confirm="addons => addonProduct && putInCart(addonProduct, addons, pendingQuantity)" />
 
@@ -375,6 +377,9 @@ onBeforeUnmount(() => {
           <span class="text-sm text-muted-foreground">{{ t('pos.complete.changeToGive') }}</span>
           <span class="text-4xl font-bold tabular-nums">{{ formatMoney(completedSale.change_given) }}</span>
         </div>
+        <p v-if="completedSale?.credit_amount" class="rounded-lg border px-3 py-2 text-center text-sm">
+          {{ t('pos.complete.onAccount', { name: completedSale.customer_name ?? '', amount: formatMoney(completedSale.credit_amount) }) }}
+        </p>
         <div v-if="saleFiscal" class="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm">
           <span class="flex items-center gap-2">
             <ReceiptText class="size-4 text-muted-foreground" />
