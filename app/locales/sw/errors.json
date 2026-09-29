@@ -65,6 +65,12 @@
   "expired": "Kiungo hiki kimeisha muda wake. Tengeneza kipya.",
   "invalid_printer_port": "Huo si mlango wa printa. Tumia mlango wa COM, printa ya serial au USB, au printa iliyoshirikiwa kwenye kompyuta hii.",
   "invalid_features": "Angalia vipengele: mkopo na oda za wateja vinahitaji wateja, oda kwa wasambazaji zinahitaji wasambazaji, na VAT inahitaji VRN.",
+  "old_data_not_found": "Hakuna data za Balce ya zamani zilizopatikana kwenye kompyuta hii",
+  "old_data_unreadable": "Faili la data za Balce ya zamani halisomeki. Huenda limeharibika. Wasiliana na huduma kwa wateja ya Balce.",
+  "import_mismatch": "Ukaguzi umeona tofauti, kwa hiyo hakuna kilichohifadhiwa",
+  "unknown_owner": "Chagua mojawapo ya akaunti za zamani za msimamizi kuwa mmiliki",
+  "no_old_users": "Data za zamani hazina akaunti za wafanyakazi. Weka biashara mpya badala yake.",
+  "business_name_missing": "Weka jina la biashara",
   "message_length": "Andika herufi kati ya 5 na 5000",
   "contact_required": "Weka barua pepe au namba ya simu ili tukupate",
   "invalid_phone": "Tumia namba ya simu ya Tanzania kama 0712 345 678"

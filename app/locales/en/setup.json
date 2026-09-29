@@ -60,6 +60,75 @@
   },
   "oldData": {
     "title": "Your data from the previous Balce is on this computer",
-    "body": "This new version keeps its data separately and hasn't brought your old products and sales over yet. If you set up a business now, you'll start empty. Contact Balce support first so they can move your data."
+    "body": "This new version keeps its data separately and hasn't brought your old products and sales over yet. If you set up a business now, you'll start empty. Contact Balce support first so they can move your data.",
+    "bodyImport": "Bring your products, stock, staff and sales into this new version. Your old file is left untouched."
+  },
+  "importOld": {
+    "button": "Bring over my old data",
+    "startEmpty": "Or set up a new empty business below.",
+    "title": "Bring over your old data",
+    "description": "Everything from the old Balce comes into this new version: products, stock, staff, suppliers and sales history.",
+    "loading": "Reading your old data…",
+    "untouched": "Your old data file stays exactly as it is. Nothing in it is changed or deleted.",
+    "businessName": "Business name",
+    "owner": "Owner account",
+    "ownerHint": "This person becomes the owner and signs in with their old email and password.",
+    "whatComes": "What will come over",
+    "counts": {
+      "products": "Products",
+      "users": "Staff accounts",
+      "sales": "Sales",
+      "saleLines": "Items sold",
+      "suppliers": "Suppliers",
+      "discounts": "Discounts"
+    },
+    "salesRange": "Sales from {from} to {to}",
+    "noSales": "No sales yet",
+    "passwordsKept": "Everyone keeps their old password.",
+    "passwordsNotKept": "Some old passwords can't be moved. You'll get temporary passwords to hand out.",
+    "start": "Bring over my data",
+    "cancel": "Cancel",
+    "importing": "Bringing your data over…",
+    "importingHint": "For a busy shop this can take a minute. Keep the app open.",
+    "doneTitle": "Your old data is here",
+    "checkTitle": "Check: old app compared with the new one",
+    "check": {
+      "products": "Products",
+      "users": "Staff accounts",
+      "sales": "Sales",
+      "saleLines": "Items sold",
+      "suppliers": "Suppliers",
+      "salesValue": "Value of sales",
+      "stockValue": "Value of stock (at cost price)"
+    },
+    "matched": "Matches",
+    "notMatched": "Doesn't match",
+    "signInWith": "Sign in with {email} and your old password.",
+    "temporaryTitle": "Temporary passwords",
+    "temporaryHint": "Write these down now. They are shown only once. Each person picks a new password the first time they sign in.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "changesTitle": "Changes we made ({count})",
+    "renamedSku": "SKU {old} → {new} ({name})",
+    "renamedBarcode": "Barcode {old} → {new} ({name})",
+    "changedEmail": "Email {old} → {new} ({name})",
+    "notes": {
+      "suppliers_not_imported": "Suppliers not brought over yet: {count}",
+      "discounts_skipped": "Discounts left out because they had ended or were incomplete: {count}",
+      "product_images_not_copied": "Product pictures not copied (add them again): {count}",
+      "history_products_archived": "Deleted products kept only for sales history: {count}",
+      "negative_stock_set_to_zero": "Products with stock below zero, started at zero: {count}",
+      "purchases_not_imported": "Old purchase records not brought over: {count}",
+      "efd_settings_not_copied": "Set up the EFD again in Settings"
+    },
+    "goToSignIn": "Go to sign in",
+    "mismatchTitle": "Nothing was saved",
+    "mismatchBody": "The check found a difference between your old and new data, so we stopped and saved nothing. Your old data is safe. Contact Balce support.",
+    "setUpEmpty": "Set up a new business instead",
+    "toasts": {
+      "previewFailed": "Couldn't read your old data",
+      "imported": "Your old data was brought over",
+      "failed": "Couldn't bring over your old data"
+    }
   }
 }

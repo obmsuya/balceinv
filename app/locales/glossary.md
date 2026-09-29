@@ -125,6 +125,10 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| bring over (old data to the new app) | hamisha (data za zamani) | |
+| admin (old app role) | msimamizi | |
+| temporary password | nenosiri la muda | |
+| check (compare old and new) | ukaguzi | |
 | support / get help | msaada / pata msaada | |
 | message (to support) | ujumbe (jumbe) | |
 | question | swali | |
