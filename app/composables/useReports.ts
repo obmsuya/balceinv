@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { apiErrorMessage } from '~/utils/i18n'
 
 export interface PaymentTotals {
   cash: number
@@ -137,7 +138,7 @@ export const useReports = () => {
       shops.value = shopsResponse.data
       return true
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the reports')
+      toast.error(apiErrorMessage(error, 'reports.toasts.loadFailed'))
       return false
     } finally {
       loading.value = false
@@ -149,7 +150,7 @@ export const useReports = () => {
       const productsResponse = await apiFetch<ApiEnvelope<ReportProduct[]>>('/api/reports/products', { query: { ...rangeQuery(filter), sort: productSort, limit: 100 } })
       products.value = productsResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the products')
+      toast.error(apiErrorMessage(error, 'reports.toasts.productsFailed'))
     }
   }
 
@@ -158,7 +159,7 @@ export const useReports = () => {
       const inventoryResponse = await apiFetch<ApiEnvelope<InventoryReport>>('/api/reports/inventory', { query: { shop: shop || undefined } })
       inventory.value = inventoryResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Could not load the stock report')
+      toast.error(apiErrorMessage(error, 'reports.toasts.stockFailed'))
     }
   }
 

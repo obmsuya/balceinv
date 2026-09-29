@@ -1,0 +1,143 @@
+{
+  "title": "Ripoti",
+  "excel": "Excel",
+  "excelFileType": "Faili la Excel",
+  "printOrPdf": "Chapisha au PDF",
+  "presets": {
+    "today": "Leo",
+    "yesterday": "Jana",
+    "last7": "Siku 7 zilizopita",
+    "last30": "Siku 30 zilizopita",
+    "thisMonth": "Mwezi huu",
+    "lastMonth": "Mwezi uliopita",
+    "custom": "Chagua mwenyewe"
+  },
+  "scope": {
+    "label": "Maduka yapi",
+    "current": "{shop} (la sasa)",
+    "thisShop": "Duka hili",
+    "allShops": "Maduka yote",
+    "shop": "Duka"
+  },
+  "tabs": {
+    "overview": "Muhtasari",
+    "products": "Bidhaa",
+    "staff": "Wafanyakazi",
+    "shops": "Maduka",
+    "stock": "Stoku"
+  },
+  "counts": {
+    "sales": {
+      "one": "mauzo {count}",
+      "other": "mauzo {count}"
+    },
+    "items": {
+      "one": "kipande {count}",
+      "other": "vipande {count}"
+    },
+    "products": {
+      "one": "bidhaa {count}",
+      "other": "bidhaa {count}"
+    }
+  },
+  "stats": {
+    "takings": "Makusanyo",
+    "grossProfit": "Faida ghafi",
+    "marginOfNetSales": "{margin} ya mauzo halisi",
+    "netSales": "Mauzo halisi",
+    "afterTax": "Baada ya kodi ya {amount}",
+    "discountsGiven": "Punguzo lililotolewa",
+    "averageSale": "Wastani wa mauzo {amount}"
+  },
+  "chart": {
+    "sales": "Mauzo",
+    "grossProfit": "Faida ghafi"
+  },
+  "dayByDay": {
+    "title": "Siku kwa siku",
+    "description": "Makusanyo na faida ghafi, kwa saa za kampuni"
+  },
+  "payments": {
+    "title": "Jinsi wateja walivyolipa",
+    "description": "Taslimu ni baada ya kutoa chenji"
+  },
+  "products": {
+    "topInPeriod": "Bidhaa 100 bora katika kipindi hiki",
+    "rankBy": "Panga bidhaa kwa",
+    "empty": "Hakuna bidhaa zilizouzwa katika kipindi hiki.",
+    "profitNote": "Faida ya kila bidhaa huondoa kodi mstari kwa mstari, hivyo inaweza kutofautiana kidogo na muhtasari."
+  },
+  "sorts": {
+    "revenue": "Mauzo",
+    "quantity": "Idadi",
+    "profit": "Faida"
+  },
+  "noSales": "Hakuna mauzo katika kipindi hiki.",
+  "stock": {
+    "note": "Stoku ilivyo sasa, bila kujali tarehe zilizo juu.",
+    "valueAtCost": "Thamani ya stoku kwa bei ya kununua",
+    "itemsOnHand": {
+      "one": "kipande {count} kilichopo",
+      "other": "vipande {count} vilivyopo"
+    },
+    "valueAtPrice": "Thamani ya stoku kwa bei ya kuuza",
+    "runningLow": "Stoku ndogo",
+    "runningLowHint": "Zimefika au ziko chini ya kiwango cha tahadhari",
+    "outOfStock": "Zimeisha",
+    "outOfStockHint": "Hakuna kilichobaki"
+  },
+  "deadStock": {
+    "title": "Bidhaa zisizouzwa",
+    "description": "Zipo stoku lakini hazijauzwa kwa siku {days}. Zenye thamani kubwa zaidi ziko juu",
+    "neverSold": "Haijawahi kuuzwa",
+    "empty": "Bidhaa zote zilizopo zimeuzwa hivi karibuni."
+  },
+  "columns": {
+    "item": "Kipengele",
+    "value": "Thamani",
+    "period": "Kipindi",
+    "shops": "Maduka",
+    "shop": "Duka",
+    "date": "Tarehe",
+    "product": "Bidhaa",
+    "sku": "SKU",
+    "staff": "Mfanyakazi",
+    "sales": "Mauzo",
+    "sold": "Zilizouzwa",
+    "quantity": "Idadi",
+    "itemsSold": "Vipande vilivyouzwa",
+    "takings": "Makusanyo",
+    "takingsInclTax": "Makusanyo (pamoja na kodi)",
+    "tax": "Kodi",
+    "netSales": "Mauzo halisi",
+    "cost": "Gharama",
+    "costOfGoods": "Gharama ya bidhaa",
+    "profit": "Faida",
+    "grossProfit": "Faida ghafi",
+    "margin": "Asilimia ya faida",
+    "marginPercent": "Asilimia ya faida (%)",
+    "discountsGiven": "Punguzo lililotolewa",
+    "averageSale": "Wastani wa mauzo",
+    "cash": "Taslimu",
+    "card": "Kadi",
+    "mobileMoney": "Pesa ya simu",
+    "onHand": "Zilizopo",
+    "valueAtCost": "Thamani kwa bei ya kununua",
+    "lastSold": "Iliuzwa mwisho"
+  },
+  "sheets": {
+    "summary": "Muhtasari",
+    "days": "Siku",
+    "products": "Bidhaa",
+    "staff": "Wafanyakazi",
+    "shops": "Maduka"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia ripoti",
+    "productsFailed": "Imeshindwa kupakia bidhaa",
+    "stockFailed": "Imeshindwa kupakia ripoti ya stoku",
+    "dateOrder": "Tarehe ya kuanza iko baada ya tarehe ya mwisho",
+    "saved": "Ripoti imehifadhiwa",
+    "saveFailed": "Imeshindwa kuhifadhi ripoti"
+  }
+}
