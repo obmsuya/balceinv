@@ -19,12 +19,7 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement,
 
 const { data, pending, error, refresh } = useDashboard()
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(value)
-}
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)

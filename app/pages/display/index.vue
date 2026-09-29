@@ -78,12 +78,7 @@ onUnmounted(() => {
 
 // ── Formatting ────────────────────────────────────────────────────────────
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value)
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const currentDate = computed(() =>
   new Intl.DateTimeFormat('en-TZ', {

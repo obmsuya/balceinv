@@ -94,12 +94,7 @@ if (user.value) {
 })
 
 // ── Formatting helpers ────────────────────────────────────────────────────
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value)
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const formatDate = (dateString: string): string =>
   new Intl.DateTimeFormat('en-TZ', {
@@ -476,7 +471,7 @@ const getProductName = (productId: number | null): string => {
 
             <div class="flex flex-col gap-1.5">
               <Label for="offer-value">
-                {{ formData.discount_type === 'percent' ? 'Percentage Off *' : 'Amount Off (TZS) *' }}
+                {{ formData.discount_type === 'percent' ? 'Percentage Off *' : `Amount Off (${currencyCode()}) *` }}
               </Label>
               <Input
                 id="offer-value"

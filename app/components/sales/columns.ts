@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { ArrowUpDown, Eye, CreditCard, Smartphone, Banknote } from 'lucide-vue-next';
 import { h, inject } from 'vue';
+import { formatMoney } from '~/utils/money'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -16,12 +17,7 @@ interface Sale {
   user?: { name: string };
 }
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value);
+const formatCurrency = (value: number): string => formatMoney(value)
 
 const formatDate = (date: string): string =>
   new Intl.DateTimeFormat('en-TZ', {

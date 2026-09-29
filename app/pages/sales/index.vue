@@ -45,13 +45,7 @@ const exportDateRange = ref<{ start: Date | null; end: Date | null }>({
   end: null
 });
 
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
+const formatCurrency = (value: number): string => formatMoney(value)
 
 onMounted(async () => {
   await fetchSales();
