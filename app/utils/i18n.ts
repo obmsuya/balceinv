@@ -22,6 +22,9 @@ export const activeLocale = ref<Locale>('en')
 
 export const t = (key: string, params?: MessageParams): string => formatMessage(dictionaries, activeLocale.value, key, params)
 
+export const translateIn = (locale: string | null | undefined, key: string, params?: MessageParams): string =>
+  formatMessage(dictionaries, isLocale(locale) ? locale : 'en', key, params)
+
 export const intlLocale = (): string => intlLocaleFor(activeLocale.value)
 
 export const setActiveLocale = (requestedLocale: string | null | undefined) => {
