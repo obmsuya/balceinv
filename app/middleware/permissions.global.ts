@@ -4,7 +4,7 @@ const routePermissions: Record<string, { resource: string; action: string }> = {
   '/pos': { resource: 'sales', action: 'create' },
   '/sales': { resource: 'sales', action: 'view' },
   '/products': { resource: 'products', action: 'view' },
-  '/stock-movements': { resource: 'stock_movements', action: 'view' },
+  '/stock': { resource: 'stock_movements', action: 'view' },
   '/discounts': { resource: 'discounts', action: 'view' },
   '/reports': { resource: 'reports', action: 'view' },
   '/notifications': { resource: 'notifications', action: 'view' },
