@@ -1,264 +1,225 @@
-import { toast } from "vue-sonner";
+import { toast } from 'vue-sonner'
 
-interface SaleItem {
-  product_id: number;
-  quantity: number;
-  is_wholesale?: boolean;
+export type PaymentMethod = 'cash' | 'card' | 'mobile'
+
+export interface SaleLineInput {
+  product_id: string
+  quantity: number
+  addon_ids: string[]
 }
 
-interface Sale {
-  id: number;
-  receipt_number: string;
-  user_id: number;
-  total_amount: number;
-  payment_type: string;
-  sale_type: string;
-  tax_amount: number;
-  created_at: Date;
-  change?: number;
-  items?: Array<{
-    id: number;
-    sale_id: number;
-    product_id: number;
-    quantity: number;
-    unit_price: number;
-    total_price: number;
-    is_wholesale: boolean;
-    product: {
-      id: number;
-      name: string;
-      price: number;
-      wholesale_price?: number;
-    };
-  }>;
-  user?: {
-    name: string;
-    email: string;
-  };
+export interface PaymentInput {
+  method: PaymentMethod
+  amount: number
 }
 
-interface SalesFilters {
-  start_date?: string;
-  end_date?: string;
-  payment_type?: string;
-  sale_type?: string;
+export interface SaleAddon {
+  addon_id: string
+  name: string
+  unit_price: number
 }
 
-interface DailySalesSummary {
-  sales: Sale[];
-  total_revenue: number;
-  total_transactions: number;
-  total_tax: number;
+export interface SaleLine {
+  product_id: string
+  product_name: string
+  variant_label: string
+  sku: string
+  unit: string
+  quantity: number
+  unit_price: number
+  is_wholesale: boolean
+  addons: SaleAddon[]
+  addons_unit_total: number
+  discount_name: string | null
+  discount_amount: number
+  line_total: number
+  in_stock?: number
 }
 
-interface MonthlySalesSummary extends DailySalesSummary {
-  average_transaction: number;
+export interface SaleQuote {
+  lines: SaleLine[]
+  subtotal: number
+  discount_total: number
+  total: number
+  tax_total: number
+  tax_rate_basis_points: number
 }
 
-interface UploadResult {
-  created: number;
-  errors: Array<{ row: number; error: string }>;
+export interface Sale {
+  id: string
+  receipt_number: string
+  client_ref: string
+  shop_id: string
+  shop_name: string
+  user_id: string
+  cashier_name: string
+  subtotal: number
+  discount_total: number
+  total: number
+  tax_total: number
+  tax_rate_basis_points: number
+  amount_paid: number
+  change_given: number
+  currency_code: string
+  currency_decimals: number
+  note: string | null
+  created_at: string
+  items: SaleLine[]
+  payments: PaymentInput[]
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-interface SaleResult {
-  id: number
+export interface SaleSummary {
+  id: string
   receipt_number: string
   total: number
-  tax_amount: number
-  payment_type: string
-  amount_paid: number
-  change: number
+  discount_total: number
+  unit_count: number
+  payment_methods: PaymentMethod[]
+  cashier_name: string
+  created_at: string
+}
+
+export interface SaleTotals {
+  sale_count: number
+  total: number
+  tax_total: number
+  discount_total: number
+}
+
+export interface SaleReceipt {
+  sale: Sale
+  company: {
+    name: string
+    address: string | null
+    phone: string | null
+    tin: string | null
+    logo_url: string | null
+    receipt_header: string | null
+    receipt_footer: string | null
+  }
+  shop: { name: string; address: string | null; phone: string | null }
+  show_tax: boolean
+  show_barcodes: boolean
+  receipt_language: string
+  paper_width_millimeters: number
+}
+
+export interface SaleFilter {
+  searchText: string
+  fromDate: string
+  toDate: string
+  offset: number
+}
+
+interface ApiEnvelope<Payload> {
+  success: boolean
+  message: string
+  data: Payload
+}
+
+interface Page<Item> {
+  items: Item[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export const salePageSize = 50
+
+export const paymentMethodLabels: Record<PaymentMethod, string> = {
+  cash: 'Cash',
+  card: 'Card',
+  mobile: 'Mobile money',
+}
+
+const localDayStart = (isoDate: string): string | undefined =>
+  isoDate ? new Date(`${isoDate}T00:00:00`).toISOString() : undefined
+
+const localDayAfter = (isoDate: string): string | undefined => {
+  if (!isoDate) return undefined
+  const dayAfter = new Date(`${isoDate}T00:00:00`)
+  dayAfter.setDate(dayAfter.getDate() + 1)
+  return dayAfter.toISOString()
 }
 
 export const useSales = () => {
-  const { public: { apiBase } } = useRuntimeConfig();
-  const { $apiFetch } = useNuxtApp();
+  const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
-  const sales = ref<Sale[]>([]);
-  const loading = ref(false);
-  const selectedSale = ref<Sale | null>(null);
-  const dailySummary = ref<DailySalesSummary | null>(null);
-  const monthlySummary = ref<MonthlySalesSummary | null>(null);
+  const sales = ref<SaleSummary[]>([])
+  const totalSales = ref(0)
+  const totals = ref<SaleTotals | null>(null)
+  const loading = ref(false)
+  const saving = ref(false)
 
-  const fetchSales = async (filters?: SalesFilters): Promise<void> => {
-    loading.value = true;
+  const quoteSale = async (items: SaleLineInput[]): Promise<SaleQuote> => {
+    const quoteResponse = await apiFetch<ApiEnvelope<SaleQuote>>('/api/sales/quote', {
+      method: 'POST',
+      body: { items },
+    })
+    return quoteResponse.data
+  }
+
+  const createSale = async (clientRef: string, items: SaleLineInput[], payments: PaymentInput[], note: string | null): Promise<Sale> => {
+    saving.value = true
     try {
-      const query = new URLSearchParams();
-      if (filters?.start_date) query.append("startDate", filters.start_date);
-      if (filters?.end_date) query.append("endDate", filters.end_date);
-      if (filters?.payment_type) query.append("paymentType", filters.payment_type);
-      if (filters?.sale_type) query.append("saleType", filters.sale_type);
+      const saleResponse = await apiFetch<ApiEnvelope<Sale>>('/api/sales', {
+        method: 'POST',
+        body: { client_ref: clientRef, items, payments, note },
+      })
+      return saleResponse.data
+    } finally {
+      saving.value = false
+    }
+  }
 
-      const qs = query.toString();
-      const url = qs ? `${apiBase}/api/sales?${qs}` : `${apiBase}/api/sales`;
+  const saleQuery = (filter: SaleFilter) => ({
+    q: filter.searchText || undefined,
+    from: localDayStart(filter.fromDate),
+    to: localDayAfter(filter.toDate),
+  })
 
-      const res = await $apiFetch<ApiResponse<Sale[]>>(url, {
-        credentials: "include" as const,
-      });
-      sales.value = res.data;
+  const fetchSales = async (filter: SaleFilter): Promise<void> => {
+    loading.value = true
+    try {
+      const [salePage, totalsResponse] = await Promise.all([
+        apiFetch<ApiEnvelope<Page<SaleSummary>>>('/api/sales', { query: { ...saleQuery(filter), limit: salePageSize, offset: filter.offset } }),
+        apiFetch<ApiEnvelope<SaleTotals>>('/api/sales/totals', { query: saleQuery(filter) }),
+      ])
+      sales.value = salePage.data.items
+      totalSales.value = salePage.data.total
+      totals.value = totalsResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to fetch sales");
+      toast.error(error?.data?.message || 'Failed to load sales')
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  const fetchSale = async (id: number): Promise<Sale | undefined> => {
-    loading.value = true;
+  const fetchSale = async (saleId: string): Promise<Sale | undefined> => {
     try {
-      const res = await $apiFetch<ApiResponse<Sale>>(`${apiBase}/api/sales/${id}`, {
-        credentials: "include" as const,
-      });
-      selectedSale.value = res.data;
-      return res.data;
+      const saleResponse = await apiFetch<ApiEnvelope<Sale>>(`/api/sales/${saleId}`)
+      return saleResponse.data
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to fetch sale details");
-    } finally {
-      loading.value = false;
+      toast.error(error?.data?.message || 'Could not load the sale')
     }
-  };
+  }
 
-  const createSale = async (data: {
-    items: Array<{ productId: number; quantity: number; isWholesale?: boolean; unitPrice?: number }>;
-    paymentType: "cash" | "card" | "mobile";
-    saleType?: "retail" | "wholesale";
-    amountPaid?: number;
-    useEfd?: boolean;
-  }) => {
-    loading.value = true;
-    try {
-      const res = await $apiFetch<ApiResponse<SaleResult>>(`${apiBase}/api/sales`, {
-        method: "POST" as const,
-        body: data,
-        credentials: "include" as const,
-      });
-      return res.data;
-    } catch (err: any) {
-      toast.error("Sale failed", {
-        description: err?.data?.message || "Please try again",
-      });
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchDailySales = async (date?: Date): Promise<void> => {
-    loading.value = true;
-    try {
-      const query = new URLSearchParams();
-      if (date) query.append("date", date.toISOString().split("T")[0]);
-      const qs = query.toString();
-      const url = qs ? `${apiBase}/api/sales/daily?${qs}` : `${apiBase}/api/sales/daily`;
-
-      const res = await $apiFetch<ApiResponse<DailySalesSummary>>(url, {
-        credentials: "include" as const,
-      });
-      dailySummary.value = res.data;
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to fetch daily sales");
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchMonthlySales = async (year?: number, month?: number): Promise<void> => {
-    loading.value = true;
-    try {
-      const query = new URLSearchParams();
-      if (year) query.append("year", year.toString());
-      if (month) query.append("month", month.toString());
-      const qs = query.toString();
-      const url = qs ? `${apiBase}/api/sales/monthly?${qs}` : `${apiBase}/api/sales/monthly`;
-
-      const res = await $apiFetch<ApiResponse<MonthlySalesSummary>>(url, {
-        credentials: "include" as const,
-      });
-      monthlySummary.value = res.data;
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to fetch monthly sales");
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchSalesByDateRange = async (startDate: Date, endDate: Date): Promise<void> => {
-    loading.value = true;
-    try {
-      const query = new URLSearchParams({
-        startDate: startDate.toISOString().split("T")[0],
-        endDate: endDate.toISOString().split("T")[0],
-      });
-
-      const res = await $apiFetch<ApiResponse<Sale[]>>(
-        `${apiBase}/api/sales/date-range?${query.toString()}`,
-        { credentials: "include" as const },
-      );
-      sales.value = res.data;
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to fetch sales for date range");
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const uploadSalesExcel = async (file: File): Promise<UploadResult | undefined> => {
-    loading.value = true;
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await $apiFetch<ApiResponse<UploadResult>>(`${apiBase}/api/sales/upload`, {
-        method: "POST" as const,
-        body: formData,
-        credentials: "include" as const,
-      });
-
-      toast.success(res.message);
-      if (res.data.errors.length > 0) {
-        toast.warning(`${res.data.errors.length} sale${res.data.errors.length > 1 ? "s" : ""} could not be imported`);
-      }
-      await fetchSales();
-      return res.data;
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to upload sales");
-      throw error;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const downloadTemplate = (): void => {
-    window.open(`${apiBase}/api/sales/template`, "_blank");
-    toast.success("Template downloaded");
-  };
-
-  const exportSales = (startDate?: Date, endDate?: Date): void => {
-    const query = new URLSearchParams();
-      if (startDate) query.append("startDate", startDate.toISOString().split("T")[0]);
-      if (endDate) query.append("endDate", endDate.toISOString().split("T")[0]);
-  };
+  const fetchReceipt = async (saleId: string): Promise<SaleReceipt> => {
+    const receiptResponse = await apiFetch<ApiEnvelope<SaleReceipt>>(`/api/sales/${saleId}/receipt`)
+    return receiptResponse.data
+  }
 
   return {
     sales,
+    totalSales,
+    totals,
     loading,
-    selectedSale,
-    dailySummary,
-    monthlySummary,
+    saving,
+    quoteSale,
+    createSale,
     fetchSales,
     fetchSale,
-    createSale,
-    fetchDailySales,
-    fetchMonthlySales,
-    fetchSalesByDateRange,
-    uploadSalesExcel,
-    downloadTemplate,
-    exportSales,
-  };
-};
+    fetchReceipt,
+  }
+}
