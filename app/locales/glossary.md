@@ -61,7 +61,7 @@ names. Add a row here before inventing a new term.
 | barcode | msimbopau | |
 | SKU | SKU | |
 | unit (pcs, kg) | kipimo | |
-| supplier | msambazaji | |
+| supplier / suppliers | msambazaji / wasambazaji | |
 | backup | nakala rudufu | |
 | restore | rejesha | |
 | network | mtandao | |
@@ -135,6 +135,25 @@ names. Add a row here before inventing a new term.
 | profit and loss | faida na hasara | |
 | opening balance | salio la kuanzia | |
 | goods received (stock arrived) | stoku imefika | |
+| supplier debt (what you owe) | deni la msambazaji | |
+| supplier payment | malipo kwa msambazaji | |
+| usual supplier | msambazaji wa kawaida | |
+| invoice (from a supplier) | ankara | invoisi |
+| overdue | imechelewa | |
+| payment terms (days to pay) | siku za kulipa | |
+| void (a payment) | batilisha | futa |
+| return stock to a supplier | rudisha stoku | |
+| account statement | mwenendo wa akaunti | taarifa |
+| turn off / turn back on (a supplier) | zima / washa tena | |
+| bank | benki | |
+| invoice | ankara | |
+| filter(s) | kichujio / vichujio | |
+| tab (on a page) | kichupo / vichupo | |
+| PDF document | hati ya PDF | |
+| bring over (old data to the new app) | hamisha (data za zamani) | |
+| admin (old app role) | msimamizi | |
+| temporary password | nenosiri la muda | |
+| check (compare old and new) | ukaguzi | |
 | support / get help | msaada / pata msaada | |
 | message (to support) | ujumbe (jumbe) | |
 | question | swali | |

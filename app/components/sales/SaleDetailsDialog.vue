@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Printer, ReceiptText } from 'lucide-vue-next'
+import { FileText, Printer, ReceiptText } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -15,9 +15,13 @@ const emit = defineEmits<{ changed: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 const { t, formatDateTime, formatNumber } = useI18n()
 
-const { fetchSale, sendToEfd } = useSales()
+const { fetchSale, sendToEfd, downloadingDocument, downloadSaleDocument } = useSales()
 const sale = ref<Sale | null>(null)
 const sendingFiscal = ref(false)
+
+const downloadDocument = () => {
+  if (sale.value) downloadSaleDocument(sale.value.id, sale.value.receipt_number)
+}
 
 const sendFiscal = async () => {
   if (!sale.value) return
@@ -95,6 +99,7 @@ const printReceipt = () => {
       </div>
 
       <DialogFooter>
+        <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadDocument"><FileText /> {{ downloadingDocument ? t('common.actions.saving') : t('sales.details.a4Invoice') }}</Button>
         <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> {{ t('sales.details.printReceipt') }}</Button>
       </DialogFooter>
     </DialogContent>

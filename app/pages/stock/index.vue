@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PackageX, Send, SlidersHorizontal, TriangleAlert, Wallet } from 'lucide-vue-next'
+import { PackagePlus, PackageX, Send, SlidersHorizontal, TriangleAlert, Wallet } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,6 +8,7 @@ import AdjustStockDialog from '@/components/stock/AdjustStockDialog.vue'
 import SendStockDialog from '@/components/stock/SendStockDialog.vue'
 import StockHistoryPanel from '@/components/stock/StockHistoryPanel.vue'
 import StockLevelsPanel from '@/components/stock/StockLevelsPanel.vue'
+import StockArrivedDialog from '@/components/suppliers/StockArrivedDialog.vue'
 import TransfersPanel from '@/components/stock/TransfersPanel.vue'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
@@ -17,6 +18,7 @@ const route = useRoute()
 const { t, formatNumber } = useI18n()
 const { user } = useAuth()
 const { canCreate } = usePermissions()
+const { suppliersOn, accountingOn } = useFeatures()
 const { summary, fetchSummary } = useStock()
 
 const initialStatus = ['low', 'out'].includes(String(route.query.status)) ? String(route.query.status) as 'low' | 'out' : ''
@@ -25,12 +27,14 @@ const historyProduct = ref<{ id: string; label: string } | null>(null)
 const showAdjustDialog = ref(false)
 const adjustLevel = ref<StockLevel | null>(null)
 const showSendDialog = ref(false)
+const showArrivedDialog = ref(false)
 
 const levelsPanel = ref<InstanceType<typeof StockLevelsPanel> | null>(null)
 const historyPanel = ref<InstanceType<typeof StockHistoryPanel> | null>(null)
 const transfersPanel = ref<InstanceType<typeof TransfersPanel> | null>(null)
 
 const canChangeStock = computed(() => canCreate('stock_movements'))
+const canRecordArrival = computed(() => (suppliersOn.value || accountingOn.value) && canCreate('purchases'))
 const hasOtherShops = computed(() => (user.value?.shops.length ?? 0) > 1)
 const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
 
@@ -63,12 +67,16 @@ onMounted(fetchSummary)
           {{ activeShopName && hasOtherShops ? t('stock.page.subtitleAtShop', { shop: activeShopName }) : t('stock.page.subtitle') }}
         </p>
       </div>
-      <div v-if="canChangeStock" class="flex flex-wrap gap-2">
-        <Button v-if="hasOtherShops" variant="outline" @click="showSendDialog = true">
+      <div v-if="canChangeStock || canRecordArrival" class="flex flex-wrap gap-2">
+        <Button v-if="canRecordArrival" variant="outline" @click="showArrivedDialog = true">
+          <PackagePlus />
+          {{ t('suppliers.page.recordArrived') }}
+        </Button>
+        <Button v-if="canChangeStock && hasOtherShops" variant="outline" @click="showSendDialog = true">
           <Send />
           {{ t('stock.page.sendStock') }}
         </Button>
-        <Button @click="openAdjust(null)">
+        <Button v-if="canChangeStock" @click="openAdjust(null)">
           <SlidersHorizontal />
           {{ t('stock.page.changeStock') }}
         </Button>
@@ -141,5 +149,6 @@ onMounted(fetchSummary)
 
     <AdjustStockDialog v-model:open="showAdjustDialog" :initial-level="adjustLevel" @saved="refreshAfterChange" />
     <SendStockDialog v-if="hasOtherShops" v-model:open="showSendDialog" @sent="refreshAfterChange" />
+    <StockArrivedDialog v-if="canRecordArrival" v-model:open="showArrivedDialog" @saved="refreshAfterChange" />
   </div>
 </template>

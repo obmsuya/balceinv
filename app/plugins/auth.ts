@@ -37,6 +37,12 @@ export default defineNuxtPlugin((nuxtApp) => {
       const requestUrl = resolveRequestUrl(request)
       const isSignInRequest = requestUrl.includes('/api/auth/login')
 
+      if (response._data instanceof ArrayBuffer) {
+        try {
+          response._data = JSON.parse(new TextDecoder().decode(response._data))
+        } catch {}
+      }
+
       const isSupportRequest = requestUrl.includes('/api/support')
       if (response.status !== 401 && !isSupportRequest) {
         lastErrorRequestId.value = response._data?.requestId || response.headers.get('X-Request-Id') || lastErrorRequestId.value

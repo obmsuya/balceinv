@@ -31,7 +31,8 @@
     },
     "sendNow": "Send now",
     "printReceipt": "Print receipt",
-    "customer": "Customer: {name}"
+    "customer": "Customer: {name}",
+    "a4Invoice": "A4 invoice (PDF)"
   },
   "efd": {
     "sending": "Sending to EFD…"
@@ -56,6 +57,9 @@
     "efdSendSummary": "{sent} sent, {waiting} waiting",
     "efdSent": "{count} sent to the EFD",
     "efdNothingWaiting": "Nothing was waiting for the EFD",
-    "serverUnreachable": "Could not reach the server"
-  }
+    "serverUnreachable": "Could not reach the server",
+    "documentSaved": "Invoice saved",
+    "documentFailed": "The invoice could not be saved"
+  },
+  "pdfFileType": "PDF document"
 }

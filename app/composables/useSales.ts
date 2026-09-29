@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { saveFile } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type PaymentMethod = 'cash' | 'card' | 'mobile' | 'credit'
@@ -242,6 +243,25 @@ export const useSales = () => {
     return receiptResponse.data
   }
 
+  const downloadingDocument = ref(false)
+
+  const downloadSaleDocument = async (saleId: string, receiptNumber: string): Promise<void> => {
+    downloadingDocument.value = true
+    try {
+      const documentBytes = await apiFetch<ArrayBuffer>(`/api/sales/${saleId}/document`, {
+        query: { format: 'pdf', kind: 'invoice' },
+        responseType: 'arrayBuffer',
+      })
+      const safeReceiptNumber = receiptNumber.replace(/[^A-Za-z0-9._-]/g, '-')
+      const savedName = await saveFile(new Uint8Array(documentBytes), `invoice-${safeReceiptNumber}.pdf`, { name: t('sales.pdfFileType'), extensions: ['pdf'] })
+      if (savedName) toast.success(t('sales.toasts.documentSaved'), { description: savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'sales.toasts.documentFailed'))
+    } finally {
+      downloadingDocument.value = false
+    }
+  }
+
   const fetchTillOptions = async (): Promise<TillOptions | null> => {
     try {
       const optionsResponse = await apiFetch<ApiEnvelope<TillOptions>>('/api/sales/till')
@@ -287,6 +307,8 @@ export const useSales = () => {
     fetchSales,
     fetchSale,
     fetchReceipt,
+    downloadingDocument,
+    downloadSaleDocument,
     fetchTillOptions,
     sendToEfd,
     sendWaitingToEfd,

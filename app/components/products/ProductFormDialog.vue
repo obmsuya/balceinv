@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -14,6 +15,7 @@ import type { CatalogProduct } from '@/composables/useCatalog'
 import type { NewProductFields, Product, ProductFields } from '@/composables/useProducts'
 import { productImageLimitBytes } from '@/composables/useProducts'
 import type { ProductAddon } from '@/composables/useAddons'
+import type { Supplier } from '@/composables/useSuppliers'
 import { assetUrl } from '~/composables/useSettings'
 import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
 
@@ -41,6 +43,9 @@ const emit = defineEmits<{ saved: [product: Product] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
+const { suppliersOn } = useFeatures()
+const { canView } = usePermissions()
+const { activeSupplierOptions } = useSuppliers()
 
 const { createProduct, updateProduct, saving } = useProducts()
 const { addons, loading: addonsLoading, fetchAddons, createAddon, updateAddon, deleteAddon } = useAddons()
@@ -72,6 +77,12 @@ const imageInput = ref<HTMLInputElement | null>(null)
 const showPhonePhoto = ref(false)
 const newAddonName = ref('')
 const newAddonPrice = ref('')
+const noSupplier = 'none'
+const supplierOptions = ref<Supplier[]>([])
+const preferredSupplierId = ref(noSupplier)
+
+const showSupplierPicker = computed(() => suppliersOn.value && canView('suppliers'))
+const hasUnlistedSupplier = computed(() => preferredSupplierId.value !== noSupplier && !supplierOptions.value.some(supplier => supplier.id === preferredSupplierId.value))
 
 const isEditing = computed(() => props.mode === 'edit')
 const isVariant = computed(() => props.mode === 'variant' || (isEditing.value && props.product?.parent_id != null))
@@ -126,6 +137,8 @@ const resetForm = () => {
   activeTab.value = 'details'
   newAddonName.value = ''
   newAddonPrice.value = ''
+  preferredSupplierId.value = (isEditing.value ? props.product?.preferred_supplier_id : null) ?? noSupplier
+  if (showSupplierPicker.value) activeSupplierOptions().then(options => { supplierOptions.value = options })
 
   if (isEditing.value && props.product) {
     form.value = formFromProduct(props.product, false)
@@ -224,6 +237,7 @@ const buildFields = (): ProductFields | string => {
     metadata: Object.fromEntries(metadataEntries),
     barcodes,
     min_stock: minStock,
+    ...(showSupplierPicker.value ? { preferred_supplier_id: preferredSupplierId.value === noSupplier ? '' : preferredSupplierId.value } : {}),
   }
 }
 
@@ -366,6 +380,19 @@ const removeAddon = async (addon: ProductAddon) => {
                 <Label for="product-pieces">{{ t('products.form.piecesPerUnit') }}</Label>
                 <Input id="product-pieces" v-model="form.piecesPerUnit" inputmode="numeric" />
               </div>
+            </div>
+            <div v-if="showSupplierPicker" class="flex flex-col gap-1.5 sm:col-span-2">
+              <Label>{{ t('suppliers.productForm.usualSupplier') }}</Label>
+              <Select v-model="preferredSupplierId">
+                <SelectTrigger class="w-full" :aria-label="t('suppliers.productForm.usualSupplier')">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="noSupplier">{{ t('suppliers.productForm.noUsualSupplier') }}</SelectItem>
+                  <SelectItem v-for="supplier in supplierOptions" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</SelectItem>
+                  <SelectItem v-if="hasUnlistedSupplier" :value="preferredSupplierId">{{ t('suppliers.list.inactive') }}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -1,5 +1,7 @@
 import { toast } from 'vue-sonner'
-import { apiErrorMessage } from '~/utils/i18n'
+import { saveFile } from '~/utils/download'
+import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
+import { todayIn } from '~/utils/reportRanges'
 
 export interface PaymentTotals {
   cash: number
@@ -90,6 +92,10 @@ export interface InventoryReport {
 
 export type ProductSort = 'revenue' | 'quantity' | 'profit'
 
+export type ReportExport = 'summary' | 'daily' | 'products' | 'cashiers' | 'shops' | 'inventory'
+
+export type ExportFormat = 'xlsx' | 'pdf'
+
 export interface ReportFilter {
   from: string
   to: string
@@ -113,6 +119,7 @@ export const useReports = () => {
   const shops = ref<ReportShop[]>([])
   const inventory = ref<InventoryReport | null>(null)
   const loading = ref(false)
+  const exporting = ref<ExportFormat | null>(null)
 
   const rangeQuery = (filter: ReportFilter) => ({
     from: filter.from || undefined,
@@ -163,6 +170,29 @@ export const useReports = () => {
     }
   }
 
+  const exportFileName = (report: ReportExport, filter: ReportFilter, format: ExportFormat): string => {
+    if (report === 'inventory') return `stock-report-${todayIn(useAuth().user.value?.branding?.timezone)}.${format}`
+    if (report === 'summary') return `report-${filter.from}-to-${filter.to}.${format}`
+    return `report-${report}-${filter.from}-to-${filter.to}.${format}`
+  }
+
+  const exportReport = async (report: ReportExport, format: ExportFormat, filter: ReportFilter, productSort: ProductSort): Promise<void> => {
+    exporting.value = format
+    try {
+      const fileBytes = await apiFetch<ArrayBuffer>(`/api/reports/${report}/export`, {
+        query: { ...rangeQuery(filter), sort: productSort, format, lang: activeLocale.value },
+        responseType: 'arrayBuffer',
+      })
+      const fileType = format === 'pdf' ? { name: t('reports.pdfFileType'), extensions: ['pdf'] } : { name: t('reports.excelFileType'), extensions: ['xlsx'] }
+      const savedName = await saveFile(new Uint8Array(fileBytes), exportFileName(report, filter, format), fileType)
+      if (savedName) toast.success(t('reports.toasts.saved'), { description: savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'reports.toasts.saveFailed'))
+    } finally {
+      exporting.value = null
+    }
+  }
+
   return {
     summary,
     days,
@@ -171,6 +201,8 @@ export const useReports = () => {
     shops,
     inventory,
     loading,
+    exporting,
+    exportReport,
     fetchSalesReports,
     fetchProductRanking,
     fetchInventory,

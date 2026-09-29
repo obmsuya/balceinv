@@ -31,7 +31,8 @@
     },
     "sendNow": "Tuma sasa",
     "printReceipt": "Chapisha risiti",
-    "customer": "Mteja: {name}"
+    "customer": "Mteja: {name}",
+    "a4Invoice": "Ankara A4 (PDF)"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"
@@ -56,6 +57,9 @@
     "efdSendSummary": "{sent} yametumwa, {waiting} yanasubiri",
     "efdSent": "Mauzo {count} yametumwa kwa EFD",
     "efdNothingWaiting": "Hakuna mauzo yaliyokuwa yanasubiri EFD",
-    "serverUnreachable": "Imeshindwa kufikia seva"
-  }
+    "serverUnreachable": "Imeshindwa kufikia seva",
+    "documentSaved": "Ankara imehifadhiwa",
+    "documentFailed": "Imeshindwa kuhifadhi ankara"
+  },
+  "pdfFileType": "Hati ya PDF"
 }

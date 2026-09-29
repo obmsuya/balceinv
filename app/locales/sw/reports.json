@@ -2,7 +2,11 @@
   "title": "Ripoti",
   "excel": "Excel",
   "excelFileType": "Faili la Excel",
+  "pdf": "PDF",
+  "pdfFileType": "Hati ya PDF",
   "printOrPdf": "Chapisha au PDF",
+  "print": "Chapisha",
+  "downloadHint": "Muhtasari huhifadhi ripoti nzima; vichupo vingine huhifadhi kichupo hicho tu",
   "presets": {
     "today": "Leo",
     "yesterday": "Jana",
