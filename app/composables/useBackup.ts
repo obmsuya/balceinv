@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import { useOnline } from '@vueuse/core'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface LocalBackup {
   date: string
@@ -62,9 +63,6 @@ export const useBackup = () => {
   const loadingCloud = ref(false)
   const activeAction = ref<BackupAction>(null)
 
-  const readErrorMessage = (error: any, fallback: string): string =>
-    error?.data?.message || fallback
-
   const fetchStatus = async (): Promise<void> => {
     loadingStatus.value = true
     try {
@@ -73,7 +71,7 @@ export const useBackup = () => {
       })
       status.value = response.data
     } catch (error: any) {
-      toast.error(readErrorMessage(error, 'Could not load backup status'))
+      toast.error(apiErrorMessage(error, 'backup.toasts.statusFailed'))
     } finally {
       loadingStatus.value = false
     }
@@ -82,7 +80,7 @@ export const useBackup = () => {
   const fetchCloudBackups = async (): Promise<void> => {
     if (!isOnline.value) {
       cloudBackups.value = []
-      cloudListError.value = 'You are offline. Cloud backups will show when the internet is back.'
+      cloudListError.value = t('backup.toasts.offlineCloudList')
       return
     }
 
@@ -95,7 +93,7 @@ export const useBackup = () => {
       cloudBackups.value = response.data ?? []
     } catch (error: any) {
       cloudBackups.value = []
-      cloudListError.value = readErrorMessage(error, 'Could not reach cloud backups')
+      cloudListError.value = apiErrorMessage(error, 'backup.toasts.cloudListFailed')
     } finally {
       loadingCloud.value = false
     }
@@ -118,28 +116,28 @@ export const useBackup = () => {
     try {
       await saveBackupOnThisPC()
     } catch (error: any) {
-      toast.error(readErrorMessage(error, 'Backup failed'))
+      toast.error(apiErrorMessage(error, 'backup.toasts.backupFailed'))
       activeAction.value = null
       return
     }
 
     try {
       if (!status.value?.cloud_available) {
-        toast.success('Backup saved on this PC')
+        toast.success(t('backup.toasts.savedOnPc'))
       } else if (!isOnline.value) {
-        toast.success('Backup saved on this PC', {
-          description: 'You are offline. The cloud copy will upload automatically when the internet is back.',
+        toast.success(t('backup.toasts.savedOnPc'), {
+          description: t('backup.toasts.savedOffline'),
         })
       } else {
         await $apiFetch(`${apiBase}/api/backup/cloud`, {
           method: 'POST' as const,
           credentials: 'include' as const,
         })
-        toast.success('Backup saved on this PC and in the cloud')
+        toast.success(t('backup.toasts.savedEverywhere'))
       }
     } catch (error: any) {
-      toast.warning('Backup saved on this PC, but the cloud upload failed', {
-        description: `${readErrorMessage(error, 'Cloud upload failed')}. It will be retried automatically.`,
+      toast.warning(t('backup.toasts.cloudUploadFailedTitle'), {
+        description: t('backup.toasts.retriedAutomatically', { reason: apiErrorMessage(error, 'backup.toasts.cloudUploadFailed') }),
       })
     } finally {
       activeAction.value = null
@@ -149,14 +147,14 @@ export const useBackup = () => {
 
   const exportToFile = async (): Promise<void> => {
     if (!isTauri()) {
-      toast.error('Saving a backup file is only available in the desktop app')
+      toast.error(t('backup.toasts.exportDesktopOnly'))
       return
     }
 
     const { save } = await import('@tauri-apps/plugin-dialog')
     const savePath = await save({
       defaultPath: `pos-backup-${todayBackupDate()}.db.gz`,
-      filters: [{ name: 'POS backup', extensions: ['gz'] }],
+      filters: [{ name: t('backup.fileFilterName'), extensions: ['gz'] }],
     })
     if (!savePath) return
 
@@ -167,10 +165,10 @@ export const useBackup = () => {
         body: { path: savePath },
         credentials: 'include' as const,
       })
-      toast.success('Backup file saved', { description: savePath })
+      toast.success(t('backup.toasts.fileSaved'), { description: savePath })
       await fetchStatus()
     } catch (error: any) {
-      toast.error(readErrorMessage(error, 'Could not save the backup file'))
+      toast.error(apiErrorMessage(error, 'backup.toasts.fileSaveFailed'))
     } finally {
       activeAction.value = null
     }
@@ -178,7 +176,7 @@ export const useBackup = () => {
 
   const pickBackupFile = async (): Promise<string | null> => {
     if (!isTauri()) {
-      toast.error('Restoring from a file is only available in the desktop app')
+      toast.error(t('backup.toasts.restoreDesktopOnly'))
       return null
     }
 
@@ -186,14 +184,14 @@ export const useBackup = () => {
     const pickedPath = await open({
       multiple: false,
       directory: false,
-      filters: [{ name: 'POS backup', extensions: ['gz'] }],
+      filters: [{ name: t('backup.fileFilterName'), extensions: ['gz'] }],
     })
     return typeof pickedPath === 'string' ? pickedPath : null
   }
 
   const restartToFinishRestore = async (): Promise<void> => {
     if (!isTauri()) {
-      toast.success('Backup ready. Close and reopen the POS to finish restoring.')
+      toast.success(t('backup.toasts.readyToRestart'))
       await fetchStatus()
       return
     }
@@ -213,7 +211,7 @@ export const useBackup = () => {
       await restartToFinishRestore()
       return true
     } catch (error: any) {
-      toast.error(readErrorMessage(error, 'Restore failed'))
+      toast.error(apiErrorMessage(error, 'backup.toasts.restoreFailed'))
       return false
     } finally {
       activeAction.value = null

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { formatTimeAgo } from '@vueuse/core'
 import {
   Cloud,
   CloudOff,
@@ -33,6 +32,7 @@ import type { RestoreSource } from '@/composables/useBackup'
 import { beforeRestoreBackupName, useBackup } from '@/composables/useBackup'
 
 const { user } = useAuth()
+const { t, formatDate, formatRelativeTime } = useI18n()
 const {
   status,
   cloudBackups,
@@ -56,11 +56,11 @@ const latestLocalBackup = computed(() => localBackups.value[0] ?? null)
 const beforeRestoreCopy = computed(() => status.value?.before_restore_copy ?? null)
 const todayBackupDate = new Date().toLocaleDateString('en-CA')
 
-const pendingRestore = ref<{ source: RestoreSource; target: string; label: string } | null>(null)
+const pendingRestore = ref<{ source: RestoreSource; target: string } | null>(null)
 const showRestoreDialog = ref(false)
 
 const formatBackupDate = (backupDate: string): string =>
-  new Date(`${backupDate}T00:00:00`).toLocaleDateString(undefined, {
+  formatDate(new Date(`${backupDate}T00:00:00`), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -72,7 +72,7 @@ const formatSize = (sizeInBytes: number): string => {
   return `${(sizeInBytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-const timeAgo = (timestamp: string): string => formatTimeAgo(new Date(timestamp))
+const timeAgo = (timestamp: string): string => formatRelativeTime(timestamp)
 
 const fileNameFromPath = (filePath: string): string => filePath.split(/[\\/]/).pop() ?? filePath
 
@@ -80,12 +80,14 @@ const isUndo = computed(() => pendingRestore.value?.target === beforeRestoreBack
 
 const restoreLabel = (source: RestoreSource, target: string): string => {
   if (source === 'file') return fileNameFromPath(target)
-  if (target === beforeRestoreBackupName) return 'the data from before the last restore'
-  return `the backup from ${formatBackupDate(target)}`
+  if (target === beforeRestoreBackupName) return t('backup.confirm.beforeLastRestore')
+  return t('backup.confirm.backupFrom', { date: formatBackupDate(target) })
 }
 
+const pendingRestoreLabel = computed(() => (pendingRestore.value ? restoreLabel(pendingRestore.value.source, pendingRestore.value.target) : ''))
+
 const askToRestore = (source: RestoreSource, target: string) => {
-  pendingRestore.value = { source, target, label: restoreLabel(source, target) }
+  pendingRestore.value = { source, target }
   showRestoreDialog.value = true
 }
 
@@ -116,11 +118,11 @@ watch(isOnline, (online) => {
     >
       <TriangleAlert class="size-5 text-amber-600 shrink-0" />
       <div class="flex-1 text-sm">
-        <p class="font-medium">A restore is waiting to be applied</p>
-        <p class="text-muted-foreground">Restart the POS now. Anything recorded before the restart will be replaced by the backup.</p>
+        <p class="font-medium">{{ t('backup.restorePending.title') }}</p>
+        <p class="text-muted-foreground">{{ t('backup.restorePending.body') }}</p>
       </div>
       <Button size="sm" @click="restartToFinishRestore">
-        <RotateCcw class="size-4 mr-2" />Restart now
+        <RotateCcw class="size-4 mr-2" />{{ t('backup.restorePending.restartNow') }}
       </Button>
     </div>
 
@@ -129,14 +131,13 @@ watch(isOnline, (online) => {
         <div class="flex items-start justify-between gap-4">
           <div>
             <CardTitle class="text-base flex items-center gap-2">
-              <ShieldCheck class="size-4 text-primary" />Automatic backups
+              <ShieldCheck class="size-4 text-primary" />{{ t('backup.automatic.title') }}
             </CardTitle>
             <CardDescription class="mt-1">
-              A copy is saved on this PC every 6 hours and the last 7 days are kept.
-              With an activated license each copy is also uploaded to the cloud.
+              {{ t('backup.automatic.description') }}
             </CardDescription>
           </div>
-          <Button variant="ghost" size="icon" :disabled="loadingStatus" @click="refresh">
+          <Button variant="ghost" size="icon" :disabled="loadingStatus" :aria-label="t('common.actions.refresh')" @click="refresh">
             <RefreshCw class="size-4" :class="loadingStatus ? 'animate-spin' : ''" />
           </Button>
         </div>
@@ -154,12 +155,12 @@ watch(isOnline, (online) => {
               <HardDrive class="size-5 text-muted-foreground" />
             </div>
             <div class="min-w-0">
-              <p class="text-sm font-medium">On this PC</p>
+              <p class="text-sm font-medium">{{ t('backup.automatic.onThisPc') }}</p>
               <template v-if="latestLocalBackup">
-                <p class="text-sm text-muted-foreground">Last saved {{ timeAgo(latestLocalBackup.created_at) }}</p>
-                <p class="text-xs text-muted-foreground mt-1">{{ localBackups.length }} of 7 daily copies kept</p>
+                <p class="text-sm text-muted-foreground">{{ t('backup.automatic.lastSaved', { time: timeAgo(latestLocalBackup.created_at) }) }}</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ t('backup.automatic.copiesKept', { count: localBackups.length }) }}</p>
               </template>
-              <p v-else class="text-sm text-muted-foreground">No backup yet. Click Back up now.</p>
+              <p v-else class="text-sm text-muted-foreground">{{ t('backup.automatic.noBackupYet') }}</p>
             </div>
           </div>
 
@@ -170,28 +171,28 @@ watch(isOnline, (online) => {
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
-                <p class="text-sm font-medium">Cloud</p>
+                <p class="text-sm font-medium">{{ t('backup.automatic.cloud') }}</p>
                 <Badge v-if="status?.cloud_available && !isOnline" variant="outline" class="text-xs">
-                  <WifiOff class="size-3 mr-1" />Offline
+                  <WifiOff class="size-3 mr-1" />{{ t('common.states.offline') }}
                 </Badge>
               </div>
               <p v-if="!status?.cloud_available" class="text-sm text-muted-foreground">
-                Available with an activated license. Backups on this PC and to USB still work.
+                {{ t('backup.automatic.cloudNeedsLicense') }}
               </p>
               <p v-else-if="!isOnline" class="text-sm text-muted-foreground">
-                No internet. Your data is safe on this PC and will upload when the internet is back.
+                {{ t('backup.automatic.cloudOffline') }}
               </p>
               <template v-else>
                 <p v-if="status.last_cloud_success_at" class="text-sm text-muted-foreground">
-                  Last uploaded {{ timeAgo(status.last_cloud_success_at) }}
+                  {{ t('backup.automatic.lastUploaded', { time: timeAgo(status.last_cloud_success_at) }) }}
                 </p>
                 <p v-else-if="cloudBackups[0]" class="text-sm text-muted-foreground">
-                  Latest cloud copy: {{ formatBackupDate(cloudBackups[0].date) }}
+                  {{ t('backup.automatic.latestCloudCopy', { date: formatBackupDate(cloudBackups[0].date) }) }}
                 </p>
-                <p v-else-if="cloudListError" class="text-sm text-muted-foreground">Cloud can't be reached right now</p>
-                <p v-else class="text-sm text-muted-foreground">No cloud copy yet</p>
+                <p v-else-if="cloudListError" class="text-sm text-muted-foreground">{{ t('backup.automatic.cloudUnreachable') }}</p>
+                <p v-else class="text-sm text-muted-foreground">{{ t('backup.automatic.noCloudCopy') }}</p>
                 <p v-if="status.last_cloud_error" class="text-xs text-destructive mt-1 line-clamp-2">
-                  Last upload failed: {{ status.last_cloud_error }}. Retrying automatically.
+                  {{ t('backup.automatic.lastUploadFailed', { error: status.last_cloud_error }) }}
                 </p>
               </template>
             </div>
@@ -202,12 +203,12 @@ watch(isOnline, (online) => {
           <Button :disabled="activeAction !== null" @click="backupNow">
             <RefreshCw v-if="activeAction === 'backup'" class="size-4 mr-2 animate-spin" />
             <DatabaseBackup v-else class="size-4 mr-2" />
-            {{ activeAction === 'backup' ? 'Backing up…' : 'Back up now' }}
+            {{ activeAction === 'backup' ? t('backup.automatic.backingUp') : t('backup.automatic.backUpNow') }}
           </Button>
           <Button v-if="userIsAdmin" variant="outline" :disabled="activeAction !== null" @click="exportToFile">
             <RefreshCw v-if="activeAction === 'export'" class="size-4 mr-2 animate-spin" />
             <Usb v-else class="size-4 mr-2" />
-            {{ activeAction === 'export' ? 'Saving…' : 'Save to USB / file' }}
+            {{ activeAction === 'export' ? t('common.actions.saving') : t('backup.automatic.saveToUsb') }}
           </Button>
         </div>
       </CardContent>
@@ -216,23 +217,23 @@ watch(isOnline, (online) => {
     <Card>
       <CardHeader class="pb-3">
         <CardTitle class="text-base flex items-center gap-2">
-          <History class="size-4" />Restore
+          <History class="size-4" />{{ t('backup.restore.title') }}
         </CardTitle>
         <CardDescription>
-          Replace the data on this PC with an earlier backup. Your current data is saved on this PC first, so a restore can be undone.
+          {{ t('backup.restore.description') }}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <p v-if="!userIsAdmin" class="text-sm text-muted-foreground">
-          Only an admin can restore a backup. Ask your admin to sign in on this PC.
+          {{ t('backup.restore.adminOnly') }}
         </p>
 
         <Tabs v-else default-value="local">
           <TabsList class="grid w-full grid-cols-3">
-            <TabsTrigger value="local">On this PC</TabsTrigger>
-            <TabsTrigger value="cloud" :disabled="!status?.cloud_available">Cloud</TabsTrigger>
-            <TabsTrigger value="file">From a file</TabsTrigger>
+            <TabsTrigger value="local">{{ t('backup.restore.tabLocal') }}</TabsTrigger>
+            <TabsTrigger value="cloud" :disabled="!status?.cloud_available">{{ t('backup.restore.tabCloud') }}</TabsTrigger>
+            <TabsTrigger value="file">{{ t('backup.restore.tabFile') }}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="local" class="mt-3 flex flex-col gap-3">
@@ -241,9 +242,9 @@ watch(isOnline, (online) => {
               class="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3"
             >
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium">Undo last restore</p>
+                <p class="text-sm font-medium">{{ t('backup.restore.undoTitle') }}</p>
                 <p class="text-xs text-muted-foreground">
-                  Your data as it was before the last restore, saved {{ timeAgo(beforeRestoreCopy.created_at) }} · {{ formatSize(beforeRestoreCopy.size) }}
+                  {{ t('backup.restore.undoDescription', { time: timeAgo(beforeRestoreCopy.created_at), size: formatSize(beforeRestoreCopy.size) }) }}
                 </p>
               </div>
               <Button
@@ -252,12 +253,12 @@ watch(isOnline, (online) => {
                 :disabled="activeAction !== null"
                 @click="askToRestore('local', beforeRestoreBackupName)"
               >
-                <RotateCcw class="size-3.5 mr-1.5" />Undo
+                <RotateCcw class="size-3.5 mr-1.5" />{{ t('backup.restore.undo') }}
               </Button>
             </div>
 
             <p v-if="localBackups.length === 0" class="text-sm text-muted-foreground py-6 text-center">
-              No backups on this PC yet.
+              {{ t('backup.restore.noLocalBackups') }}
             </p>
             <div v-else class="divide-y rounded-lg border">
               <div
@@ -268,10 +269,10 @@ watch(isOnline, (online) => {
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
                     <p class="text-sm font-medium">{{ formatBackupDate(localBackup.date) }}</p>
-                    <Badge v-if="localBackup.date === todayBackupDate" variant="secondary" class="text-xs">Today</Badge>
+                    <Badge v-if="localBackup.date === todayBackupDate" variant="secondary" class="text-xs">{{ t('common.time.today') }}</Badge>
                   </div>
                   <p class="text-xs text-muted-foreground">
-                    Saved {{ timeAgo(localBackup.created_at) }} · {{ formatSize(localBackup.size) }}
+                    {{ t('backup.restore.savedAt', { time: timeAgo(localBackup.created_at), size: formatSize(localBackup.size) }) }}
                   </p>
                 </div>
                 <Button
@@ -280,7 +281,7 @@ watch(isOnline, (online) => {
                   :disabled="activeAction !== null"
                   @click="askToRestore('local', localBackup.date)"
                 >
-                  <RotateCcw class="size-3.5 mr-1.5" />Restore
+                  <RotateCcw class="size-3.5 mr-1.5" />{{ t('backup.restore.restore') }}
                 </Button>
               </div>
             </div>
@@ -294,11 +295,11 @@ watch(isOnline, (online) => {
               <CloudOff class="size-8 text-muted-foreground/50" />
               <p class="text-sm text-muted-foreground max-w-sm">{{ cloudListError }}</p>
               <Button size="sm" variant="outline" :disabled="!isOnline" @click="fetchCloudBackups">
-                <RefreshCw class="size-3.5 mr-1.5" />Try again
+                <RefreshCw class="size-3.5 mr-1.5" />{{ t('common.actions.retry') }}
               </Button>
             </div>
             <p v-else-if="cloudBackups.length === 0" class="text-sm text-muted-foreground py-6 text-center">
-              No cloud backups yet.
+              {{ t('backup.restore.noCloudBackups') }}
             </p>
             <div v-else class="divide-y rounded-lg border">
               <div
@@ -316,7 +317,7 @@ watch(isOnline, (online) => {
                   :disabled="activeAction !== null || !isOnline"
                   @click="askToRestore('cloud', cloudBackup.date)"
                 >
-                  <RotateCcw class="size-3.5 mr-1.5" />Restore
+                  <RotateCcw class="size-3.5 mr-1.5" />{{ t('backup.restore.restore') }}
                 </Button>
               </div>
             </div>
@@ -326,10 +327,10 @@ watch(isOnline, (online) => {
             <div class="flex flex-col items-center gap-3 rounded-lg border border-dashed py-8 px-4 text-center">
               <FolderOpen class="size-8 text-muted-foreground/50" />
               <p class="text-sm text-muted-foreground max-w-sm">
-                Pick a backup file saved with Save to USB / file. Use this to move your data to a new PC or when there is no internet.
+                {{ t('backup.restore.fileHelp') }}
               </p>
               <Button variant="outline" :disabled="activeAction !== null" @click="askToRestoreFromFile">
-                <FolderOpen class="size-4 mr-2" />Choose backup file…
+                <FolderOpen class="size-4 mr-2" />{{ t('backup.restore.chooseFile') }}
               </Button>
             </div>
           </TabsContent>
@@ -340,17 +341,17 @@ watch(isOnline, (online) => {
     <AlertDialog v-model:open="showRestoreDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Restore {{ pendingRestore?.label }}?</AlertDialogTitle>
+          <AlertDialogTitle>{{ t('backup.confirm.title', { label: pendingRestoreLabel }) }}</AlertDialogTitle>
           <AlertDialogDescription class="flex flex-col gap-2">
-            <span>All data on this PC will be replaced. Sales recorded after this backup was made will no longer show.</span>
-            <span v-if="!isUndo">Your current data is kept first, so you can undo this with Undo last restore.</span>
-            <span>The POS will restart and you will need to sign in again.</span>
+            <span>{{ t('backup.confirm.replacesEverything') }}</span>
+            <span v-if="!isUndo">{{ t('backup.confirm.canUndo') }}</span>
+            <span>{{ t('backup.confirm.restartAndSignIn') }}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
           <AlertDialogAction class="bg-destructive hover:bg-destructive/90" @click="confirmRestore">
-            Restore and restart
+            {{ t('backup.confirm.action') }}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -361,8 +362,8 @@ watch(isOnline, (online) => {
       class="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm"
     >
       <RefreshCw class="size-8 animate-spin text-primary" />
-      <p class="text-sm font-medium">Preparing your backup…</p>
-      <p class="text-xs text-muted-foreground">Do not close the POS</p>
+      <p class="text-sm font-medium">{{ t('backup.preparing') }}</p>
+      <p class="text-xs text-muted-foreground">{{ t('backup.doNotClose') }}</p>
     </div>
   </div>
 </template>
