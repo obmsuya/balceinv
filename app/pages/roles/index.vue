@@ -38,7 +38,7 @@ const showPermissionsDialog = ref(false);
 const isEditing = ref(false);
 const selectedRole = ref<any>(null);
 const roleName = ref('');
-const selectedPermissions = ref<number[]>([]);
+const selectedPermissions = ref<string[]>([]);
 const permissionsLoading = ref(false);
 
 const allPermissionIds = computed(() => permissions.value.map((p) => p.id));
@@ -68,9 +68,9 @@ const toggleResource = (perms: any[]) => {
   }
 };
 
-const isPermissionSelected = (id: number) => selectedPermissions.value.includes(id);
+const isPermissionSelected = (id: string) => selectedPermissions.value.includes(id);
 
-const togglePermission = (id: number) => {
+const togglePermission = (id: string) => {
   if (selectedPermissions.value.includes(id)) {
     selectedPermissions.value = selectedPermissions.value.filter((x) => x !== id);
   } else {
@@ -79,10 +79,8 @@ const togglePermission = (id: number) => {
 };
 
 const { user } = useAuth();
-const { fetchUserPermissions } = usePermissions();
 
 onMounted(async () => {
-  if (user.value) await fetchUserPermissions(user.value.id);
   await fetchRoles();
   await fetchPermissions();
   globalThis.addEventListener('edit-role', handleEdit);
@@ -110,9 +108,13 @@ const handleDelete = (event: any) => {
   showDeleteDialog.value = true;
 };
 
-const handleViewUsers = (event: any) => {
+const { users: companyUsers, fetchUsers } = useUsers();
+const roleUsers = computed(() => companyUsers.value.filter((companyUser) => companyUser.role_id === selectedRole.value?.id));
+
+const handleViewUsers = async (event: any) => {
   selectedRole.value = event.detail;
   showUsersDialog.value = true;
+  await fetchUsers();
 };
 
 const handleManagePermissions = async (event: any) => {
@@ -122,9 +124,7 @@ const handleManagePermissions = async (event: any) => {
   permissionsLoading.value = true;
   try {
     const rolePerms = await fetchRolePermissions(event.detail.id);
-    selectedPermissions.value = rolePerms
-      .map((p: any) => Number(p.id))
-      .filter((id: number) => id > 0);
+    selectedPermissions.value = rolePerms.map((permission) => permission.id);
   } finally {
     permissionsLoading.value = false;
   }
@@ -170,6 +170,7 @@ const handleSavePermissions = async () => {
       await assignPermissionsToRole(selectedRole.value.id, selectedPermissions.value);
       showPermissionsDialog.value = false;
       selectedPermissions.value = [];
+      await fetchRoles();
     } catch (error) {
       console.error('Failed to save permissions:', error);
     }
@@ -241,8 +242,8 @@ const handleSavePermissions = async () => {
           </DialogTitle>
         </DialogHeader>
         <div class="py-4">
-          <div v-if="selectedRole?.users?.length" class="space-y-2">
-            <div v-for="user in selectedRole.users" :key="user.id" class="flex items-center justify-between p-3 border rounded-lg">
+          <div v-if="roleUsers.length" class="space-y-2">
+            <div v-for="user in roleUsers" :key="user.id" class="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <p class="font-medium">{{ user.name }}</p>
                 <p class="text-sm text-muted-foreground">{{ user.email }}</p>
