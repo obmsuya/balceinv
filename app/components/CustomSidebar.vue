@@ -7,7 +7,7 @@ import {
   Shield,
   Bell,
   Settings,
-  TrendingUp,
+  Boxes,
   FileText,
   BadgePercent,
   Store
@@ -54,7 +54,7 @@ const navigationItems = computed(() => {
     { path: '/pos', icon: CreditCard, label: 'Point of Sale', resource: 'sales' },
     { path: '/sales', icon: ShoppingCart, label: 'Sales History', resource: 'sales' },
     { path: '/products', icon: Package, label: 'Products', resource: 'products' },
-    { path: '/stock-movements', icon: TrendingUp, label: 'Stock Movements', resource: 'stock_movements' },
+    { path: '/stock', icon: Boxes, label: 'Stock', resource: 'stock_movements' },
     { path: '/discounts', icon: BadgePercent, label: 'Discounts', resource: 'discounts' },
   ];
 
