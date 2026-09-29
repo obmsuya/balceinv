@@ -18,6 +18,7 @@ const emit = defineEmits<{ edit: [product: Product] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t, formatDateTime } = useI18n()
 const { fetchVariants } = useProducts()
 const { addons, loading: addonsLoading, fetchAddons } = useAddons()
 
@@ -25,9 +26,6 @@ const variants = ref<Product[]>([])
 const variantsLoading = ref(false)
 
 const imageSource = computed(() => assetUrl(props.product?.image_url))
-
-const formatDate = (isoDate: string): string =>
-  new Date(isoDate).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 
 const stockVariant = (product: Product) => {
   if (product.quantity == null) return 'secondary'
@@ -61,8 +59,8 @@ const editProduct = (product: Product) => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
       <DialogHeader>
-        <DialogTitle>Product details</DialogTitle>
-        <DialogDescription class="sr-only">Everything saved for this product</DialogDescription>
+        <DialogTitle>{{ t('products.details.title') }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('products.details.description') }}</DialogDescription>
       </DialogHeader>
 
       <div v-if="product" class="flex flex-col gap-5">
@@ -80,12 +78,12 @@ const editProduct = (product: Product) => {
                 <GitBranch />
                 {{ product.variant_label }}
               </Badge>
-              <Badge v-if="!product.is_active" variant="secondary">Archived</Badge>
+              <Badge v-if="!product.is_active" variant="secondary">{{ t('products.table.archived') }}</Badge>
             </div>
           </div>
           <Button v-if="canEdit && product.is_active" variant="outline" size="sm" @click="editProduct(product)">
             <Pencil />
-            Edit
+            {{ t('common.actions.edit') }}
           </Button>
         </div>
 
@@ -93,34 +91,34 @@ const editProduct = (product: Product) => {
 
         <dl class="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
-            <dt class="text-muted-foreground">Selling price</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.sellingPrice') }}</dt>
             <dd class="font-semibold tabular-nums">{{ formatMoney(product.price) }}</dd>
           </div>
           <div>
-            <dt class="text-muted-foreground">Cost price</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.costPrice') }}</dt>
             <dd class="font-semibold tabular-nums">{{ formatMoney(product.cost_price) }}</dd>
           </div>
           <div>
-            <dt class="text-muted-foreground">Wholesale</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.wholesale') }}</dt>
             <dd class="tabular-nums">
               <template v-if="product.wholesale_price != null">
-                {{ formatMoney(product.wholesale_price) }} from {{ product.wholesale_min }}
+                {{ t('products.details.wholesaleFrom', { price: formatMoney(product.wholesale_price), quantity: product.wholesale_min }) }}
               </template>
               <template v-else>—</template>
             </dd>
           </div>
           <div>
-            <dt class="text-muted-foreground">Stock here</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.stockHere') }}</dt>
             <dd>
               <Badge :variant="stockVariant(product)" class="tabular-nums">{{ product.quantity ?? '—' }} {{ product.unit }}</Badge>
             </dd>
           </div>
           <div>
-            <dt class="text-muted-foreground">Warn at or below</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.warnAt') }}</dt>
             <dd class="tabular-nums">{{ product.min_stock ?? '—' }} {{ product.unit }}</dd>
           </div>
           <div>
-            <dt class="text-muted-foreground">Pieces per {{ product.unit }}</dt>
+            <dt class="text-muted-foreground">{{ t('products.details.piecesPer', { unit: product.unit }) }}</dt>
             <dd class="tabular-nums">{{ product.pieces_per_unit }}</dd>
           </div>
         </dl>
@@ -128,7 +126,7 @@ const editProduct = (product: Product) => {
         <template v-if="product.barcodes.length">
           <Separator />
           <div class="flex flex-col gap-2">
-            <p class="text-sm font-medium">Barcodes</p>
+            <p class="text-sm font-medium">{{ t('products.form.barcodes') }}</p>
             <div class="flex flex-wrap gap-2">
               <Badge v-for="barcode in product.barcodes" :key="barcode.code" variant="outline" class="gap-1.5 font-mono font-normal">
                 <Barcode />
@@ -142,7 +140,7 @@ const editProduct = (product: Product) => {
         <template v-if="Object.keys(product.metadata ?? {}).length">
           <Separator />
           <div class="flex flex-col gap-2">
-            <p class="text-sm font-medium">Extra details</p>
+            <p class="text-sm font-medium">{{ t('products.form.extraDetails') }}</p>
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div v-for="(detailValue, detailName) in product.metadata" :key="detailName" class="rounded-md border bg-muted/30 px-3 py-2">
                 <p class="text-xs text-muted-foreground">{{ detailName }}</p>
@@ -155,7 +153,7 @@ const editProduct = (product: Product) => {
         <template v-if="product.variant_count > 0">
           <Separator />
           <div class="flex flex-col gap-2">
-            <p class="text-sm font-medium">Variants</p>
+            <p class="text-sm font-medium">{{ t('products.details.variants') }}</p>
             <Skeleton v-if="variantsLoading" class="h-12 w-full" />
             <div v-for="variant in variants" :key="variant.id" class="flex items-center gap-3 rounded-md border px-3 py-2">
               <div class="min-w-0 flex-1">
@@ -164,7 +162,7 @@ const editProduct = (product: Product) => {
               </div>
               <span class="text-sm tabular-nums">{{ formatMoney(variant.price) }}</span>
               <Badge :variant="stockVariant(variant)" class="tabular-nums">{{ variant.quantity ?? '—' }}</Badge>
-              <Button v-if="canEdit && variant.is_active" variant="ghost" size="icon" :aria-label="`Edit ${variant.variant_label}`" @click="editProduct(variant)">
+              <Button v-if="canEdit && variant.is_active" variant="ghost" size="icon" :aria-label="t('products.details.editVariant', { name: variant.variant_label })" @click="editProduct(variant)">
                 <Pencil />
               </Button>
             </div>
@@ -174,7 +172,7 @@ const editProduct = (product: Product) => {
         <template v-if="addons.length || addonsLoading">
           <Separator />
           <div class="flex flex-col gap-2">
-            <p class="text-sm font-medium">Add-ons</p>
+            <p class="text-sm font-medium">{{ t('products.form.addonsTab') }}</p>
             <Skeleton v-if="addonsLoading" class="h-10 w-full" />
             <div v-for="addon in addons" :key="addon.id" class="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
               <span :class="addon.is_active ? '' : 'text-muted-foreground line-through'">{{ addon.name }}</span>
@@ -185,7 +183,7 @@ const editProduct = (product: Product) => {
 
         <Separator />
         <p class="text-xs text-muted-foreground">
-          Added {{ formatDate(product.created_at) }} · Updated {{ formatDate(product.updated_at) }}
+          {{ t('products.details.timestamps', { created: formatDateTime(product.created_at), updated: formatDateTime(product.updated_at) }) }}
         </p>
       </div>
     </DialogContent>

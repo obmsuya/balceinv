@@ -13,6 +13,7 @@ const emit = defineEmits<{ imported: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
+const { t } = useI18n()
 const { importProducts, downloadTemplate, saving } = useProducts()
 
 const pickedFile = ref<File | null>(null)
@@ -41,7 +42,7 @@ const onFilePicked = (event: Event) => {
   rejectedResult.value = null
   rejectionMessage.value = ''
   if (chosenFile && chosenFile.size > productImportLimitBytes) {
-    toast.error('The file must be 5 MB or smaller')
+    toast.error(t('products.import.fileTooBig'))
     pickedFile.value = null
     fileInputKey.value++
     return
@@ -68,15 +69,15 @@ const runImport = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-xl">
       <DialogHeader>
-        <DialogTitle>Import products</DialogTitle>
+        <DialogTitle>{{ t('products.import.title') }}</DialogTitle>
         <DialogDescription>
-          Upload an Excel (.xlsx) or CSV file. Nothing is saved unless every row is correct.
+          {{ t('products.import.description') }}
         </DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <Label for="product-import-file">Spreadsheet</Label>
+          <Label for="product-import-file">{{ t('products.import.spreadsheet') }}</Label>
           <Input
             id="product-import-file"
             :key="fileInputKey"
@@ -87,12 +88,12 @@ const runImport = async () => {
         </div>
         <Button variant="outline" size="sm" class="self-start" type="button" @click="downloadTemplate">
           <Download />
-          Download the template
+          {{ t('products.import.downloadTemplate') }}
         </Button>
 
         <div v-if="importResult" class="flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
           <CircleCheck class="mt-0.5 size-4 shrink-0 text-emerald-600" />
-          <p>{{ importResult.created }} products added from {{ importResult.rows_read }} rows.</p>
+          <p>{{ t('products.import.result', { created: importResult.created, rows: importResult.rows_read }) }}</p>
         </div>
 
         <div v-if="rejectionMessage" class="flex flex-col gap-3">
@@ -104,9 +105,9 @@ const runImport = async () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead class="w-16">Row</TableHead>
-                  <TableHead class="w-28">Column</TableHead>
-                  <TableHead>Problem</TableHead>
+                  <TableHead class="w-16">{{ t('products.import.row') }}</TableHead>
+                  <TableHead class="w-28">{{ t('products.import.column') }}</TableHead>
+                  <TableHead>{{ t('products.import.problem') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -119,17 +120,17 @@ const runImport = async () => {
             </Table>
           </div>
           <p v-if="hiddenProblemCount > 0" class="text-xs text-muted-foreground">
-            And {{ hiddenProblemCount }} more. Fix these first, then upload again.
+            {{ t('products.import.moreProblems', { count: hiddenProblemCount }) }}
           </p>
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" @click="open = false">{{ importResult ? 'Done' : 'Cancel' }}</Button>
+        <Button variant="outline" @click="open = false">{{ importResult ? t('common.actions.done') : t('common.actions.cancel') }}</Button>
         <Button :disabled="!pickedFile || saving" @click="runImport">
           <FileSpreadsheet v-if="!saving" />
           <Upload v-else class="animate-pulse" />
-          Import
+          {{ t('products.page.import') }}
         </Button>
       </DialogFooter>
     </DialogContent>

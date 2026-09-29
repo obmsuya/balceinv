@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 import { Archive, ArchiveRestore, Eye, GitBranch, ImageOff, MoreHorizontal, Pencil, TriangleAlert } from 'lucide-vue-next'
 import { h } from 'vue'
 import { formatMoney } from '~/utils/money'
+import { t } from '~/utils/i18n'
 import { assetUrl } from '~/composables/useSettings'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -51,19 +52,19 @@ const renderStock = (product: Product) => {
 const renderActions = (product: Product, actions: ProductRowActions) => {
   const editItems = product.is_active && actions.canEdit
     ? [
-        h(DropdownMenuItem, { onClick: () => actions.onEdit(product) }, () => [h(Pencil), 'Edit']),
-        h(DropdownMenuItem, { onClick: () => actions.onAddVariant(product) }, () => [h(GitBranch), 'Add variant']),
+        h(DropdownMenuItem, { onClick: () => actions.onEdit(product) }, () => [h(Pencil), t('common.actions.edit')]),
+        h(DropdownMenuItem, { onClick: () => actions.onAddVariant(product) }, () => [h(GitBranch), t('products.table.addVariant')]),
       ]
     : []
   const archiveItem = product.is_active
-    ? actions.canDelete && h(DropdownMenuItem, { class: 'text-destructive focus:text-destructive', onClick: () => actions.onArchive(product) }, () => [h(Archive), 'Archive'])
-    : actions.canEdit && h(DropdownMenuItem, { onClick: () => actions.onRestore(product) }, () => [h(ArchiveRestore), 'Restore'])
+    ? actions.canDelete && h(DropdownMenuItem, { class: 'text-destructive focus:text-destructive', onClick: () => actions.onArchive(product) }, () => [h(Archive), t('products.table.archive')])
+    : actions.canEdit && h(DropdownMenuItem, { onClick: () => actions.onRestore(product) }, () => [h(ArchiveRestore), t('products.table.restore')])
 
   return h(DropdownMenu, null, {
     default: () => [
       h(DropdownMenuTrigger, { asChild: true }, () =>
         h(Button, { variant: 'ghost', size: 'icon', class: 'size-8' }, () => [
-          h('span', { class: 'sr-only' }, 'Open menu'),
+          h('span', { class: 'sr-only' }, t('products.table.openMenu')),
           h(MoreHorizontal),
         ]),
       ),
@@ -71,7 +72,7 @@ const renderActions = (product: Product, actions: ProductRowActions) => {
         h(DropdownMenuLabel, { class: 'max-w-56 truncate' }, () => product.name),
         h(DropdownMenuSeparator),
         h(DropdownMenuGroup, null, () => [
-          h(DropdownMenuItem, { onClick: () => actions.onView(product) }, () => [h(Eye), 'View details']),
+          h(DropdownMenuItem, { onClick: () => actions.onView(product) }, () => [h(Eye), t('products.table.viewDetails')]),
           ...editItems,
         ]),
         archiveItem && h(DropdownMenuSeparator),
@@ -90,7 +91,7 @@ export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] 
   },
   {
     accessorKey: 'name',
-    header: 'Product',
+    header: () => t('products.table.product'),
     cell: ({ row }) => {
       const product = row.original
       return h('div', { class: 'flex min-w-0 flex-col gap-0.5' }, [
@@ -100,7 +101,7 @@ export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] 
             h(GitBranch, { class: 'size-3' }),
             `${product.variant_count}`,
           ]),
-          !product.is_active && h(Badge, { variant: 'secondary', class: 'shrink-0 font-normal' }, () => 'Archived'),
+          !product.is_active && h(Badge, { variant: 'secondary', class: 'shrink-0 font-normal' }, () => t('products.table.archived')),
         ]),
         h('span', { class: 'font-mono text-xs text-muted-foreground' }, product.sku),
       ])
@@ -108,7 +109,7 @@ export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] 
   },
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: () => t('products.table.category'),
     meta: { class: 'hidden md:table-cell' },
     cell: ({ row }) => row.original.category
       ? h(Badge, { variant: 'outline', class: 'font-normal' }, () => row.original.category)
@@ -116,12 +117,12 @@ export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] 
   },
   {
     accessorKey: 'price',
-    header: 'Price',
+    header: () => t('products.table.price'),
     cell: ({ row }) => h('span', { class: 'font-medium tabular-nums' }, formatMoney(row.original.price)),
   },
   {
     accessorKey: 'quantity',
-    header: 'Stock',
+    header: () => t('products.table.stock'),
     cell: ({ row }) => renderStock(row.original),
   },
   {

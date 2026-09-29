@@ -6,6 +6,7 @@ import type { Product } from '@/composables/useProducts'
 
 const emit = defineEmits<{ pick: [product: Product] }>()
 
+const { t } = useI18n()
 const { products, fetchProducts } = useProducts()
 
 const searchText = ref('')
@@ -36,7 +37,7 @@ const pick = (product: Product) => {
   <div class="flex flex-col gap-1">
     <div class="relative">
       <Search class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-      <Input v-model="searchText" placeholder="Search by name, SKU or barcode" class="pl-8" aria-label="Search products" />
+      <Input v-model="searchText" :placeholder="t('products.page.searchPlaceholder')" class="pl-8" :aria-label="t('products.page.searchLabel')" />
     </div>
     <ul v-if="searchText && products.length" class="max-h-56 overflow-y-auto rounded-md border">
       <li v-for="product in products.slice(0, 8)" :key="product.id">
@@ -48,6 +49,6 @@ const pick = (product: Product) => {
         </button>
       </li>
     </ul>
-    <p v-else-if="hasSearched && searchText" class="px-1 text-xs text-muted-foreground">No product matches.</p>
+    <p v-else-if="hasSearched && searchText" class="px-1 text-xs text-muted-foreground">{{ t('products.search.noMatch') }}</p>
   </div>
 </template>

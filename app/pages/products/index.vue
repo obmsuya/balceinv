@@ -29,6 +29,8 @@ import { productPageSize } from '@/composables/useProducts'
 
 const allCategories = 'all'
 
+const { t, formatNumber } = useI18n()
+
 const { canCreate, canEdit, canDelete } = usePermissions()
 const {
   products,
@@ -158,21 +160,21 @@ watch(() => route.query.view, async viewedProductId => {
   <div class="container mx-auto flex flex-col gap-6 py-2 sm:px-4 sm:py-6">
     <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Products</h1>
-        <p class="mt-1 text-muted-foreground">Your items, variants and add-ons</p>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('products.page.title') }}</h1>
+        <p class="mt-1 text-muted-foreground">{{ t('products.page.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <Button v-if="canCreate('products')" variant="outline" @click="showImportDialog = true">
           <Upload />
-          Import
+          {{ t('products.page.import') }}
         </Button>
         <Button v-if="canCreate('products')" variant="outline" @click="downloadTemplate">
           <Download />
-          Template
+          {{ t('products.page.template') }}
         </Button>
         <Button v-if="canCreate('products')" @click="openForm('create', null, null)">
           <Plus />
-          Add product
+          {{ t('products.page.addProduct') }}
         </Button>
       </div>
     </div>
@@ -180,21 +182,21 @@ watch(() => route.query.view, async viewedProductId => {
     <div class="grid grid-cols-2 gap-4">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">{{ hasActiveFilter ? 'Matching products' : 'Products' }}</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ hasActiveFilter ? t('products.page.matchingProducts') : t('products.page.title') }}</CardTitle>
           <Package class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <Skeleton v-if="loading && !products.length" class="h-8 w-16" />
-          <p v-else class="text-2xl font-bold tabular-nums">{{ totalProducts.toLocaleString() }}</p>
+          <p v-else class="text-2xl font-bold tabular-nums">{{ formatNumber(totalProducts) }}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader class="flex flex-row items-center justify-between pb-2">
-          <CardTitle class="text-sm font-medium">Categories</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('products.page.categories') }}</CardTitle>
           <Tags class="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <p class="text-2xl font-bold tabular-nums">{{ categories.length.toLocaleString() }}</p>
+          <p class="text-2xl font-bold tabular-nums">{{ formatNumber(categories.length) }}</p>
         </CardContent>
       </Card>
     </div>
@@ -204,20 +206,20 @@ watch(() => route.query.view, async viewedProductId => {
         <div class="flex flex-col gap-3 md:flex-row md:items-center">
           <div class="relative flex-1">
             <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input v-model="searchText" placeholder="Search by name, SKU or barcode" class="pl-8" aria-label="Search products" />
+            <Input v-model="searchText" :placeholder="t('products.page.searchPlaceholder')" class="pl-8" :aria-label="t('products.page.searchLabel')" />
           </div>
           <Select v-model="categoryFilter">
-            <SelectTrigger class="w-full md:w-48" aria-label="Filter by category">
-              <SelectValue placeholder="All categories" />
+            <SelectTrigger class="w-full md:w-48" :aria-label="t('products.page.filterByCategory')">
+              <SelectValue :placeholder="t('products.page.allCategories')" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem :value="allCategories">All categories</SelectItem>
+              <SelectItem :value="allCategories">{{ t('products.page.allCategories') }}</SelectItem>
               <SelectItem v-for="category in categories" :key="category" :value="category">{{ category }}</SelectItem>
             </SelectContent>
           </Select>
           <div class="flex items-center gap-2">
             <Switch id="show-archived" v-model="includeArchived" />
-            <Label for="show-archived" class="whitespace-nowrap font-normal">Show archived</Label>
+            <Label for="show-archived" class="whitespace-nowrap font-normal">{{ t('products.page.showArchived') }}</Label>
           </div>
         </div>
 
@@ -226,17 +228,17 @@ watch(() => route.query.view, async viewedProductId => {
         </div>
         <DataTable v-else :columns="columns" :data="products">
           <template #empty>
-            {{ hasActiveFilter ? 'No products match this search.' : 'No products yet. Add one or import a spreadsheet.' }}
+            {{ hasActiveFilter ? t('products.page.emptyFiltered') : t('products.page.emptyNone') }}
           </template>
         </DataTable>
 
         <div class="flex flex-col items-center justify-between gap-2 sm:flex-row">
           <p class="text-sm text-muted-foreground tabular-nums">
-            <template v-if="totalProducts">Showing {{ pageOffset + 1 }}–{{ pageEnd }} of {{ totalProducts.toLocaleString() }}</template>
+            <template v-if="totalProducts">{{ t('common.pagination.showing', { from: formatNumber(pageOffset + 1), to: formatNumber(pageEnd), total: formatNumber(totalProducts) }) }}</template>
           </p>
           <div class="flex gap-2">
-            <Button variant="outline" size="sm" :disabled="!hasPreviousPage || loading" @click="goToPage(pageOffset - productPageSize)">Previous</Button>
-            <Button variant="outline" size="sm" :disabled="!hasNextPage || loading" @click="goToPage(pageOffset + productPageSize)">Next</Button>
+            <Button variant="outline" size="sm" :disabled="!hasPreviousPage || loading" @click="goToPage(pageOffset - productPageSize)">{{ t('common.pagination.previous') }}</Button>
+            <Button variant="outline" size="sm" :disabled="!hasNextPage || loading" @click="goToPage(pageOffset + productPageSize)">{{ t('common.pagination.next') }}</Button>
           </div>
         </div>
       </CardContent>
@@ -263,15 +265,15 @@ watch(() => route.query.view, async viewedProductId => {
     <AlertDialog v-model:open="showArchiveDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Archive {{ archiveTarget?.name }}?</AlertDialogTitle>
+          <AlertDialogTitle>{{ t('products.page.archiveTitle', { name: archiveTarget?.name ?? '' }) }}</AlertDialogTitle>
           <AlertDialogDescription>
-            It disappears from the till and product list, together with its variants. Past sales keep it, and you can restore it from “Show archived”.
+            {{ t('products.page.archiveDescription') }}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
           <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click="confirmArchive">
-            Archive
+            {{ t('products.page.archive') }}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
