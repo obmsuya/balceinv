@@ -57,5 +57,9 @@
     "created": "Business account created!",
     "createdHint": "You can now sign in with your credentials.",
     "failed": "Setup failed"
+  },
+  "oldData": {
+    "title": "Your data from the previous Balce is on this computer",
+    "body": "This new version keeps its data separately and hasn't brought your old products and sales over yet. If you set up a business now, you'll start empty. Contact Balce support first so they can move your data."
   }
 }
