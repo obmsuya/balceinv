@@ -9,7 +9,8 @@ import {
   Settings,
   TrendingUp,
   FileText,
-  BadgePercent
+  BadgePercent,
+  Store
 } from 'lucide-vue-next';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,9 @@ const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 
 const { user, logout } = useAuth();
 const { canView } = usePermissions();
+const { isCloud, fetchPlatform } = usePlatform();
+
+onMounted(fetchPlatform);
 
 const getInitials = (name: string): string => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -59,13 +63,18 @@ const navigationItems = computed(() => {
   ];
 
   const admin: NavigationItem[] = [
+    { path: '/shops', icon: Store, label: 'Shops', resource: 'shops' },
     { path: '/users', icon: Users, label: 'Users', resource: 'users' },
     { path: '/roles', icon: Shield, label: 'Roles', resource: 'roles' },
     { path: '/reports', icon: FileText, label: 'Reports', resource: 'reports' },
     { path: '/settings', icon: Settings, label: 'Settings', resource: 'settings' },
   ];
 
-  const isVisible = (item: NavigationItem) => isPortedRoute(item.path) && canView(item.resource);
+  const isVisible = (item: NavigationItem) => {
+    const isCloudOnly = item.path === '/shops';
+    if (isCloudOnly && !isCloud.value) return false;
+    return isPortedRoute(item.path) && canView(item.resource);
+  };
 
   return {
     operations: operations.filter(isVisible),
