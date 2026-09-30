@@ -49,9 +49,8 @@ onMounted(fetchAccounts)
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between gap-2">
-      <p class="font-semibold">{{ t('money.accountsPanel.title') }}</p>
-      <Button v-if="canChange" size="sm" @click="openAdd"><Plus /> {{ t('money.accountsPanel.add') }}</Button>
+    <div v-if="canChange" class="flex justify-end">
+      <Button size="sm" @click="openAdd"><Plus /> {{ t('money.accountsPanel.add') }}</Button>
     </div>
     <div class="overflow-x-auto rounded-lg border">
       <Table>
