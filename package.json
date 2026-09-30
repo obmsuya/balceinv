@@ -27,6 +27,7 @@
     "driver.js": "^1.8.0",
     "lucide-vue-next": "^0.555.0",
     "nuxt": "^4.2.1",
+    "pdfjs-dist": "^6.3.289",
     "qrcode": "^1.5.4",
     "radix-vue": "^1.9.17",
     "reka-ui": "^2.6.1",
