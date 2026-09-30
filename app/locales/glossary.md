@@ -138,6 +138,9 @@ names. Add a row here before inventing a new term.
 | supplier debt (what you owe) | deni la msambazaji | |
 | supplier payment | malipo kwa msambazaji | |
 | usual supplier | msambazaji wa kawaida | |
+| guided tour | mwongozo | ziara |
+| skip | ruka | |
+| logo | nembo | |
 | invoice (from a supplier) | ankara | invoisi |
 | overdue | imechelewa | |
 | payment terms (days to pay) | siku za kulipa | |

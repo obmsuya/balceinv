@@ -1,0 +1,112 @@
+{
+  "buttons": {
+    "next": "Next",
+    "back": "Back",
+    "done": "Done",
+    "skip": "Skip tour",
+    "progress": "{{current}} of {{total}}"
+  },
+  "menu": {
+    "showTour": "Show the tour"
+  },
+  "welcome": {
+    "hello": {
+      "title": "👋 Welcome to Balce, {name}!",
+      "body": "This short tour shows you around. It takes about a minute. You can skip it, and open it again any time from your account menu."
+    },
+    "menu": {
+      "title": "🧭 Your menu",
+      "body": "Everything lives here: selling, products, stock, reports and settings. On a phone, open it with the ☰ button at the top."
+    },
+    "pos": {
+      "title": "🛒 Point of Sale",
+      "body": "Sell here. Search or scan a product, add it to the cart and take payment."
+    },
+    "products": {
+      "title": "📦 Products",
+      "body": "Add what you sell. Pick from the ready list of common products to save time."
+    },
+    "users": {
+      "title": "👥 Users",
+      "body": "Give each cashier their own sign in, so every sale shows who served."
+    },
+    "settings": {
+      "title": "⚙️ Settings",
+      "body": "Add your logo, phone and receipt text, and switch on extras such as credit (madeni), suppliers and books."
+    },
+    "language": {
+      "title": "🌍 Language",
+      "body": "Switch between English and Kiswahili at any time."
+    },
+    "notifications": {
+      "title": "🔔 Notifications",
+      "body": "Low stock and other alerts appear here."
+    },
+    "account": {
+      "title": "👤 Your account",
+      "body": "Settings, help from the Balce team, and this tour again are all here."
+    },
+    "start": {
+      "title": "🚀 Let's get you selling",
+      "body": "Three steps to start:\n1. Settings — your business details\n2. Products — what you sell\n3. Users — your cashiers\nEach page shows a short guide the first time you open it."
+    }
+  },
+  "settings": {
+    "tabs": {
+      "title": "🗂️ Settings sections",
+      "body": "Each tab covers one area. Start with Business, then work along the tabs."
+    },
+    "business": {
+      "title": "🏪 Business details",
+      "body": "Your business name, phone, address and TIN print on receipts and invoices. Press Save when you are done."
+    },
+    "features": {
+      "title": "🧩 Features",
+      "body": "Switch on only what your shop needs: customers and credit (madeni), orders, suppliers, money and books. You can change this any time."
+    },
+    "branding": {
+      "title": "🎨 Branding",
+      "body": "Upload your logo. It prints on receipts, invoices and reports."
+    },
+    "hardware": {
+      "title": "🖨️ Printer and scanner",
+      "body": "Connect a receipt printer and test it here."
+    }
+  },
+  "products": {
+    "add": {
+      "title": "➕ Add a product",
+      "body": "Add items one by one. In the form, “Pick from common products” fills in the name, unit, category and price for you."
+    },
+    "import": {
+      "title": "📥 Import from Excel",
+      "body": "Already have a list? Press Template, fill it in Excel, then Import to add everything at once."
+    },
+    "search": {
+      "title": "🔍 Find a product",
+      "body": "Search by name, SKU or barcode, or filter by category."
+    },
+    "next": {
+      "title": "✅ Ready to sell",
+      "body": "Products with stock appear at the Point of Sale straight away. Change quantities later under Stock."
+    }
+  },
+  "pos": {
+    "search": {
+      "title": "🔍 Find or scan",
+      "body": "Type a name or scan a barcode. Press Enter to add the first match."
+    },
+    "products": {
+      "title": "👆 Tap to add",
+      "body": "Tap a product to put it in the cart. Tap again to add one more."
+    },
+    "carts": {
+      "title": "🛍️ Serve several customers",
+      "body": "Keep up to three carts open and switch between them while a customer decides."
+    },
+    "pay": {
+      "title": "💵 Take payment",
+      "body": "Press Pay, choose cash, card or mobile money, and print the receipt."
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "buttons": {
+    "next": "Endelea",
+    "back": "Rudi",
+    "done": "Maliza",
+    "skip": "Ruka mwongozo",
+    "progress": "{{current}} kati ya {{total}}"
+  },
+  "menu": {
+    "showTour": "Onyesha mwongozo"
+  },
+  "welcome": {
+    "hello": {
+      "title": "👋 Karibu Balce, {name}!",
+      "body": "Mwongozo huu mfupi utakuonyesha mfumo. Unachukua kama dakika moja. Unaweza kuuruka, na kuufungua tena wakati wowote kwenye menyu ya akaunti yako."
+    },
+    "menu": {
+      "title": "🧭 Menyu yako",
+      "body": "Kila kitu kiko hapa: mauzo, bidhaa, stoku, ripoti na mipangilio. Kwenye simu, ifungue kwa kitufe cha ☰ juu."
+    },
+    "pos": {
+      "title": "🛒 Kaunta ya Mauzo",
+      "body": "Uza hapa. Tafuta au changanua bidhaa, iweke kwenye kikapu na pokea malipo."
+    },
+    "products": {
+      "title": "📦 Bidhaa",
+      "body": "Ongeza unachouza. Chagua kutoka orodha ya bidhaa za kawaida ili kuokoa muda."
+    },
+    "users": {
+      "title": "👥 Watumiaji",
+      "body": "Mpe kila keshia akaunti yake ya kuingia, ili kila mauzo yaonyeshe aliyehudumia."
+    },
+    "settings": {
+      "title": "⚙️ Mipangilio",
+      "body": "Weka nembo yako, simu na maandishi ya risiti, na washa vipengele vya ziada kama mauzo ya mkopo (madeni), wasambazaji na hesabu."
+    },
+    "language": {
+      "title": "🌍 Lugha",
+      "body": "Badilisha kati ya Kiingereza na Kiswahili wakati wowote."
+    },
+    "notifications": {
+      "title": "🔔 Taarifa",
+      "body": "Stoku ndogo na taarifa nyingine zitaonekana hapa."
+    },
+    "account": {
+      "title": "👤 Akaunti yako",
+      "body": "Mipangilio, msaada kutoka timu ya Balce, na mwongozo huu tena viko hapa."
+    },
+    "start": {
+      "title": "🚀 Tuanze kuuza",
+      "body": "Hatua tatu za kuanza:\n1. Mipangilio — maelezo ya biashara yako\n2. Bidhaa — unachouza\n3. Watumiaji — makeshia wako\nKila ukurasa utaonyesha mwongozo mfupi mara ya kwanza unapoufungua."
+    }
+  },
+  "settings": {
+    "tabs": {
+      "title": "🗂️ Sehemu za mipangilio",
+      "body": "Kila kichupo kinahusu eneo moja. Anza na Biashara, kisha endelea na vichupo vingine."
+    },
+    "business": {
+      "title": "🏪 Maelezo ya biashara",
+      "body": "Jina la biashara, simu, anwani na TIN huchapishwa kwenye risiti na ankara. Bonyeza Hifadhi ukimaliza."
+    },
+    "features": {
+      "title": "🧩 Vipengele",
+      "body": "Washa tu kile duka lako linahitaji: wateja na mauzo ya mkopo (madeni), oda, wasambazaji, fedha na hesabu. Unaweza kubadilisha wakati wowote."
+    },
+    "branding": {
+      "title": "🎨 Chapa",
+      "body": "Pakia nembo yako. Itachapishwa kwenye risiti, ankara na ripoti."
+    },
+    "hardware": {
+      "title": "🖨️ Printa na kichanganuzi",
+      "body": "Unganisha printa ya risiti na uijaribu hapa."
+    }
+  },
+  "products": {
+    "add": {
+      "title": "➕ Ongeza bidhaa",
+      "body": "Ongeza bidhaa moja moja. Kwenye fomu, “Chagua kutoka bidhaa za kawaida” inakujazia jina, kipimo, kundi na bei."
+    },
+    "import": {
+      "title": "📥 Ingiza kutoka Excel",
+      "body": "Una orodha tayari? Bonyeza Kiolezo, ijaze kwenye Excel, kisha Ingiza ili kuongeza zote kwa mara moja."
+    },
+    "search": {
+      "title": "🔍 Tafuta bidhaa",
+      "body": "Tafuta kwa jina, SKU au msimbopau, au chuja kwa kundi."
+    },
+    "next": {
+      "title": "✅ Tayari kuuza",
+      "body": "Bidhaa zenye stoku zinaonekana kwenye Kaunta ya Mauzo mara moja. Badilisha idadi baadaye kwenye Stoku."
+    }
+  },
+  "pos": {
+    "search": {
+      "title": "🔍 Tafuta au changanua",
+      "body": "Andika jina au changanua msimbopau. Bonyeza Enter kuongeza inayolingana ya kwanza."
+    },
+    "products": {
+      "title": "👆 Gusa kuongeza",
+      "body": "Gusa bidhaa kuiweka kwenye kikapu. Gusa tena kuongeza moja zaidi."
+    },
+    "carts": {
+      "title": "🛍️ Hudumia wateja kadhaa",
+      "body": "Weka hadi vikapu vitatu wazi na ubadilishe kati yao mteja anapofikiria."
+    },
+    "pay": {
+      "title": "💵 Pokea malipo",
+      "body": "Bonyeza Lipa, chagua taslimu, kadi au pesa ya simu, na uchapishe risiti."
+    }
+  }
+}
