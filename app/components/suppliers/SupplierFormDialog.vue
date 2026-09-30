@@ -3,6 +3,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { Supplier } from '@/composables/useSuppliers'
@@ -131,7 +132,7 @@ const submit = async () => {
         </div>
         <div class="flex flex-col gap-1.5">
           <Label for="supplier-opening">{{ t('suppliers.form.openingBalance', { currency: currencyCode() }) }}</Label>
-          <Input id="supplier-opening" v-model="form.openingBalance" inputmode="decimal" placeholder="0" />
+          <MoneyInput id="supplier-opening" v-model="form.openingBalance" placeholder="0" />
           <p class="text-xs text-muted-foreground">{{ t('suppliers.form.openingBalanceHint') }}</p>
         </div>
         <div class="flex flex-col gap-1.5 sm:col-span-2">

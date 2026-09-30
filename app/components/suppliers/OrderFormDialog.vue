@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -133,7 +134,7 @@ const submit = async () => {
             </div>
             <div class="flex flex-col gap-1">
               <Label :for="`order-cost-${rowIndex}`" class="text-xs text-muted-foreground">{{ t('suppliers.orders.expectedCost', { currency: currencyCode() }) }}</Label>
-              <Input :id="`order-cost-${rowIndex}`" v-model="row.costText" inputmode="decimal" />
+              <MoneyInput :id="`order-cost-${rowIndex}`" v-model="row.costText" />
             </div>
           </div>
         </div>

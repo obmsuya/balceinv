@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { accountName, newClientRef } from '@/composables/useMoney'
@@ -112,11 +113,11 @@ const submit = async () => {
           </div>
           <div class="flex flex-col gap-1 sm:col-span-2">
             <Label class="text-xs">{{ t('money.manual.debit') }}</Label>
-            <Input v-model="line.debitText" inputmode="decimal" placeholder="0" />
+            <MoneyInput v-model="line.debitText" placeholder="0" />
           </div>
           <div class="flex flex-col gap-1 sm:col-span-2">
             <Label class="text-xs">{{ t('money.manual.credit') }}</Label>
-            <Input v-model="line.creditText" inputmode="decimal" placeholder="0" />
+            <MoneyInput v-model="line.creditText" placeholder="0" />
           </div>
           <div v-if="shops.length > 1" class="flex flex-col gap-1 sm:col-span-2">
             <Label class="text-xs">{{ t('money.manual.shop') }}</Label>

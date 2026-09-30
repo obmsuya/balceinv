@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import ProductSearch from '@/components/products/ProductSearch.vue'
 import type { Discount, DiscountKind } from '@/composables/useDiscounts'
@@ -129,7 +130,7 @@ const submit = async () => {
 
         <div class="flex flex-col gap-1.5">
           <Label for="discount-value">{{ kind === 'percent' ? t('discounts.form.percentOff') : t('discounts.form.amountOffEachCurrency', { currency: currencyCode() }) }}</Label>
-          <Input id="discount-value" v-model="valueText" inputmode="decimal" :placeholder="kind === 'percent' ? '10' : '500'" />
+          <MoneyInput id="discount-value" v-model="valueText" :decimals="kind === 'percent' ? 2 : undefined" :placeholder="kind === 'percent' ? '10' : '500'" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

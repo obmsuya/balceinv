@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import StockProductSearch from '@/components/stock/StockProductSearch.vue'
 import type { StockLevel } from '@/composables/useStock'
@@ -108,7 +109,7 @@ const submit = async () => {
             </div>
             <div class="flex flex-col gap-1">
               <Label :for="`return-cost-${rowIndex}`" class="text-xs text-muted-foreground">{{ t('suppliers.returns.creditPerUnit', { currency: currencyCode() }) }}</Label>
-              <Input :id="`return-cost-${rowIndex}`" v-model="row.costText" inputmode="decimal" />
+              <MoneyInput :id="`return-cost-${rowIndex}`" v-model="row.costText" />
             </div>
           </div>
         </div>
