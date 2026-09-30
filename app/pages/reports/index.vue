@@ -178,7 +178,7 @@ onMounted(() => {
       <p class="mt-1 text-muted-foreground">{{ t('reports.subtitle') }}</p>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 rounded-xl border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-3 rounded-xl border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4" data-tour="reports-filters">
       <div class="flex flex-col gap-1.5">
         <Label for="report-period">{{ t('reports.list.periodLabel') }}</Label>
         <Select v-model="rangePreset">
@@ -214,7 +214,7 @@ onMounted(() => {
       <p v-if="rangeInvalid" class="text-sm text-destructive sm:col-span-2 lg:col-span-4">{{ t('reports.list.dateOrder') }}</p>
     </div>
 
-    <div class="overflow-hidden rounded-xl border">
+    <div class="overflow-hidden rounded-xl border" data-tour="reports-table">
       <Table>
         <TableHeader>
           <TableRow>
@@ -279,7 +279,7 @@ onMounted(() => {
               </TableCell>
               <TableCell class="pr-4 text-right align-top sm:pr-5" @click.stop>
                 <div class="flex items-center justify-end gap-1">
-                  <Button size="sm" :disabled="rowBlocked(row)" @click="openPreview(row)">
+                  <Button size="sm" data-tour="reports-preview" :disabled="rowBlocked(row)" @click="openPreview(row)">
                     <Eye />
                     {{ t('reports.books.preview') }}
                   </Button>

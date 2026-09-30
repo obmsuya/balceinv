@@ -42,6 +42,7 @@ export interface CurrentUser {
   locale: string | null
   must_change_password: boolean
   features: CompanyFeatures
+  seen_tours?: string[]
 }
 
 interface ApiEnvelope<Payload> {

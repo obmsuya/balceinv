@@ -66,7 +66,7 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('orders.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ activeShopName ? t('orders.page.subtitleShop', { shop: activeShopName }) : t('orders.page.subtitle') }}</p>
       </div>
-      <Button v-if="canCreate('orders')" @click="showNewOrder = true">
+      <Button v-if="canCreate('orders')" data-tour="orders-add" @click="showNewOrder = true">
         <Plus />
         {{ t('orders.page.newOrder') }}
       </Button>
@@ -75,7 +75,7 @@ onMounted(reload)
     <Card>
       <CardContent class="flex flex-col gap-4 px-3 sm:px-6">
         <Tabs v-model="activeStatus">
-          <TabsList class="w-full justify-start overflow-x-auto sm:w-auto">
+          <TabsList class="w-full justify-start overflow-x-auto sm:w-auto" data-tour="orders-tabs">
             <TabsTrigger v-for="status in orderStatuses" :key="status" :value="status" class="flex-none">{{ t(`orders.status.${status}`) }}</TabsTrigger>
           </TabsList>
         </Tabs>

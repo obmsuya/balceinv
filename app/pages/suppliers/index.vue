@@ -89,8 +89,8 @@ onMounted(reloadAll)
         <p class="mt-1 text-muted-foreground">{{ t('suppliers.page.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <Button v-if="canCreate('purchases')" @click="showArrived = true"><PackagePlus /> {{ t('suppliers.page.recordArrived') }}</Button>
-        <Button v-if="canEdit('purchases')" variant="outline" @click="showPay = true"><Wallet /> {{ t('suppliers.page.paySupplier') }}</Button>
+        <Button v-if="canCreate('purchases')" data-tour="suppliers-arrived" @click="showArrived = true"><PackagePlus /> {{ t('suppliers.page.recordArrived') }}</Button>
+        <Button v-if="canEdit('purchases')" variant="outline" data-tour="suppliers-pay" @click="showPay = true"><Wallet /> {{ t('suppliers.page.paySupplier') }}</Button>
       </div>
     </div>
 
@@ -120,7 +120,7 @@ onMounted(reloadAll)
     <Card>
       <CardContent class="px-3 sm:px-6">
         <Tabs v-model="activeTab">
-          <TabsList class="w-full sm:w-auto">
+          <TabsList class="w-full sm:w-auto" data-tour="suppliers-tabs">
             <TabsTrigger value="suppliers" class="flex-1 sm:flex-none">{{ t('suppliers.page.suppliersTab') }}</TabsTrigger>
             <TabsTrigger v-if="canView('purchases')" value="arrived" class="flex-1 sm:flex-none">{{ t('suppliers.page.arrivedTab') }}</TabsTrigger>
             <TabsTrigger v-if="canView('purchases')" value="payments" class="flex-1 sm:flex-none">{{ t('suppliers.page.paymentsTab') }}</TabsTrigger>

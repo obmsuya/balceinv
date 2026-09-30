@@ -199,13 +199,13 @@ const handleSavePermissions = async () => {
         <h1 class="text-3xl font-bold tracking-tight">{{ t('roles.page.title') }}</h1>
         <p class="text-muted-foreground mt-1">{{ t('roles.page.subtitle') }}</p>
       </div>
-      <Button @click="openCreateDialog" :disabled="loading">
+      <Button data-tour="roles-add" @click="openCreateDialog" :disabled="loading">
         <Plus class="mr-2 h-4 w-4" />
         {{ t('roles.page.add') }}
       </Button>
     </div>
 
-    <Card>
+    <Card data-tour="roles-list">
       <CardHeader>
         <CardTitle>{{ t('roles.page.listTitle') }}</CardTitle>
         <CardDescription>{{ t('roles.page.listDescription') }}</CardDescription>

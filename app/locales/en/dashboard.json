@@ -54,5 +54,17 @@
       "unreadable": "The saved exchange rates could not be read. They will refresh when online.",
       "notPublished": "No exchange rates are published for {currency}."
     }
+  },
+  "gettingStarted": {
+    "title": "Getting started",
+    "progress": "{done} of {total} done",
+    "hide": "Hide the checklist",
+    "steps": {
+      "businessDetails": "Add your business phone and address",
+      "logo": "Upload your logo",
+      "firstProduct": "Add your first product",
+      "firstCashier": "Add a cashier",
+      "firstSale": "Make your first sale"
+    }
   }
 }

@@ -154,10 +154,10 @@ onMounted(async () => {
       </div>
       <div v-if="status?.started && !showWizard" class="flex flex-wrap gap-2">
         <template v-if="canRecord">
-          <Button :title="t('money.actions.moneyOutHelp')" @click="openMoney('expense')"><ArrowUpRight /> {{ t('money.actions.moneyOut') }}</Button>
+          <Button :title="t('money.actions.moneyOutHelp')" data-tour="money-out" @click="openMoney('expense')"><ArrowUpRight /> {{ t('money.actions.moneyOut') }}</Button>
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
-              <Button variant="outline"><Plus /> {{ t('money.actions.recordOther') }} <ChevronDown class="opacity-60" /></Button>
+              <Button variant="outline" data-tour="money-other"><Plus /> {{ t('money.actions.recordOther') }} <ChevronDown class="opacity-60" /></Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" class="w-72">
               <DropdownMenuItem v-for="action in otherActions" :key="action.kind" class="items-start gap-3 py-2" @select="openMoney(action.kind)">
@@ -176,7 +176,7 @@ onMounted(async () => {
         </template>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <Button variant="outline" size="icon" :aria-label="t('money.actions.more')"><Ellipsis /></Button>
+            <Button variant="outline" size="icon" data-tour="money-more" :aria-label="t('money.actions.more')"><Ellipsis /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem v-if="hasPermission('reports', 'view')" class="gap-3" @select="navigateTo('/reports')"><FileText class="size-4" /> {{ t('money.actions.openReports') }}</DropdownMenuItem>
@@ -262,7 +262,7 @@ onMounted(async () => {
         {{ balancesText }}
       </p>
 
-      <EntriesTable v-if="!rangeInvalid" :filter="entryFilter" :reload-key="reloadKey" :show-numbers="isFull" @open="openEntry" />
+      <EntriesTable v-if="!rangeInvalid" data-tour="money-table" :filter="entryFilter" :reload-key="reloadKey" :show-numbers="isFull" @open="openEntry" />
     </template>
 
     <MoneyActionDialog v-if="status" v-model:open="showMoneyDialog" :kind="moneyKind" :today="today" :vat-rate-basis-points="status.vat_rate_basis_points" @saved="refreshAll" />

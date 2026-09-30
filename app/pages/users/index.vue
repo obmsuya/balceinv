@@ -226,13 +226,13 @@ const confirmDelete = async () => {
           {{ t('users.page.subtitle') }}
         </p>
       </div>
-      <Button @click="openCreateDialog" :disabled="loading">
+      <Button data-tour="users-add" @click="openCreateDialog" :disabled="loading">
         <UserPlus class="mr-2 h-4 w-4" />
         {{ t('users.page.add') }}
       </Button>
     </div>
 
-    <Card>
+    <Card data-tour="users-list">
       <CardHeader>
         <CardTitle>{{ t('users.page.listTitle') }}</CardTitle>
         <CardDescription>{{ t('users.page.listDescription') }}</CardDescription>

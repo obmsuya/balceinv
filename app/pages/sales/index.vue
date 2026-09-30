@@ -87,7 +87,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3" data-tour="sales-filters">
       <div class="relative sm:col-span-1">
         <Label for="sales-search" class="sr-only">{{ t('sales.receiptNumber') }}</Label>
         <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -146,7 +146,7 @@ onMounted(async () => {
       </Card>
     </div>
 
-    <Card>
+    <Card data-tour="sales-table">
       <CardContent class="flex flex-col gap-4 px-3 sm:px-6">
         <div v-if="loading && !sales.length" class="flex flex-col gap-2">
           <Skeleton v-for="skeletonRow in 5" :key="skeletonRow" class="h-12 w-full" />

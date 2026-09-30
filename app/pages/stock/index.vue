@@ -68,15 +68,15 @@ onMounted(fetchSummary)
         </p>
       </div>
       <div v-if="canChangeStock || canRecordArrival" class="flex flex-wrap gap-2">
-        <Button v-if="canRecordArrival" variant="outline" @click="showArrivedDialog = true">
+        <Button v-if="canRecordArrival" variant="outline" data-tour="stock-arrived" @click="showArrivedDialog = true">
           <PackagePlus />
           {{ t('suppliers.page.recordArrived') }}
         </Button>
-        <Button v-if="canChangeStock && hasOtherShops" variant="outline" @click="showSendDialog = true">
+        <Button v-if="canChangeStock && hasOtherShops" variant="outline" data-tour="stock-send" @click="showSendDialog = true">
           <Send />
           {{ t('stock.page.sendStock') }}
         </Button>
-        <Button v-if="canChangeStock" @click="openAdjust(null)">
+        <Button v-if="canChangeStock" data-tour="stock-change" @click="openAdjust(null)">
           <SlidersHorizontal />
           {{ t('stock.page.changeStock') }}
         </Button>
@@ -129,7 +129,7 @@ onMounted(fetchSummary)
     <Card>
       <CardContent class="px-3 sm:px-6">
         <Tabs v-model="activeTab">
-          <TabsList class="w-full sm:w-auto">
+          <TabsList class="w-full sm:w-auto" data-tour="stock-tabs">
             <TabsTrigger value="levels" class="flex-1 sm:flex-none">{{ t('stock.page.levelsTab') }}</TabsTrigger>
             <TabsTrigger value="history" class="flex-1 sm:flex-none">{{ t('stock.page.historyTab') }}</TabsTrigger>
             <TabsTrigger v-if="hasOtherShops" value="transfers" class="flex-1 sm:flex-none">{{ t('stock.page.transfersTab') }}</TabsTrigger>

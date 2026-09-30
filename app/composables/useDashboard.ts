@@ -10,6 +10,14 @@ export interface RecentSale {
   created_at: string
 }
 
+export interface GettingStarted {
+  business_details: boolean
+  logo: boolean
+  first_product: boolean
+  first_cashier: boolean
+  first_sale: boolean
+}
+
 export interface Dashboard {
   today: ReportSummary
   yesterday: ReportSummary
@@ -18,6 +26,7 @@ export interface Dashboard {
   top_products: ReportProduct[]
   stock: StockTotals
   recent_sales: RecentSale[]
+  getting_started: GettingStarted
 }
 
 export interface ExchangeRate {

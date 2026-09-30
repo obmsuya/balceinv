@@ -108,5 +108,173 @@
       "title": "💵 Pokea malipo",
       "body": "Bonyeza Lipa, chagua taslimu, kadi au pesa ya simu, na uchapishe risiti."
     }
+  },
+  "users": {
+    "add": {
+      "title": "➕ Ongeza mtumiaji",
+      "body": "Mpe kila keshia akaunti yake kwa Ongeza mtumiaji. Kila mauzo yataonyesha aliyehudumia, na hakuna anayeshiriki nenosiri."
+    },
+    "list": {
+      "title": "👥 Timu yako",
+      "body": "Kila anayeweza kuingia yupo hapa. Badilisha jukumu, weka nenosiri jipya au mzime mtu anapoondoka. Mauzo yake ya zamani yanabaki."
+    },
+    "roles": {
+      "title": "🛡️ Majukumu",
+      "body": "Jukumu linaamua mtu anaruhusiwa nini: kuuza tu, kusimamia stoku, kuona ripoti. Weka majukumu mara moja, kisha mchagulie kila mtumiaji."
+    }
+  },
+  "roles": {
+    "what": {
+      "title": "🛡️ Majukumu ni nini",
+      "body": "Jukumu ni kundi la ruhusa. Keshia anaweza kuuza tu; meneja anaweza pia kubadilisha stoku na kuona ripoti. Mmiliki anaruhusiwa kila kitu."
+    },
+    "add": {
+      "title": "➕ Ongeza jukumu",
+      "body": "Lipe jukumu jina, kisha weka alama kwenye anachoruhusiwa. Yaweke rahisi: maduka mengi yanahitaji Keshia na Meneja tu."
+    },
+    "list": {
+      "title": "📋 Majukumu yako",
+      "body": "Fungua jukumu kubadilisha ruhusa zake. Mabadiliko yanawahusu wote wenye jukumu hilo watakapoingia tena."
+    }
+  },
+  "shops": {
+    "add": {
+      "title": "🏬 Ongeza tawi",
+      "body": "Unafungua tawi jingine? Liongeze hapa. Kila duka lina stoku, mauzo na namba zake za risiti."
+    },
+    "list": {
+      "title": "🧾 Mwanzo wa risiti",
+      "body": "Risiti za kila duka zinaanza na herufi zake, kama SALE au KRK, ili ujue mara moja risiti imetoka tawi gani."
+    },
+    "switch": {
+      "title": "🔀 Badilisha duka",
+      "body": "Fanya kazi tawi jingine kwa kulichagua kwenye menyu ya akaunti yako. Ripoti zinaweza kuonyesha duka moja au maduka yote pamoja."
+    }
+  },
+  "stock": {
+    "change": {
+      "title": "✏️ Badilisha stoku",
+      "body": "Umehesabu rafu ukapata idadi tofauti, au kitu kimevunjika au kuisha muda? Tumia Badilisha stoku na uandike sababu. Kila badiliko linabaki kwenye Historia."
+    },
+    "arrived": {
+      "title": "📦 Stoku imefika",
+      "body": "Mzigo ukifika, urekodi hapa. Idadi inaongezeka na bei ya kununua inahifadhiwa, ili faida ibaki sahihi."
+    },
+    "send": {
+      "title": "🚚 Tuma stoku",
+      "body": "Hamisha stoku kwenda tawi jingine. Inatoka duka hili sasa na inafika duka lingine likithibitisha."
+    },
+    "tabs": {
+      "title": "🗂️ Viwango na historia",
+      "body": "Viwango vinaonyesha kilichopo rafuni sasa. Historia inaonyesha kila mauzo, mzigo uliofika na badiliko, pamoja na aliyefanya."
+    }
+  },
+  "customers": {
+    "add": {
+      "title": "🙋 Ongeza mteja",
+      "body": "Hifadhi wateja wa kudumu pamoja na namba zao za simu. Unaweza kuwachagua kaunta ili kuwauzia kwa mkopo (madeni) au kuweka historia yao."
+    },
+    "owing": {
+      "title": "💳 Wadaiwa",
+      "body": "Ona kila anayedaiwa na kwa muda gani. Fungua mteja kupokea malipo, kutuma ukumbusho au kushiriki mwenendo wa deni lake."
+    },
+    "credit": {
+      "title": "🧾 Kuuza kwa mkopo",
+      "body": "Kaunta, chagua mteja na ulipe kwa Lipa baadaye. Kiasi kinaingia kwenye deni lake mpaka alipe."
+    }
+  },
+  "orders": {
+    "add": {
+      "title": "📝 Oda mpya",
+      "body": "Pokea oda ya kitu ambacho mteja atakichukua baadaye, pamoja na au bila malipo ya awali."
+    },
+    "tabs": {
+      "title": "🔄 Hatua za oda",
+      "body": "Oda zinapita Zinasubiri, Tayari, kisha Zimechukuliwa. Mteja akichukua, mauzo yanakamilishwa kaunta."
+    }
+  },
+  "suppliers": {
+    "arrived": {
+      "title": "📦 Stoku imefika",
+      "body": "Rekodi mzigo kutoka kwa msambazaji pamoja na ankara yake. Stoku inaongezeka na deni la msambazaji linahifadhiwa."
+    },
+    "pay": {
+      "title": "💵 Lipa msambazaji",
+      "body": "Rekodi malipo na yanapunguza deni lake. Taslimu, pesa ya simu au benki."
+    },
+    "tabs": {
+      "title": "🗂️ Wasambazaji, mizigo na malipo",
+      "body": "Kila kichupo kina orodha moja. Fungua msambazaji kuona mwenendo wake, tayari kulinganisha na wake."
+    }
+  },
+  "money": {
+    "intro": {
+      "title": "💰 Fedha",
+      "body": "Rekodi hapa pesa isiyotokana na mauzo: kodi ya pango, mishahara, LUKU, pesa aliyoweka au kuchukua mmiliki, na kuhamisha kati ya taslimu, pesa ya simu na benki. Mauzo yanarekodiwa yenyewe."
+    },
+    "out": {
+      "title": "💸 Pesa iliyotoka",
+      "body": "Umelipia kitu? Bonyeza Pesa iliyotoka, chagua ilikuwa ya nini (kodi ya pango, mishahara, usafiri…), pesa imetoka wapi, na ongeza picha ya risiti kama unayo."
+    },
+    "other": {
+      "title": "➕ Rekodi nyingine",
+      "body": "Pesa aliyoleta au kuchukua mmiliki, pesa iliyohamishwa kutoka taslimu kwenda benki, au pesa nyingine iliyoingia."
+    },
+    "table": {
+      "title": "📋 Kila rekodi",
+      "body": "Kila kilichorekodiwa katika kipindi ulichochagua, cha karibuni kwanza. Fungua rekodi kuona maelezo au kubatilisha kosa."
+    },
+    "more": {
+      "title": "📑 Ripoti na zaidi",
+      "body": "Fungua Ripoti kwa faida na hasara, daftari la fedha na zaidi. Ukiwa na hesabu kamili, hapa pia kuna ukaguzi wa hesabu, orodha ya akaunti na kufunga mwezi."
+    }
+  },
+  "reports": {
+    "filters": {
+      "title": "📅 Chagua kipindi",
+      "body": "Chagua kipindi na duka. Kila ripoti hapa chini inafuata chaguo hizi."
+    },
+    "list": {
+      "title": "📚 Ripoti zote mahali pamoja",
+      "body": "Mauzo, stoku, wateja na wasambazaji, na ripoti za hesabu, zote kwenye orodha moja."
+    },
+    "preview": {
+      "title": "👀 Tazama, chapisha au hifadhi",
+      "body": "Tazama inafungua hati kamili. Ichapishe, au ihifadhi kama Excel au PDF kumtumia mhasibu au benki."
+    }
+  },
+  "dashboard": {
+    "today": {
+      "title": "📊 Leo kwa haraka",
+      "body": "Mauzo na faida ya leo ukilinganisha na jana, mwezi huu mpaka sasa, na stoku inayohitaji kuangaliwa."
+    },
+    "checklist": {
+      "title": "✅ Hatua za kuanza",
+      "body": "Orodha fupi ya vitu vya kuweka. Kila kimoja kinafungua ukurasa sahihi, na kinajiweka alama kikikamilika."
+    }
+  },
+  "discounts": {
+    "add": {
+      "title": "🏷️ Punguzo jipya",
+      "body": "Tengeneza punguzo kwa bidhaa, kundi au mauzo yote, kwa asilimia au kiasi, pamoja na tarehe za kuanza na kuisha ukipenda."
+    },
+    "how": {
+      "title": "🛒 Kaunta",
+      "body": "Punguzo linaloendelea linatumika kaunta lenyewe. Lisimamishe wakati wowote na halitumiki tena."
+    }
+  },
+  "sales": {
+    "search": {
+      "title": "🔍 Tafuta mauzo",
+      "body": "Tafuta kwa namba ya risiti au chagua tarehe kuona mauzo ya zamani."
+    },
+    "list": {
+      "title": "🧾 Historia ya mauzo",
+      "body": "Kila mauzo pamoja na namba ya risiti, aliyehudumia na jinsi mteja alivyolipa."
+    },
+    "refund": {
+      "title": "↩️ Chapisha tena au batilisha",
+      "body": "Fungua mauzo kuona bidhaa, kuchapisha risiti tena, au kuyabatilisha kama yalikuwa kosa. Mauzo yaliyobatilishwa yanabaki kwenye orodha, yakionyeshwa Yamebatilishwa."
+    }
   }
 }

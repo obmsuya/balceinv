@@ -79,7 +79,7 @@ onMounted(() => {
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('customers.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ t('customers.page.subtitle') }}</p>
       </div>
-      <Button v-if="canCreate('customers')" @click="openForm(null)">
+      <Button v-if="canCreate('customers')" data-tour="customers-add" @click="openForm(null)">
         <Plus />
         {{ t('customers.page.newCustomer') }}
       </Button>
@@ -88,7 +88,7 @@ onMounted(() => {
     <Card>
       <CardContent class="px-3 sm:px-6">
         <Tabs v-model="activeTab">
-          <TabsList class="w-full sm:w-auto">
+          <TabsList class="w-full sm:w-auto" data-tour="customers-tabs">
             <TabsTrigger value="customers" class="flex-1 sm:flex-none">{{ t('customers.page.customersTab') }}</TabsTrigger>
             <TabsTrigger value="owing" class="flex-1 sm:flex-none">{{ t('customers.page.owingTab') }}</TabsTrigger>
           </TabsList>

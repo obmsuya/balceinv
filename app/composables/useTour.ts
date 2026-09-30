@@ -4,7 +4,7 @@ import '~/assets/css/tour.css'
 import type { CurrentUser } from '~/composables/useAuth'
 import { t } from '~/utils/i18n'
 
-type TourName = 'welcome' | 'settings' | 'products' | 'pos'
+export type TourName = 'welcome' | 'settings' | 'products' | 'pos' | 'users' | 'roles' | 'shops' | 'stock' | 'customers' | 'orders' | 'suppliers' | 'money' | 'reports' | 'dashboard' | 'discounts' | 'sales' | 'checklist'
 
 interface TourStep {
   key: string
@@ -44,12 +44,85 @@ const tourSteps: Record<TourName, TourStep[]> = {
     { key: 'pos.carts', target: 'pos-carts', side: 'left' },
     { key: 'pos.pay', target: 'pos-pay', side: 'top' },
   ],
+  users: [
+    { key: 'users.add', target: 'users-add', side: 'bottom' },
+    { key: 'users.list', target: 'users-list', side: 'top' },
+    { key: 'users.roles', target: 'nav-roles', side: 'right' },
+  ],
+  roles: [
+    { key: 'roles.what' },
+    { key: 'roles.add', target: 'roles-add', side: 'bottom' },
+    { key: 'roles.list', target: 'roles-list', side: 'top' },
+  ],
+  shops: [
+    { key: 'shops.add', target: 'shops-add', side: 'bottom' },
+    { key: 'shops.list', target: 'shops-list', side: 'top' },
+    { key: 'shops.switch', target: 'account', side: 'bottom' },
+  ],
+  stock: [
+    { key: 'stock.change', target: 'stock-change', side: 'bottom' },
+    { key: 'stock.arrived', target: 'stock-arrived', side: 'bottom' },
+    { key: 'stock.send', target: 'stock-send', side: 'bottom' },
+    { key: 'stock.tabs', target: 'stock-tabs', side: 'bottom' },
+  ],
+  customers: [
+    { key: 'customers.add', target: 'customers-add', side: 'bottom' },
+    { key: 'customers.owing', target: 'customers-tabs', side: 'bottom' },
+    { key: 'customers.credit' },
+  ],
+  orders: [
+    { key: 'orders.add', target: 'orders-add', side: 'bottom' },
+    { key: 'orders.tabs', target: 'orders-tabs', side: 'bottom' },
+  ],
+  suppliers: [
+    { key: 'suppliers.arrived', target: 'suppliers-arrived', side: 'bottom' },
+    { key: 'suppliers.pay', target: 'suppliers-pay', side: 'bottom' },
+    { key: 'suppliers.tabs', target: 'suppliers-tabs', side: 'bottom' },
+  ],
+  money: [
+    { key: 'money.intro' },
+    { key: 'money.out', target: 'money-out', side: 'bottom' },
+    { key: 'money.other', target: 'money-other', side: 'bottom' },
+    { key: 'money.table', target: 'money-table', side: 'top' },
+    { key: 'money.more', target: 'money-more', side: 'bottom' },
+  ],
+  reports: [
+    { key: 'reports.filters', target: 'reports-filters', side: 'bottom' },
+    { key: 'reports.list', target: 'reports-table', side: 'top' },
+    { key: 'reports.preview', target: 'reports-preview', side: 'left' },
+  ],
+  dashboard: [
+    { key: 'dashboard.today', target: 'dashboard-stats', side: 'bottom' },
+    { key: 'dashboard.checklist', target: 'dashboard-checklist', side: 'bottom' },
+  ],
+  discounts: [
+    { key: 'discounts.add', target: 'discounts-add', side: 'bottom' },
+    { key: 'discounts.how' },
+  ],
+  sales: [
+    { key: 'sales.search', target: 'sales-filters', side: 'bottom' },
+    { key: 'sales.list', target: 'sales-table', side: 'top' },
+    { key: 'sales.refund' },
+  ],
+  checklist: [],
 }
 
 const pageTours: Record<string, TourName> = {
   '/settings': 'settings',
   '/products': 'products',
   '/pos': 'pos',
+  '/users': 'users',
+  '/roles': 'roles',
+  '/shops': 'shops',
+  '/stock': 'stock',
+  '/customers': 'customers',
+  '/orders': 'orders',
+  '/suppliers': 'suppliers',
+  '/money': 'money',
+  '/reports': 'reports',
+  '/dashboard': 'dashboard',
+  '/discounts': 'discounts',
+  '/sales': 'sales',
 }
 
 let activeTour: Driver | null = null
@@ -73,10 +146,13 @@ const addSkipButton = (footer: HTMLElement, tour: Driver): void => {
 
 export const useTour = () => {
   const user = useState<CurrentUser | null>('auth:user')
+  const { $apiFetch } = useNuxtApp()
+  const apiFetch = $apiFetch as typeof $fetch
 
   const storageKey = (tourName: TourName): string => `balce:tour:${user.value?.id ?? 'guest'}:${tourName}`
 
   const hasSeen = (tourName: TourName): boolean => {
+    if (user.value?.seen_tours?.includes(tourName)) return true
     try {
       return localStorage.getItem(storageKey(tourName)) !== null
     } catch {
@@ -89,6 +165,9 @@ export const useTour = () => {
       localStorage.setItem(storageKey(tourName), 'seen')
     } catch {
     }
+    if (!user.value || user.value.seen_tours?.includes(tourName)) return
+    user.value = { ...user.value, seen_tours: [...(user.value.seen_tours ?? []), tourName] }
+    apiFetch('/api/auth/tours', { method: 'PUT', body: { tour: tourName } }).catch(() => {})
   }
 
   const buildSteps = (tourName: TourName): DriveStep[] => {
@@ -158,5 +237,5 @@ export const useTour = () => {
     start(pageTours[path] ?? 'welcome')
   }
 
-  return { startIfNew, replay, stop }
+  return { startIfNew, replay, stop, hasSeen, markSeen }
 }
