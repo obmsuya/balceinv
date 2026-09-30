@@ -92,9 +92,10 @@ onMounted(async () => {
   }, 350)
 
     setTimeout(async () => {
-    const { checkSetup } = useAuth()
-    const configured = await checkSetup()
-    await navigateTo(configured ? '/login' : '/setup')
+    const setupStatus = await useAuth().fetchSetupStatus()
+    const isFirstVisitToOpenSignup = setupStatus.signup_open && !hasSignedInBefore()
+    const needsSetup = !setupStatus.configured || isFirstVisitToOpenSignup
+    await navigateTo(needsSetup ? '/setup' : '/login')
   }, 3200)
 })
 </script>
