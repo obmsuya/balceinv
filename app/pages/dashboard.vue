@@ -3,6 +3,7 @@ import { Boxes, CloudOff, PiggyBank, Receipt, RefreshCw, TrendingUp, Wallet } fr
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import GettingStartedCard from '@/components/GettingStartedCard.vue'
 import ExchangeRatesCard from '@/components/reports/ExchangeRatesCard.vue'
 import StatCard from '@/components/reports/StatCard.vue'
 import TrendChart from '@/components/reports/TrendChart.vue'
@@ -103,7 +104,9 @@ onUnmounted(() => {
       {{ loadError }}
     </div>
 
-    <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+    <GettingStartedCard v-if="dashboard" :progress="dashboard.getting_started" />
+
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4" data-tour="dashboard-stats">
       <StatCard
         :title="t('dashboard.stats.salesToday')"
         :value="today ? formatMoney(today.total) : null"

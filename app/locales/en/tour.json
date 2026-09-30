@@ -108,5 +108,173 @@
       "title": "💵 Take payment",
       "body": "Press Pay, choose cash, card or mobile money, and print the receipt."
     }
+  },
+  "users": {
+    "add": {
+      "title": "➕ Add a user",
+      "body": "Give each cashier their own sign in with Add User. Every sale then shows who served, and nobody shares a password."
+    },
+    "list": {
+      "title": "👥 Your team",
+      "body": "Everyone who can sign in is listed here. Change a role, reset a password or switch someone off when they leave. Their past sales stay."
+    },
+    "roles": {
+      "title": "🛡️ Roles",
+      "body": "A role decides what a person may do: sell only, manage stock, see reports. Set roles up once, then pick one for each user."
+    }
+  },
+  "roles": {
+    "what": {
+      "title": "🛡️ What roles do",
+      "body": "A role is a set of permissions. A cashier role might only sell; a manager role might also change stock and see reports. The owner can always do everything."
+    },
+    "add": {
+      "title": "➕ Add a role",
+      "body": "Name the role, then tick what it may do. Keep it simple: most shops need just Cashier and Manager."
+    },
+    "list": {
+      "title": "📋 Your roles",
+      "body": "Open a role to change its permissions. The change applies to everyone with that role the next time they sign in."
+    }
+  },
+  "shops": {
+    "add": {
+      "title": "🏬 Add a branch",
+      "body": "Opening another branch? Add it here. Each shop keeps its own stock, sales and receipt numbers."
+    },
+    "list": {
+      "title": "🧾 Receipt prefix",
+      "body": "Each shop's receipts start with its prefix, such as SALE or KRK, so you can tell at a glance which branch a receipt came from."
+    },
+    "switch": {
+      "title": "🔀 Switch shop",
+      "body": "Work in another branch by choosing it from your account menu. Reports can show one shop or all shops together."
+    }
+  },
+  "stock": {
+    "change": {
+      "title": "✏️ Change stock",
+      "body": "Counted the shelf and found a different number, or something broke or expired? Use Change stock and give a reason. Every change is kept in History."
+    },
+    "arrived": {
+      "title": "📦 Stock arrived",
+      "body": "When goods come in, record them here. The quantity goes up and the buying price is kept, so profit stays correct."
+    },
+    "send": {
+      "title": "🚚 Send stock",
+      "body": "Move stock to another branch. It leaves this shop now and arrives when the other shop confirms it."
+    },
+    "tabs": {
+      "title": "🗂️ Levels and history",
+      "body": "Levels shows what is on the shelves now. History shows every sale, arrival and change, with who did it."
+    }
+  },
+  "customers": {
+    "add": {
+      "title": "🙋 Add a customer",
+      "body": "Save regular customers with their phone number. You can pick them at the till to sell on credit (madeni) or keep their history."
+    },
+    "owing": {
+      "title": "💳 Who owes",
+      "body": "See everyone who owes you and for how long. Open a customer to take a payment, send a reminder or share their statement."
+    },
+    "credit": {
+      "title": "🧾 Selling on credit",
+      "body": "At the till, choose the customer and pay with Pay later. The amount goes onto their debt until they pay."
+    }
+  },
+  "orders": {
+    "add": {
+      "title": "📝 New order",
+      "body": "Take an order for something a customer will collect later, with or without a deposit."
+    },
+    "tabs": {
+      "title": "🔄 Order stages",
+      "body": "Orders move from Waiting to Ready to Collected. When the customer collects, the sale is finished at the till."
+    }
+  },
+  "suppliers": {
+    "arrived": {
+      "title": "📦 Stock arrived",
+      "body": "Record goods from a supplier with their invoice. Stock goes up and what you owe the supplier is kept."
+    },
+    "pay": {
+      "title": "💵 Pay a supplier",
+      "body": "Record a payment and it comes off what you owe them. Cash, mobile money or bank."
+    },
+    "tabs": {
+      "title": "🗂️ Suppliers, deliveries and payments",
+      "body": "Each tab keeps one list. Open a supplier to see their statement, ready to compare with theirs."
+    }
+  },
+  "money": {
+    "intro": {
+      "title": "💰 Money",
+      "body": "Record money that does not come from sales here: rent, salaries, LUKU, money the owner puts in or takes out, and moves between cash, mobile money and bank. Sales are recorded for you."
+    },
+    "out": {
+      "title": "💸 Money out",
+      "body": "Paid for something? Press Money out, choose what it was for (rent, salaries, transport…), where the money came from, and add a photo of the receipt if you have one."
+    },
+    "other": {
+      "title": "➕ Other records",
+      "body": "Money the owner brought in or took out, money moved from cash to the bank, or other money that came in."
+    },
+    "table": {
+      "title": "📋 Every record",
+      "body": "Everything recorded in the chosen period, newest first. Open a record to see its details or reverse a mistake."
+    },
+    "more": {
+      "title": "📑 Reports and more",
+      "body": "Open Reports for profit and loss, the cash book and more. With full books you also find the books check, the chart of accounts and month closing here."
+    }
+  },
+  "reports": {
+    "filters": {
+      "title": "📅 Choose the period",
+      "body": "Pick a period and a shop. Every report below follows these choices."
+    },
+    "list": {
+      "title": "📚 Every report in one place",
+      "body": "Sales, stock, customers and suppliers, and your financial statements, all in one list."
+    },
+    "preview": {
+      "title": "👀 Preview, print or save",
+      "body": "Preview opens the finished document. Print it, or save it as Excel or PDF to send to your accountant or bank."
+    }
+  },
+  "dashboard": {
+    "today": {
+      "title": "📊 Today at a glance",
+      "body": "Today's sales and profit compared with yesterday, this month so far, and stock that needs attention."
+    },
+    "checklist": {
+      "title": "✅ Getting started",
+      "body": "A short list of what to set up. Each item opens the right page, and it ticks itself off when done."
+    }
+  },
+  "discounts": {
+    "add": {
+      "title": "🏷️ New discount",
+      "body": "Create a discount for a product, a category or the whole sale, as a percentage or an amount, with start and end dates if you like."
+    },
+    "how": {
+      "title": "🛒 At the till",
+      "body": "Running discounts apply at the till by themselves. Stop one any time and it no longer applies."
+    }
+  },
+  "sales": {
+    "search": {
+      "title": "🔍 Find a sale",
+      "body": "Search by receipt number or pick dates to see past sales."
+    },
+    "list": {
+      "title": "🧾 Sales history",
+      "body": "Every sale with its receipt number, who served and how the customer paid."
+    },
+    "refund": {
+      "title": "↩️ Reprint or void",
+      "body": "Open a sale to see its items, print the receipt again, or void it if it was a mistake. A voided sale stays in the list, marked Voided."
+    }
   }
 }

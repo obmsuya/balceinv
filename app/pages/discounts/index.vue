@@ -68,7 +68,7 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('discounts.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ t('discounts.page.subtitle') }}</p>
       </div>
-      <Button v-if="canCreate('discounts')" @click="openForm(null)">
+      <Button v-if="canCreate('discounts')" data-tour="discounts-add" @click="openForm(null)">
         <Plus />
         {{ t('discounts.page.newDiscount') }}
       </Button>

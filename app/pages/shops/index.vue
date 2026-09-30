@@ -92,7 +92,7 @@ onMounted(fetchShops)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('shops.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ t('shops.page.subtitle', { company: user?.company_name ?? '' }) }}</p>
       </div>
-      <Button v-if="canCreate('shops')" @click="openForm(null)">
+      <Button v-if="canCreate('shops')" data-tour="shops-add" @click="openForm(null)">
         <Plus />
         {{ t('shops.page.add') }}
       </Button>
@@ -102,7 +102,7 @@ onMounted(fetchShops)
       <Skeleton v-for="skeletonCard in 2" :key="skeletonCard" class="h-36 w-full" />
     </div>
 
-    <div v-else class="grid gap-4 md:grid-cols-2">
+    <div v-else class="grid gap-4 md:grid-cols-2" data-tour="shops-list">
       <Card v-for="shop in openShops" :key="shop.id">
         <CardContent class="flex flex-col gap-3">
           <div class="flex items-start gap-3">
