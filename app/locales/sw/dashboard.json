@@ -54,5 +54,17 @@
       "unreadable": "Viwango vya kubadilisha fedha vilivyohifadhiwa havikuweza kusomwa. Vitasasishwa ukiwa mtandaoni.",
       "notPublished": "Hakuna viwango vya kubadilisha fedha vilivyotolewa kwa {currency}."
     }
+  },
+  "gettingStarted": {
+    "title": "Hatua za kuanza",
+    "progress": "{done} kati ya {total} zimekamilika",
+    "hide": "Ficha orodha",
+    "steps": {
+      "businessDetails": "Weka simu na anwani ya biashara",
+      "logo": "Pakia nembo yako",
+      "firstProduct": "Ongeza bidhaa ya kwanza",
+      "firstCashier": "Ongeza keshia",
+      "firstSale": "Fanya mauzo ya kwanza"
+    }
   }
 }
