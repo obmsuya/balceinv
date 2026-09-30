@@ -7,6 +7,7 @@ import PhonePhotoDialog from '@/components/products/PhonePhotoDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -163,7 +164,7 @@ const submit = async () => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1.5">
             <Label for="money-amount">{{ t('money.form.amount', { currency: currencyCode() }) }}</Label>
-            <Input id="money-amount" v-model="amountText" inputmode="decimal" placeholder="0" class="h-11 text-lg" />
+            <MoneyInput id="money-amount" v-model="amountText" placeholder="0" class="h-11 text-lg" />
           </div>
           <div class="flex flex-col gap-1.5">
             <Label for="money-date">{{ t('money.form.date') }}</Label>
@@ -210,7 +211,7 @@ const submit = async () => {
           </div>
           <div class="flex flex-col gap-1.5">
             <Label for="money-fee">{{ t('money.form.fee', { currency: currencyCode() }) }}</Label>
-            <Input id="money-fee" v-model="feeText" inputmode="decimal" placeholder="0" />
+            <MoneyInput id="money-fee" v-model="feeText" placeholder="0" />
             <p class="text-xs text-muted-foreground">{{ t('money.form.feeHelp') }}</p>
           </div>
         </template>
@@ -227,7 +228,7 @@ const submit = async () => {
             <p class="text-sm tabular-nums">{{ t('money.form.vatWorkedOut', { rate: `${formatNumber(vatRateBasisPoints / 100)}%`, amount: formatMoney(workedOutVat) }) }}</p>
             <div class="flex flex-col gap-1.5">
               <Label for="money-vat-amount">{{ t('money.form.vatAmount', { currency: currencyCode() }) }}</Label>
-              <Input id="money-vat-amount" v-model="vatText" inputmode="decimal" :placeholder="String(workedOutVat)" />
+              <MoneyInput id="money-vat-amount" v-model="vatText" :placeholder="String(workedOutVat)" />
             </div>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div class="flex flex-col gap-1.5">

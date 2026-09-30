@@ -3,6 +3,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { Customer } from '@/composables/useCustomers'
@@ -110,12 +111,12 @@ const submit = async () => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div v-if="creditSalesOn" class="flex flex-col gap-1.5">
             <Label for="customer-credit-limit">{{ t('customers.fields.creditLimit', { currency: currencyCode() }) }}</Label>
-            <Input id="customer-credit-limit" v-model="creditLimitText" inputmode="decimal" :placeholder="t('customers.form.noLimit')" />
+            <MoneyInput id="customer-credit-limit" v-model="creditLimitText" :placeholder="t('customers.form.noLimit')" />
             <p class="text-xs text-muted-foreground">{{ t('customers.form.creditLimitHint') }}</p>
           </div>
           <div class="flex flex-col gap-1.5">
             <Label for="customer-opening-balance">{{ t('customers.fields.openingBalance', { currency: currencyCode() }) }}</Label>
-            <Input id="customer-opening-balance" v-model="openingBalanceText" inputmode="decimal" placeholder="0" />
+            <MoneyInput id="customer-opening-balance" v-model="openingBalanceText" placeholder="0" />
             <p class="text-xs text-muted-foreground">{{ t('customers.form.openingBalanceHint') }}</p>
           </div>
         </div>

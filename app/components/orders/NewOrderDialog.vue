@@ -5,6 +5,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
@@ -186,7 +187,7 @@ const submit = async () => {
 
         <div class="flex flex-col gap-2 rounded-lg border p-3">
           <Label for="order-deposit">{{ t('orders.fields.deposit', { currency: currencyCode() }) }}</Label>
-          <Input id="order-deposit" v-model="depositText" inputmode="decimal" placeholder="0" />
+          <MoneyInput id="order-deposit" v-model="depositText" placeholder="0" />
           <PaymentMethodChoice v-if="inputTextToMinor(depositText)" v-model="depositMethod" />
         </div>
 

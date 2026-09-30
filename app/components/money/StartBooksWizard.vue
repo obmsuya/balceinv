@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import type { BooksStatus } from '@/composables/useMoney'
 import { currencyCode, formatMoney, inputTextToMinor } from '~/utils/money'
@@ -89,15 +90,15 @@ const start = async () => {
         </div>
         <div class="flex flex-col gap-1.5">
           <Label for="start-cash">{{ t('money.start.cashInDrawer') }} ({{ currencyCode() }})</Label>
-          <Input id="start-cash" v-model="cashText" inputmode="decimal" placeholder="0" class="h-11 text-lg" />
+          <MoneyInput id="start-cash" v-model="cashText" placeholder="0" class="h-11 text-lg" />
         </div>
         <div class="flex flex-col gap-1.5">
           <Label for="start-mobile">{{ t('money.start.mobileMoney') }} ({{ currencyCode() }})</Label>
-          <Input id="start-mobile" v-model="mobileText" inputmode="decimal" placeholder="0" class="h-11 text-lg" />
+          <MoneyInput id="start-mobile" v-model="mobileText" placeholder="0" class="h-11 text-lg" />
         </div>
         <div class="flex flex-col gap-1.5">
           <Label for="start-bank">{{ t('money.start.bank') }} ({{ currencyCode() }})</Label>
-          <Input id="start-bank" v-model="bankText" inputmode="decimal" placeholder="0" class="h-11 text-lg" />
+          <MoneyInput id="start-bank" v-model="bankText" placeholder="0" class="h-11 text-lg" />
         </div>
         <div class="grid grid-cols-2 gap-2">
           <Button variant="outline" size="lg" @click="step = 'choose'">{{ t('common.actions.back') }}</Button>

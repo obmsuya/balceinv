@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -281,7 +282,7 @@ const submit = async () => {
             </div>
             <div class="flex flex-col gap-1">
               <Label :for="`arrived-cost-${rowIndex}`" class="text-xs text-muted-foreground">{{ t('suppliers.arrived.costPerUnit', { currency: currencyCode() }) }}</Label>
-              <Input :id="`arrived-cost-${rowIndex}`" v-model="row.costText" inputmode="decimal" />
+              <MoneyInput :id="`arrived-cost-${rowIndex}`" v-model="row.costText" />
             </div>
           </div>
         </div>
@@ -307,7 +308,7 @@ const submit = async () => {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1.5">
             <Label for="arrived-paid">{{ t('suppliers.arrived.paidNow', { currency: currencyCode() }) }}</Label>
-            <Input v-if="hasSupplier" id="arrived-paid" v-model="paidText" inputmode="decimal" placeholder="0" />
+            <MoneyInput v-if="hasSupplier" id="arrived-paid" v-model="paidText" placeholder="0" />
             <p v-else class="flex h-9 items-center text-sm font-medium tabular-nums">{{ formatMoney(totals.total) }}</p>
             <p class="text-xs text-muted-foreground">{{ hasSupplier ? t('suppliers.arrived.paidNowHint') : t('suppliers.arrived.mustPayInFull') }}</p>
             <div v-if="hasSupplier" class="flex gap-2">

@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -401,15 +402,15 @@ const removeAddon = async (addon: ProductAddon) => {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
               <Label for="product-price">{{ t('products.form.sellingPrice', { currency: currencyCode() }) }}</Label>
-              <Input id="product-price" v-model="form.price" inputmode="decimal" placeholder="1000" />
+              <MoneyInput id="product-price" v-model="form.price" placeholder="1000" />
             </div>
             <div class="flex flex-col gap-1.5">
               <Label for="product-cost">{{ t('products.form.costPrice', { currency: currencyCode() }) }}</Label>
-              <Input id="product-cost" v-model="form.costPrice" inputmode="decimal" placeholder="700" />
+              <MoneyInput id="product-cost" v-model="form.costPrice" placeholder="700" />
             </div>
             <div class="flex flex-col gap-1.5">
               <Label for="product-wholesale-price">{{ t('products.form.wholesalePrice') }}</Label>
-              <Input id="product-wholesale-price" v-model="form.wholesalePrice" inputmode="decimal" placeholder="850" />
+              <MoneyInput id="product-wholesale-price" v-model="form.wholesalePrice" placeholder="850" />
             </div>
             <div class="flex flex-col gap-1.5">
               <Label for="product-wholesale-min">{{ t('products.form.wholesaleMin') }}</Label>
@@ -482,7 +483,7 @@ const removeAddon = async (addon: ProductAddon) => {
         <TabsContent v-if="isEditing" value="addons" class="mt-4 flex flex-col gap-4">
           <div class="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 sm:flex-row">
             <Input v-model="newAddonName" :placeholder="t('products.form.addonNamePlaceholder')" class="flex-1" :aria-label="t('products.form.addonName')" />
-            <Input v-model="newAddonPrice" inputmode="decimal" :placeholder="t('products.form.addonPricePlaceholder', { currency: currencyCode() })" class="sm:w-36" :aria-label="t('products.form.addonPrice')" />
+            <MoneyInput v-model="newAddonPrice" :placeholder="t('products.form.addonPricePlaceholder', { currency: currencyCode() })" class="sm:w-36" :aria-label="t('products.form.addonPrice')" />
             <Button type="button" :disabled="addonsLoading || !newAddonName.trim()" @click="addAddon">
               <Plus />
               {{ t('common.actions.add') }}

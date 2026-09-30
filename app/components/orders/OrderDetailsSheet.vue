@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -291,7 +292,7 @@ const callCustomer = () => {
           <form class="flex flex-col gap-4" @submit.prevent="saveDeposit">
             <div class="flex flex-col gap-1.5">
               <Label for="deposit-amount">{{ t('orders.fields.deposit', { currency: currencyCode() }) }}</Label>
-              <Input id="deposit-amount" v-model="depositText" inputmode="decimal" class="h-11 text-lg tabular-nums" />
+              <MoneyInput id="deposit-amount" v-model="depositText" class="h-11 text-lg tabular-nums" />
             </div>
             <PaymentMethodChoice v-model="depositMethod" />
             <DialogFooter>

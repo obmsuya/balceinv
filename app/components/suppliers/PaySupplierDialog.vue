@@ -3,6 +3,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { PaymentMethod, Supplier } from '@/composables/useSuppliers'
@@ -93,7 +94,7 @@ const submit = async () => {
 
         <div class="flex flex-col gap-1.5">
           <Label for="pay-amount">{{ t('suppliers.payments.amount', { currency: currencyCode() }) }}</Label>
-          <Input id="pay-amount" v-model="amountText" inputmode="decimal" />
+          <MoneyInput id="pay-amount" v-model="amountText" />
           <Button v-if="chosenSupplier && chosenSupplier.balance > 0" variant="outline" size="sm" type="button" class="self-start" @click="amountText = minorToInputText(chosenSupplier.balance)">
             {{ t('suppliers.payments.payAll') }}
           </Button>

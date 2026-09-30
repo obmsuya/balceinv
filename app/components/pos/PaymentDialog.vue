@@ -2,6 +2,7 @@
 import { Banknote, CalendarClock, CreditCard, Smartphone } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import MoneyInput from '@/components/MoneyInput.vue'
 import NumberPad from '@/components/pos/NumberPad.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import type { Customer } from '@/composables/useCustomers'
@@ -145,16 +146,15 @@ const pressNumpad = (key: NumberPadKey) => {
               <component :is="methodIcons[method]" class="size-4 shrink-0 text-muted-foreground" />
               <span class="truncate">{{ paymentMethodLabel(method) }}</span>
             </button>
-            <input
+            <MoneyInput
               :id="`payment-${method}`"
               v-model="amountTexts[method]"
-              inputmode="decimal"
               :placeholder="`0 ${currencyCode()}`"
-              class="h-11 w-full min-w-0 rounded-lg border bg-transparent px-3 text-right text-lg tabular-nums outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+              class="h-11 min-w-0 rounded-lg border-border px-3 text-right text-lg shadow-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
               :aria-label="t('pos.payment.amountFor', { method: paymentMethodLabel(method) })"
               @focus="activeMethod = method"
               @input="replaceOnNextKey = false"
-            >
+            />
           </div>
 
           <p v-if="creditAllowed" class="-mt-1 text-xs text-muted-foreground">

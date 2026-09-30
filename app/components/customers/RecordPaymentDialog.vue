@@ -3,6 +3,7 @@ import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
 import type { Customer, CustomerPaymentMethod } from '@/composables/useCustomers'
@@ -56,7 +57,7 @@ const submit = async () => {
       <form class="flex flex-col gap-4" @submit.prevent="submit">
         <div class="flex flex-col gap-1.5">
           <Label for="payment-amount">{{ t('customers.payments.amount', { currency: currencyCode() }) }}</Label>
-          <Input id="payment-amount" v-model="amountText" inputmode="decimal" class="h-11 text-lg tabular-nums" />
+          <MoneyInput id="payment-amount" v-model="amountText" class="h-11 text-lg tabular-nums" />
         </div>
         <div class="flex flex-col gap-1.5">
           <Label>{{ t('customers.payments.howPaid') }}</Label>
