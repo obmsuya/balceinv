@@ -131,5 +131,12 @@
   "close_too_recent": "Unaweza kufunga hadi jana tu",
   "entry_ref_reused": "Rekodi hii ilishahifadhiwa kama kitu kingine",
   "invalid_attachment": "Picha ya risiti haikupatikana. Iongeze tena.",
-  "receipt_too_large": "Picha ya risiti isizidi MB 5"
+  "receipt_too_large": "Picha ya risiti isizidi MB 5",
+  "move_file_missing": "Chagua faili la kuhamia kutoka Balce ya kompyuta.",
+  "move_file_too_large": "Faili la kuhamia ni kubwa mno kupakiwa.",
+  "move_file_invalid": "Hili si faili la kuhamia la Balce.",
+  "move_file_newer": "Faili hili linatoka Balce mpya zaidi. Jaribu tena baada ya masasisho ya mtandaoni.",
+  "move_already_done": "Biashara hii tayari iko mtandaoni. Ingia badala yake.",
+  "move_email_taken": "Mmoja wa watumiaji wa biashara hii tayari ana akaunti mtandaoni yenye barua pepe hiyo hiyo.",
+  "move_owner_only": "Mmiliki pekee ndiye anaweza kuhamisha biashara."
 }

@@ -131,5 +131,12 @@
   "close_too_recent": "You can close up to yesterday at the latest",
   "entry_ref_reused": "This record was already saved as something else",
   "invalid_attachment": "The receipt photo wasn't found. Add it again.",
-  "receipt_too_large": "The receipt photo must be 5 MB or smaller"
+  "receipt_too_large": "The receipt photo must be 5 MB or smaller",
+  "move_file_missing": "Choose the moving file from the Balce desktop app.",
+  "move_file_too_large": "The moving file is too large to upload.",
+  "move_file_invalid": "This is not a Balce moving file.",
+  "move_file_newer": "This file comes from a newer Balce. Try again after the online update.",
+  "move_already_done": "This business is already online. Sign in instead.",
+  "move_email_taken": "One of this business's users already has an online account with the same email.",
+  "move_owner_only": "Only the owner can move the business."
 }

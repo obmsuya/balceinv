@@ -20,7 +20,7 @@ export interface DocumentSource {
   fileName: string
 }
 
-const readableError = (error: any): any => {
+export const readableError = (error: any): any => {
   const errorBody = error?.data
   if (errorBody instanceof ArrayBuffer) {
     try {

@@ -130,5 +130,28 @@
       "imported": "Your old data was brought over",
       "failed": "Couldn't bring over your old data"
     }
+  },
+  "move": {
+    "cardTitle": "Already use Balce on a computer?",
+    "cardBody": "Bring your products, stock, sales, customers, suppliers and books online. Nothing is typed again.",
+    "cardButton": "Move my business here",
+    "title": "Move your business from the computer",
+    "description": "Everything moves: products, stock, sales, customers, suppliers, books, users and pictures.",
+    "stepComputer": "On the computer, open Settings → Backups → Move this business online, and save the moving file.",
+    "stepChoose": "Choose that file here and press Move my business.",
+    "stepSignIn": "Sign in with the same email and password you use on the computer.",
+    "chooseFile": "Choose the moving file",
+    "chooseAnother": "Click to choose a different file",
+    "fileHint": "It ends in .balce",
+    "moveButton": "Move my business",
+    "movingShort": "Moving…",
+    "moving": "Moving your business. This can take a minute; keep this page open.",
+    "doneTitle": "{name} is online",
+    "doneBody": "Your business and everything in it is now on pos.faltasi.com, with a 14-day free trial.",
+    "signInWith": "Sign in with {email} and the same password you use on the computer. Your staff sign in with their own emails and passwords too.",
+    "stopComputer": "From now on, sell here. The computer does not see what you do online.",
+    "signIn": "Sign in",
+    "failed": "The business could not be moved",
+    "failedHint": "Check that you chose the moving file from the Balce desktop app, then try again."
   }
 }

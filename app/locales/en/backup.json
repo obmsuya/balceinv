@@ -69,5 +69,17 @@
     "restoreDesktopOnly": "Restoring from a file is only available in the desktop app",
     "readyToRestart": "Backup ready. Close and reopen the POS to finish restoring.",
     "restoreFailed": "Restore failed"
+  },
+  "move": {
+    "title": "Move this business online",
+    "description": "Use Balce on pos.faltasi.com instead of this computer, from any phone, tablet or computer.",
+    "stepSave": "Press Save the moving file and keep it somewhere you can reach, such as a USB stick or your email.",
+    "stepOpen": "Open pos.faltasi.com and choose Already use Balce on a computer? → Move my business here.",
+    "stepUpload": "Choose the file. Everyone signs in with the same email and password as here.",
+    "warning": "After moving, sell online only. This computer keeps its copy but does not follow what happens online.",
+    "saveButton": "Save the moving file",
+    "fileType": "Balce moving file",
+    "saved": "Moving file saved",
+    "saveFailed": "The moving file could not be saved"
   }
 }
