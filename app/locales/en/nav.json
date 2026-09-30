@@ -41,7 +41,9 @@
     "hardwareId": "Hardware ID",
     "hardwareIdCopied": "Hardware ID copied",
     "signOut": "Sign out",
-    "signedOut": "Signed out"
+    "signedOut": "Signed out",
+    "subscriptionId": "Subscription ID",
+    "subscriptionIdCopied": "Subscription ID copied"
   },
   "footer": {
     "rights": "All rights reserved"
