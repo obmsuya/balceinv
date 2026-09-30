@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
 import PaywallOverlay from '@/components/license/PaywallOverlay.vue'
 import { useLicense } from '~/composables/useLicense'
