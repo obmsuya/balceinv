@@ -1,9 +1,12 @@
 import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
+import type { ProductSort } from '~/composables/useReports'
 import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
 
 export type StatementReport = 'overview' | 'profit-and-loss' | 'balance-sheet' | 'statement' | 'trial-balance' | 'vat'
 export type StatementFormat = 'pdf' | 'xlsx'
+export type SalesReport = 'summary' | 'daily' | 'products' | 'cashiers' | 'shops'
+export type StockReport = 'inventory' | 'dead-stock'
 
 export interface StatementFilter {
   from: string
@@ -33,6 +36,30 @@ export const bookDocument = (report: StatementReport, filter: StatementFilter, a
   path: `/api/accounting/${report}`,
   query: { from: filter.from, to: filter.to, shop: filter.shop || undefined, account },
   fileName: [report, account, filter.from, 'to', filter.to].filter(Boolean).join('-'),
+})
+
+export const salesDocument = (report: SalesReport, filter: StatementFilter, productSort: ProductSort): DocumentSource => ({
+  path: `/api/reports/${report}/export`,
+  query: { from: filter.from, to: filter.to, shop: filter.shop || undefined, sort: report === 'products' ? productSort : undefined },
+  fileName: report === 'summary' ? `sales-report-${filter.from}-to-${filter.to}` : `sales-${report}-${filter.from}-to-${filter.to}`,
+})
+
+export const stockDocument = (report: StockReport, shop: string, today: string): DocumentSource => ({
+  path: `/api/reports/${report}/export`,
+  query: { shop: shop || undefined },
+  fileName: `${report === 'inventory' ? 'stock-on-hand' : 'stock-not-selling'}-${today}`,
+})
+
+export const customersWhoOweDocument = (asOf: string): DocumentSource => ({
+  path: '/api/customers/debtors',
+  query: { as_of: asOf },
+  fileName: `customers-who-owe-${asOf}`,
+})
+
+export const suppliersWeOweDocument = (asOf: string): DocumentSource => ({
+  path: '/api/suppliers/aging',
+  query: { as_of: asOf },
+  fileName: `suppliers-we-owe-${asOf}`,
 })
 
 export const useStatements = () => {
