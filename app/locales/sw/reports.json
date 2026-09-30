@@ -1,12 +1,11 @@
 {
   "title": "Ripoti",
+  "subtitle": "Tazama ripoti yoyote kama hati kamili, ichapishe, au ihifadhi kama Excel au PDF.",
   "excel": "Excel",
   "excelFileType": "Faili la Excel",
   "pdf": "PDF",
   "pdfFileType": "Hati ya PDF",
-  "printOrPdf": "Chapisha au PDF",
   "print": "Chapisha",
-  "downloadHint": "Muhtasari huhifadhi ripoti nzima; vichupo vingine huhifadhi kichupo hicho tu",
   "presets": {
     "today": "Leo",
     "yesterday": "Jana",
@@ -23,14 +22,6 @@
     "allShops": "Maduka yote",
     "shop": "Duka"
   },
-  "tabs": {
-    "overview": "Muhtasari",
-    "products": "Bidhaa",
-    "staff": "Wafanyakazi",
-    "shops": "Maduka",
-    "stock": "Stoku",
-    "books": "Hesabu"
-  },
   "counts": {
     "sales": {
       "one": "mauzo {count}",
@@ -45,109 +36,20 @@
       "other": "bidhaa {count}"
     }
   },
-  "stats": {
-    "takings": "Makusanyo",
-    "grossProfit": "Faida ghafi",
-    "marginOfNetSales": "{margin} ya mauzo halisi",
-    "netSales": "Mauzo halisi",
-    "afterTax": "Baada ya kodi ya {amount}",
-    "discountsGiven": "Punguzo lililotolewa",
-    "averageSale": "Wastani wa mauzo {amount}"
-  },
   "chart": {
     "sales": "Mauzo",
     "grossProfit": "Faida ghafi"
-  },
-  "dayByDay": {
-    "title": "Siku kwa siku",
-    "description": "Makusanyo na faida ghafi, kwa saa za kampuni"
-  },
-  "payments": {
-    "title": "Jinsi wateja walivyolipa",
-    "description": "Taslimu ni baada ya kutoa chenji"
-  },
-  "products": {
-    "topInPeriod": "Bidhaa 100 bora katika kipindi hiki",
-    "rankBy": "Panga bidhaa kwa",
-    "empty": "Hakuna bidhaa zilizouzwa katika kipindi hiki.",
-    "profitNote": "Faida ya kila bidhaa huondoa kodi mstari kwa mstari, hivyo inaweza kutofautiana kidogo na muhtasari."
   },
   "sorts": {
     "revenue": "Mauzo",
     "quantity": "Idadi",
     "profit": "Faida"
   },
-  "noSales": "Hakuna mauzo katika kipindi hiki.",
-  "stock": {
-    "note": "Stoku ilivyo sasa, bila kujali tarehe zilizo juu.",
-    "valueAtCost": "Thamani ya stoku kwa bei ya kununua",
-    "itemsOnHand": {
-      "one": "kipande {count} kilichopo",
-      "other": "vipande {count} vilivyopo"
-    },
-    "valueAtPrice": "Thamani ya stoku kwa bei ya kuuza",
-    "runningLow": "Stoku ndogo",
-    "runningLowHint": "Zimefika au ziko chini ya kiwango cha tahadhari",
-    "outOfStock": "Zimeisha",
-    "outOfStockHint": "Hakuna kilichobaki"
-  },
-  "deadStock": {
-    "title": "Bidhaa zisizouzwa",
-    "description": "Zipo stoku lakini hazijauzwa kwa siku {days}. Zenye thamani kubwa zaidi ziko juu",
-    "neverSold": "Haijawahi kuuzwa",
-    "empty": "Bidhaa zote zilizopo zimeuzwa hivi karibuni."
-  },
-  "columns": {
-    "item": "Kipengele",
-    "value": "Thamani",
-    "period": "Kipindi",
-    "shops": "Maduka",
-    "shop": "Duka",
-    "date": "Tarehe",
-    "product": "Bidhaa",
-    "sku": "SKU",
-    "staff": "Mfanyakazi",
-    "sales": "Mauzo",
-    "sold": "Zilizouzwa",
-    "quantity": "Idadi",
-    "itemsSold": "Vipande vilivyouzwa",
-    "takings": "Makusanyo",
-    "takingsInclTax": "Makusanyo (pamoja na kodi)",
-    "tax": "Kodi",
-    "netSales": "Mauzo halisi",
-    "cost": "Gharama",
-    "costOfGoods": "Gharama ya bidhaa",
-    "profit": "Faida",
-    "grossProfit": "Faida ghafi",
-    "margin": "Asilimia ya faida",
-    "marginPercent": "Asilimia ya faida (%)",
-    "discountsGiven": "Punguzo lililotolewa",
-    "averageSale": "Wastani wa mauzo",
-    "cash": "Taslimu",
-    "card": "Kadi",
-    "mobileMoney": "Pesa ya simu",
-    "onHand": "Zilizopo",
-    "valueAtCost": "Thamani kwa bei ya kununua",
-    "lastSold": "Iliuzwa mwisho"
-  },
-  "sheets": {
-    "summary": "Muhtasari",
-    "days": "Siku",
-    "products": "Bidhaa",
-    "staff": "Wafanyakazi",
-    "shops": "Maduka"
-  },
   "toasts": {
-    "loadFailed": "Imeshindwa kupakia ripoti",
-    "productsFailed": "Imeshindwa kupakia bidhaa",
-    "stockFailed": "Imeshindwa kupakia ripoti ya stoku",
-    "dateOrder": "Tarehe ya kuanza iko baada ya tarehe ya mwisho",
     "saved": "Ripoti imehifadhiwa",
     "saveFailed": "Imeshindwa kuhifadhi ripoti"
   },
   "books": {
-    "title": "Ripoti za hesabu",
-    "description": "Ripoti rasmi kutoka kwenye hesabu zako, tayari kuchapisha, kusaini au kumtumia mhasibu au benki.",
     "report": "Ripoti",
     "period": "Kipindi",
     "actions": "Vitendo",
@@ -189,5 +91,53 @@
     "loading": "Inaandaa hati…",
     "failed": "Hati haikuweza kutengenezwa. Jaribu tena.",
     "printFailed": "Hati haikuweza kuchapishwa."
+  },
+  "groups": {
+    "sales": "Mauzo",
+    "stock": "Stoku",
+    "people": "Wateja na wasambazaji",
+    "books": "Ripoti za hesabu"
+  },
+  "list": {
+    "periodLabel": "Kipindi",
+    "dateOrder": "Tarehe ya kuanza iko baada ya tarehe ya mwisho.",
+    "rightNow": "Ilivyo sasa",
+    "rankBy": "Panga kwa",
+    "summary": {
+      "title": "Ripoti ya mauzo",
+      "description": "Makusanyo, VAT, gharama na faida ghafi, na jinsi wateja walivyolipa, ikilinganishwa na kipindi kilichopita."
+    },
+    "daily": {
+      "title": "Mauzo kwa siku",
+      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida."
+    },
+    "products": {
+      "title": "Bidhaa zilizouzwa",
+      "description": "Idadi, makusanyo, gharama na faida ya kila bidhaa, zikipangwa unavyotaka."
+    },
+    "staff": {
+      "title": "Mauzo kwa mfanyakazi",
+      "description": "Idadi ya mauzo ya kila mtu na kiasi alichokusanya."
+    },
+    "shops": {
+      "title": "Mauzo kwa duka",
+      "description": "Kila duka kando kwa kando: mauzo, makusanyo, VAT na faida."
+    },
+    "stockOnHand": {
+      "title": "Stoku iliyopo",
+      "description": "Idadi na thamani ya kila bidhaa kwa bei ya kununua na ya kuuza, pamoja na zinazokaribia kuisha."
+    },
+    "notSelling": {
+      "title": "Stoku isiyouzwa",
+      "description": "Bidhaa zilizopo ambazo hazijauzwa hivi karibuni, zenye pesa nyingi zaidi kwanza."
+    },
+    "customersWhoOwe": {
+      "title": "Wateja wanaodaiwa",
+      "description": "Nani anadaiwa, kiasi gani, na kwa muda gani."
+    },
+    "suppliersWeOwe": {
+      "title": "Madeni kwa wasambazaji",
+      "description": "Kila msambazaji anadai kiasi gani, na kimechelewa kwa muda gani."
+    }
   }
 }

@@ -1,40 +1,62 @@
 <script setup lang="ts">
-import { BadgePercent, Banknote, CreditCard, FileSpreadsheet, FileText, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
-import { toast } from 'vue-sonner'
-import { Badge } from '@/components/ui/badge'
+import type { Component } from 'vue'
+import { BookOpen, Boxes, CalendarDays, Eye, FileSpreadsheet, FileText, HandCoins, Landmark, PackageX, Receipt, Scale, ShoppingBag, Store, TrendingUp, Truck, Users, Wallet } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import BooksPanel from '@/components/reports/BooksPanel.vue'
-import StatCard from '@/components/reports/StatCard.vue'
-import TrendChart from '@/components/reports/TrendChart.vue'
-import type { ExportFormat, ProductSort, ReportExport } from '@/composables/useReports'
-import { formatMoney } from '~/utils/money'
+import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vue'
+import { accountName } from '@/composables/useMoney'
+import type { ProductSort } from '@/composables/useReports'
+import type { DocumentSource, SalesReport, StatementReport, StockReport } from '@/composables/useStatements'
+import { bookDocument, customersWhoOweDocument, salesDocument, stockDocument, suppliersWeOweDocument } from '@/composables/useStatements'
 import type { RangePreset } from '~/utils/reportRanges'
-import { marginText, presetRange, rangePresetLabel, todayIn } from '~/utils/reportRanges'
+import { presetRange, rangePresetLabel, todayIn } from '~/utils/reportRanges'
 
 const activeShopScope = 'active'
 const allShopsScope = 'all'
 
+type ReportGroup = 'sales' | 'stock' | 'people' | 'books'
+type ReportCovers = 'period' | 'now' | 'asAt'
+
+interface ReportRow {
+  id: string
+  group: ReportGroup
+  labelKey: string
+  icon: Component
+  covers: ReportCovers
+  wholeBusiness: boolean
+  picker?: 'productSort' | 'account'
+  source: () => DocumentSource
+}
+
 const { user } = useAuth()
 const { t, formatDate } = useI18n()
-const { summary, days, products, cashiers, shops, inventory, loading, exporting, exportReport, fetchSalesReports, fetchProductRanking, fetchInventory } = useReports()
+const { hasPermission } = usePermissions()
+const { accountingOn, fullAccountingOn, vatOn, customersOn, suppliersOn } = useFeatures()
+const { accounts, fetchAccounts } = useMoney()
+const { saving, fetchDocument, saveDocument } = useStatements()
 
 const today = todayIn(user.value?.branding?.timezone)
-const rangePreset = ref<RangePreset>('last30')
-const fromDate = ref(presetRange('last30', today).from)
+const presets: RangePreset[] = ['today', 'yesterday', 'last7', 'last30', 'thisMonth', 'lastMonth', 'custom']
+const productSorts: ProductSort[] = ['revenue', 'quantity', 'profit']
+const rangePreset = ref<RangePreset>('thisMonth')
+const fromDate = ref(presetRange('thisMonth', today).from)
 const toDate = ref(today)
 const shopScope = ref(activeShopScope)
 const productSort = ref<ProductSort>('revenue')
-const activeTab = ref('overview')
+const chosenAccount = ref('cash')
 
-const presets: RangePreset[] = ['today', 'yesterday', 'last7', 'last30', 'thisMonth', 'lastMonth']
-const productSorts: ProductSort[] = ['revenue', 'quantity', 'profit']
+watch(rangePreset, (preset) => {
+  if (preset === 'custom') return
+  const chosenRange = presetRange(preset, today)
+  fromDate.value = chosenRange.from
+  toDate.value = chosenRange.to
+})
+const onDateTyped = () => {
+  rangePreset.value = 'custom'
+}
 
 const shopChoices = computed(() => user.value?.shops ?? [])
 const showShopPicker = computed(() => shopChoices.value.length > 1 || user.value?.is_owner === true)
@@ -45,128 +67,141 @@ const scopeLabel = computed(() => {
   return shopChoices.value.find(shop => shop.id === shopScope.value)?.name ?? t('reports.scope.shop')
 })
 const shopQuery = computed(() => (shopScope.value === activeShopScope ? '' : shopScope.value))
-const filter = computed(() => ({ from: fromDate.value, to: toDate.value, shop: shopQuery.value }))
-const rangeLabel = computed(() => {
-  const format = (isoDate: string) => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })
-  return fromDate.value === toDate.value ? format(fromDate.value) : `${format(fromDate.value)} – ${format(toDate.value)}`
-})
-const paymentRows = computed(() => {
-  const paymentTotals = summary.value?.payments
-  if (!paymentTotals) return []
-  const paidTotal = paymentTotals.cash + paymentTotals.card + paymentTotals.mobile
-  return [
-    { label: t('reports.columns.cash'), icon: Banknote, amount: paymentTotals.cash },
-    { label: t('reports.columns.card'), icon: CreditCard, amount: paymentTotals.card },
-    { label: t('reports.columns.mobileMoney'), icon: Smartphone, amount: paymentTotals.mobile },
-  ].map(paymentRow => ({ ...paymentRow, share: paidTotal ? (paymentRow.amount / paidTotal) * 100 : 0 }))
-})
-
-const choosePreset = (preset: RangePreset) => {
-  rangePreset.value = preset
-  const chosenRange = presetRange(preset, today)
-  fromDate.value = chosenRange.from
-  toDate.value = chosenRange.to
-}
-
-const onDateTyped = () => {
-  rangePreset.value = 'custom'
-}
-
-const reload = () => {
-  if (!fromDate.value || !toDate.value) return
-  if (fromDate.value > toDate.value) {
-    toast.error(t('reports.toasts.dateOrder'))
-    return
-  }
-  fetchSalesReports(filter.value, productSort.value)
-  if (activeTab.value === 'stock') fetchInventory(shopQuery.value)
-}
-
-watch([fromDate, toDate, shopScope], reload)
-watch(shopScope, chosenScope => {
-  if (chosenScope !== allShopsScope && activeTab.value === 'shops') activeTab.value = 'overview'
-})
-watch(productSort, () => fetchProductRanking(filter.value, productSort.value))
-watch(activeTab, openedTab => {
-  if (openedTab === 'stock') fetchInventory(shopQuery.value)
-})
-
-const marginOf = (profit: number, netRevenue: number) => (netRevenue > 0 ? marginText(Math.round((profit / netRevenue) * 10000)) : '—')
-const lastSoldText = (isoDate: string | null) => (isoDate ? formatDate(isoDate) : t('reports.deadStock.neverSold'))
-
-const exportsByTab: Record<string, ReportExport> = {
-  overview: 'summary',
-  products: 'products',
-  staff: 'cashiers',
-  shops: 'shops',
-  stock: 'inventory',
-}
-
-const downloadReport = (format: ExportFormat) => exportReport(exportsByTab[activeTab.value] ?? 'summary', format, filter.value, productSort.value)
-
-const printReport = () => window.print()
-
-const { accountingOn } = useFeatures()
-const { hasPermission } = usePermissions()
-const showBooks = computed(() => accountingOn.value && hasPermission('accounting', 'view'))
-const statementShop = computed(() => {
+const booksShop = computed(() => {
   const isWholeBusiness = shopScope.value === allShopsScope || shopChoices.value.length <= 1
   if (isWholeBusiness) return ''
   if (shopScope.value === activeShopScope) return user.value?.shop_id ?? ''
   return shopScope.value
 })
-const statementScopeLabel = computed(() => (statementShop.value ? scopeLabel.value : t('reports.scope.allShops')))
 
-onMounted(reload)
+const rangeInvalid = computed(() => !fromDate.value || !toDate.value || fromDate.value > toDate.value)
+const filter = computed(() => ({ from: fromDate.value, to: toDate.value, shop: shopQuery.value }))
+const shortDate = (isoDate: string) => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })
+const rangeLabel = computed(() => (fromDate.value === toDate.value ? shortDate(fromDate.value) : `${shortDate(fromDate.value)} – ${shortDate(toDate.value)}`))
+
+const statementAccounts = computed(() => accounts.value.filter(account => account.is_active && (fullAccountingOn.value || account.is_money)))
+
+const salesRow = (id: SalesReport, labelKey: string, icon: Component): ReportRow => ({
+  id, group: 'sales', labelKey, icon, covers: 'period', wholeBusiness: id === 'shops',
+  picker: id === 'products' ? 'productSort' : undefined,
+  source: () => salesDocument(id, filter.value, productSort.value),
+})
+const stockRow = (id: StockReport, labelKey: string, icon: Component): ReportRow => ({
+  id, group: 'stock', labelKey, icon, covers: 'now', wholeBusiness: false,
+  source: () => stockDocument(id, shopQuery.value, today),
+})
+const bookRow = (id: StatementReport, labelKey: string, icon: Component, covers: ReportCovers, wholeBusiness: boolean): ReportRow => ({
+  id, group: 'books', labelKey, icon, covers, wholeBusiness,
+  picker: id === 'statement' ? 'account' : undefined,
+  source: () => bookDocument(id, { from: fromDate.value, to: toDate.value, shop: wholeBusiness ? '' : booksShop.value }, id === 'statement' ? chosenAccount.value : undefined),
+})
+
+const reportRows = computed<ReportRow[]>(() => {
+  const rows: ReportRow[] = []
+  if (hasPermission('reports', 'view')) {
+    rows.push(
+      salesRow('summary', 'reports.list.summary', Wallet),
+      salesRow('daily', 'reports.list.daily', CalendarDays),
+      salesRow('products', 'reports.list.products', ShoppingBag),
+      salesRow('cashiers', 'reports.list.staff', Users),
+    )
+    if (shopScope.value === allShopsScope && shopChoices.value.length > 1) rows.push(salesRow('shops', 'reports.list.shops', Store))
+    rows.push(stockRow('inventory', 'reports.list.stockOnHand', Boxes), stockRow('dead-stock', 'reports.list.notSelling', PackageX))
+  }
+  if (customersOn.value && hasPermission('customers', 'view')) {
+    rows.push({ id: 'customers-who-owe', group: 'people', labelKey: 'reports.list.customersWhoOwe', icon: HandCoins, covers: 'asAt', wholeBusiness: true, source: () => customersWhoOweDocument(toDate.value) })
+  }
+  if (suppliersOn.value && hasPermission('suppliers', 'view')) {
+    rows.push({ id: 'suppliers-we-owe', group: 'people', labelKey: 'reports.list.suppliersWeOwe', icon: Truck, covers: 'asAt', wholeBusiness: true, source: () => suppliersWeOweDocument(toDate.value) })
+  }
+  if (accountingOn.value && hasPermission('accounting', 'view')) {
+    rows.push(
+      bookRow('profit-and-loss', 'reports.books.profitAndLoss', TrendingUp, 'period', false),
+      bookRow('balance-sheet', 'reports.books.balanceSheet', Scale, 'asAt', true),
+      bookRow('overview', 'reports.books.overview', Wallet, 'period', false),
+      bookRow('statement', 'reports.books.accountStatement', BookOpen, 'period', false),
+    )
+    if (fullAccountingOn.value) rows.push(bookRow('trial-balance', 'reports.books.trialBalance', Landmark, 'asAt', true))
+    if (vatOn.value) rows.push(bookRow('vat', 'reports.books.vat', Receipt, 'period', true))
+  }
+  return rows
+})
+
+const groupOrder: ReportGroup[] = ['sales', 'stock', 'people', 'books']
+const reportGroups = computed(() =>
+  groupOrder
+    .map(group => ({ group, rows: reportRows.value.filter(row => row.group === group) }))
+    .filter(reportGroup => reportGroup.rows.length),
+)
+
+const coversLabel = (row: ReportRow) => {
+  if (row.covers === 'now') return t('reports.list.rightNow')
+  if (row.covers === 'asAt') return t('reports.books.asAt', { date: shortDate(toDate.value) })
+  return rangeLabel.value
+}
+const scopeLabelFor = (row: ReportRow) => {
+  if (row.wholeBusiness) return t('reports.scope.allShops')
+  if (row.group === 'books' && !booksShop.value) return t('reports.scope.allShops')
+  return scopeLabel.value
+}
+const rowBlocked = (row: ReportRow) => row.covers !== 'now' && rangeInvalid.value
+
+const previewRow = ref<ReportRow | null>(null)
+const previewOpen = ref(false)
+const openPreview = (row: ReportRow) => {
+  if (rowBlocked(row)) return
+  previewRow.value = row
+  previewOpen.value = true
+}
+const previewTitle = computed(() => {
+  const row = previewRow.value
+  if (!row) return ''
+  if (row.picker === 'account') {
+    const chosen = statementAccounts.value.find(account => account.system_key === chosenAccount.value || account.id === chosenAccount.value)
+    if (chosen) return `${t('reports.books.accountStatement.short')} · ${accountName(chosen)}`
+  }
+  if (row.picker === 'productSort') return `${t(`${row.labelKey}.title`)} · ${t(`reports.sorts.${productSort.value}`)}`
+  return t(`${row.labelKey}.title`)
+})
+const previewSubtitle = computed(() => (previewRow.value ? `${coversLabel(previewRow.value)} · ${scopeLabelFor(previewRow.value)}` : ''))
+const loadPreview = () => fetchDocument(previewRow.value!.source(), 'pdf')
+
+onMounted(() => {
+  if (accountingOn.value && hasPermission('accounting', 'view') && !accounts.value.length) fetchAccounts()
+})
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-7xl flex-col gap-5 py-2 sm:px-2 sm:py-4">
-    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('reports.title') }}</h1>
-        <p class="mt-1 text-muted-foreground">{{ rangeLabel }} · {{ scopeLabel }}</p>
-      </div>
-      <div v-if="activeTab !== 'books'" class="flex gap-2 print:hidden">
-        <Button variant="outline" :disabled="!summary || exporting !== null" :title="t('reports.downloadHint')" @click="downloadReport('xlsx')">
-          <FileSpreadsheet />
-          {{ exporting === 'xlsx' ? t('common.actions.saving') : t('reports.excel') }}
-        </Button>
-        <Button variant="outline" :disabled="!summary || exporting !== null" :title="t('reports.downloadHint')" @click="downloadReport('pdf')">
-          <FileText />
-          {{ exporting === 'pdf' ? t('common.actions.saving') : t('reports.pdf') }}
-        </Button>
-        <Button variant="outline" :disabled="!summary" @click="printReport">
-          <Printer />
-          {{ t('reports.print') }}
-        </Button>
-      </div>
+  <div class="mx-auto flex max-w-6xl flex-col gap-5 py-2 sm:px-2 sm:py-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('reports.title') }}</h1>
+      <p class="mt-1 text-muted-foreground">{{ t('reports.subtitle') }}</p>
     </div>
 
-    <div class="flex flex-col gap-3 rounded-xl border p-3 print:hidden">
-      <div class="flex gap-1.5 overflow-x-auto pb-1">
-        <button
-          v-for="preset in presets"
-          :key="preset"
-          type="button"
-          class="shrink-0 rounded-full border px-3 py-1 text-sm font-medium transition-colors"
-          :class="rangePreset === preset ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'"
-          @click="choosePreset(preset)"
-        >
-          {{ rangePresetLabel(preset) }}
-        </button>
+    <div class="grid grid-cols-1 gap-3 rounded-xl border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-4">
+      <div class="flex flex-col gap-1.5">
+        <Label for="report-period">{{ t('reports.list.periodLabel') }}</Label>
+        <Select v-model="rangePreset">
+          <SelectTrigger id="report-period" class="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="preset in presets" :key="preset" :value="preset">{{ rangePresetLabel(preset) }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div class="flex items-center gap-2">
-          <Label for="report-from" class="min-w-10 shrink-0 text-sm text-muted-foreground">{{ t('common.fields.from') }}</Label>
-          <Input id="report-from" v-model="fromDate" type="date" :max="toDate" @input="onDateTyped" />
-        </div>
-        <div class="flex items-center gap-2">
-          <Label for="report-to" class="min-w-10 shrink-0 text-sm text-muted-foreground">{{ t('common.fields.to') }}</Label>
-          <Input id="report-to" v-model="toDate" type="date" :min="fromDate" :max="today" @input="onDateTyped" />
-        </div>
-        <Select v-if="showShopPicker" v-model="shopScope">
-          <SelectTrigger class="w-full" :aria-label="t('reports.scope.label')">
+      <div class="flex flex-col gap-1.5">
+        <Label for="report-from">{{ t('common.fields.from') }}</Label>
+        <Input id="report-from" v-model="fromDate" type="date" :max="toDate || today" @input="onDateTyped" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <Label for="report-to">{{ t('common.fields.to') }}</Label>
+        <Input id="report-to" v-model="toDate" type="date" :min="fromDate" :max="today" @input="onDateTyped" />
+      </div>
+      <div v-if="showShopPicker" class="flex flex-col gap-1.5">
+        <Label for="report-shop">{{ t('reports.scope.label') }}</Label>
+        <Select v-model="shopScope">
+          <SelectTrigger id="report-shop" class="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -176,234 +211,101 @@ onMounted(reload)
           </SelectContent>
         </Select>
       </div>
+      <p v-if="rangeInvalid" class="text-sm text-destructive sm:col-span-2 lg:col-span-4">{{ t('reports.list.dateOrder') }}</p>
     </div>
 
-    <Tabs v-model="activeTab">
-      <TabsList class="print:hidden">
-        <TabsTrigger value="overview">{{ t('reports.tabs.overview') }}</TabsTrigger>
-        <TabsTrigger value="products">{{ t('reports.tabs.products') }}</TabsTrigger>
-        <TabsTrigger value="staff">{{ t('reports.tabs.staff') }}</TabsTrigger>
-        <TabsTrigger v-if="shopScope === allShopsScope" value="shops">{{ t('reports.tabs.shops') }}</TabsTrigger>
-        <TabsTrigger value="stock">{{ t('reports.tabs.stock') }}</TabsTrigger>
-        <TabsTrigger v-if="showBooks" value="books">{{ t('reports.tabs.books') }}</TabsTrigger>
-      </TabsList>
-
-      <TabsContent v-if="showBooks" value="books" class="mt-4">
-        <BooksPanel :from="fromDate" :to="toDate" :shop="statementShop" :range-label="rangeLabel" :scope-label="statementScopeLabel" />
-      </TabsContent>
-
-      <TabsContent value="overview" class="mt-4 flex flex-col gap-4">
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <StatCard
-            :title="t('reports.stats.takings')"
-            :value="summary ? formatMoney(summary.total) : null"
-            :hint="summary ? `${t('reports.counts.sales', { count: summary.sale_count })} · ${t('reports.counts.items', { count: summary.units_sold })}` : ''"
-            :icon="Wallet"
-          />
-          <StatCard
-            :title="t('reports.stats.grossProfit')"
-            :value="summary ? formatMoney(summary.gross_profit) : null"
-            :hint="summary ? t('reports.stats.marginOfNetSales', { margin: marginText(summary.margin_basis_points) }) : ''"
-            :icon="PiggyBank"
-          />
-          <StatCard
-            :title="t('reports.stats.netSales')"
-            :value="summary ? formatMoney(summary.net_sales) : null"
-            :hint="summary ? t('reports.stats.afterTax', { amount: formatMoney(summary.tax_total) }) : ''"
-            :icon="Receipt"
-          />
-          <StatCard
-            :title="t('reports.stats.discountsGiven')"
-            :value="summary ? formatMoney(summary.discount_total) : null"
-            :hint="summary ? t('reports.stats.averageSale', { amount: formatMoney(summary.average_sale) }) : ''"
-            :icon="BadgePercent"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Card class="lg:col-span-2">
-            <CardHeader>
-              <CardTitle class="text-base">{{ t('reports.dayByDay.title') }}</CardTitle>
-              <CardDescription>{{ t('reports.dayByDay.description') }}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Skeleton v-if="loading && !days.length" class="h-64 w-full" />
-              <TrendChart v-else :days="days" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-base">{{ t('reports.payments.title') }}</CardTitle>
-              <CardDescription>{{ t('reports.payments.description') }}</CardDescription>
-            </CardHeader>
-            <CardContent class="flex flex-col gap-4">
-              <Skeleton v-if="!summary" class="h-32 w-full" />
-              <div v-for="paymentRow in paymentRows" :key="paymentRow.label" class="flex flex-col gap-1.5">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="flex items-center gap-2">
-                    <component :is="paymentRow.icon" class="size-4 text-muted-foreground" />
-                    {{ paymentRow.label }}
-                  </span>
-                  <span class="font-semibold tabular-nums">{{ formatMoney(paymentRow.amount) }}</span>
-                </div>
-                <div class="h-2 overflow-hidden rounded-full bg-muted">
-                  <div class="h-full rounded-full bg-primary" :style="{ width: `${paymentRow.share}%` }" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="products" class="mt-4 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center justify-between gap-2 print:hidden">
-          <p class="min-w-0 text-sm text-muted-foreground">{{ t('reports.products.topInPeriod') }}</p>
-          <div class="flex rounded-lg bg-muted p-1 text-sm" role="group" :aria-label="t('reports.products.rankBy')">
-            <button
-              v-for="sortChoice in productSorts"
-              :key="sortChoice"
-              type="button"
-              class="rounded-md px-3 py-1 font-medium transition-colors"
-              :class="productSort === sortChoice ? 'bg-background shadow-sm' : 'text-muted-foreground'"
-              :aria-pressed="productSort === sortChoice"
-              @click="productSort = sortChoice"
+    <div class="overflow-hidden rounded-xl border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="pl-4 sm:pl-5">{{ t('reports.books.report') }}</TableHead>
+            <TableHead class="hidden md:table-cell">{{ t('reports.books.period') }}</TableHead>
+            <TableHead class="pr-4 text-right sm:pr-5"><span class="sr-only">{{ t('reports.books.actions') }}</span></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <template v-for="reportGroup in reportGroups" :key="reportGroup.group">
+            <TableRow class="bg-muted/50 hover:bg-muted/50">
+              <TableCell colspan="3" class="py-2 pl-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:pl-5">
+                {{ t(`reports.groups.${reportGroup.group}`) }}
+              </TableCell>
+            </TableRow>
+            <TableRow
+              v-for="row in reportGroup.rows"
+              :key="row.id"
+              :class="rowBlocked(row) ? 'opacity-60' : 'cursor-pointer'"
+              @click="openPreview(row)"
             >
-              {{ t(`reports.sorts.${sortChoice}`) }}
-            </button>
-          </div>
-        </div>
-        <div class="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{{ t('reports.columns.product') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.sold') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.takings') }}</TableHead>
-                <TableHead class="hidden text-right md:table-cell">{{ t('reports.columns.cost') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.profit') }}</TableHead>
-                <TableHead class="hidden text-right sm:table-cell">{{ t('reports.columns.margin') }}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="product in products" :key="product.product_id">
-                <TableCell>
-                  <p class="font-medium">{{ product.name }}<span v-if="product.variant_label" class="text-muted-foreground"> · {{ product.variant_label }}</span></p>
-                  <p class="font-mono text-xs text-muted-foreground">{{ product.sku }}</p>
-                </TableCell>
-                <TableCell class="text-right tabular-nums">{{ product.quantity }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ formatMoney(product.revenue) }}</TableCell>
-                <TableCell class="hidden text-right tabular-nums md:table-cell">{{ formatMoney(product.cost_total) }}</TableCell>
-                <TableCell class="text-right font-medium tabular-nums" :class="product.gross_profit < 0 ? 'text-destructive' : ''">{{ formatMoney(product.gross_profit) }}</TableCell>
-                <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ marginOf(product.gross_profit, product.net_revenue) }}</TableCell>
-              </TableRow>
-              <TableRow v-if="!products.length">
-                <TableCell colspan="6" class="h-24 text-center text-muted-foreground">{{ t('reports.products.empty') }}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-        <p class="text-xs text-muted-foreground">{{ t('reports.products.profitNote') }}</p>
-      </TabsContent>
+              <TableCell class="py-3 pl-4 align-top sm:pl-5">
+                <div class="flex items-start gap-3">
+                  <span class="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <component :is="row.icon" class="size-4" />
+                  </span>
+                  <span class="min-w-0">
+                    <span class="block font-medium">{{ t(`${row.labelKey}.title`) }}</span>
+                    <span class="block text-sm text-muted-foreground">{{ t(`${row.labelKey}.description`) }}</span>
+                    <span class="mt-0.5 block text-xs text-muted-foreground md:hidden">{{ coversLabel(row) }} · {{ scopeLabelFor(row) }}</span>
+                    <span v-if="row.picker === 'account'" class="mt-2 block max-w-64" @click.stop>
+                      <Select v-model="chosenAccount">
+                        <SelectTrigger class="h-8 w-full" :aria-label="t('reports.books.account')">
+                          <SelectValue :placeholder="t('reports.books.account')" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem v-for="account in statementAccounts" :key="account.id" :value="account.system_key ?? account.id">
+                            {{ account.code }} · {{ accountName(account) }}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </span>
+                    <span v-if="row.picker === 'productSort'" class="mt-2 block max-w-64" @click.stop>
+                      <Select v-model="productSort">
+                        <SelectTrigger class="h-8 w-full" :aria-label="t('reports.list.rankBy')">
+                          <span class="flex min-w-0 items-center gap-1.5">
+                            <span class="text-muted-foreground">{{ t('reports.list.rankBy') }}:</span>
+                            <SelectValue />
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem v-for="sortChoice in productSorts" :key="sortChoice" :value="sortChoice">{{ t(`reports.sorts.${sortChoice}`) }}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </span>
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell class="hidden whitespace-nowrap align-top text-sm text-muted-foreground md:table-cell">
+                <span class="block">{{ coversLabel(row) }}</span>
+                <span class="block">{{ scopeLabelFor(row) }}</span>
+              </TableCell>
+              <TableCell class="pr-4 text-right align-top sm:pr-5" @click.stop>
+                <div class="flex items-center justify-end gap-1">
+                  <Button size="sm" :disabled="rowBlocked(row)" @click="openPreview(row)">
+                    <Eye />
+                    {{ t('reports.books.preview') }}
+                  </Button>
+                  <Button variant="ghost" size="sm" class="hidden sm:inline-flex" :disabled="saving !== null || rowBlocked(row)" @click="saveDocument(row.source(), 'xlsx')">
+                    <FileSpreadsheet />
+                    {{ t('reports.excel') }}
+                  </Button>
+                  <Button variant="ghost" size="sm" class="hidden sm:inline-flex" :disabled="saving !== null || rowBlocked(row)" @click="saveDocument(row.source(), 'pdf')">
+                    <FileText />
+                    {{ t('reports.pdf') }}
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          </template>
+        </TableBody>
+      </Table>
+    </div>
 
-      <TabsContent value="staff" class="mt-4">
-        <div class="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{{ t('reports.columns.staff') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.sales') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.takings') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.averageSale') }}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="cashier in cashiers" :key="cashier.user_id">
-                <TableCell class="font-medium">{{ cashier.name }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ cashier.sale_count }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ formatMoney(cashier.total) }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ formatMoney(cashier.average_sale) }}</TableCell>
-              </TableRow>
-              <TableRow v-if="!cashiers.length">
-                <TableCell colspan="4" class="h-24 text-center text-muted-foreground">{{ t('reports.noSales') }}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="shops" class="mt-4">
-        <div class="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{{ t('reports.columns.shop') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.sales') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.takings') }}</TableHead>
-                <TableHead class="hidden text-right sm:table-cell">{{ t('reports.columns.tax') }}</TableHead>
-                <TableHead class="text-right">{{ t('reports.columns.profit') }}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="shopRow in shops" :key="shopRow.shop_id">
-                <TableCell class="font-medium">{{ shopRow.name }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ shopRow.sale_count }}</TableCell>
-                <TableCell class="text-right tabular-nums">{{ formatMoney(shopRow.total) }}</TableCell>
-                <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ formatMoney(shopRow.tax_total) }}</TableCell>
-                <TableCell class="text-right font-medium tabular-nums">{{ formatMoney(shopRow.gross_profit) }}</TableCell>
-              </TableRow>
-              <TableRow v-if="!shops.length">
-                <TableCell colspan="5" class="h-24 text-center text-muted-foreground">{{ t('reports.noSales') }}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="stock" class="mt-4 flex flex-col gap-4">
-        <p class="text-sm text-muted-foreground">{{ t('reports.stock.note') }}</p>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <StatCard :title="t('reports.stock.valueAtCost')" :value="inventory ? formatMoney(inventory.stock.value_at_cost) : null" :hint="inventory ? t('reports.stock.itemsOnHand', { count: inventory.stock.units }) : ''" />
-          <StatCard :title="t('reports.stock.valueAtPrice')" :value="inventory ? formatMoney(inventory.stock.value_at_price) : null" :hint="inventory ? t('reports.counts.products', { count: inventory.stock.product_count }) : ''" />
-          <StatCard :title="t('reports.stock.runningLow')" :value="inventory ? String(inventory.stock.low_count) : null" :hint="t('reports.stock.runningLowHint')" />
-          <StatCard :title="t('reports.stock.outOfStock')" :value="inventory ? String(inventory.stock.out_count) : null" :hint="t('reports.stock.outOfStockHint')" />
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle class="text-base">{{ t('reports.deadStock.title') }}</CardTitle>
-            <CardDescription>{{ t('reports.deadStock.description', { days: inventory?.dead_stock_days ?? '…' }) }}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="overflow-x-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{{ t('reports.columns.product') }}</TableHead>
-                    <TableHead class="text-right">{{ t('reports.columns.onHand') }}</TableHead>
-                    <TableHead class="text-right">{{ t('reports.columns.valueAtCost') }}</TableHead>
-                    <TableHead class="hidden text-right sm:table-cell">{{ t('reports.columns.lastSold') }}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow v-for="deadItem in inventory?.dead_stock ?? []" :key="deadItem.product_id">
-                    <TableCell>
-                      <p class="font-medium">{{ deadItem.name }}<span v-if="deadItem.variant_label" class="text-muted-foreground"> · {{ deadItem.variant_label }}</span></p>
-                      <p class="font-mono text-xs text-muted-foreground">{{ deadItem.sku }}</p>
-                    </TableCell>
-                    <TableCell class="text-right tabular-nums">{{ deadItem.quantity }}</TableCell>
-                    <TableCell class="text-right tabular-nums">{{ formatMoney(deadItem.value_at_cost) }}</TableCell>
-                    <TableCell class="hidden text-right sm:table-cell">
-                      <Badge :variant="deadItem.last_sold_at ? 'outline' : 'secondary'" class="font-normal">{{ lastSoldText(deadItem.last_sold_at) }}</Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow v-if="inventory && !inventory.dead_stock.length">
-                    <TableCell colspan="4" class="h-24 text-center text-muted-foreground">{{ t('reports.deadStock.empty') }}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+    <DocumentPreviewDialog
+      v-model:open="previewOpen"
+      :title="previewTitle"
+      :subtitle="previewSubtitle"
+      :load-pdf="loadPreview"
+      :saving="saving"
+      @download="(format) => previewRow && saveDocument(previewRow.source(), format)"
+    />
   </div>
 </template>

@@ -1,12 +1,11 @@
 {
   "title": "Reports",
+  "subtitle": "Preview any report as a finished document, print it, or save it as Excel or PDF.",
   "excel": "Excel",
   "excelFileType": "Excel workbook",
   "pdf": "PDF",
   "pdfFileType": "PDF document",
-  "printOrPdf": "Print or PDF",
   "print": "Print",
-  "downloadHint": "Overview saves the full report; other tabs save just that tab",
   "presets": {
     "today": "Today",
     "yesterday": "Yesterday",
@@ -23,14 +22,6 @@
     "allShops": "All shops",
     "shop": "Shop"
   },
-  "tabs": {
-    "overview": "Overview",
-    "products": "Products",
-    "staff": "Staff",
-    "shops": "Shops",
-    "stock": "Stock",
-    "books": "Books"
-  },
   "counts": {
     "sales": {
       "one": "{count} sale",
@@ -45,109 +36,20 @@
       "other": "{count} products"
     }
   },
-  "stats": {
-    "takings": "Takings",
-    "grossProfit": "Gross profit",
-    "marginOfNetSales": "{margin} of net sales",
-    "netSales": "Net sales",
-    "afterTax": "After {amount} tax",
-    "discountsGiven": "Discounts given",
-    "averageSale": "Average sale {amount}"
-  },
   "chart": {
     "sales": "Sales",
     "grossProfit": "Gross profit"
-  },
-  "dayByDay": {
-    "title": "Day by day",
-    "description": "Takings and gross profit, in company time"
-  },
-  "payments": {
-    "title": "How customers paid",
-    "description": "Cash is after change given"
-  },
-  "products": {
-    "topInPeriod": "Top 100 products in this period",
-    "rankBy": "Rank products by",
-    "empty": "No products sold in this period.",
-    "profitNote": "Profit per product removes tax line by line, so it can differ from the overview by a few units of currency."
   },
   "sorts": {
     "revenue": "Sales",
     "quantity": "Quantity",
     "profit": "Profit"
   },
-  "noSales": "No sales in this period.",
-  "stock": {
-    "note": "Stock as it is now, whatever the dates above.",
-    "valueAtCost": "Stock value at cost",
-    "itemsOnHand": {
-      "one": "{count} item on hand",
-      "other": "{count} items on hand"
-    },
-    "valueAtPrice": "Stock value at price",
-    "runningLow": "Running low",
-    "runningLowHint": "At or below their warning level",
-    "outOfStock": "Out of stock",
-    "outOfStockHint": "Nothing left"
-  },
-  "deadStock": {
-    "title": "Not selling",
-    "description": "In stock but unsold for {days} days, most money tied up first",
-    "neverSold": "Never sold",
-    "empty": "Everything in stock has sold recently."
-  },
-  "columns": {
-    "item": "Item",
-    "value": "Value",
-    "period": "Period",
-    "shops": "Shops",
-    "shop": "Shop",
-    "date": "Date",
-    "product": "Product",
-    "sku": "SKU",
-    "staff": "Staff",
-    "sales": "Sales",
-    "sold": "Sold",
-    "quantity": "Quantity",
-    "itemsSold": "Items sold",
-    "takings": "Takings",
-    "takingsInclTax": "Takings (incl. tax)",
-    "tax": "Tax",
-    "netSales": "Net sales",
-    "cost": "Cost",
-    "costOfGoods": "Cost of goods",
-    "profit": "Profit",
-    "grossProfit": "Gross profit",
-    "margin": "Margin",
-    "marginPercent": "Margin %",
-    "discountsGiven": "Discounts given",
-    "averageSale": "Average sale",
-    "cash": "Cash",
-    "card": "Card",
-    "mobileMoney": "Mobile money",
-    "onHand": "On hand",
-    "valueAtCost": "Value at cost",
-    "lastSold": "Last sold"
-  },
-  "sheets": {
-    "summary": "Summary",
-    "days": "Days",
-    "products": "Products",
-    "staff": "Staff",
-    "shops": "Shops"
-  },
   "toasts": {
-    "loadFailed": "Could not load the reports",
-    "productsFailed": "Could not load the products",
-    "stockFailed": "Could not load the stock report",
-    "dateOrder": "The start date is after the end date",
     "saved": "Report saved",
     "saveFailed": "The report could not be saved"
   },
   "books": {
-    "title": "Financial statements",
-    "description": "Formal statements from your books, ready to print, sign or send to your accountant or bank.",
     "report": "Report",
     "period": "Period",
     "actions": "Actions",
@@ -189,5 +91,53 @@
     "loading": "Preparing the document…",
     "failed": "The document could not be made. Try again.",
     "printFailed": "The document could not be printed."
+  },
+  "groups": {
+    "sales": "Sales",
+    "stock": "Stock",
+    "people": "Customers and suppliers",
+    "books": "Financial statements"
+  },
+  "list": {
+    "periodLabel": "Period",
+    "dateOrder": "The start date is after the end date.",
+    "rightNow": "As it is now",
+    "rankBy": "Rank by",
+    "summary": {
+      "title": "Sales report",
+      "description": "Takings, VAT, cost and gross profit, and how customers paid, compared with the previous period."
+    },
+    "daily": {
+      "title": "Sales per day",
+      "description": "Every day in the period with its sales, takings, cost and profit."
+    },
+    "products": {
+      "title": "Products sold",
+      "description": "Each product's quantity, takings, cost and profit, ranked your way."
+    },
+    "staff": {
+      "title": "Sales per staff member",
+      "description": "How many sales each person made and how much they took."
+    },
+    "shops": {
+      "title": "Sales per shop",
+      "description": "Each shop side by side: sales, takings, VAT and profit."
+    },
+    "stockOnHand": {
+      "title": "Stock on hand",
+      "description": "Every product's quantity and value at cost and at selling price, with what is running low."
+    },
+    "notSelling": {
+      "title": "Stock not selling",
+      "description": "Products in stock that have not sold recently, most money tied up first."
+    },
+    "customersWhoOwe": {
+      "title": "Customers who owe",
+      "description": "Who owes you, how much, and for how long."
+    },
+    "suppliersWeOwe": {
+      "title": "What we owe suppliers",
+      "description": "What each supplier is owed, and how late it is."
+    }
   }
 }
