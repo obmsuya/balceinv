@@ -63,7 +63,7 @@ export const useLicense = () => {
   const packagesLoading = useState<boolean>('license:packages-loading', () => false)
   const paymentDialogOpen = useState<boolean>('license:payment-dialog-open', () => false)
   const hardwareId = useState<string | null>('license:hardware-id', () => null)
-  const checkedServerDuringTrial = useState<boolean>('license:checked-server-during-trial', () => false)
+  const checkedServerThisVisit = useState<boolean>('license:checked-server-this-visit', () => false)
   const loading = ref(false)
 
   const fetchLicenseStatus = async (): Promise<void> => {
@@ -74,10 +74,11 @@ export const useLicense = () => {
       })
       licenseStatus.value = response.data ?? null
       const latestStatus = licenseStatus.value
-      const isFirstTrialCheck = latestStatus?.is_trial === true && !checkedServerDuringTrial.value
-      const shouldAskServer = latestStatus !== null && latestStatus.lock_reason !== 'clock' && (!latestStatus.licensed || isFirstTrialCheck)
+      const mayHaveBeenRenewed = latestStatus?.is_trial === true || latestStatus?.is_grace_period === true || (latestStatus?.days_remaining ?? Number.POSITIVE_INFINITY) <= expiringSoonDays
+      const isFirstRenewalCheck = mayHaveBeenRenewed && !checkedServerThisVisit.value
+      const shouldAskServer = latestStatus !== null && latestStatus.lock_reason !== 'clock' && (!latestStatus.licensed || isFirstRenewalCheck)
       if (shouldAskServer) {
-        checkedServerDuringTrial.value = true
+        checkedServerThisVisit.value = true
         await refreshLicense().catch(() => null)
       }
     } catch {
