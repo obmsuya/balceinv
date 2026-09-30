@@ -1,18 +1,10 @@
 {
   "page": {
     "title": "Fedha",
-    "subtitle": "Pesa yako ilikotoka na ilikokwenda",
-    "fullSubtitle": "Vitabu vya hesabu, ripoti na kufunga mwezi",
+    "subtitle": "Rekodi pesa inayoingia na kutoka. Kila rekodi ya kipindi imeorodheshwa hapa chini.",
+    "fullSubtitle": "Rekodi pesa, weka maingizo ya mkono na funga miezi. Kila ingizo la kipindi limeorodheshwa hapa chini.",
     "notStartedNoEdit": "Vitabu vya hesabu bado havijaanzishwa. Mwombe mmiliki avianzishe.",
     "closedUntil": "Imefungwa hadi {date}"
-  },
-  "tabs": {
-    "home": "Muhtasari",
-    "profit": "Faida",
-    "ownOwe": "Mali na madeni",
-    "entries": "Rekodi",
-    "accounts": "Akaunti",
-    "reports": "Ripoti"
   },
   "start": {
     "title": "Anzisha vitabu vya hesabu",
@@ -43,24 +35,8 @@
     "help": "Mauzo au mabadiliko ya stoku {count} yalitokea uhasibu ukiwa umezimwa.",
     "button": "Viongeze kwenye vitabu"
   },
-  "period": {
-    "label": "Kipindi",
-    "asOf": "Kufikia"
-  },
-  "cards": {
-    "moneyIn": "Pesa iliyoingia",
-    "moneyInHint": "Mauzo na pesa nyingine iliyoingia",
-    "moneyOut": "Pesa iliyotoka",
-    "moneyOutHint": "Matumizi na pesa aliyochukua mmiliki",
-    "profit": "Faida",
-    "profitHint": "Mauzo ukitoa gharama ya bidhaa na matumizi yako",
-    "loss": "Hasara"
-  },
   "balances": {
-    "title": "Pesa iko wapi sasa",
-    "cardWaiting": "Malipo ya kadi ambayo bado hayajafika benki",
-    "customersOwe": "Wateja wanakudai",
-    "owedToSuppliers": "Unadaiwa na wasambazaji"
+    "on": "Salio tarehe {date}:"
   },
   "actions": {
     "moneyOut": "Pesa iliyotoka",
@@ -76,13 +52,10 @@
     "closeMonth": "Funga mwezi",
     "manualEntry": "Ingizo la mkono",
     "reverse": "Batilisha",
-    "viewPhoto": "Ona picha ya risiti"
-  },
-  "vat": {
-    "cardTitle": "VAT ya kulipa kabla ya {date}",
-    "owedBack": "TRA itakurudishia {amount} kwa kipindi hiki",
-    "charged": "VAT ya mauzo: {amount}",
-    "reclaimable": "VAT ya matumizi: {amount}"
+    "viewPhoto": "Ona picha ya risiti",
+    "recordOther": "Rekodi nyingine",
+    "more": "Zaidi",
+    "openReports": "Ripoti"
   },
   "form": {
     "titles": {
@@ -134,8 +107,6 @@
     }
   },
   "entries": {
-    "recentTitle": "Rekodi za fedha za karibuni",
-    "allTitle": "Rekodi zote",
     "empty": "Bado hakuna kilichorekodiwa kipindi hiki",
     "from": "kutoka {place}",
     "to": "kwenda {place}",
@@ -161,7 +132,37 @@
       "allAccounts": "Akaunti zote",
       "allShops": "Maduka yote"
     },
-    "place": "Pesa"
+    "place": "Pesa",
+    "columns": {
+      "date": "Tarehe",
+      "number": "Na.",
+      "details": "Maelezo",
+      "moneyIn": "Pesa iliyoingia",
+      "moneyOut": "Pesa iliyotoka"
+    },
+    "noMoneyMoved": "Hakuna pesa iliyoingia wala kutoka",
+    "showing": "{shown} kati ya {total}",
+    "totals": "Jumla",
+    "show": {
+      "label": "Onyesha",
+      "money": "Rekodi za pesa",
+      "all": "Maingizo yote"
+    }
+  },
+  "check": {
+    "title": "Ukaguzi wa hesabu",
+    "trial": "Debiti ni sawa na krediti",
+    "trialBad": "Debiti na krediti hazilingani",
+    "sales": "Mauzo kwenye vitabu yanalingana na ripoti ya mauzo",
+    "salesBad": "Mauzo kwenye vitabu yanatofautiana na ripoti ya mauzo kwa {amount}",
+    "salesHelp": "Vitabu {ledger} · ripoti ya mauzo {report}",
+    "stock": "Stoku kwenye vitabu inalingana na thamani ya stoku",
+    "stockBad": "Stoku kwenye vitabu inatofautiana na thamani ya stoku ya leo kwa {amount}",
+    "stockHelp": "Vitabu {ledger} · stoku kwa bei ya kununua ya leo {live}. Tofauti ni ya kawaida bei ya kununua ikibadilika baada ya stoku kurekodiwa, au stoku ikibadilika uhasibu ukiwa umezimwa.",
+    "missing": "Rekodi {count} bado hazijaingia kwenye vitabu",
+    "problem": "Hesabu zinahitaji kuangaliwa",
+    "problemHelp": "Kuna kitu kwenye hesabu hakilingani katika kipindi hiki.",
+    "open": "Tazama ukaguzi"
   },
   "reverse": {
     "title": "Batilisha rekodi hii?",
@@ -170,36 +171,6 @@
     "reasonPlaceholder": "mf. Niliandika kiasi kisicho sahihi",
     "reasonRequired": "Andika sababu ya kubatilisha",
     "confirm": "Batilisha"
-  },
-  "profit": {
-    "title": "Faida",
-    "sales": "Pesa ya mauzo",
-    "otherIncome": "Pesa nyingine iliyoingia",
-    "goodsCost": "Gharama ya bidhaa ulizouza",
-    "grossProfit": "Faida ya kuuza",
-    "expenses": "Matumizi",
-    "netProfit": "Faida",
-    "netLoss": "Hasara",
-    "income": "Mapato",
-    "costOfGoods": "Gharama ya bidhaa zilizouzwa",
-    "totalExpenses": "Jumla ya matumizi",
-    "noExpenses": "Hakuna matumizi kipindi hiki"
-  },
-  "ownOwe": {
-    "ownTitle": "Mali yangu",
-    "oweTitle": "Madeni yangu",
-    "ownerTitle": "Sehemu ya mmiliki",
-    "ownerHelp": "Kinachobaki kwa mmiliki baada ya kulipa madeni yote",
-    "nothingOwed": "Huna deni lolote",
-    "profitSoFar": "Faida hadi sasa",
-    "assets": "Mali",
-    "liabilities": "Madeni",
-    "equity": "Mtaji",
-    "totalAssets": "Jumla ya mali",
-    "totalLiabilities": "Jumla ya madeni",
-    "totalEquity": "Jumla ya mtaji",
-    "balanced": "Imelingana",
-    "notBalanced": "Haijalingana"
   },
   "accountTypes": {
     "asset": "Mali",
@@ -224,41 +195,8 @@
     "errors": {
       "code": "Weka namba ya akaunti",
       "name": "Weka jina"
-    }
-  },
-  "reports": {
-    "choose": "Ripoti",
-    "profitAndLoss": "Faida na hasara",
-    "balanceSheet": "Mizania",
-    "trialBalance": "Mizania ya majaribio",
-    "statement": "Mwenendo wa akaunti",
-    "cashBook": "Daftari la fedha",
-    "vat": "Ripoti ya VAT",
-    "check": "Ukaguzi wa hesabu",
-    "account": "Akaunti",
-    "openingBalance": "Salio la kuanzia",
-    "closingBalance": "Salio la mwisho",
-    "balance": "Salio",
-    "entry": "Rekodi",
-    "description": "Maelezo",
-    "totals": "Jumla",
-    "month": "Mwezi",
-    "vatCharged": "VAT iliyotozwa",
-    "vatReclaimable": "VAT ya kurudishiwa",
-    "vatToPay": "VAT ya kulipa",
-    "dueDate": "Lipa kabla ya",
-    "noLines": "Hakuna rekodi kipindi hiki",
-    "excel": "Excel",
-    "pdf": "PDF",
-    "checkTrial": "Debiti ni sawa na krediti",
-    "checkTrialBad": "Debiti na krediti hazilingani",
-    "checkSales": "Mauzo kwenye vitabu yanalingana na ripoti ya mauzo",
-    "checkSalesBad": "Mauzo kwenye vitabu yanatofautiana na ripoti ya mauzo kwa {amount}",
-    "checkSalesHelp": "Vitabu {ledger} · ripoti ya mauzo {report}",
-    "checkStock": "Stoku kwenye vitabu inalingana na thamani ya stoku",
-    "checkStockBad": "Stoku kwenye vitabu inatofautiana na thamani ya stoku ya leo kwa {amount}",
-    "checkStockHelp": "Vitabu {ledger} · stoku kwa bei ya kununua ya leo {live}. Tofauti ni ya kawaida bei ya kununua ikibadilika baada ya stoku kurekodiwa, au stoku ikibadilika uhasibu ukiwa umezimwa.",
-    "checkMissing": "Rekodi {count} bado hazijaingia kwenye vitabu"
+    },
+    "description": "Akaunti ambazo rekodi zako hupangwa ndani yake. Akaunti za mfumo haziwezi kuzimwa."
   },
   "manual": {
     "title": "Ingizo la mkono",

@@ -1,12 +1,9 @@
 import { toast } from 'vue-sonner'
-import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
-import { saveFile } from '~/utils/download'
+import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type AccountType = 'asset' | 'liability' | 'equity' | 'income' | 'expense'
 export type MoneyKind = 'expense' | 'owner_in' | 'owner_out' | 'money_move' | 'other_income'
 export type MoneyPlace = 'cash' | 'mobile_money' | 'bank' | 'card_clearing'
-export type MoneyReport = 'profit-and-loss' | 'balance-sheet' | 'trial-balance' | 'statement' | 'vat'
-export type MoneyExportFormat = 'xlsx' | 'pdf'
 
 export const moneyPlaces: MoneyPlace[] = ['cash', 'mobile_money', 'bank']
 export const moneyPageSources = ['expense', 'owner_in', 'owner_out', 'money_move', 'other_income', 'reversal', 'opening', 'manual']
@@ -72,15 +69,6 @@ export interface BooksEntry {
   lines: EntryLine[]
 }
 
-export interface AccountAmount {
-  account_id: string
-  code: string
-  system_key: string | null
-  name: string | null
-  type: AccountType
-  amount: number
-}
-
 export interface BooksOverview {
   from: string
   to: string
@@ -95,77 +83,6 @@ export interface BooksOverview {
   customers_owe: number
   owed_to_suppliers: number
   vat: { charged: number; reclaimable: number; to_pay: number; due_date: string } | null
-}
-
-export interface ProfitAndLoss {
-  from: string
-  to: string
-  income: AccountAmount[]
-  total_income: number
-  cost_of_goods: number
-  gross_profit: number
-  expenses: AccountAmount[]
-  total_expenses: number
-  net_profit: number
-}
-
-export interface BalanceSheet {
-  as_of: string
-  assets: AccountAmount[]
-  total_assets: number
-  liabilities: AccountAmount[]
-  total_liabilities: number
-  equity: AccountAmount[]
-  profit_to_date: number
-  total_equity: number
-  is_balanced: boolean
-}
-
-export interface TrialBalanceRow extends AccountAmount {
-  total_debit: number
-  total_credit: number
-  debit_balance: number
-  credit_balance: number
-}
-
-export interface TrialBalance {
-  as_of: string
-  rows: TrialBalanceRow[]
-  total_debit_balance: number
-  total_credit_balance: number
-  is_balanced: boolean
-}
-
-export interface BooksStatementLine {
-  entry_id: string
-  number: string
-  entry_date: string
-  source_type: string
-  memo: string | null
-  debit: number
-  credit: number
-  balance: number
-  shop_name: string | null
-}
-
-export interface AccountStatement {
-  account: BooksAccount
-  from: string
-  to: string
-  opening_balance: number
-  total_debit: number
-  total_credit: number
-  closing_balance: number
-  lines: BooksStatementLine[]
-}
-
-export interface VatReport {
-  from: string
-  to: string
-  months: Array<{ month: string; charged: number; reclaimable: number; to_pay: number; due_date: string }>
-  total_charged: number
-  total_reclaimable: number
-  total_to_pay: number
 }
 
 export interface BooksCheck {
@@ -258,7 +175,6 @@ export const useMoney = () => {
   const status = useState<BooksStatus | null>('money:status', () => null)
   const accounts = useState<BooksAccount[]>('money:accounts', () => [])
   const saving = ref(false)
-  const exporting = ref<MoneyExportFormat | null>(null)
 
   const fetchStatus = async (): Promise<BooksStatus | null> => {
     try {
@@ -290,11 +206,6 @@ export const useMoney = () => {
   }
 
   const fetchOverview = (period: ReportPeriod) => fetchReport<BooksOverview>('/api/accounting/overview', { ...period })
-  const fetchProfitAndLoss = (period: ReportPeriod) => fetchReport<ProfitAndLoss>('/api/accounting/profit-and-loss', { ...period })
-  const fetchBalanceSheet = (asOf: string) => fetchReport<BalanceSheet>('/api/accounting/balance-sheet', { as_of: asOf })
-  const fetchTrialBalance = (asOf: string) => fetchReport<TrialBalance>('/api/accounting/trial-balance', { as_of: asOf })
-  const fetchStatement = (account: string, period: ReportPeriod) => fetchReport<AccountStatement>('/api/accounting/statement', { ...period, account })
-  const fetchVatReport = (period: ReportPeriod) => fetchReport<VatReport>('/api/accounting/vat', { from: period.from, to: period.to })
   const fetchBooksCheck = (period: ReportPeriod) => fetchReport<BooksCheck>('/api/accounting/integrity', { from: period.from, to: period.to })
 
   const fetchEntries = async (filter: EntryFilter, offset = 0, limit = entryPageSize): Promise<Page<BooksEntry> | null> => {
@@ -444,37 +355,13 @@ export const useMoney = () => {
     }
   }
 
-  const exportReport = async (report: MoneyReport, format: MoneyExportFormat, query: Record<string, string | undefined>): Promise<void> => {
-    exporting.value = format
-    try {
-      const fileBytes = await apiFetch<ArrayBuffer>(`/api/accounting/${report}`, {
-        query: { ...cleanQuery(query), format, lang: activeLocale.value },
-        responseType: 'arrayBuffer',
-      })
-      const fileType = format === 'pdf' ? { name: t('reports.pdfFileType'), extensions: ['pdf'] } : { name: t('reports.excelFileType'), extensions: ['xlsx'] }
-      const periodPart = query.as_of ?? [query.from, query.to].filter(Boolean).join('-to-')
-      const savedName = await saveFile(new Uint8Array(fileBytes), `${report}-${periodPart || status.value?.today}.${format}`, fileType)
-      if (savedName) toast.success(t('reports.toasts.saved'), { description: savedName })
-    } catch (error: any) {
-      toast.error(apiErrorMessage(error, 'reports.toasts.saveFailed'))
-    } finally {
-      exporting.value = null
-    }
-  }
-
   return {
     status,
     accounts,
     saving,
-    exporting,
     fetchStatus,
     fetchAccounts,
     fetchOverview,
-    fetchProfitAndLoss,
-    fetchBalanceSheet,
-    fetchTrialBalance,
-    fetchStatement,
-    fetchVatReport,
     fetchBooksCheck,
     fetchEntries,
     startBooks,
@@ -487,7 +374,6 @@ export const useMoney = () => {
     createAccount,
     setAccountActive,
     receiptPhotoUrl,
-    exportReport,
   }
 }
 
@@ -501,6 +387,14 @@ export const entryTitle = (entry: BooksEntry): string => {
     if (expenseLine) return accountName(expenseLine)
   }
   return t(`money.sources.${entry.source_type}`)
+}
+
+export const entryMoneyFlow = (entry: BooksEntry): { moneyIn: number; moneyOut: number } => {
+  const moneyLines = entry.lines.filter(isMoneyLine)
+  return {
+    moneyIn: moneyLines.reduce((total, line) => total + line.debit, 0),
+    moneyOut: moneyLines.reduce((total, line) => total + line.credit, 0),
+  }
 }
 
 export const entryPlaces = (entry: BooksEntry): string => {

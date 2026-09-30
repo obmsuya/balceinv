@@ -1,18 +1,10 @@
 {
   "page": {
     "title": "Money",
-    "subtitle": "Where your money came from and where it went",
-    "fullSubtitle": "Books, reports and month-end closing",
+    "subtitle": "Record money in and out. Every record for the period is listed below.",
+    "fullSubtitle": "Record money, post manual entries and close months. Every entry for the period is listed below.",
     "notStartedNoEdit": "The books have not been started yet. Ask the owner to start them.",
     "closedUntil": "Closed up to {date}"
-  },
-  "tabs": {
-    "home": "Summary",
-    "profit": "Profit",
-    "ownOwe": "Own & owe",
-    "entries": "Entries",
-    "accounts": "Accounts",
-    "reports": "Reports"
   },
   "start": {
     "title": "Start your books",
@@ -43,24 +35,8 @@
     "help": "{count} sales or stock changes happened while accounting was off.",
     "button": "Add them to the books"
   },
-  "period": {
-    "label": "Period",
-    "asOf": "As of"
-  },
-  "cards": {
-    "moneyIn": "Money in",
-    "moneyInHint": "Sales and other money that came in",
-    "moneyOut": "Money out",
-    "moneyOutHint": "Expenses and money the owner took",
-    "profit": "Profit",
-    "profitHint": "Sales minus what the goods cost and your expenses",
-    "loss": "Loss"
-  },
   "balances": {
-    "title": "Where the money is now",
-    "cardWaiting": "Card payments not yet in the bank",
-    "customersOwe": "Customers owe you",
-    "owedToSuppliers": "You owe suppliers"
+    "on": "Balances on {date}:"
   },
   "actions": {
     "moneyOut": "Money out",
@@ -76,13 +52,10 @@
     "closeMonth": "Close month",
     "manualEntry": "Manual entry",
     "reverse": "Reverse",
-    "viewPhoto": "See receipt photo"
-  },
-  "vat": {
-    "cardTitle": "VAT to pay by {date}",
-    "owedBack": "TRA will pay you back {amount} for this period",
-    "charged": "VAT on sales: {amount}",
-    "reclaimable": "VAT on expenses: {amount}"
+    "viewPhoto": "See receipt photo",
+    "recordOther": "Record other",
+    "more": "More",
+    "openReports": "Reports"
   },
   "form": {
     "titles": {
@@ -134,8 +107,6 @@
     }
   },
   "entries": {
-    "recentTitle": "Recent money records",
-    "allTitle": "All entries",
     "empty": "Nothing recorded for this period yet",
     "from": "from {place}",
     "to": "to {place}",
@@ -161,7 +132,37 @@
       "allAccounts": "All accounts",
       "allShops": "All shops"
     },
-    "place": "Money"
+    "place": "Money",
+    "columns": {
+      "date": "Date",
+      "number": "No.",
+      "details": "Details",
+      "moneyIn": "Money in",
+      "moneyOut": "Money out"
+    },
+    "noMoneyMoved": "No money moved",
+    "showing": "{shown} of {total}",
+    "totals": "Totals",
+    "show": {
+      "label": "Show",
+      "money": "Money records",
+      "all": "Every entry"
+    }
+  },
+  "check": {
+    "title": "Books check",
+    "trial": "Debits equal credits",
+    "trialBad": "Debits and credits differ",
+    "sales": "Sales in the books match the sales report",
+    "salesBad": "Sales in the books differ from the sales report by {amount}",
+    "salesHelp": "Books {ledger} · sales report {report}",
+    "stock": "Stock in the books matches the stock value",
+    "stockBad": "Stock in the books differs from today's stock value by {amount}",
+    "stockHelp": "Books {ledger} · stock at today's cost prices {live}. A difference is normal when cost prices changed after stock was booked, or stock moved while accounting was off.",
+    "missing": "{count} records are not in the books yet",
+    "problem": "The books need a look",
+    "problemHelp": "Something in the books does not agree for this period.",
+    "open": "See books check"
   },
   "reverse": {
     "title": "Reverse this record?",
@@ -170,36 +171,6 @@
     "reasonPlaceholder": "e.g. Typed the wrong amount",
     "reasonRequired": "Write why you are reversing it",
     "confirm": "Reverse"
-  },
-  "profit": {
-    "title": "Profit",
-    "sales": "Money from sales",
-    "otherIncome": "Other money in",
-    "goodsCost": "What the goods you sold cost",
-    "grossProfit": "Profit from selling",
-    "expenses": "Expenses",
-    "netProfit": "Profit",
-    "netLoss": "Loss",
-    "income": "Income",
-    "costOfGoods": "Cost of goods sold",
-    "totalExpenses": "Total expenses",
-    "noExpenses": "No expenses in this period"
-  },
-  "ownOwe": {
-    "ownTitle": "What I own",
-    "oweTitle": "What I owe",
-    "ownerTitle": "The owner's part",
-    "ownerHelp": "What is left for the owner after paying everything owed",
-    "nothingOwed": "You owe nothing",
-    "profitSoFar": "Profit so far",
-    "assets": "Assets",
-    "liabilities": "Liabilities",
-    "equity": "Equity",
-    "totalAssets": "Total assets",
-    "totalLiabilities": "Total liabilities",
-    "totalEquity": "Total equity",
-    "balanced": "Balanced",
-    "notBalanced": "Not balanced"
   },
   "accountTypes": {
     "asset": "Asset",
@@ -224,41 +195,8 @@
     "errors": {
       "code": "Enter a number code",
       "name": "Enter a name"
-    }
-  },
-  "reports": {
-    "choose": "Report",
-    "profitAndLoss": "Profit and loss",
-    "balanceSheet": "Balance sheet",
-    "trialBalance": "Trial balance",
-    "statement": "Account statement",
-    "cashBook": "Cash book",
-    "vat": "VAT report",
-    "check": "Books check",
-    "account": "Account",
-    "openingBalance": "Opening balance",
-    "closingBalance": "Closing balance",
-    "balance": "Balance",
-    "entry": "Entry",
-    "description": "Description",
-    "totals": "Totals",
-    "month": "Month",
-    "vatCharged": "VAT charged",
-    "vatReclaimable": "VAT reclaimable",
-    "vatToPay": "VAT to pay",
-    "dueDate": "Pay by",
-    "noLines": "No entries in this period",
-    "excel": "Excel",
-    "pdf": "PDF",
-    "checkTrial": "Debits equal credits",
-    "checkTrialBad": "Debits and credits differ",
-    "checkSales": "Sales in the books match the sales report",
-    "checkSalesBad": "Sales in the books differ from the sales report by {amount}",
-    "checkSalesHelp": "Books {ledger} · sales report {report}",
-    "checkStock": "Stock in the books matches the stock value",
-    "checkStockBad": "Stock in the books differs from today's stock value by {amount}",
-    "checkStockHelp": "Books {ledger} · stock at today's cost prices {live}. A difference is normal when cost prices changed after stock was booked, or stock moved while accounting was off.",
-    "checkMissing": "{count} records are not in the books yet"
+    },
+    "description": "The accounts your records are sorted into. Built-in accounts cannot be turned off."
   },
   "manual": {
     "title": "Manual entry",

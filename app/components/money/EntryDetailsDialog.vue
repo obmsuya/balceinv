@@ -104,7 +104,7 @@ onBeforeUnmount(forgetPhoto)
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell>{{ t('money.reports.totals') }}</TableCell>
+              <TableCell>{{ t('money.entries.totals') }}</TableCell>
               <TableCell class="text-right tabular-nums">{{ formatMoney(totalDebit) }}</TableCell>
               <TableCell class="text-right tabular-nums">{{ formatMoney(totalCredit) }}</TableCell>
             </TableRow>
