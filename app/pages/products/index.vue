@@ -164,7 +164,7 @@ watch(() => route.query.view, async viewedProductId => {
         <p class="mt-1 text-muted-foreground">{{ t('products.page.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <Button v-if="canCreate('products')" variant="outline" @click="showImportDialog = true">
+        <Button v-if="canCreate('products')" variant="outline" data-tour="products-import" @click="showImportDialog = true">
           <Upload />
           {{ t('products.page.import') }}
         </Button>
@@ -172,7 +172,7 @@ watch(() => route.query.view, async viewedProductId => {
           <Download />
           {{ t('products.page.template') }}
         </Button>
-        <Button v-if="canCreate('products')" @click="openForm('create', null, null)">
+        <Button v-if="canCreate('products')" data-tour="products-add" @click="openForm('create', null, null)">
           <Plus />
           {{ t('products.page.addProduct') }}
         </Button>
@@ -204,7 +204,7 @@ watch(() => route.query.view, async viewedProductId => {
     <Card>
       <CardContent class="flex flex-col gap-4 px-3 sm:px-6">
         <div class="flex flex-col gap-3 md:flex-row md:items-center">
-          <div class="relative flex-1">
+          <div class="relative flex-1" data-tour="products-search">
             <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
             <Input v-model="searchText" :placeholder="t('products.page.searchPlaceholder')" class="pl-8" :aria-label="t('products.page.searchLabel')" />
           </div>

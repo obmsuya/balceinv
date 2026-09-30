@@ -326,20 +326,20 @@ const efdBadgeLabel = computed(() => {
     </div>
 
     <Tabs v-else v-model="activeSettingsTab">
-      <TabsList class="w-full justify-start overflow-x-auto">
+      <TabsList data-tour="settings-tabs" class="w-full justify-start overflow-x-auto">
         <TabsTrigger value="business">
           <Building2 />{{ t('settings.tabs.business') }}
         </TabsTrigger>
-        <TabsTrigger value="features">
+        <TabsTrigger value="features" data-tour="tab-features">
           <ToggleRight />{{ t('settings.tabs.features') }}
         </TabsTrigger>
-        <TabsTrigger value="branding">
+        <TabsTrigger value="branding" data-tour="tab-branding">
           <Palette />{{ t('settings.tabs.branding') }}
         </TabsTrigger>
         <TabsTrigger value="system">
           <Settings2 />{{ t('settings.tabs.system') }}
         </TabsTrigger>
-        <TabsTrigger value="hardware">
+        <TabsTrigger value="hardware" data-tour="tab-hardware">
           <Printer />{{ t('settings.tabs.hardware') }}
         </TabsTrigger>
         <TabsTrigger value="efd">
@@ -446,7 +446,7 @@ const efdBadgeLabel = computed(() => {
             </div>
 
             <div class="flex justify-end pt-1">
-              <Button :disabled="savingBusiness" @click="saveBusiness">
+              <Button data-tour="settings-save" :disabled="savingBusiness" @click="saveBusiness">
                 <Save class="size-4 mr-2" />
                 {{ savingBusiness ? t('common.actions.saving') : t('settings.business.save') }}
               </Button>

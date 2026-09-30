@@ -132,7 +132,7 @@ watch(activeSlotIndex, () => {
 <template>
   <div class="flex h-full min-h-0 flex-col bg-background">
     <div class="flex items-center gap-2 border-b px-3 py-2">
-      <div class="flex flex-1 gap-1 rounded-lg bg-muted p-1" role="tablist" :aria-label="t('pos.cart.heldCarts')">
+      <div class="flex flex-1 gap-1 rounded-lg bg-muted p-1" role="tablist" data-tour="pos-carts" :aria-label="t('pos.cart.heldCarts')">
         <button
           v-for="slotIndex in cartSlotCount"
           :key="slotIndex"
@@ -332,7 +332,7 @@ watch(activeSlotIndex, () => {
         </p>
       </template>
 
-      <Button class="h-14 justify-between px-4 text-base" :disabled="!canPay" @click="emit('pay')">
+      <Button class="h-14 justify-between px-4 text-base" data-tour="pos-pay" :disabled="!canPay" @click="emit('pay')">
         <span class="flex items-center gap-2">
           <LoaderCircle v-if="preparingPayment" class="animate-spin" />
           {{ t('pos.pay') }}
