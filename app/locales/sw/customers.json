@@ -117,7 +117,8 @@
     "closing": "Deni mwishoni",
     "nothing": "Hakuna kilichotokea katika tarehe hizi",
     "creditSale": "Lipa baadaye · risiti {receipt}",
-    "payment": "Malipo · {reference}"
+    "payment": "Malipo · {reference}",
+    "documentTitle": "Mwenendo wa deni"
   },
   "whatsapp": {
     "message": "Habari {name}, huu ni ukumbusho wa kirafiki kutoka {shop}. Deni lako kwetu ni {amount}. Tafadhali lipa utakapoweza. Asante!"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ClipboardPlus, Mail, MessageCircle, PackageMinus, PackagePlus, Pencil, Phone, Power, Wallet } from 'lucide-vue-next'
+import { ArrowLeft, ClipboardPlus, Eye, FileSpreadsheet, FileText, Mail, MessageCircle, PackageMinus, PackagePlus, Pencil, Phone, Power, Wallet } from 'lucide-vue-next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,8 @@ import PurchasesPanel from '@/components/suppliers/PurchasesPanel.vue'
 import ReturnStockDialog from '@/components/suppliers/ReturnStockDialog.vue'
 import StockArrivedDialog from '@/components/suppliers/StockArrivedDialog.vue'
 import SupplierFormDialog from '@/components/suppliers/SupplierFormDialog.vue'
+import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vue'
+import type { DocumentSource } from '@/composables/useStatements'
 import type { AgingBuckets, Statement, Supplier } from '@/composables/useSuppliers'
 import { localDateText, openExternal, phoneLinks } from '@/composables/useSuppliers'
 import { formatMoney } from '~/utils/money'
@@ -38,6 +40,8 @@ const { purchaseOrdersOn } = useFeatures()
 const { fetchSupplier, fetchStatement, saveSupplier, deactivateSupplier, saving, loading } = useSuppliers()
 
 const supplier = ref<Supplier | null>(null)
+const statementPreviewOpen = ref(false)
+const { saving: savingDocument, fetchDocument, saveDocument } = useStatements()
 const statement = ref<Statement | null>(null)
 const activeTab = ref('statement')
 const toDate = ref(localDateText())
@@ -67,6 +71,13 @@ const agingRows = computed(() => {
 const loadSupplier = async () => {
   supplier.value = await fetchSupplier(supplierId)
 }
+
+const statementDocument = computed<DocumentSource>(() => ({
+  path: `/api/suppliers/${supplierId}/statement`,
+  query: { from: fromDate.value || undefined, to: toDate.value || undefined },
+  fileName: ['supplier-statement', supplier.value?.name, fromDate.value, 'to', toDate.value].filter(Boolean).join('-').replace(/[^\w.-]+/g, '-'),
+}))
+const statementSubtitle = computed(() => [supplier.value?.name, [fromDate.value, toDate.value].filter(Boolean).map(isoDate => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })).join(' – ')].filter(Boolean).join(' · '))
 
 const loadStatement = async () => {
   statement.value = await fetchStatement(supplierId, fromDate.value, toDate.value)
@@ -209,6 +220,20 @@ onMounted(reloadAll)
                   <Input id="statement-to" v-model="toDate" type="date" class="w-40" />
                 </div>
                 <Button variant="outline" :disabled="loading" @click="loadStatement">{{ t('common.actions.apply') }}</Button>
+                <div class="flex gap-2 sm:ml-auto">
+                  <Button @click="statementPreviewOpen = true">
+                    <Eye />
+                    {{ t('reports.books.preview') }}
+                  </Button>
+                  <Button variant="outline" :disabled="savingDocument !== null" @click="saveDocument(statementDocument, 'xlsx')">
+                    <FileSpreadsheet />
+                    {{ t('reports.excel') }}
+                  </Button>
+                  <Button variant="outline" :disabled="savingDocument !== null" @click="saveDocument(statementDocument, 'pdf')">
+                    <FileText />
+                    {{ t('reports.pdf') }}
+                  </Button>
+                </div>
               </div>
 
               <Skeleton v-if="!statement" class="h-24 w-full" />
@@ -268,5 +293,13 @@ onMounted(reloadAll)
         </AlertDialogContent>
       </AlertDialog>
     </template>
+    <DocumentPreviewDialog
+      v-model:open="statementPreviewOpen"
+      :title="t('suppliers.statement.documentTitle')"
+      :subtitle="statementSubtitle"
+      :load-pdf="() => fetchDocument(statementDocument, 'pdf')"
+      :saving="savingDocument"
+      @download="(format) => saveDocument(statementDocument, format)"
+    />
   </div>
 </template>

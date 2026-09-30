@@ -117,7 +117,8 @@
     "closing": "Owed at the end",
     "nothing": "Nothing happened in these dates",
     "creditSale": "Pay later · receipt {receipt}",
-    "payment": "Payment · {reference}"
+    "payment": "Payment · {reference}",
+    "documentTitle": "Customer statement"
   },
   "whatsapp": {
     "message": "Hello {name}, this is a friendly reminder from {shop}. Your balance with us is {amount}. Please pay when you can. Thank you!"
