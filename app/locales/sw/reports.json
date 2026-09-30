@@ -155,6 +155,29 @@
     "profitAndLoss": {
       "title": "Faida na hasara",
       "description": "Mapato, gharama na kinachobaki kama faida, ikilinganishwa na kipindi kilichopita."
+    },
+    "asAt": "Kufikia {date}",
+    "account": "Akaunti",
+    "overview": {
+      "title": "Muhtasari wa fedha",
+      "description": "Pesa yako iko wapi, iliyoingia na kutoka, faida, nani anadaiwa na thamani ya biashara."
+    },
+    "balanceSheet": {
+      "title": "Mizania",
+      "description": "Biashara inachomiliki na inachodaiwa siku ya mwisho, ikilinganishwa na mwanzo wa kipindi."
+    },
+    "accountStatement": {
+      "title": "Daftari la fedha na mwenendo wa akaunti",
+      "short": "Mwenendo wa akaunti",
+      "description": "Kila rekodi kwenye akaunti moja pamoja na salio lake. Chagua akaunti hapa chini."
+    },
+    "trialBalance": {
+      "title": "Mizania ya majaribio",
+      "description": "Salio la kila akaunti siku ya mwisho, jumla ya debiti ikiwa sawa na jumla ya krediti."
+    },
+    "vat": {
+      "title": "Ritani ya VAT",
+      "description": "VAT iliyotozwa na ya kurudishiwa kila mwezi, na kiasi cha kulipa TRA kabla ya tarehe 20."
     }
   },
   "preview": {
