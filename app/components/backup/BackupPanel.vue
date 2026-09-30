@@ -4,6 +4,7 @@ import {
   CloudOff,
   DatabaseBackup,
   FolderOpen,
+  Globe,
   HardDrive,
   History,
   RefreshCw,
@@ -32,6 +33,7 @@ import type { RestoreSource } from '@/composables/useBackup'
 import { beforeRestoreBackupName, useBackup } from '@/composables/useBackup'
 
 const { user } = useAuth()
+const { savingFile, saveMovingFile } = useBusinessMove()
 const { t, formatDate, formatRelativeTime } = useI18n()
 const {
   status,
@@ -335,6 +337,30 @@ watch(isOnline, (online) => {
             </div>
           </TabsContent>
         </Tabs>
+      </CardContent>
+    </Card>
+
+    <Card v-if="userIsAdmin">
+      <CardHeader class="pb-3">
+        <CardTitle class="text-base flex items-center gap-2">
+          <Globe class="size-4" />{{ t('backup.move.title') }}
+        </CardTitle>
+        <CardDescription>{{ t('backup.move.description') }}</CardDescription>
+      </CardHeader>
+      <CardContent class="flex flex-col gap-4">
+        <ol class="flex list-decimal flex-col gap-1.5 pl-5 text-sm">
+          <li>{{ t('backup.move.stepSave') }}</li>
+          <li>{{ t('backup.move.stepOpen') }}</li>
+          <li>{{ t('backup.move.stepUpload') }}</li>
+        </ol>
+        <p class="flex gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <span>{{ t('backup.move.warning') }}</span>
+        </p>
+        <Button class="self-start" :disabled="savingFile" @click="saveMovingFile(user?.company_name ?? '')">
+          <RefreshCw v-if="savingFile" class="size-4 mr-2 animate-spin" />
+          {{ savingFile ? t('common.actions.saving') : t('backup.move.saveButton') }}
+        </Button>
       </CardContent>
     </Card>
 
