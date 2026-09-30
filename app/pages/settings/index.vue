@@ -55,6 +55,7 @@ const { t } = useI18n()
 const { canEdit } = usePermissions()
 const canEditSettings = computed(() => canEdit('settings'))
 const runningInTauri = isTauri()
+const { vatOn } = useFeatures()
 
 // ─── Business form ─────────────────────────────────────────────────────────
 // Source: settings.company.* (companies table)
@@ -498,7 +499,8 @@ const efdBadgeLabel = computed(() => {
               </div>
               <div class="flex flex-col gap-1.5">
                 <Label for="tax-rate">{{ t('settings.system.taxRate') }}</Label>
-                <Input id="tax-rate" v-model.number="systemForm.tax_rate" type="number" min="0" max="100" />
+                <Input id="tax-rate" v-model.number="systemForm.tax_rate" type="number" min="0" max="100" aria-describedby="tax-rate-help" />
+                <p id="tax-rate-help" class="text-xs text-muted-foreground">{{ vatOn ? t('settings.system.taxRateHelpRegistered') : t('settings.system.taxRateHelpNotRegistered') }}</p>
               </div>
             </div>
           </CardContent>
