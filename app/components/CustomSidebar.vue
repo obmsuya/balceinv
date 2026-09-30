@@ -104,7 +104,7 @@ const navigationItems = computed(() => {
     ]"
   >
     <div class="flex flex-col h-full p-3">
-      <div class="flex-1 space-y-4">
+      <div class="flex-1 min-h-0 space-y-4 overflow-y-auto overscroll-contain">
         <div v-if="navigationItems.operations.length > 0">
           <p v-if="!sidebarCollapsed" class="text-xs font-semibold uppercase text-muted-foreground px-3 mb-2">{{ t('nav.groups.operations') }}</p>
           <NuxtLink

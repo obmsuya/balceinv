@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isTauri } from '~/composables/usePlatform'
 import { Bell, BellOff, Fingerprint, LifeBuoy, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { assetUrl } from '~/composables/useSettings'
@@ -41,6 +42,7 @@ const { canView } = usePermissions()
 const { openSupport } = useSupport()
 const { status: updateStatus, checkForUpdate } = useUpdater()
 const { hardwareId, fetchHardwareId } = useLicense()
+const runningInTauri = isTauri()
 const {
   notifications,
   unreadCount,
@@ -259,17 +261,17 @@ onUnmounted(() => {
             </DropdownMenuRadioGroup>
             <DropdownMenuSeparator class="sm:hidden" />
             <DropdownMenuItem @click="navigateTo('/settings')">{{ t('nav.header.settings') }}</DropdownMenuItem>
-            <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
+            <DropdownMenuItem v-if="runningInTauri" :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
               {{ updateStatus === 'checking' ? t('nav.header.checkingUpdates') : t('nav.header.checkUpdates') }}
             </DropdownMenuItem>
             <DropdownMenuItem @click="openSupport"><LifeBuoy class="size-4" /> {{ t('support.menu') }}</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
+            <DropdownMenuSeparator v-if="hardwareId" />
+            <DropdownMenuItem v-if="hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">
                 <Fingerprint class="size-3" />
                 {{ t('nav.header.hardwareId') }}
               </span>
-              <span class="w-full truncate font-mono text-xs">{{ hardwareId ? `${hardwareId.slice(0, 16)}…` : t('common.states.loading') }}</span>
+              <span class="w-full truncate font-mono text-xs">{{ hardwareId.slice(0, 16) }}…</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">{{ t('nav.header.signOut') }}</DropdownMenuItem>
