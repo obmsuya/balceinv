@@ -38,12 +38,13 @@ export const resolveApiBase = (configuredApiBase: string): string => {
   return window.location.origin
 }
 
+let platformRequest: Promise<PlatformInfo | null> | null = null
+
 export const usePlatform = () => {
   const { $apiFetch } = useNuxtApp()
   const platform = useState<PlatformInfo | null>('platform:info', () => null)
 
-  const fetchPlatform = async (forceRefresh = false): Promise<PlatformInfo | null> => {
-    if (platform.value && !forceRefresh) return platform.value
+  const loadPlatform = async (): Promise<PlatformInfo | null> => {
     try {
       const platformResponse = await ($apiFetch as typeof $fetch)<ApiEnvelope<PlatformInfo>>('/api/platform')
       platform.value = platformResponse.data
@@ -51,6 +52,14 @@ export const usePlatform = () => {
       platform.value = null
     }
     return platform.value
+  }
+
+  const fetchPlatform = (forceRefresh = false): Promise<PlatformInfo | null> => {
+    if (platform.value && !forceRefresh) return Promise.resolve(platform.value)
+    if (!platformRequest || forceRefresh) {
+      platformRequest = loadPlatform().finally(() => { platformRequest = null })
+    }
+    return platformRequest
   }
 
   const isCloud = computed(() => platform.value?.mode === 'cloud')
