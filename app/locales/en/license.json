@@ -63,6 +63,7 @@
     "copyDeviceId": "Copy the device ID for support",
     "deviceIdCopied": "Device ID copied",
     "deviceShort": "Device {id}…",
+    "subscriptionShort": "Subscription ID {id}…",
     "signOut": "Sign out",
     "subscriptionActive": "Subscription active",
     "paidUntil": "Paid until {date}"

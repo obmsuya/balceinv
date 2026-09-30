@@ -56,9 +56,6 @@ export const useLicense = () => {
   const apiBaseUrl = runtimeConfig.public.apiBase
   const nuxtApp = useNuxtApp()
   const apiFetch = nuxtApp.$apiFetch as typeof $fetch
-  const { fetchPlatform } = usePlatform()
-
-  const isDesktopServer = async (): Promise<boolean> => (await fetchPlatform())?.mode === 'desktop'
 
   const licenseStatus = useState<LicenseStatus | null>('license:status', () => null)
   const licensePackages = useState<LicensePackage[]>('license:packages', () => [])
@@ -66,16 +63,23 @@ export const useLicense = () => {
   const packagesLoading = useState<boolean>('license:packages-loading', () => false)
   const paymentDialogOpen = useState<boolean>('license:payment-dialog-open', () => false)
   const hardwareId = useState<string | null>('license:hardware-id', () => null)
+  const checkedServerDuringTrial = useState<boolean>('license:checked-server-during-trial', () => false)
   const loading = ref(false)
 
   const fetchLicenseStatus = async (): Promise<void> => {
-    if (!(await isDesktopServer())) return
     loading.value = true
     try {
       const response = await apiFetch<ApiResponse<LicenseStatus>>(`${apiBaseUrl}/api/license/status`, {
         credentials: 'include'
       })
       licenseStatus.value = response.data ?? null
+      const latestStatus = licenseStatus.value
+      const isFirstTrialCheck = latestStatus?.is_trial === true && !checkedServerDuringTrial.value
+      const shouldAskServer = latestStatus !== null && latestStatus.lock_reason !== 'clock' && (!latestStatus.licensed || isFirstTrialCheck)
+      if (shouldAskServer) {
+        checkedServerDuringTrial.value = true
+        await refreshLicense().catch(() => null)
+      }
     } catch {
       return
     } finally {
@@ -93,7 +97,6 @@ export const useLicense = () => {
   }
 
   const fetchHardwareId = async (): Promise<void> => {
-    if (!(await isDesktopServer())) return
     try {
       const response = await apiFetch<{ success: boolean; hardware_id?: string }>(
         `${apiBaseUrl}/api/license/hardware-id`,

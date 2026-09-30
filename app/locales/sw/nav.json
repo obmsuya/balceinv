@@ -41,7 +41,9 @@
     "hardwareId": "Kitambulisho cha kifaa",
     "hardwareIdCopied": "Kitambulisho cha kifaa kimenakiliwa",
     "signOut": "Toka",
-    "signedOut": "Umetoka"
+    "signedOut": "Umetoka",
+    "subscriptionId": "Kitambulisho cha usajili",
+    "subscriptionIdCopied": "Kitambulisho cha usajili kimenakiliwa"
   },
   "footer": {
     "rights": "Haki zote zimehifadhiwa"

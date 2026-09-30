@@ -63,6 +63,7 @@
     "copyDeviceId": "Nakili kitambulisho cha kifaa kwa ajili ya msaada",
     "deviceIdCopied": "Kitambulisho cha kifaa kimenakiliwa",
     "deviceShort": "Kifaa {id}…",
+    "subscriptionShort": "Kitambulisho cha usajili {id}…",
     "signOut": "Toka",
     "subscriptionActive": "Usajili uko hai",
     "paidUntil": "Umelipiwa hadi {date}"

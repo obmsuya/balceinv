@@ -82,10 +82,12 @@ const handleCheckForUpdates = async () => {
 
 const reloadApp = () => window.location.reload()
 
+const isWebSubscription = computed(() => hardwareId.value?.startsWith('cloud-') === true)
+
 const copyHardwareId = async () => {
   if (!hardwareId.value) return
   await navigator.clipboard.writeText(hardwareId.value)
-  toast.success(t('nav.header.hardwareIdCopied'))
+  toast.success(isWebSubscription.value ? t('nav.header.subscriptionIdCopied') : t('nav.header.hardwareIdCopied'))
 }
 
 const openNotification = async (notification: StockNotification) => {
@@ -272,7 +274,7 @@ onUnmounted(() => {
             <DropdownMenuItem v-if="hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">
                 <Fingerprint class="size-3" />
-                {{ t('nav.header.hardwareId') }}
+                {{ isWebSubscription ? t('nav.header.subscriptionId') : t('nav.header.hardwareId') }}
               </span>
               <span class="w-full truncate font-mono text-xs">{{ hardwareId.slice(0, 16) }}…</span>
             </DropdownMenuItem>

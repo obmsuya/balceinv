@@ -166,7 +166,7 @@ const copyDeviceId = async () => {
         >
           <Check v-if="deviceIdCopied" class="size-3 text-primary" />
           <Copy v-else class="size-3" />
-          {{ deviceIdCopied ? t('license.paywall.deviceIdCopied') : t('license.paywall.deviceShort', { id: hardwareId.slice(0, 12) }) }}
+          {{ deviceIdCopied ? t('license.paywall.deviceIdCopied') : hardwareId.startsWith('cloud-') ? t('license.paywall.subscriptionShort', { id: hardwareId.slice(6, 14) }) : t('license.paywall.deviceShort', { id: hardwareId.slice(0, 12) }) }}
         </button>
         <button
           v-if="currentUserCanManageBilling || lockReason === 'clock'"
