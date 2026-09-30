@@ -24,10 +24,11 @@ import {
 import OldDataImportDialog from '@/components/setup/OldDataImportDialog.vue'
 import { businessTypes } from '~/utils/businessTypes'
 import { apiErrorMessage } from '~/utils/i18n'
+import { homePathFor } from '~/utils/homePath'
 
 definePageMeta({ layout: false })
 
-const { setup, fetchSetupStatus, isLoading } = useAuth()
+const { setup, login, fetchSetupStatus, isLoading } = useAuth()
 const { t } = useI18n()
 
 const mounted = ref(false)
@@ -53,7 +54,7 @@ onMounted(async () => {
   const comingFromLogin = route.query.from === 'login'
 
   const setupStatus = await fetchSetupStatus()
-  if (setupStatus.configured && !comingFromLogin) {
+  if (setupStatus.configured && !setupStatus.signup_open && !comingFromLogin) {
     await navigateTo('/login')
     return
   }
@@ -73,12 +74,18 @@ const nextStep = async () => {
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await setup(values)
-    toast.success(t('setup.toasts.created'), {
-      description: t('setup.toasts.createdHint')
-    })
-    await navigateTo('/login')
+    toast.success(t('setup.toasts.created'))
   } catch (err: any) {
     toast.error(t('setup.toasts.failed'), { description: apiErrorMessage(err, 'errors.error') })
+    return
+  }
+  try {
+    await login({ email: values.owner_email, password: values.owner_password })
+    const { hasPermission } = usePermissions()
+    await navigateTo(homePathFor(hasPermission))
+  } catch {
+    toast.info(t('setup.toasts.createdHint'))
+    await navigateTo('/login')
   }
 })
 </script>

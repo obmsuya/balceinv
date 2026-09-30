@@ -58,6 +58,24 @@ interface LoginPayload {
 export interface SetupStatus {
   configured: boolean
   old_data_found: boolean
+  signup_open: boolean
+}
+
+const signedInBeforeKey = 'balce:signed-in-before'
+
+export const hasSignedInBefore = (): boolean => {
+  try {
+    return localStorage.getItem(signedInBeforeKey) === '1'
+  } catch {
+    return false
+  }
+}
+
+const rememberSignedIn = (): void => {
+  try {
+    localStorage.setItem(signedInBeforeKey, '1')
+  } catch {
+  }
 }
 
 export interface SetupValues {
@@ -103,6 +121,7 @@ export const useAuth = () => {
         await setToken('session_token', sessionToken)
       }
 
+      rememberSignedIn()
       const localeChosenBeforeSignIn = activeLocale.value
       applyCurrentUser(loginResponse.data.user)
       const hasNoSavedLocale = loginResponse.data.user.locale == null
@@ -169,9 +188,10 @@ export const useAuth = () => {
       return {
         configured: statusResponse.data?.configured ?? false,
         old_data_found: statusResponse.data?.old_data_found ?? false,
+        signup_open: statusResponse.data?.signup_open ?? false,
       }
     } catch {
-      return { configured: false, old_data_found: false }
+      return { configured: false, old_data_found: false, signup_open: false }
     }
   }
 
