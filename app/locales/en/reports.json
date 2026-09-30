@@ -155,6 +155,29 @@
     "profitAndLoss": {
       "title": "Profit and loss",
       "description": "Revenue, costs and what is left as profit, compared with the previous period."
+    },
+    "asAt": "As at {date}",
+    "account": "Account",
+    "overview": {
+      "title": "Money summary",
+      "description": "Where your money is, money in and out, profit, who owes whom and what the business is worth."
+    },
+    "balanceSheet": {
+      "title": "Balance sheet",
+      "description": "What the business owns and owes on the last day, compared with the start of the period."
+    },
+    "accountStatement": {
+      "title": "Cash book and account statements",
+      "short": "Account statement",
+      "description": "Every entry in one account with its running balance. Choose the account below."
+    },
+    "trialBalance": {
+      "title": "Trial balance",
+      "description": "Every account's balance on the last day, with total debits equal to total credits."
+    },
+    "vat": {
+      "title": "VAT return",
+      "description": "VAT charged and reclaimable each month, and what to pay TRA by the 20th."
     }
   },
   "preview": {

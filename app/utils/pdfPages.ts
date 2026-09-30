@@ -1,12 +1,13 @@
-import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf.mjs'
+import { getDocument, GlobalWorkerOptions, type PDFDocumentLoadingTask, type PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import pdfWorkerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url'
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 export type PdfDocument = PDFDocumentProxy
+export type PdfLoading = PDFDocumentLoadingTask
 
-export const openPdf = (pdfBytes: Uint8Array): Promise<PdfDocument> =>
-  getDocument({ data: pdfBytes.slice(), isEvalSupported: false }).promise
+export const openPdf = (pdfBytes: Uint8Array): PdfLoading =>
+  getDocument({ data: pdfBytes.slice(), isEvalSupported: false })
 
 export const drawPdfPage = async (pdfDocument: PdfDocument, pageNumber: number, canvas: HTMLCanvasElement, cssWidth: number): Promise<void> => {
   const pdfPage = await pdfDocument.getPage(pageNumber)

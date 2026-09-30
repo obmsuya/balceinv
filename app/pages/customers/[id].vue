@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArchiveRestore, ArrowLeft, HandCoins, Mail, MessageCircle, Pencil, Phone, UserX } from 'lucide-vue-next'
+import { ArchiveRestore, ArrowLeft, Eye, FileSpreadsheet, FileText, HandCoins, Mail, MessageCircle, Pencil, Phone, UserX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerStatusDialog from '@/components/customers/CustomerStatusDialog.vue'
 import RecordPaymentDialog from '@/components/customers/RecordPaymentDialog.vue'
+import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vue'
+import type { DocumentSource } from '@/composables/useStatements'
 import type { Customer, CustomerPayment, CustomerSale, CustomerStatement, StatementEntry } from '@/composables/useCustomers'
 import { agingBuckets, agingLabel, customerSalePageSize, whatsappReminderUrl } from '@/composables/useCustomers'
 import { paymentMethodLabel } from '@/composables/useSales'
@@ -41,6 +43,14 @@ const payments = ref<CustomerPayment[]>([])
 const statement = ref<CustomerStatement | null>(null)
 const statementFrom = ref('')
 const statementTo = ref('')
+const statementPreviewOpen = ref(false)
+const { saving: savingDocument, fetchDocument, saveDocument } = useStatements()
+const statementDocument = computed<DocumentSource>(() => ({
+  path: `/api/customers/${customerId}/statement`,
+  query: { from: statementFrom.value || undefined, to: statementTo.value || undefined },
+  fileName: ['customer-statement', customer.value?.name, statementFrom.value, 'to', statementTo.value].filter(Boolean).join('-').replace(/[^\w.-]+/g, '-'),
+}))
+const statementSubtitle = computed(() => [customer.value?.name, [statementFrom.value, statementTo.value].filter(Boolean).map(isoDate => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })).join(' – ')].filter(Boolean).join(' · '))
 const loadingStatement = ref(false)
 const showEditDialog = ref(false)
 const showPaymentDialog = ref(false)
@@ -305,7 +315,7 @@ onMounted(() => {
             </TabsContent>
 
             <TabsContent value="statement" class="mt-4 flex flex-col gap-4">
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
+              <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_auto_auto]">
                 <div class="flex items-center gap-2">
                   <Label for="statement-from" class="w-14 shrink-0 text-sm text-muted-foreground">{{ t('common.fields.from') }}</Label>
                   <Input id="statement-from" v-model="statementFrom" type="date" />
@@ -315,6 +325,20 @@ onMounted(() => {
                   <Input id="statement-to" v-model="statementTo" type="date" />
                 </div>
                 <Button variant="outline" :disabled="loadingStatement" @click="loadStatement">{{ t('customers.statement.show') }}</Button>
+                <div class="flex gap-2">
+                  <Button class="flex-1 lg:flex-none" @click="statementPreviewOpen = true">
+                    <Eye />
+                    {{ t('reports.books.preview') }}
+                  </Button>
+                  <Button variant="outline" :disabled="savingDocument !== null" @click="saveDocument(statementDocument, 'xlsx')">
+                    <FileSpreadsheet />
+                    {{ t('reports.excel') }}
+                  </Button>
+                  <Button variant="outline" :disabled="savingDocument !== null" @click="saveDocument(statementDocument, 'pdf')">
+                    <FileText />
+                    {{ t('reports.pdf') }}
+                  </Button>
+                </div>
               </div>
 
               <Skeleton v-if="loadingStatement && !statement" class="h-40 w-full" />
@@ -392,5 +416,13 @@ onMounted(() => {
         </DialogContent>
       </Dialog>
     </template>
+    <DocumentPreviewDialog
+      v-model:open="statementPreviewOpen"
+      :title="t('customers.statement.documentTitle')"
+      :subtitle="statementSubtitle"
+      :load-pdf="() => fetchDocument(statementDocument, 'pdf')"
+      :saving="savingDocument"
+      @download="(format) => saveDocument(statementDocument, format)"
+    />
   </div>
 </template>

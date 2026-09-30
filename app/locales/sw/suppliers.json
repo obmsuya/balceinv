@@ -73,7 +73,8 @@
       "purchase": "Stoku imefika",
       "payment": "Malipo",
       "return": "Imerudishwa"
-    }
+    },
+    "documentTitle": "Mwenendo wa akaunti ya msambazaji"
   },
   "arrived": {
     "title": "Stoku imefika",
