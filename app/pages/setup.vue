@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { TriangleAlert } from 'lucide-vue-next'
+import { Monitor, TriangleAlert } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/sonner'
 import {
   Select,
   SelectContent,
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import MoveFromDesktopDialog from '@/components/setup/MoveFromDesktopDialog.vue'
 import OldDataImportDialog from '@/components/setup/OldDataImportDialog.vue'
 import { businessTypes } from '~/utils/businessTypes'
 import { apiErrorMessage } from '~/utils/i18n'
@@ -30,11 +32,13 @@ definePageMeta({ layout: false })
 
 const { setup, login, fetchSetupStatus, isLoading } = useAuth()
 const { t } = useI18n()
+const { isCloud, fetchPlatform } = usePlatform()
 
 const mounted = ref(false)
 const step = ref<1 | 2>(1)
 const oldDataFound = ref(false)
 const showOldDataImport = ref(false)
+const showMoveFromDesktop = ref(false)
 
 const formSchema = toTypedSchema(z.object({
   business_name:  z.string().min(2, { error: () => t('setup.validation.businessNameRequired') }),
@@ -59,6 +63,7 @@ onMounted(async () => {
     return
   }
   oldDataFound.value = setupStatus.old_data_found
+  await fetchPlatform()
 
   setTimeout(() => { mounted.value = true }, 60)
 })
@@ -91,6 +96,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
+  <Toaster />
   <div class="root">
     <aside class="panel" :class="{ show: mounted }">
       <div class="panel-content">
@@ -153,6 +159,16 @@ const onSubmit = form.handleSubmit(async (values) => {
           </div>
         </div>
         <OldDataImportDialog v-if="oldDataFound" v-model:open="showOldDataImport" />
+
+        <div v-if="isCloud" class="mb-6 flex gap-3 rounded-lg border p-4 text-sm">
+          <Monitor class="mt-0.5 size-4 shrink-0 text-primary" />
+          <div class="min-w-0 space-y-2">
+            <p class="font-medium">{{ t('setup.move.cardTitle') }}</p>
+            <p class="text-muted-foreground">{{ t('setup.move.cardBody') }}</p>
+            <Button variant="outline" class="w-full" @click="showMoveFromDesktop = true">{{ t('setup.move.cardButton') }}</Button>
+          </div>
+        </div>
+        <MoveFromDesktopDialog v-if="isCloud" v-model:open="showMoveFromDesktop" />
 
         <div v-show="step === 1">
           <div class="form-head">

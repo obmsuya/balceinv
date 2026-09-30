@@ -69,5 +69,17 @@
     "restoreDesktopOnly": "Kurejesha kutoka kwenye faili kunapatikana tu kwenye programu ya kompyuta",
     "readyToRestart": "Nakala rudufu iko tayari. Funga programu kisha uifungue tena ili kukamilisha urejeshaji.",
     "restoreFailed": "Imeshindwa kurejesha"
+  },
+  "move": {
+    "title": "Hamishia biashara hii mtandaoni",
+    "description": "Tumia Balce kwenye pos.faltasi.com badala ya kompyuta hii, kutoka simu, tableti au kompyuta yoyote.",
+    "stepSave": "Bonyeza Hifadhi faili la kuhamia na uliweke mahali utakapolipata, kama flash au barua pepe yako.",
+    "stepOpen": "Fungua pos.faltasi.com na uchague Tayari unatumia Balce kwenye kompyuta? → Hamishia biashara yangu hapa.",
+    "stepUpload": "Chagua faili hilo. Kila mtu anaingia kwa barua pepe na nenosiri lile lile kama hapa.",
+    "warning": "Baada ya kuhamia, uza mtandaoni tu. Kompyuta hii inabaki na nakala yake lakini haifuati kinachoendelea mtandaoni.",
+    "saveButton": "Hifadhi faili la kuhamia",
+    "fileType": "Faili la kuhamia la Balce",
+    "saved": "Faili la kuhamia limehifadhiwa",
+    "saveFailed": "Faili la kuhamia halikuweza kuhifadhiwa"
   }
 }

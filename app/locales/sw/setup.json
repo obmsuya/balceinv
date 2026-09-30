@@ -130,5 +130,28 @@
       "imported": "Data zako za zamani zimehamishwa",
       "failed": "Imeshindwa kuhamisha data zako za zamani"
     }
+  },
+  "move": {
+    "cardTitle": "Tayari unatumia Balce kwenye kompyuta?",
+    "cardBody": "Leta bidhaa, stoku, mauzo, wateja, wasambazaji na hesabu zako mtandaoni. Hakuna cha kuandika upya.",
+    "cardButton": "Hamishia biashara yangu hapa",
+    "title": "Hamisha biashara yako kutoka kwenye kompyuta",
+    "description": "Kila kitu kinahamia: bidhaa, stoku, mauzo, wateja, wasambazaji, hesabu, watumiaji na picha.",
+    "stepComputer": "Kwenye kompyuta, fungua Mipangilio → Nakala rudufu → Hamishia biashara hii mtandaoni, kisha hifadhi faili la kuhamia.",
+    "stepChoose": "Chagua faili hilo hapa kisha bonyeza Hamisha biashara yangu.",
+    "stepSignIn": "Ingia kwa barua pepe na nenosiri lile lile unalotumia kwenye kompyuta.",
+    "chooseFile": "Chagua faili la kuhamia",
+    "chooseAnother": "Bonyeza kuchagua faili jingine",
+    "fileHint": "Linaishia na .balce",
+    "moveButton": "Hamisha biashara yangu",
+    "movingShort": "Inahamisha…",
+    "moving": "Biashara yako inahamishwa. Inaweza kuchukua dakika moja; usifunge ukurasa huu.",
+    "doneTitle": "{name} iko mtandaoni",
+    "doneBody": "Biashara yako na kila kitu ndani yake sasa iko pos.faltasi.com, na siku 14 za majaribio bure.",
+    "signInWith": "Ingia kwa {email} na nenosiri lile lile unalotumia kwenye kompyuta. Wafanyakazi wako nao wanaingia kwa barua pepe na nenosiri zao.",
+    "stopComputer": "Kuanzia sasa, uza hapa. Kompyuta haioni unachofanya mtandaoni.",
+    "signIn": "Ingia",
+    "failed": "Biashara haikuweza kuhamishwa",
+    "failedHint": "Hakikisha umechagua faili la kuhamia kutoka Balce ya kompyuta, kisha jaribu tena."
   }
 }
