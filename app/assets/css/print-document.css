@@ -1,0 +1,28 @@
+#document-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body.printing-document > *:not(#document-print) {
+    display: none !important;
+  }
+
+  body.printing-document #document-print {
+    display: block;
+  }
+
+  #document-print img {
+    display: block;
+    width: 100%;
+    break-after: page;
+  }
+
+  #document-print img:last-child {
+    break-after: auto;
+  }
+}

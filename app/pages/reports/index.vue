@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BadgePercent, Banknote, CreditCard, FileSpreadsheet, FileText, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
+import { BadgePercent, Banknote, CreditCard, Eye, FileSpreadsheet, FileText, PiggyBank, Printer, Receipt, Smartphone, Wallet } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vue'
 import StatCard from '@/components/reports/StatCard.vue'
 import TrendChart from '@/components/reports/TrendChart.vue'
 import type { ExportFormat, ProductSort, ReportExport } from '@/composables/useReports'
+import type { StatementReport } from '@/composables/useStatements'
 import { formatMoney } from '~/utils/money'
 import type { RangePreset } from '~/utils/reportRanges'
 import { marginText, presetRange, rangePresetLabel, todayIn } from '~/utils/reportRanges'
@@ -105,6 +107,30 @@ const downloadReport = (format: ExportFormat) => exportReport(exportsByTab[activ
 
 const printReport = () => window.print()
 
+const { accountingOn } = useFeatures()
+const { hasPermission } = usePermissions()
+const { saving: savingStatement, fetchStatementFile, saveStatement } = useStatements()
+const showBooks = computed(() => accountingOn.value && hasPermission('accounting', 'view'))
+const statements: StatementReport[] = ['profit-and-loss']
+const statementTitleKeys: Record<StatementReport, string> = { 'profit-and-loss': 'profitAndLoss' }
+const statementTitle = (report: StatementReport) => t(`reports.books.${statementTitleKeys[report]}.title`)
+const statementDescription = (report: StatementReport) => t(`reports.books.${statementTitleKeys[report]}.description`)
+const statementShop = computed(() => {
+  const isWholeBusiness = shopScope.value === allShopsScope || shopChoices.value.length <= 1
+  if (isWholeBusiness) return ''
+  if (shopScope.value === activeShopScope) return user.value?.shop_id ?? ''
+  return shopScope.value
+})
+const statementScopeLabel = computed(() => (statementShop.value ? scopeLabel.value : t('reports.scope.allShops')))
+const statementFilter = computed(() => ({ from: fromDate.value, to: toDate.value, shop: statementShop.value }))
+const previewReport = ref<StatementReport>('profit-and-loss')
+const previewOpen = ref(false)
+const openPreview = (report: StatementReport) => {
+  previewReport.value = report
+  previewOpen.value = true
+}
+const loadPreview = () => fetchStatementFile(previewReport.value, 'pdf', statementFilter.value)
+
 onMounted(reload)
 </script>
 
@@ -115,7 +141,7 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('reports.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ rangeLabel }} · {{ scopeLabel }}</p>
       </div>
-      <div class="flex gap-2 print:hidden">
+      <div v-if="activeTab !== 'books'" class="flex gap-2 print:hidden">
         <Button variant="outline" :disabled="!summary || exporting !== null" :title="t('reports.downloadHint')" @click="downloadReport('xlsx')">
           <FileSpreadsheet />
           {{ exporting === 'xlsx' ? t('common.actions.saving') : t('reports.excel') }}
@@ -173,7 +199,61 @@ onMounted(reload)
         <TabsTrigger value="staff">{{ t('reports.tabs.staff') }}</TabsTrigger>
         <TabsTrigger v-if="shopScope === allShopsScope" value="shops">{{ t('reports.tabs.shops') }}</TabsTrigger>
         <TabsTrigger value="stock">{{ t('reports.tabs.stock') }}</TabsTrigger>
+        <TabsTrigger v-if="showBooks" value="books">{{ t('reports.tabs.books') }}</TabsTrigger>
       </TabsList>
+
+      <TabsContent v-if="showBooks" value="books" class="mt-4">
+        <div class="overflow-hidden rounded-xl border">
+          <div class="border-b px-4 py-3 sm:px-5">
+            <h2 class="font-semibold">{{ t('reports.books.title') }}</h2>
+            <p class="mt-0.5 text-sm text-muted-foreground">{{ t('reports.books.description') }}</p>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="pl-4 sm:pl-5">{{ t('reports.books.report') }}</TableHead>
+                <TableHead class="hidden md:table-cell">{{ t('reports.books.period') }}</TableHead>
+                <TableHead class="pr-4 text-right sm:pr-5"><span class="sr-only">{{ t('reports.books.actions') }}</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="statement in statements" :key="statement" class="cursor-pointer" @click="openPreview(statement)">
+                <TableCell class="py-3 pl-4 sm:pl-5">
+                  <div class="flex items-center gap-3">
+                    <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <FileText class="size-4" />
+                    </span>
+                    <span class="min-w-0">
+                      <span class="block font-medium">{{ statementTitle(statement) }}</span>
+                      <span class="block text-sm text-muted-foreground">{{ statementDescription(statement) }}</span>
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell class="hidden whitespace-nowrap text-sm text-muted-foreground md:table-cell">
+                  <span class="block">{{ rangeLabel }}</span>
+                  <span class="block">{{ statementScopeLabel }}</span>
+                </TableCell>
+                <TableCell class="pr-4 text-right sm:pr-5" @click.stop>
+                  <div class="flex items-center justify-end gap-1">
+                    <Button size="sm" @click="openPreview(statement)">
+                      <Eye />
+                      {{ t('reports.books.preview') }}
+                    </Button>
+                    <Button variant="ghost" size="sm" class="hidden sm:inline-flex" :disabled="savingStatement !== null" @click="saveStatement(statement, 'xlsx', statementFilter)">
+                      <FileSpreadsheet />
+                      {{ t('reports.excel') }}
+                    </Button>
+                    <Button variant="ghost" size="sm" class="hidden sm:inline-flex" :disabled="savingStatement !== null" @click="saveStatement(statement, 'pdf', statementFilter)">
+                      <FileText />
+                      {{ t('reports.pdf') }}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </TabsContent>
 
       <TabsContent value="overview" class="mt-4 flex flex-col gap-4">
         <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -388,5 +468,14 @@ onMounted(reload)
         </Card>
       </TabsContent>
     </Tabs>
+
+    <DocumentPreviewDialog
+      v-model:open="previewOpen"
+      :title="statementTitle(previewReport)"
+      :subtitle="`${rangeLabel} · ${statementScopeLabel}`"
+      :load-pdf="loadPreview"
+      :saving="savingStatement"
+      @download="(format) => saveStatement(previewReport, format, statementFilter)"
+    />
   </div>
 </template>

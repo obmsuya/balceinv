@@ -28,7 +28,8 @@
     "products": "Bidhaa",
     "staff": "Wafanyakazi",
     "shops": "Maduka",
-    "stock": "Stoku"
+    "stock": "Stoku",
+    "books": "Hesabu"
   },
   "counts": {
     "sales": {
@@ -143,5 +144,27 @@
     "dateOrder": "Tarehe ya kuanza iko baada ya tarehe ya mwisho",
     "saved": "Ripoti imehifadhiwa",
     "saveFailed": "Imeshindwa kuhifadhi ripoti"
+  },
+  "books": {
+    "title": "Ripoti za hesabu",
+    "description": "Ripoti rasmi kutoka kwenye hesabu zako, tayari kuchapisha, kusaini au kumtumia mhasibu au benki.",
+    "report": "Ripoti",
+    "period": "Kipindi",
+    "actions": "Vitendo",
+    "preview": "Tazama",
+    "profitAndLoss": {
+      "title": "Faida na hasara",
+      "description": "Mapato, gharama na kinachobaki kama faida, ikilinganishwa na kipindi kilichopita."
+    }
+  },
+  "preview": {
+    "pages": {
+      "one": "Ukurasa {formatted}",
+      "other": "Kurasa {formatted}"
+    },
+    "page": "Ukurasa {number} kati ya {count}",
+    "loading": "Inaandaa hati…",
+    "failed": "Hati haikuweza kutengenezwa. Jaribu tena.",
+    "printFailed": "Hati haikuweza kuchapishwa."
   }
 }

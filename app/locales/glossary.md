@@ -141,6 +141,9 @@ names. Add a row here before inventing a new term.
 | guided tour | mwongozo | ziara |
 | skip | ruka | |
 | logo | nembo | |
+| document | hati | |
+| preview (look before saving) | tazama | |
+| financial statements | ripoti za hesabu | taarifa (that is notifications) |
 | invoice (from a supplier) | ankara | invoisi |
 | overdue | imechelewa | |
 | payment terms (days to pay) | siku za kulipa | |
