@@ -27,4 +27,24 @@ import { useLicense } from '~/composables/useLicense'
 const sidebarCollapsed = useState('sidebar-collapsed', () => false)
 const { isHardLocked } = useLicense()
 
+const route = useRoute()
+const { startIfNew, stop: stopTour } = useTour()
+const pageSettleMilliseconds = 900
+let tourTimer
+
+onMounted(() => {
+  watch(() => route.path, (path) => {
+    stopTour()
+    clearTimeout(tourTimer)
+    tourTimer = setTimeout(() => {
+      if (!isHardLocked.value) startIfNew(path)
+    }, pageSettleMilliseconds)
+  }, { immediate: true })
+})
+
+onUnmounted(() => {
+  clearTimeout(tourTimer)
+  stopTour()
+})
+
 </script>

@@ -1,0 +1,121 @@
+.driver-popover.balce-tour {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: 0 24px 48px -16px rgb(0 0 0 / 0.45);
+  padding: 20px 20px 14px;
+  max-width: min(360px, calc(100vw - 32px));
+  font-family: inherit;
+}
+
+.balce-tour .driver-popover-title {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.35;
+  padding-right: 20px;
+}
+
+.balce-tour .driver-popover-description {
+  margin-top: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  color: var(--muted-foreground);
+}
+
+.balce-tour .driver-popover-close-btn {
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+}
+
+.balce-tour .driver-popover-close-btn:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.balce-tour .driver-popover-footer {
+  margin-top: 18px;
+  gap: 10px;
+  align-items: center;
+}
+
+.balce-tour .driver-popover-progress-text {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.balce-tour .driver-popover-navigation-btns {
+  gap: 6px;
+}
+
+.balce-tour .driver-popover-footer button {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-shadow: none;
+  border-radius: calc(var(--radius) - 2px);
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.balce-tour .driver-popover-footer button:hover {
+  background: var(--accent);
+}
+
+.balce-tour .driver-popover-footer .driver-popover-next-btn {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.balce-tour .driver-popover-footer .driver-popover-next-btn:hover {
+  background: var(--primary);
+  filter: brightness(1.08);
+}
+
+.balce-tour .driver-popover-footer .balce-tour-skip {
+  border: none;
+  padding: 7px 0;
+  margin-right: auto;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.balce-tour .driver-popover-footer .balce-tour-skip:hover {
+  background: transparent;
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+.balce-tour .driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: var(--popover);
+}
+
+.balce-tour .driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: var(--popover);
+}
+
+.balce-tour .driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: var(--popover);
+}
+
+.balce-tour .driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: var(--popover);
+}
+
+.driver-active .driver-active-element {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: calc(var(--radius) - 2px);
+}

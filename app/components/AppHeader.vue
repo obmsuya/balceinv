@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Bell, BellOff, Fingerprint, LifeBuoy, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
+import { isTauri } from '~/composables/usePlatform'
+import { Bell, BellOff, Compass, Fingerprint, LifeBuoy, Menu, Moon, PackageX, RefreshCw, Store, Sun, TriangleAlert, Volume2, VolumeX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { assetUrl } from '~/composables/useSettings'
 import { notificationMessage } from '~/composables/useNotifications'
@@ -41,6 +42,9 @@ const { canView } = usePermissions()
 const { openSupport } = useSupport()
 const { status: updateStatus, checkForUpdate } = useUpdater()
 const { hardwareId, fetchHardwareId } = useLicense()
+const runningInTauri = isTauri()
+const route = useRoute()
+const { replay: replayTour } = useTour()
 const {
   notifications,
   unreadCount,
@@ -157,7 +161,7 @@ onUnmounted(() => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div class="hidden sm:block">
+        <div class="hidden sm:block" data-tour="language">
           <LanguageSwitcher />
         </div>
 
@@ -179,7 +183,7 @@ onUnmounted(() => {
 
           <Popover v-model:open="showNotificationPopover">
             <PopoverTrigger as-child>
-              <Button variant="ghost" size="icon" class="relative" :aria-label="t('nav.header.notifications')">
+              <Button variant="ghost" size="icon" class="relative" data-tour="notifications" :aria-label="t('nav.header.notifications')">
                 <Bell class="size-5" />
                 <Badge v-if="unreadCount" variant="destructive" class="absolute -right-1 -top-1 h-5 min-w-5 justify-center px-1 text-xs tabular-nums">
                   {{ unreadBadge }}
@@ -229,7 +233,7 @@ onUnmounted(() => {
 
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
-            <button type="button" class="flex items-center gap-2 rounded-md border-l px-2 py-1 pl-3 transition-colors hover:bg-accent">
+            <button type="button" data-tour="account" class="flex items-center gap-2 rounded-md border-l px-2 py-1 pl-3 transition-colors hover:bg-accent">
               <Avatar class="size-9">
                 <AvatarFallback>{{ user ? initialsOf(user.name) : 'GU' }}</AvatarFallback>
               </Avatar>
@@ -259,17 +263,18 @@ onUnmounted(() => {
             </DropdownMenuRadioGroup>
             <DropdownMenuSeparator class="sm:hidden" />
             <DropdownMenuItem @click="navigateTo('/settings')">{{ t('nav.header.settings') }}</DropdownMenuItem>
-            <DropdownMenuItem :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
+            <DropdownMenuItem v-if="runningInTauri" :disabled="updateStatus === 'checking'" @click="handleCheckForUpdates">
               {{ updateStatus === 'checking' ? t('nav.header.checkingUpdates') : t('nav.header.checkUpdates') }}
             </DropdownMenuItem>
             <DropdownMenuItem @click="openSupport"><LifeBuoy class="size-4" /> {{ t('support.menu') }}</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem :disabled="!hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
+            <DropdownMenuItem @click="replayTour(route.path)"><Compass class="size-4" /> {{ t('tour.menu.showTour') }}</DropdownMenuItem>
+            <DropdownMenuSeparator v-if="hardwareId" />
+            <DropdownMenuItem v-if="hardwareId" class="flex-col items-start gap-0.5" @click="copyHardwareId">
               <span class="flex items-center gap-2 text-xs text-muted-foreground">
                 <Fingerprint class="size-3" />
                 {{ t('nav.header.hardwareId') }}
               </span>
-              <span class="w-full truncate font-mono text-xs">{{ hardwareId ? `${hardwareId.slice(0, 16)}…` : t('common.states.loading') }}</span>
+              <span class="w-full truncate font-mono text-xs">{{ hardwareId.slice(0, 16) }}…</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">{{ t('nav.header.signOut') }}</DropdownMenuItem>

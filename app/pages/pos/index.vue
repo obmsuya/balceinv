@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
   <div class="-m-4 flex h-[calc(100dvh-4rem)] min-h-0 md:-m-6">
     <section class="flex min-w-0 flex-1 flex-col gap-3 p-3 md:p-4">
       <div class="flex gap-2">
-        <form class="relative flex-1" @submit.prevent="scanCode">
+        <form class="relative flex-1" data-tour="pos-search" @submit.prevent="scanCode">
           <ScanBarcode class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
           <Input
             ref="searchInput"
@@ -304,7 +304,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <div class="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-0">
+      <div class="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-0" data-tour="pos-products">
         <ProductGrid
           :products="products"
           :total-products="totalProducts"
@@ -340,7 +340,7 @@ onBeforeUnmount(() => {
           </span>
           <span class="font-semibold tabular-nums">{{ formatMoney(unitCount ? total : 0) }}</span>
         </Button>
-        <Button class="h-12 px-6 text-base" :disabled="!unitCount || preparingPayment" @click="startPayment">{{ t('pos.pay') }}</Button>
+        <Button class="h-12 px-6 text-base" data-tour="pos-pay" :disabled="!unitCount || preparingPayment" @click="startPayment">{{ t('pos.pay') }}</Button>
       </div>
     </div>
 

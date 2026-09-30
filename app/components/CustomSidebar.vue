@@ -98,19 +98,21 @@ const navigationItems = computed(() => {
 
 <template>
   <aside
+    data-tour="sidebar"
     :class="[
       'fixed left-0 top-16 bottom-0 border-r bg-background transition-all duration-200 z-40',
       sidebarCollapsed ? 'w-16 -translate-x-full md:translate-x-0' : 'w-64 shadow-lg md:shadow-none'
     ]"
   >
     <div class="flex flex-col h-full p-3">
-      <div class="flex-1 space-y-4">
+      <div class="flex-1 min-h-0 space-y-4 overflow-y-auto overscroll-contain">
         <div v-if="navigationItems.operations.length > 0">
           <p v-if="!sidebarCollapsed" class="text-xs font-semibold uppercase text-muted-foreground px-3 mb-2">{{ t('nav.groups.operations') }}</p>
           <NuxtLink
             v-for="item in navigationItems.operations"
             :key="item.path"
             :to="item.path"
+            :data-tour="`nav-${item.path.slice(1)}`"
             :class="[
               'w-full flex items-center rounded-md hover:bg-accent transition-colors h-10',
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start px-3',
@@ -131,6 +133,7 @@ const navigationItems = computed(() => {
             v-for="item in navigationItems.management"
             :key="item.path"
             :to="item.path"
+            :data-tour="`nav-${item.path.slice(1)}`"
             :class="[
               'w-full flex items-center rounded-md hover:bg-accent transition-colors h-10',
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start px-3',
@@ -150,6 +153,7 @@ const navigationItems = computed(() => {
             v-for="item in navigationItems.admin"
             :key="item.path"
             :to="item.path"
+            :data-tour="`nav-${item.path.slice(1)}`"
             :class="[
               'w-full flex items-center rounded-md hover:bg-accent transition-colors h-10',
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start px-3',
