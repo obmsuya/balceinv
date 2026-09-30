@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Skeleton } from '@/components/ui/skeleton'
 import type { StatementFormat } from '@/composables/useStatements'
 import { apiErrorMessage } from '~/utils/i18n'
-import { drawPdfPage, openPdf, pdfPageImages, type PdfDocument } from '~/utils/pdfPages'
+import { drawPdfPage, openPdf, pdfPageImages, type PdfDocument, type PdfLoading } from '~/utils/pdfPages'
 import '~/assets/css/print-document.css'
 
 const props = defineProps<{
@@ -28,6 +28,7 @@ const loading = ref(false)
 const printing = ref(false)
 const errorMessage = ref('')
 let drawGeneration = 0
+let pdfLoading: PdfLoading | null = null
 let drawnWidth = 0
 let resizeTimer: ReturnType<typeof setTimeout> | undefined
 let resizeObserver: ResizeObserver | null = null
@@ -49,7 +50,8 @@ const drawPages = async (): Promise<void> => {
 
 const closeDocument = (): void => {
   drawGeneration++
-  pdfDocument.value?.destroy()
+  pdfLoading?.destroy()
+  pdfLoading = null
   pdfDocument.value = null
   pageCount.value = 0
 }
@@ -60,7 +62,8 @@ const load = async (): Promise<void> => {
   errorMessage.value = ''
   try {
     const pdfBytes = await props.loadPdf()
-    const openedDocument = await openPdf(pdfBytes)
+    pdfLoading = openPdf(pdfBytes)
+    const openedDocument = await pdfLoading.promise
     pdfDocument.value = openedDocument
     pageCount.value = openedDocument.numPages
     loading.value = false
