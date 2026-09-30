@@ -28,7 +28,8 @@
     "products": "Products",
     "staff": "Staff",
     "shops": "Shops",
-    "stock": "Stock"
+    "stock": "Stock",
+    "books": "Books"
   },
   "counts": {
     "sales": {
@@ -143,5 +144,27 @@
     "dateOrder": "The start date is after the end date",
     "saved": "Report saved",
     "saveFailed": "The report could not be saved"
+  },
+  "books": {
+    "title": "Financial statements",
+    "description": "Formal statements from your books, ready to print, sign or send to your accountant or bank.",
+    "report": "Report",
+    "period": "Period",
+    "actions": "Actions",
+    "preview": "Preview",
+    "profitAndLoss": {
+      "title": "Profit and loss",
+      "description": "Revenue, costs and what is left as profit, compared with the previous period."
+    }
+  },
+  "preview": {
+    "pages": {
+      "one": "{formatted} page",
+      "other": "{formatted} pages"
+    },
+    "page": "Page {number} of {count}",
+    "loading": "Preparing the document…",
+    "failed": "The document could not be made. Try again.",
+    "printFailed": "The document could not be printed."
   }
 }
