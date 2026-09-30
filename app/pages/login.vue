@@ -27,12 +27,14 @@ const formSchema = toTypedSchema(z.object({
 }))
 
 const { login, isLoading } = useAuth()
+const { fetchPlatform, isDesktopInstall } = usePlatform()
 const form = useForm({ validationSchema: formSchema })
 const mounted = ref(false)
 const showPassword = ref(false)
 
 onMounted(() => {
   setTimeout(() => { mounted.value = true }, 60)
+  fetchPlatform()
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -140,7 +142,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           </Button>
         </form>
 
-        <div class="bottom-links">
+        <div v-if="isDesktopInstall" class="bottom-links">
           <NuxtLink to="/setup?from=login" class="setup-link">
             {{ t('auth.form.setupBusiness') }}
           </NuxtLink>
