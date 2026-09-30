@@ -56,7 +56,9 @@
     "dateFormat": "Date Format",
     "receiptNumberFormat": "Receipt Number Format",
     "tokens": "Tokens:",
-    "save": "Save System Settings"
+    "save": "Save System Settings",
+    "taxRateHelpRegistered": "Charged at the till because the business is registered for VAT.",
+    "taxRateHelpNotRegistered": "Not charged at the till: the business is not registered for VAT. Turn it on in Settings → Features if TRA registered you."
   },
   "hardware": {
     "tillTitle": "Till extras",

@@ -56,7 +56,9 @@
     "dateFormat": "Muundo wa tarehe",
     "receiptNumberFormat": "Muundo wa namba ya risiti",
     "tokens": "Alama maalum:",
-    "save": "Hifadhi mipangilio ya mfumo"
+    "save": "Hifadhi mipangilio ya mfumo",
+    "taxRateHelpRegistered": "Inatozwa kwenye kaunta kwa sababu biashara imesajiliwa kwa VAT.",
+    "taxRateHelpNotRegistered": "Haitozwi kwenye kaunta: biashara haijasajiliwa kwa VAT. Iwashe kwenye Mipangilio → Vipengele ikiwa TRA imekusajili."
   },
   "hardware": {
     "tillTitle": "Nyongeza za kaunta",
