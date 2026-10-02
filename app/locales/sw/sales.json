@@ -32,7 +32,9 @@
     "sendNow": "Tuma sasa",
     "printReceipt": "Chapisha risiti",
     "customer": "Mteja: {name}",
-    "a4Invoice": "Ankara A4 (PDF)"
+    "a4Invoice": "Ankara A4 (PDF)",
+    "receiptPdf": "Risiti (PDF)",
+    "share": "Tuma"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"
@@ -59,7 +61,11 @@
     "efdNothingWaiting": "Hakuna mauzo yaliyokuwa yanasubiri EFD",
     "serverUnreachable": "Imeshindwa kufikia seva",
     "documentSaved": "Ankara imehifadhiwa",
-    "documentFailed": "Imeshindwa kuhifadhi ankara"
+    "documentFailed": "Imeshindwa kuhifadhi ankara",
+    "receiptSaved": "Risiti imehifadhiwa",
+    "receiptFailed": "Imeshindwa kuhifadhi risiti",
+    "receiptSavedToShare": "Risiti imehifadhiwa. Iambatanishe kwenye WhatsApp au barua pepe ili kuituma."
   },
-  "pdfFileType": "Hati ya PDF"
+  "pdfFileType": "Hati ya PDF",
+  "shareTitle": "Risiti {number}"
 }

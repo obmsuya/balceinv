@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronUp, CircleCheck, Monitor, Printer, ReceiptText, ScanBarcode, X } from 'lucide-vue-next'
+import { ChevronUp, CircleCheck, FileDown, Monitor, Printer, ReceiptText, ScanBarcode, Share2, X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useDebounceFn, useEventListener } from '@vueuse/core'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ const efdRetryMilliseconds = 5 * 60 * 1000
 const { products, totalProducts, categories, loading, fetchProducts, fetchCategories, lookupProduct } = useProducts()
 const { fetchActiveAddons } = useAddons()
 const { activeSlot, activeSlotIndex, unitCount, loadCarts, addLine, clearActive, restoreSlot, takeMultiplier, checkoutReference } = useCart()
-const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd } = useSales()
+const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd, downloadingDocument, downloadSaleDocument, shareSaleReceipt } = useSales()
 const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
 const { user } = useAuth()
 const { t } = useI18n()
@@ -393,6 +393,10 @@ onBeforeUnmount(() => {
           >
             {{ t('common.actions.retry') }}
           </Button>
+        </div>
+        <div v-if="completedSale" class="grid grid-cols-2 gap-2">
+          <Button variant="outline" :disabled="downloadingDocument" @click="shareSaleReceipt(completedSale.id, completedSale.receipt_number)"><Share2 /> {{ t('sales.details.share') }}</Button>
+          <Button variant="outline" :disabled="downloadingDocument" @click="downloadSaleDocument(completedSale.id, completedSale.receipt_number, 'receipt')"><FileDown /> {{ t('sales.details.receiptPdf') }}</Button>
         </div>
         <DialogFooter class="gap-2 sm:justify-center">
           <Button variant="outline" @click="completedSale && printReceipt(completedSale.id)"><Printer /> {{ t('pos.complete.printReceipt') }}</Button>

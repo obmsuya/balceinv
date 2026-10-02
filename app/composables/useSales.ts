@@ -40,6 +40,8 @@ export interface SaleLine {
 
 export type FiscalStatus = 'pending' | 'sending' | 'sent' | 'failed'
 
+export type SaleDocumentKind = 'receipt' | 'invoice'
+
 export interface SaleFiscal {
   status: FiscalStatus
   attempts: number
@@ -245,18 +247,52 @@ export const useSales = () => {
 
   const downloadingDocument = ref(false)
 
-  const downloadSaleDocument = async (saleId: string, receiptNumber: string): Promise<void> => {
+  const fetchSaleDocument = async (saleId: string, documentKind: SaleDocumentKind): Promise<Uint8Array> => {
+    const documentBytes = await apiFetch<ArrayBuffer>(`/api/sales/${saleId}/document`, {
+      query: { format: 'pdf', kind: documentKind },
+      responseType: 'arrayBuffer',
+    })
+    return new Uint8Array(documentBytes)
+  }
+
+  const saleDocumentName = (documentKind: SaleDocumentKind, receiptNumber: string): string =>
+    `${documentKind}-${receiptNumber.replace(/[^A-Za-z0-9._-]/g, '-')}.pdf`
+
+  const pdfFilter = () => ({ name: t('sales.pdfFileType'), extensions: ['pdf'] })
+
+  const downloadSaleDocument = async (saleId: string, receiptNumber: string, documentKind: SaleDocumentKind = 'invoice'): Promise<void> => {
+    const isReceipt = documentKind === 'receipt'
     downloadingDocument.value = true
     try {
-      const documentBytes = await apiFetch<ArrayBuffer>(`/api/sales/${saleId}/document`, {
-        query: { format: 'pdf', kind: 'invoice' },
-        responseType: 'arrayBuffer',
-      })
-      const safeReceiptNumber = receiptNumber.replace(/[^A-Za-z0-9._-]/g, '-')
-      const savedName = await saveFile(new Uint8Array(documentBytes), `invoice-${safeReceiptNumber}.pdf`, { name: t('sales.pdfFileType'), extensions: ['pdf'] })
-      if (savedName) toast.success(t('sales.toasts.documentSaved'), { description: savedName })
+      const documentBytes = await fetchSaleDocument(saleId, documentKind)
+      const savedName = await saveFile(documentBytes, saleDocumentName(documentKind, receiptNumber), pdfFilter())
+      if (savedName) toast.success(t(isReceipt ? 'sales.toasts.receiptSaved' : 'sales.toasts.documentSaved'), { description: savedName })
     } catch (error: any) {
-      toast.error(apiErrorMessage(error, 'sales.toasts.documentFailed'))
+      toast.error(apiErrorMessage(error, isReceipt ? 'sales.toasts.receiptFailed' : 'sales.toasts.documentFailed'))
+    } finally {
+      downloadingDocument.value = false
+    }
+  }
+
+  const shareSaleReceipt = async (saleId: string, receiptNumber: string): Promise<void> => {
+    downloadingDocument.value = true
+    try {
+      const receiptBytes = await fetchSaleDocument(saleId, 'receipt')
+      const receiptFileName = saleDocumentName('receipt', receiptNumber)
+      const receiptFile = new File([receiptBytes], receiptFileName, { type: 'application/pdf' })
+      const canShareFile = typeof navigator.canShare === 'function' && navigator.canShare({ files: [receiptFile] })
+      if (canShareFile) {
+        try {
+          await navigator.share({ files: [receiptFile], title: t('sales.shareTitle', { number: receiptNumber }) })
+          return
+        } catch (shareError: any) {
+          if (shareError?.name === 'AbortError') return
+        }
+      }
+      const savedName = await saveFile(receiptBytes, receiptFileName, pdfFilter())
+      if (savedName) toast.success(t('sales.toasts.receiptSavedToShare'), { description: savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'sales.toasts.receiptFailed'))
     } finally {
       downloadingDocument.value = false
     }
@@ -309,6 +345,7 @@ export const useSales = () => {
     fetchReceipt,
     downloadingDocument,
     downloadSaleDocument,
+    shareSaleReceipt,
     fetchTillOptions,
     sendToEfd,
     sendWaitingToEfd,
