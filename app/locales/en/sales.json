@@ -32,7 +32,9 @@
     "sendNow": "Send now",
     "printReceipt": "Print receipt",
     "customer": "Customer: {name}",
-    "a4Invoice": "A4 invoice (PDF)"
+    "a4Invoice": "A4 invoice (PDF)",
+    "receiptPdf": "Receipt (PDF)",
+    "share": "Share"
   },
   "efd": {
     "sending": "Sending to EFD…"
@@ -59,7 +61,11 @@
     "efdNothingWaiting": "Nothing was waiting for the EFD",
     "serverUnreachable": "Could not reach the server",
     "documentSaved": "Invoice saved",
-    "documentFailed": "The invoice could not be saved"
+    "documentFailed": "The invoice could not be saved",
+    "receiptSaved": "Receipt saved",
+    "receiptFailed": "The receipt could not be saved",
+    "receiptSavedToShare": "Receipt saved. Attach it in WhatsApp or an email to send it."
   },
-  "pdfFileType": "PDF document"
+  "pdfFileType": "PDF document",
+  "shareTitle": "Receipt {number}"
 }

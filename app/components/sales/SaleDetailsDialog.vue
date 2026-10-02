@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FileText, Printer, ReceiptText } from 'lucide-vue-next'
+import { FileDown, FileText, Printer, ReceiptText, Share2 } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -15,12 +15,20 @@ const emit = defineEmits<{ changed: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 const { t, formatDateTime, formatNumber } = useI18n()
 
-const { fetchSale, sendToEfd, downloadingDocument, downloadSaleDocument } = useSales()
+const { fetchSale, sendToEfd, downloadingDocument, downloadSaleDocument, shareSaleReceipt } = useSales()
 const sale = ref<Sale | null>(null)
 const sendingFiscal = ref(false)
 
 const downloadDocument = () => {
   if (sale.value) downloadSaleDocument(sale.value.id, sale.value.receipt_number)
+}
+
+const downloadReceipt = () => {
+  if (sale.value) downloadSaleDocument(sale.value.id, sale.value.receipt_number, 'receipt')
+}
+
+const shareReceipt = () => {
+  if (sale.value) shareSaleReceipt(sale.value.id, sale.value.receipt_number)
 }
 
 const sendFiscal = async () => {
@@ -98,7 +106,9 @@ const printReceipt = () => {
         </div>
       </div>
 
-      <DialogFooter>
+      <DialogFooter class="sm:flex-wrap">
+        <Button variant="outline" :disabled="!sale || downloadingDocument" @click="shareReceipt"><Share2 /> {{ t('sales.details.share') }}</Button>
+        <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadReceipt"><FileDown /> {{ t('sales.details.receiptPdf') }}</Button>
         <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadDocument"><FileText /> {{ downloadingDocument ? t('common.actions.saving') : t('sales.details.a4Invoice') }}</Button>
         <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> {{ t('sales.details.printReceipt') }}</Button>
       </DialogFooter>

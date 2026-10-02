@@ -31,7 +31,6 @@ export const usePrint = () => {
 
   const printerEnabled = useState('print:enabled', () => false)
   const autoPrint = useState('print:auto', () => false)
-  const statusLoaded = useState('print:loaded', () => false)
   const devices = ref<DetectedPrinter[]>([])
   const scanning = ref(false)
   const testingPort = ref(false)
@@ -44,27 +43,31 @@ export const usePrint = () => {
       )
       printerEnabled.value = response.data.enabled
       autoPrint.value = response.data.auto_print
-      statusLoaded.value = true
     } catch {
       printerEnabled.value = false
       autoPrint.value = false
-      statusLoaded.value = true
     }
   }
 
-  const openBrowserReceipt = (saleId: string, printAtOnce = true) => {
-    window.open(`/receipts/${saleId}${printAtOnce ? '?print=1' : ''}`, '_blank', 'width=420,height=720')
+  const openBrowserReceipt = async (saleId: string, printAtOnce = true): Promise<void> => {
+    const receiptUrl = `/receipts/${saleId}${printAtOnce ? '?print=1' : ''}`
+    if (isTauri()) {
+      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow')
+      new WebviewWindow(`receipt-${Date.now()}`, { url: receiptUrl, title: t('receipt.receipt'), width: 420, height: 720 })
+      return
+    }
+    window.open(receiptUrl, '_blank', 'width=420,height=720')
   }
 
   const printSaleReceipt = async (saleId: string, openDrawer = false): Promise<void> => {
-    if (isTauri() && !statusLoaded.value) await fetchPrinterStatus()
+    if (isTauri()) await fetchPrinterStatus()
     const usesReceiptPrinter = isTauri() && printerEnabled.value
     if (!usesReceiptPrinter) {
-      openBrowserReceipt(saleId)
+      await openBrowserReceipt(saleId)
       return
     }
     const isPrinted = await printReceipt(saleId, openDrawer)
-    if (!isPrinted) openBrowserReceipt(saleId)
+    if (!isPrinted) await openBrowserReceipt(saleId)
   }
 
   const printReceipt = async (saleId: string, openDrawer = false): Promise<boolean> => {
@@ -124,7 +127,6 @@ export const usePrint = () => {
   return {
     printerEnabled,
     autoPrint,
-    statusLoaded,
     devices,
     scanning,
     testingPort,
