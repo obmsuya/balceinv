@@ -11,12 +11,12 @@
     "searchLabel": "Search products",
     "filterByCategory": "Filter by category",
     "allCategories": "All categories",
-    "showArchived": "Show archived",
+    "showArchived": "Show deleted",
     "emptyFiltered": "No products match this search.",
     "emptyNone": "No products yet. Add one or import a spreadsheet.",
-    "archiveTitle": "Archive {name}?",
-    "archiveDescription": "It disappears from the till and product list, together with its variants. Past sales keep it, and you can restore it from “Show archived”.",
-    "archive": "Archive"
+    "archiveTitle": "Delete {name}?",
+    "archiveDescription": "It disappears from the till and the product list, together with its variants. Past sales keep it, and you can bring it back from “Show deleted”.",
+    "archive": "Delete"
   },
   "table": {
     "product": "Product",
@@ -25,10 +25,10 @@
     "stock": "Stock",
     "openMenu": "Open menu",
     "addVariant": "Add variant",
-    "archive": "Archive",
+    "archive": "Delete",
     "restore": "Restore",
     "viewDetails": "View details",
-    "archived": "Archived",
+    "archived": "Deleted",
     "empty": "No products found."
   },
   "search": {
@@ -145,8 +145,8 @@
     "createFailed": "Failed to create the product",
     "saved": "Product saved",
     "saveFailed": "Failed to save the product",
-    "archived": "Product archived",
-    "archiveFailed": "Failed to archive the product",
+    "archived": "Product deleted",
+    "archiveFailed": "Failed to delete the product",
     "restored": "Product restored",
     "restoreFailed": "Failed to restore the product",
     "imported": {

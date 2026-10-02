@@ -98,7 +98,7 @@ names. Add a row here before inventing a new term.
 | gross profit | faida ghafi | |
 | renew (subscription) | lipia upya | huisha |
 | activate | washa | amilisha |
-| archive (product) | weka kando | |
+| delete (product; it is hidden and past sales keep it) | futa | weka kando |
 | import / export | ingiza / hamisha | |
 | template | kiolezo | |
 | app / software | programu | |

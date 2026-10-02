@@ -11,12 +11,12 @@
     "searchLabel": "Tafuta bidhaa",
     "filterByCategory": "Chuja kwa kundi",
     "allCategories": "Makundi yote",
-    "showArchived": "Onyesha zilizowekwa kando",
+    "showArchived": "Onyesha zilizofutwa",
     "emptyFiltered": "Hakuna bidhaa inayolingana na utafutaji huu.",
     "emptyNone": "Bado hakuna bidhaa. Ongeza moja au ingiza faili la Excel.",
-    "archiveTitle": "Weka {name} kando?",
-    "archiveDescription": "Itaondoka kwenye kaunta na kwenye orodha ya bidhaa, pamoja na aina zake. Mauzo ya zamani hayataathirika, na unaweza kuirejesha kupitia “Onyesha zilizowekwa kando”.",
-    "archive": "Weka kando"
+    "archiveTitle": "Futa {name}?",
+    "archiveDescription": "Itaondoka kwenye kaunta na kwenye orodha ya bidhaa, pamoja na aina zake. Mauzo ya zamani hayataathirika, na unaweza kuirejesha kupitia “Onyesha zilizofutwa”.",
+    "archive": "Futa"
   },
   "table": {
     "product": "Bidhaa",
@@ -25,10 +25,10 @@
     "stock": "Stoku",
     "openMenu": "Fungua menyu",
     "addVariant": "Ongeza aina",
-    "archive": "Weka kando",
+    "archive": "Futa",
     "restore": "Rejesha",
     "viewDetails": "Tazama maelezo",
-    "archived": "Imewekwa kando",
+    "archived": "Imefutwa",
     "empty": "Hakuna bidhaa zilizopatikana."
   },
   "search": {
@@ -145,8 +145,8 @@
     "createFailed": "Imeshindwa kuongeza bidhaa",
     "saved": "Bidhaa imehifadhiwa",
     "saveFailed": "Imeshindwa kuhifadhi bidhaa",
-    "archived": "Bidhaa imewekwa kando",
-    "archiveFailed": "Imeshindwa kuweka bidhaa kando",
+    "archived": "Bidhaa imefutwa",
+    "archiveFailed": "Imeshindwa kufuta bidhaa",
     "restored": "Bidhaa imerejeshwa",
     "restoreFailed": "Imeshindwa kurejesha bidhaa",
     "imported": {
