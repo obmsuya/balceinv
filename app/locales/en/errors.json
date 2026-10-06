@@ -139,6 +139,5 @@
   "move_already_done": "This business is already online. Sign in instead.",
   "move_email_taken": "One of this business's users already has an online account with the same email.",
   "move_owner_only": "Only the owner can move the business.",
-  "till_discount_not_allowed": "You are not allowed to give discounts at the till. Ask the owner.",
-  "till_discount_over_limit": "The discount is more than a cashier may give. Lower it or ask the owner."
+  "till_discount_not_allowed": "You are not allowed to give discounts at the till. Ask the owner."
 }
