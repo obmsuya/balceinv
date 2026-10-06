@@ -4,10 +4,18 @@ import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type PaymentMethod = 'cash' | 'card' | 'mobile' | 'credit'
 
+export type ManualDiscountKind = 'percent' | 'amount'
+
+export interface ManualDiscount {
+  kind: ManualDiscountKind
+  value: number
+}
+
 export interface SaleLineInput {
   product_id: string
   quantity: number
   addon_ids: string[]
+  manual_discount?: ManualDiscount
 }
 
 export interface PaymentInput {
@@ -34,6 +42,7 @@ export interface SaleLine {
   addons_unit_total: number
   discount_name: string | null
   discount_amount: number
+  manual_discount_amount: number
   line_total: number
   in_stock?: number
 }
@@ -56,6 +65,7 @@ export interface TillOptions {
   customer_display_enabled: boolean
   efd_enabled: boolean
   print_receipt_automatically: boolean
+  discount_limit_basis_points: number
 }
 
 export interface SendWaitingResult {

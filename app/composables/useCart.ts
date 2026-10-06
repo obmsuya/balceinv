@@ -1,3 +1,5 @@
+import type { ManualDiscount } from '~/composables/useSales'
+
 export interface CartAddon {
   id: string
   name: string
@@ -14,6 +16,7 @@ export interface CartLine {
   price: number
   quantity: number
   addons: CartAddon[]
+  manualDiscount?: ManualDiscount | null
 }
 
 export interface CartCustomer {
@@ -105,6 +108,13 @@ export const useCart = () => {
     touch()
   }
 
+  const setLineDiscount = (key: string, manualDiscount: ManualDiscount | null) => {
+    const cartLine = activeSlot.value.lines.find(line => line.key === key)
+    if (!cartLine) return
+    cartLine.manualDiscount = manualDiscount
+    touch()
+  }
+
   const clearActive = (): CartSlot => {
     const clearedSlot = activeSlot.value
     slots.value[activeSlotIndex.value] = emptySlot()
@@ -160,6 +170,7 @@ export const useCart = () => {
     persist,
     addLine,
     setQuantity,
+    setLineDiscount,
     clearActive,
     restoreSlot,
     setNote,

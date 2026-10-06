@@ -26,6 +26,7 @@ export const useTillQuote = () => {
     product_id: cartLine.productId,
     quantity: cartLine.quantity,
     addon_ids: cartLine.addons.map(addon => addon.id),
+    ...(cartLine.manualDiscount ? { manual_discount: cartLine.manualDiscount } : {}),
   })))
 
   const quotedByKey = computed(() => {
@@ -40,7 +41,8 @@ export const useTillQuote = () => {
   const priceOf = (cartLine: CartLine): LinePrice => {
     const quotedLine = quotedByKey.value.get(cartLine.key) ?? null
     const inStock = quotedLine?.in_stock ?? null
-    if (quotedLine && quotedLine.quantity === cartLine.quantity) {
+    const quotedDiscountMatches = (quotedLine?.manual_discount_amount ?? 0) > 0 === Boolean(cartLine.manualDiscount)
+    if (quotedLine && quotedLine.quantity === cartLine.quantity && quotedDiscountMatches) {
       return { amount: quotedLine.line_total, isExact: true, quoted: quotedLine, inStock }
     }
     if (quotedLine) {
