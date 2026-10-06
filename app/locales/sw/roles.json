@@ -45,7 +45,8 @@
     "purchases": "Manunuzi",
     "customers": "Wateja",
     "orders": "Oda za wateja",
-    "accounting": "Uhasibu"
+    "accounting": "Uhasibu",
+    "tillDiscounts": "Punguzo la kaunta"
   },
   "permissions": {
     "products": {
@@ -137,6 +138,9 @@
       "create": "Rekodi pesa inayoingia na kutoka",
       "edit": "Rekebisha na funga vitabu",
       "delete": "Batilisha maingizo"
+    },
+    "tillDiscounts": {
+      "create": "Kutoa punguzo kaunta"
     }
   },
   "table": {

@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import BackupPanel from '@/components/backup/BackupPanel.vue'
+import MoneyInput from '@/components/MoneyInput.vue'
 import NetworkPanel from '@/components/settings/NetworkPanel.vue'
 import FeaturesPanel from '@/components/settings/FeaturesPanel.vue'
 import {
@@ -81,6 +82,7 @@ const systemForm = ref({
 })
 
 // ─── Hardware form ──────────────────────────────────────────────────────────
+// Sends the receipt, printer and till options, including till_discount_limit_basis_points (the percent × 100).
 const hardwareForm = ref({
   printerEnabled: false,
   printerPort: '',
@@ -90,6 +92,7 @@ const hardwareForm = ref({
   show_barcodes_on_receipt: false,
   till_numpad_enabled: false,
   customer_display_enabled: false,
+  tillDiscountLimitPercent: '100',
 })
 
 // ─── Printer detection ───────────────────────────────────────────────────────
@@ -175,6 +178,7 @@ const loadForms = () => {
   hardwareForm.value.printerModel = s.printer_model ?? ''
   hardwareForm.value.till_numpad_enabled = s.till_numpad_enabled ?? false
   hardwareForm.value.customer_display_enabled = s.customer_display_enabled ?? false
+  hardwareForm.value.tillDiscountLimitPercent = String((s.till_discount_limit_basis_points ?? 10000) / 100)
 
 }
 const { user } = useAuth()
@@ -264,6 +268,7 @@ const saveHardware = async () => {
       printer_model: hardwareForm.value.printerModel,
       till_numpad_enabled: hardwareForm.value.till_numpad_enabled,
       customer_display_enabled: hardwareForm.value.customer_display_enabled,
+      till_discount_limit_basis_points: Math.min(10000, Math.max(0, Math.round(Number(hardwareForm.value.tillDiscountLimitPercent || 0) * 100))),
     })
   } catch {} finally {
     savingHardware.value = false
@@ -565,6 +570,16 @@ const efdBadgeLabel = computed(() => {
                   <p class="text-xs text-muted-foreground">{{ t('settings.hardware.customerDisplayHelp') }}</p>
                 </div>
                 <Switch v-model="hardwareForm.customer_display_enabled" :aria-label="t('settings.hardware.customerDisplay')" />
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm">{{ t('settings.hardware.discountLimit') }}</p>
+                  <p class="text-xs text-muted-foreground">{{ t('settings.hardware.discountLimitHelp') }}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-1.5">
+                  <MoneyInput v-model="hardwareForm.tillDiscountLimitPercent" :decimals="2" class="w-20 text-right" :aria-label="t('settings.hardware.discountLimit')" />
+                  <span class="text-sm text-muted-foreground">%</span>
+                </div>
               </div>
             </div>
           </CardContent>
