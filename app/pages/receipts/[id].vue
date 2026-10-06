@@ -111,9 +111,13 @@ onMounted(async () => {
           <span>+ {{ addon.name }} × {{ saleLine.quantity }}</span>
           <span>{{ money(addon.unit_price * saleLine.quantity) }}</span>
         </div>
-        <div v-if="saleLine.discount_amount" class="flex justify-between pl-2">
-          <span>{{ saleLine.discount_name }}</span>
-          <span>−{{ money(saleLine.discount_amount) }}</span>
+        <div v-if="saleLine.discount_amount > (saleLine.manual_discount_amount ?? 0)" class="flex justify-between pl-2">
+          <span>{{ saleLine.discount_name ?? label('discounts') }}</span>
+          <span>−{{ money(saleLine.discount_amount - (saleLine.manual_discount_amount ?? 0)) }}</span>
+        </div>
+        <div v-if="saleLine.manual_discount_amount" class="flex justify-between pl-2">
+          <span>{{ label('cashierDiscount') }}</span>
+          <span>−{{ money(saleLine.manual_discount_amount) }}</span>
         </div>
       </div>
 

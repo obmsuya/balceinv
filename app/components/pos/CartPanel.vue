@@ -2,6 +2,7 @@
 import { Grid3x3, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, UserPlus, UserRound, X } from 'lucide-vue-next'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import NumberPad from '@/components/pos/NumberPad.vue'
+import LineDiscountPopover from '@/components/pos/LineDiscountPopover.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ const props = defineProps<{
   shortLineCount: number
   preparingPayment: boolean
   numpadEnabled: boolean
+  discountLimitBasisPoints: number
 }>()
 const emit = defineEmits<{ pay: []; clear: [] }>()
 
@@ -32,12 +34,16 @@ const {
   unitCount,
   slotUnitCounts,
   setQuantity,
+  setLineDiscount,
   setNote,
   setCustomer,
   selectSlot,
 } = useCart()
 const { t, formatNumber } = useI18n()
 const { customersOn } = useFeatures()
+const { hasPermission } = usePermissions()
+const { user } = useAuth()
+const canDiscount = computed(() => hasPermission('till_discounts', 'create'))
 
 const numpadOpenStorageKey = 'balce:till-numpad-open'
 
@@ -267,9 +273,18 @@ watch(activeSlotIndex, () => {
               </button>
             </div>
             <span class="text-xs text-muted-foreground tabular-nums">× {{ formatMoney(eachPrice(lineIndex)) }}</span>
-            <div class="ml-auto flex flex-wrap justify-end gap-1">
+            <div class="ml-auto flex flex-wrap items-center justify-end gap-1" @click.stop>
+              <LineDiscountPopover
+                v-if="canDiscount"
+                :product-name="cartLine.name"
+                :manual-discount="cartLine.manualDiscount"
+                :gross-amount="eachPrice(lineIndex) * cartLine.quantity"
+                :limit-basis-points="discountLimitBasisPoints"
+                :is-owner="user?.is_owner === true"
+                @apply="manualDiscount => setLineDiscount(cartLine.key, manualDiscount)"
+              />
               <Badge v-if="linePrices[lineIndex]?.quoted?.is_wholesale" variant="secondary" class="font-normal">{{ t('pos.cart.wholesale') }}</Badge>
-              <Badge v-if="linePrices[lineIndex]?.quoted?.discount_name" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">
+              <Badge v-if="linePrices[lineIndex]?.quoted?.discount_name && (linePrices[lineIndex]?.quoted?.discount_amount ?? 0) > (linePrices[lineIndex]?.quoted?.manual_discount_amount ?? 0)" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">
                 {{ linePrices[lineIndex]?.quoted?.discount_name }}
               </Badge>
             </div>

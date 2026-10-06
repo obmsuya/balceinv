@@ -34,7 +34,8 @@
     "customer": "Customer: {name}",
     "a4Invoice": "A4 invoice (PDF)",
     "receiptPdf": "Receipt (PDF)",
-    "share": "Share"
+    "share": "Share",
+    "cashierDiscount": "Cashier discount −{amount}"
   },
   "efd": {
     "sending": "Sending to EFD…"

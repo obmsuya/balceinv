@@ -45,7 +45,8 @@
     "purchases": "Purchases",
     "customers": "Customers",
     "orders": "Customer orders",
-    "accounting": "Accounting"
+    "accounting": "Accounting",
+    "tillDiscounts": "Till discounts"
   },
   "permissions": {
     "products": {
@@ -137,6 +138,9 @@
       "create": "Record money in and out",
       "edit": "Adjust and close the books",
       "delete": "Reverse entries"
+    },
+    "tillDiscounts": {
+      "create": "Give discounts at the till"
     }
   },
   "table": {

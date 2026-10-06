@@ -107,5 +107,17 @@
     "add": "Add customer",
     "change": "Change the customer",
     "remove": "Remove the customer from this sale"
+  },
+  "discount": {
+    "add": "Discount",
+    "title": "Discount on {name}",
+    "percent": "Percent",
+    "percentOff": "Percent off",
+    "amountOff": "Amount off ({currency})",
+    "takesOff": "Takes {amount} off this line",
+    "overLimit": "The most you can give here is {percent}% ({amount})",
+    "limit": "You can give up to {percent}%",
+    "remove": "Remove",
+    "apply": "Apply"
   }
 }

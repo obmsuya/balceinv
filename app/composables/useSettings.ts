@@ -46,6 +46,7 @@ export interface Settings {
   open_cash_drawer: boolean
   till_numpad_enabled: boolean
   customer_display_enabled: boolean
+  till_discount_limit_basis_points: number
   updated_at: string
 }
 
@@ -88,6 +89,7 @@ export interface UpdateSettingsInput {
   open_cash_drawer?: boolean
   till_numpad_enabled?: boolean
   customer_display_enabled?: boolean
+  till_discount_limit_basis_points?: number
 }
 
 interface ApiEnvelope<Payload> {

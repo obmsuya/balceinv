@@ -29,5 +29,6 @@
   },
   "customer": "Customer",
   "balanceOwed": "Balance owed",
-  "order": "Order"
+  "order": "Order",
+  "cashierDiscount": "Cashier discount"
 }
