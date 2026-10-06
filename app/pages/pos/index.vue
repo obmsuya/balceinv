@@ -53,6 +53,7 @@ const sendingFiscal = ref(false)
 let efdRetryTimer: ReturnType<typeof setInterval> | null = null
 
 const numpadEnabled = computed(() => tillOptions.value?.numpad_enabled ?? false)
+const discountLimitBasisPoints = computed(() => tillOptions.value?.discount_limit_basis_points ?? 10000)
 const saleCustomer = computed(() => (customersOn.value ? activeSlot.value.customer ?? null : null))
 const customerDisplayEnabled = computed(() => tillOptions.value?.customer_display_enabled ?? false)
 
@@ -326,6 +327,7 @@ onBeforeUnmount(() => {
         :short-line-count="shortLineCount"
         :preparing-payment="preparingPayment"
         :numpad-enabled="numpadEnabled"
+        :discount-limit-basis-points="discountLimitBasisPoints"
         @pay="startPayment"
         @clear="clearCart"
       />
@@ -356,6 +358,7 @@ onBeforeUnmount(() => {
           :short-line-count="shortLineCount"
           :preparing-payment="preparingPayment"
           :numpad-enabled="numpadEnabled"
+          :discount-limit-basis-points="discountLimitBasisPoints"
           @pay="startPayment"
           @clear="clearCart"
         />
