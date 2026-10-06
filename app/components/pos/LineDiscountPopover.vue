@@ -10,8 +10,6 @@ const props = defineProps<{
   productName: string
   manualDiscount: ManualDiscount | null | undefined
   grossAmount: number
-  limitBasisPoints: number
-  isOwner: boolean
 }>()
 const emit = defineEmits<{ apply: [manualDiscount: ManualDiscount | null] }>()
 
@@ -42,10 +40,6 @@ const takesOff = (manualDiscount: ManualDiscount): number => manualDiscount.kind
   ? Math.round(props.grossAmount * manualDiscount.value / 10000)
   : Math.min(manualDiscount.value, props.grossAmount)
 
-const hasLimit = computed(() => !props.isOwner && props.limitBasisPoints < 10000)
-const limitAmount = computed(() => Math.round(props.grossAmount * props.limitBasisPoints / 10000))
-const isOverLimit = computed(() => hasLimit.value && typedDiscount.value !== null && takesOff(typedDiscount.value) > limitAmount.value)
-
 const badgeText = computed(() => {
   if (!props.manualDiscount) return t('pos.discount.add')
   return props.manualDiscount.kind === 'percent'
@@ -54,7 +48,7 @@ const badgeText = computed(() => {
 })
 
 const apply = () => {
-  if (!typedDiscount.value || isOverLimit.value) return
+  if (!typedDiscount.value) return
   emit('apply', typedDiscount.value)
   open.value = false
 }
@@ -104,18 +98,12 @@ const remove = () => {
         autofocus
         @keydown.enter.prevent="apply"
       />
-      <p v-if="typedDiscount && !isOverLimit" class="text-xs text-muted-foreground">
+      <p v-if="typedDiscount" class="text-xs text-muted-foreground">
         {{ t('pos.discount.takesOff', { amount: formatMoney(takesOff(typedDiscount)) }) }}
-      </p>
-      <p v-if="isOverLimit" class="text-xs font-medium text-destructive">
-        {{ t('pos.discount.overLimit', { percent: formatNumber(limitBasisPoints / 100), amount: formatMoney(limitAmount) }) }}
-      </p>
-      <p v-else-if="hasLimit" class="text-xs text-muted-foreground">
-        {{ t('pos.discount.limit', { percent: formatNumber(limitBasisPoints / 100) }) }}
       </p>
       <div class="flex justify-end gap-2">
         <Button v-if="manualDiscount" variant="ghost" size="sm" @click="remove">{{ t('pos.discount.remove') }}</Button>
-        <Button size="sm" :disabled="!typedDiscount || isOverLimit" @click="apply">{{ t('pos.discount.apply') }}</Button>
+        <Button size="sm" :disabled="!typedDiscount" @click="apply">{{ t('pos.discount.apply') }}</Button>
       </div>
     </PopoverContent>
   </Popover>

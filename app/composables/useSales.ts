@@ -65,7 +65,6 @@ export interface TillOptions {
   customer_display_enabled: boolean
   efd_enabled: boolean
   print_receipt_automatically: boolean
-  discount_limit_basis_points: number
 }
 
 export interface SendWaitingResult {

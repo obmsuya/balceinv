@@ -21,7 +21,6 @@ const props = defineProps<{
   shortLineCount: number
   preparingPayment: boolean
   numpadEnabled: boolean
-  discountLimitBasisPoints: number
 }>()
 const emit = defineEmits<{ pay: []; clear: [] }>()
 
@@ -42,7 +41,6 @@ const {
 const { t, formatNumber } = useI18n()
 const { customersOn } = useFeatures()
 const { hasPermission } = usePermissions()
-const { user } = useAuth()
 const canDiscount = computed(() => hasPermission('till_discounts', 'create'))
 
 const numpadOpenStorageKey = 'balce:till-numpad-open'
@@ -279,8 +277,6 @@ watch(activeSlotIndex, () => {
                 :product-name="cartLine.name"
                 :manual-discount="cartLine.manualDiscount"
                 :gross-amount="eachPrice(lineIndex) * cartLine.quantity"
-                :limit-basis-points="discountLimitBasisPoints"
-                :is-owner="user?.is_owner === true"
                 @apply="manualDiscount => setLineDiscount(cartLine.key, manualDiscount)"
               />
               <Badge v-if="linePrices[lineIndex]?.quoted?.is_wholesale" variant="secondary" class="font-normal">{{ t('pos.cart.wholesale') }}</Badge>

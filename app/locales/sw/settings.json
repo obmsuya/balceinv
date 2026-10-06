@@ -88,9 +88,7 @@
     "modelPlaceholder": "mf. Epson TM-T20III",
     "printing": "Inachapisha…",
     "testPrint": "Jaribu kuchapisha",
-    "save": "Hifadhi mipangilio ya vifaa",
-    "discountLimit": "Kiwango cha juu cha punguzo la keshia",
-    "discountLimitHelp": "Kwa kila bidhaa kwenye kikapu, kwa wafanyakazi wanaoruhusiwa kutoa punguzo. Mmiliki hana kikomo."
+    "save": "Hifadhi mipangilio ya vifaa"
   },
   "efd": {
     "title": "Mashine ya EFD",

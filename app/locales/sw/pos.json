@@ -115,8 +115,6 @@
     "percentOff": "Asilimia ya punguzo",
     "amountOff": "Kiasi cha punguzo ({currency})",
     "takesOff": "Inapunguza {amount} kwenye bidhaa hii",
-    "overLimit": "Kiwango cha juu unachoweza kutoa hapa ni {percent}% ({amount})",
-    "limit": "Unaweza kutoa hadi {percent}%",
     "remove": "Ondoa",
     "apply": "Weka"
   }

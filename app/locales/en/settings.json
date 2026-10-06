@@ -88,9 +88,7 @@
     "modelPlaceholder": "e.g. Epson TM-T20III",
     "printing": "Printing…",
     "testPrint": "Test Print",
-    "save": "Save Hardware Settings",
-    "discountLimit": "Most a cashier may take off",
-    "discountLimitHelp": "Per cart line, for staff allowed to give discounts. The owner has no limit."
+    "save": "Save Hardware Settings"
   },
   "efd": {
     "title": "Electronic Fiscal Device",
