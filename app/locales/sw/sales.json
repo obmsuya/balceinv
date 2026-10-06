@@ -34,7 +34,8 @@
     "customer": "Mteja: {name}",
     "a4Invoice": "Ankara A4 (PDF)",
     "receiptPdf": "Risiti (PDF)",
-    "share": "Tuma"
+    "share": "Tuma",
+    "cashierDiscount": "Punguzo la keshia −{amount}"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"

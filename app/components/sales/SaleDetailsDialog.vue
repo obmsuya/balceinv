@@ -76,7 +76,8 @@ const printReceipt = () => {
             </p>
             <div class="mt-1 flex flex-wrap gap-1">
               <Badge v-if="saleLine.is_wholesale" variant="secondary" class="font-normal">{{ t('sales.details.wholesale') }}</Badge>
-              <Badge v-if="saleLine.discount_name" variant="outline" class="font-normal">{{ saleLine.discount_name }} −{{ formatMoney(saleLine.discount_amount) }}</Badge>
+              <Badge v-if="saleLine.discount_name" variant="outline" class="font-normal">{{ saleLine.discount_name }} −{{ formatMoney(saleLine.discount_amount - (saleLine.manual_discount_amount ?? 0)) }}</Badge>
+              <Badge v-if="saleLine.manual_discount_amount" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">{{ t('sales.details.cashierDiscount', { amount: formatMoney(saleLine.manual_discount_amount) }) }}</Badge>
             </div>
           </div>
           <span class="shrink-0 font-medium tabular-nums">{{ formatMoney(saleLine.line_total) }}</span>
