@@ -139,5 +139,8 @@
   "move_already_done": "Biashara hii tayari iko mtandaoni. Ingia badala yake.",
   "move_email_taken": "Mmoja wa watumiaji wa biashara hii tayari ana akaunti mtandaoni yenye barua pepe hiyo hiyo.",
   "move_owner_only": "Mmiliki pekee ndiye anaweza kuhamisha biashara.",
-  "till_discount_not_allowed": "Huruhusiwi kutoa punguzo kaunta. Muulize mmiliki."
+  "till_discount_not_allowed": "Huruhusiwi kutoa punguzo kaunta. Muulize mmiliki.",
+  "sale_already_voided": "Mauzo haya yameshabatilishwa.",
+  "sale_from_order": "Mauzo haya yalikamilisha oda ya mteja. Ghairi au badilisha oda badala yake.",
+  "efd_busy": "Mauzo haya yanatumwa EFD sasa hivi. Jaribu tena baada ya muda mfupi."
 }

@@ -111,6 +111,10 @@ export interface Sale {
   items: SaleLine[]
   payments: PaymentInput[]
   fiscal: SaleFiscal | null
+  voided_at: string | null
+  void_reason: string | null
+  voided_by_name: string | null
+  credit_note: SaleFiscal | null
 }
 
 export interface SaleSummary {
@@ -122,6 +126,7 @@ export interface SaleSummary {
   payment_methods: PaymentMethod[]
   cashier_name: string
   fiscal_status: FiscalStatus | null
+  voided_at: string | null
   created_at: string
 }
 
@@ -326,6 +331,22 @@ export const useSales = () => {
     }
   }
 
+  const voidingSale = ref(false)
+
+  const voidSale = async (saleId: string, reason: string): Promise<Sale | null> => {
+    voidingSale.value = true
+    try {
+      const voidResponse = await apiFetch<ApiEnvelope<Sale>>(`/api/sales/${saleId}/void`, { method: 'POST', body: { reason } })
+      toast.success(t('sales.void.done'), { description: voidResponse.data.receipt_number })
+      return voidResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'sales.void.failed'))
+      return null
+    } finally {
+      voidingSale.value = false
+    }
+  }
+
   const sendWaitingToEfd = async (announce: boolean): Promise<SendWaitingResult | null> => {
     try {
       const sendResponse = await apiFetch<ApiEnvelope<SendWaitingResult>>('/api/sales/fiscal/send-waiting', { method: 'POST' })
@@ -355,6 +376,8 @@ export const useSales = () => {
     downloadingDocument,
     downloadSaleDocument,
     shareSaleReceipt,
+    voidingSale,
+    voidSale,
     fetchTillOptions,
     sendToEfd,
     sendWaitingToEfd,

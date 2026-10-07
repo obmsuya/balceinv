@@ -139,5 +139,8 @@
   "move_already_done": "This business is already online. Sign in instead.",
   "move_email_taken": "One of this business's users already has an online account with the same email.",
   "move_owner_only": "Only the owner can move the business.",
-  "till_discount_not_allowed": "You are not allowed to give discounts at the till. Ask the owner."
+  "till_discount_not_allowed": "You are not allowed to give discounts at the till. Ask the owner.",
+  "sale_already_voided": "This sale was already voided.",
+  "sale_from_order": "This sale completed a customer order. Cancel or change the order instead.",
+  "efd_busy": "This sale is being sent to the EFD right now. Try again in a moment."
 }
