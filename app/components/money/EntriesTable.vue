@@ -30,7 +30,7 @@ const load = async (append = false) => {
 const rows = computed(() => entries.value.map(entry => ({ entry, flow: entryMoneyFlow(entry) })))
 const dayText = (isoDate: string) => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })
 const detailLine = (entry: BooksEntry, movesMoney: boolean) => {
-  const parts = [entryPlaces(entry), entry.memo, entry.shop_name]
+  const parts = [entry.party_name, entry.paid_to_name ? t('money.entries.paidToName', { name: entry.paid_to_name }) : null, entryPlaces(entry), entry.memo, entry.shop_name]
   if (!movesMoney) parts.unshift(t('money.entries.noMoneyMoved'))
   return parts.filter(Boolean).join(' · ')
 }

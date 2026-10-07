@@ -1,8 +1,8 @@
 {
   "page": {
     "title": "Fedha",
-    "subtitle": "Rekodi pesa inayoingia na kutoka. Kila rekodi ya kipindi imeorodheshwa hapa chini.",
-    "fullSubtitle": "Rekodi pesa, weka maingizo ya mkono na funga miezi. Kila ingizo la kipindi limeorodheshwa hapa chini.",
+    "subtitle": "Rekodi hapa pesa isiyotokana na mauzo. Mauzo, manunuzi na malipo yanarekodiwa yenyewe: chagua Onyesha → Kila kitu kuyaona pia.",
+    "fullSubtitle": "Rekodi pesa, weka maingizo ya mkono na funga miezi. Chagua Onyesha → Kila kitu kuona mauzo, manunuzi na malipo pia.",
     "notStartedNoEdit": "Vitabu vya hesabu bado havijaanzishwa. Mwombe mmiliki avianzishe.",
     "closedUntil": "Imefungwa hadi {date}"
   },
@@ -103,8 +103,13 @@
       "amount": "Weka kiasi kilicho juu ya sifuri",
       "whatFor": "Chagua pesa ilitumika kwa nini",
       "samePlace": "Chagua sehemu mbili tofauti",
-      "vat": "VAT lazima iwe chini ya kiasi"
-    }
+      "vat": "VAT lazima iwe chini ya kiasi",
+      "paidTo": "Chagua nani amelipwa"
+    },
+    "paidTo": "Amelipwa",
+    "paidToStaff": "Nani amelipwa",
+    "paidToOptional": "Amelipwa (si lazima)",
+    "paidToNobody": "Hakuna mtu maalum"
   },
   "entries": {
     "empty": "Bado hakuna kilichorekodiwa kipindi hiki",
@@ -145,9 +150,15 @@
     "totals": "Jumla",
     "show": {
       "label": "Onyesha",
-      "money": "Rekodi za pesa",
-      "all": "Maingizo yote"
-    }
+      "money": "Zilizoandikwa hapa",
+      "all": "Kila kitu"
+    },
+    "paidToName": "Amelipwa {name}",
+    "openSale": "Fungua risiti",
+    "openCustomer": "Fungua mteja",
+    "openSupplier": "Fungua msambazaji",
+    "customer": "Mteja",
+    "supplier": "Msambazaji"
   },
   "check": {
     "title": "Ukaguzi wa hesabu",
