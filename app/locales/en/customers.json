@@ -63,7 +63,7 @@
   "owing": {
     "hint": "Oldest debts first. Red means the money has been owed for more than 30 days.",
     "emptyTitle": "Nobody owes you money",
-    "emptyHint": "Customers who buy on pay later will show here",
+    "emptyHint": "Customers who buy on credit will show here",
     "since": "Owes since {date}",
     "owesSince": "Owes since",
     "totalOwed": "Total owed to you"
@@ -83,7 +83,7 @@
     "purchasesTab": "Purchases",
     "paymentsTab": "Payments",
     "statementTab": "Statement",
-    "onCredit": "Pay later",
+    "onCredit": "On credit",
     "noPurchases": "No purchases yet"
   },
   "payments": {
@@ -116,7 +116,7 @@
     "opening": "Owed at the start",
     "closing": "Owed at the end",
     "nothing": "Nothing happened in these dates",
-    "creditSale": "Pay later · receipt {receipt}",
+    "creditSale": "On credit · receipt {receipt}",
     "payment": "Payment · {reference}",
     "documentTitle": "Customer statement"
   },

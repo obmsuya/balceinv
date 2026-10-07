@@ -180,7 +180,7 @@
     },
     "credit": {
       "title": "🧾 Selling on credit",
-      "body": "At the till, choose the customer and pay with Pay later. The amount goes onto their debt until they pay."
+      "body": "At the till, add the customer to the cart and pay with On credit. The amount goes onto their debt until they pay."
     }
   },
   "orders": {

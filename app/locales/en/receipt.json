@@ -17,7 +17,7 @@
     "cash": "Cash",
     "card": "Card",
     "mobile": "Mobile money",
-    "credit": "Pay later"
+    "credit": "On credit"
   },
   "loadFailed": "This receipt could not be loaded",
   "toasts": {

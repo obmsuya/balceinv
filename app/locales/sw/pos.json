@@ -32,7 +32,11 @@
     "notePlaceholder": "Maelezo ya mauzo haya (yanachapishwa kwenye risiti)",
     "removeNote": "Ondoa maelezo",
     "discounts": "Punguzo",
-    "includesTax": "Inajumuisha kodi ({rate}%)"
+    "includesTax": "Inajumuisha kodi ({rate}%)",
+    "heldWaiting": {
+      "one": "+{count} kinasubiri",
+      "other": "+{count} vinasubiri"
+    }
   },
   "numpad": {
     "label": "Vitufe vya namba",
@@ -55,15 +59,16 @@
     "change": "Chenji",
     "badAmount": "Kiasi lazima kiwe namba",
     "stillOwed": "Bado kiasi cha {amount} hakijalipwa",
-    "nonCashTooMuch": "Kadi, pesa ya simu na lipa baadaye visizidi jumla",
+    "nonCashTooMuch": "Kadi, pesa ya simu na mkopo visizidi jumla",
     "completeSale": "Kamilisha mauzo",
     "typingInto": "Unaandika kwenye:",
     "done": "Maliza",
-    "overCreditLimit": "Lipa baadaye imezidi kikomo chake. Anaweza kuchukua hadi {amount} zaidi.",
+    "overCreditLimit": "Mkopo umezidi kikomo chake. Anaweza kuchukua hadi {amount} zaidi.",
     "creditOwes": "{name} anadaiwa {amount}",
     "creditNoLimit": "hana kikomo",
     "creditCanTake": "anaweza kuchukua {amount} zaidi",
-    "creditFor": "Lipa baadaye itaingia kwenye deni la {name}"
+    "creditFor": "Mkopo utaingia kwenye deni la {name}",
+    "creditNeedsCustomer": "Kuuza kwa mkopo, ongeza mteja kwenye kikapu kwanza (Ongeza mteja)."
   },
   "grid": {
     "noProducts": "Bado hakuna bidhaa",
