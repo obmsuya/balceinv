@@ -43,7 +43,9 @@
     "signOut": "Toka",
     "signedOut": "Umetoka",
     "subscriptionId": "Kitambulisho cha usajili",
-    "subscriptionIdCopied": "Kitambulisho cha usajili kimenakiliwa"
+    "subscriptionIdCopied": "Kitambulisho cha usajili kimenakiliwa",
+    "clickToCopyId": "Bonyeza kunakili kitambulisho kamili",
+    "idCopyFailed": "Imeshindwa kunakili. Chagua kitambulisho kamili hapa chini na ukinakili."
   },
   "footer": {
     "rights": "Haki zote zimehifadhiwa"

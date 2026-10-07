@@ -74,7 +74,12 @@ const deviceIdCopied = ref(false)
 
 const copyDeviceId = async () => {
   if (!hardwareId.value) return
-  await navigator.clipboard.writeText(hardwareId.value)
+  try {
+    await navigator.clipboard.writeText(hardwareId.value)
+  } catch {
+    toast.error(t('nav.header.idCopyFailed'), { description: hardwareId.value, duration: 30000 })
+    return
+  }
   deviceIdCopied.value = true
   setTimeout(() => { deviceIdCopied.value = false }, 2000)
 }

@@ -43,7 +43,9 @@
     "signOut": "Sign out",
     "signedOut": "Signed out",
     "subscriptionId": "Subscription ID",
-    "subscriptionIdCopied": "Subscription ID copied"
+    "subscriptionIdCopied": "Subscription ID copied",
+    "clickToCopyId": "Click to copy the full ID",
+    "idCopyFailed": "Could not copy. Select the full ID below and copy it."
   },
   "footer": {
     "rights": "All rights reserved"
