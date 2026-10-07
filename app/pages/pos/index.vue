@@ -24,7 +24,8 @@ const efdRetryMilliseconds = 5 * 60 * 1000
 
 const { products, totalProducts, categories, loading, fetchProducts, fetchCategories, lookupProduct } = useProducts()
 const { fetchActiveAddons } = useAddons()
-const { activeSlot, activeSlotIndex, unitCount, loadCarts, addLine, clearActive, restoreSlot, takeMultiplier, checkoutReference } = useCart()
+const { activeSlot, activeSlotIndex, unitCount, slotUnitCounts, loadCarts, addLine, clearActive, restoreSlot, takeMultiplier, checkoutReference } = useCart()
+const heldCartCount = computed(() => slotUnitCounts.value.filter((count, slotIndex) => count > 0 && slotIndex !== activeSlotIndex.value).length)
 const { createSale, saving, fetchTillOptions, sendToEfd, sendWaitingToEfd, downloadingDocument, downloadSaleDocument, shareSaleReceipt } = useSales()
 const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
 const { user } = useAuth()
@@ -336,7 +337,8 @@ onBeforeUnmount(() => {
         <Button variant="outline" class="h-12 flex-1 justify-between" @click="showCartSheet = true">
           <span class="flex items-center gap-2">
             <ChevronUp />
-            {{ t('pos.itemCount', { count: unitCount }) }}
+            {{ t('pos.cart.slot', { number: activeSlotIndex + 1 }) }} · {{ t('pos.itemCount', { count: unitCount }) }}
+            <span v-if="heldCartCount" class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">{{ t('pos.cart.heldWaiting', { count: heldCartCount }) }}</span>
           </span>
           <span class="font-semibold tabular-nums">{{ formatMoney(unitCount ? total : 0) }}</span>
         </Button>
