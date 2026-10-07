@@ -163,10 +163,11 @@ onMounted(async () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="sale in sales" :key="sale.id" class="cursor-pointer" @click="openSale(sale.id)">
+              <TableRow v-for="sale in sales" :key="sale.id" class="cursor-pointer" :class="sale.voided_at ? 'text-muted-foreground' : ''" @click="openSale(sale.id)">
                 <TableCell>
                   <p class="flex flex-wrap items-center gap-1.5 font-mono text-sm font-medium">
                     {{ sale.receipt_number }}
+                    <Badge v-if="sale.voided_at" variant="destructive" class="font-sans font-normal">{{ t('sales.void.badge') }}</Badge>
                     <Badge v-if="sale.fiscal_status && sale.fiscal_status !== 'sent'" :variant="sale.fiscal_status === 'failed' ? 'destructive' : 'secondary'" class="font-sans font-normal">
                       {{ fiscalStatusLabel(sale.fiscal_status) }}
                     </Badge>
@@ -180,7 +181,7 @@ onMounted(async () => {
                   </div>
                 </TableCell>
                 <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ sale.unit_count }}</TableCell>
-                <TableCell class="text-right font-semibold tabular-nums">{{ formatMoney(sale.total) }}</TableCell>
+                <TableCell class="text-right font-semibold tabular-nums" :class="sale.voided_at ? 'line-through' : ''">{{ formatMoney(sale.total) }}</TableCell>
               </TableRow>
               <TableRow v-if="!sales.length">
                 <TableCell colspan="5" class="h-24 text-center text-muted-foreground">{{ t('sales.table.empty') }}</TableCell>

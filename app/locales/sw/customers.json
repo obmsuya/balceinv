@@ -63,7 +63,7 @@
   "owing": {
     "hint": "Madeni ya zamani zaidi yanaanza. Nyekundu ina maana deni limezidi siku 30.",
     "emptyTitle": "Hakuna anayekudai",
-    "emptyHint": "Wateja wanaonunua kwa lipa baadaye wataonekana hapa",
+    "emptyHint": "Wateja wanaonunua kwa mkopo wataonekana hapa",
     "since": "Anadaiwa tangu {date}",
     "owesSince": "Anadaiwa tangu",
     "totalOwed": "Jumla ya madeni yako"
@@ -83,7 +83,7 @@
     "purchasesTab": "Manunuzi",
     "paymentsTab": "Malipo",
     "statementTab": "Mwenendo wa deni",
-    "onCredit": "Lipa baadaye",
+    "onCredit": "Mkopo",
     "noPurchases": "Bado hajanunua"
   },
   "payments": {
@@ -116,7 +116,7 @@
     "opening": "Deni mwanzoni",
     "closing": "Deni mwishoni",
     "nothing": "Hakuna kilichotokea katika tarehe hizi",
-    "creditSale": "Lipa baadaye · risiti {receipt}",
+    "creditSale": "Mkopo · risiti {receipt}",
     "payment": "Malipo · {reference}",
     "documentTitle": "Mwenendo wa deni"
   },

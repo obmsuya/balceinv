@@ -32,7 +32,11 @@
     "notePlaceholder": "Note for this sale (prints on the receipt)",
     "removeNote": "Remove the note",
     "discounts": "Discounts",
-    "includesTax": "Includes tax ({rate}%)"
+    "includesTax": "Includes tax ({rate}%)",
+    "heldWaiting": {
+      "one": "+{count} held",
+      "other": "+{count} held"
+    }
   },
   "numpad": {
     "label": "Number pad",
@@ -55,15 +59,16 @@
     "change": "Change",
     "badAmount": "Amounts must be numbers",
     "stillOwed": "{amount} still owed",
-    "nonCashTooMuch": "Card, mobile money and pay later cannot be more than the total",
+    "nonCashTooMuch": "Card, mobile money and credit cannot be more than the total",
     "completeSale": "Complete sale",
     "typingInto": "Typing into:",
     "done": "Done",
-    "overCreditLimit": "Pay later is over their limit. They can take up to {amount} more.",
+    "overCreditLimit": "Credit is over their limit. They can take up to {amount} more.",
     "creditOwes": "{name} owes {amount}",
     "creditNoLimit": "no limit",
     "creditCanTake": "can take {amount} more",
-    "creditFor": "Pay later goes on {name}'s account"
+    "creditFor": "The credit goes on {name}'s account",
+    "creditNeedsCustomer": "To sell on credit, add the customer to the cart first (Add customer)."
   },
   "grid": {
     "noProducts": "No products yet",

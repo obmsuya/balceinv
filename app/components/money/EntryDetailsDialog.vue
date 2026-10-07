@@ -22,9 +22,18 @@ const isReversing = ref(false)
 const reason = ref('')
 const photoUrl = ref<string | null>(null)
 
-const automaticSources = ['sale', 'stock_adjustment', 'stock_transfer', 'purchase', 'supplier_payment', 'supplier_return', 'customer_payment', 'order_deposit', 'order_refund']
+const automaticSources = ['sale', 'sale_void', 'stock_adjustment', 'stock_transfer', 'purchase', 'supplier_payment', 'supplier_return', 'customer_payment', 'order_deposit', 'order_refund']
 const canReverse = computed(() => canDelete('accounting') && props.entry?.is_reversible === true)
 const isAutomatic = computed(() => automaticSources.includes(props.entry?.source_type ?? ''))
+const sourceLink = computed(() => {
+  const entry = props.entry
+  if (!entry) return null
+  const isSaleRecord = (entry.source_type === 'sale' || entry.source_type === 'sale_void') && entry.source_id
+  if (isSaleRecord) return { to: `/receipts/${entry.source_id}`, label: t('money.entries.openSale') }
+  if (entry.party_type === 'customer' && entry.party_id) return { to: `/customers/${entry.party_id}`, label: t('money.entries.openCustomer') }
+  if (entry.party_type === 'supplier' && entry.party_id) return { to: `/suppliers/${entry.party_id}`, label: t('money.entries.openSupplier') }
+  return null
+})
 const totalDebit = computed(() => props.entry?.lines.reduce((total, line) => total + line.debit, 0) ?? 0)
 const totalCredit = computed(() => props.entry?.lines.reduce((total, line) => total + line.credit, 0) ?? 0)
 
@@ -72,6 +81,8 @@ onBeforeUnmount(forgetPhoto)
       <dl class="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
         <div v-if="entryPlaces(entry)"><dt class="text-muted-foreground">{{ t('money.entries.place') }}</dt><dd>{{ entryPlaces(entry) }}</dd></div>
         <div v-if="entry.shop_name"><dt class="text-muted-foreground">{{ t('money.form.shop') }}</dt><dd>{{ entry.shop_name }}</dd></div>
+        <div v-if="entry.party_name"><dt class="text-muted-foreground">{{ entry.party_type === 'customer' ? t('money.entries.customer') : t('money.entries.supplier') }}</dt><dd>{{ entry.party_name }}</dd></div>
+        <div v-if="entry.paid_to_name"><dt class="text-muted-foreground">{{ t('money.form.paidTo') }}</dt><dd>{{ entry.paid_to_name }}</dd></div>
         <div v-if="entry.memo" class="sm:col-span-2"><dt class="text-muted-foreground">{{ t('money.entries.memo') }}</dt><dd class="break-words">{{ entry.memo }}</dd></div>
         <div v-if="entry.receipt_number"><dt class="text-muted-foreground">{{ t('money.entries.receiptNumber') }}</dt><dd>{{ entry.receipt_number }}</dd></div>
         <div v-if="entry.supplier_tin"><dt class="text-muted-foreground">{{ t('money.entries.supplierTin') }}</dt><dd>{{ entry.supplier_tin }}</dd></div>
@@ -80,6 +91,7 @@ onBeforeUnmount(forgetPhoto)
       </dl>
 
       <p v-if="isAutomatic" class="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">{{ t('money.entries.automatic') }}</p>
+      <NuxtLink v-if="sourceLink" :to="sourceLink.to" class="text-sm font-medium text-primary underline-offset-4 hover:underline" @click="open = false">{{ sourceLink.label }} →</NuxtLink>
       <p v-if="entry.reversed_by_entry_id" class="rounded-lg bg-muted px-3 py-2 text-sm">{{ t('money.entries.reversedByEntry') }}</p>
       <p v-if="entry.reverses_entry_id" class="rounded-lg bg-muted px-3 py-2 text-sm">{{ t('money.entries.reversesEntry') }}</p>
 

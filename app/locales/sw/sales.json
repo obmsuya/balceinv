@@ -50,7 +50,7 @@
     "cash": "Taslimu",
     "card": "Kadi",
     "mobile": "Pesa ya simu",
-    "credit": "Lipa baadaye"
+    "credit": "Mkopo"
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia mauzo",
@@ -68,5 +68,18 @@
     "receiptSavedToShare": "Risiti imehifadhiwa. Iambatanishe kwenye WhatsApp au barua pepe ili kuituma."
   },
   "pdfFileType": "Hati ya PDF",
-  "shareTitle": "Risiti {number}"
+  "shareTitle": "Risiti {number}",
+  "void": {
+    "action": "Batilisha mauzo",
+    "title": "Batilisha {number}?",
+    "explain": "Stoku inarudi, hesabu zinageuzwa na deni lolote la mauzo haya linaondolewa. Kisha uza tena kwa usahihi.",
+    "explainEfd": "EFD tayari ina risiti hii, kwa hiyo hati ya kufuta (credit note) itatumwa kuifuta. Stoku inarudi na hesabu zinageuzwa. Kisha uza tena kwa usahihi.",
+    "reasonPlaceholder": "Kwa nini? Mfano: niliandika 4 badala ya 1",
+    "confirm": "Batilisha mauzo",
+    "done": "Mauzo yamebatilishwa",
+    "failed": "Imeshindwa kubatilisha mauzo",
+    "badge": "Yamebatilishwa",
+    "voidedBy": "Yamebatilishwa na {name} · {date}",
+    "creditNote": "Hati ya kufuta ya EFD: {status}"
+  }
 }

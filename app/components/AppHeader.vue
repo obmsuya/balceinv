@@ -86,8 +86,12 @@ const isWebSubscription = computed(() => hardwareId.value?.startsWith('cloud-') 
 
 const copyHardwareId = async () => {
   if (!hardwareId.value) return
-  await navigator.clipboard.writeText(hardwareId.value)
-  toast.success(isWebSubscription.value ? t('nav.header.subscriptionIdCopied') : t('nav.header.hardwareIdCopied'))
+  try {
+    await navigator.clipboard.writeText(hardwareId.value)
+    toast.success(isWebSubscription.value ? t('nav.header.subscriptionIdCopied') : t('nav.header.hardwareIdCopied'), { description: hardwareId.value })
+  } catch {
+    toast.error(t('nav.header.idCopyFailed'), { description: hardwareId.value, duration: 30000 })
+  }
 }
 
 const openNotification = async (notification: StockNotification) => {
@@ -276,7 +280,7 @@ onUnmounted(() => {
                 <Fingerprint class="size-3" />
                 {{ isWebSubscription ? t('nav.header.subscriptionId') : t('nav.header.hardwareId') }}
               </span>
-              <span class="w-full truncate font-mono text-xs">{{ hardwareId.slice(0, 16) }}…</span>
+              <span class="text-xs font-medium text-primary">{{ t('nav.header.clickToCopyId') }}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem class="text-destructive focus:text-destructive" @click="logout">{{ t('nav.header.signOut') }}</DropdownMenuItem>

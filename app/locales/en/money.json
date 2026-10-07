@@ -1,8 +1,8 @@
 {
   "page": {
     "title": "Money",
-    "subtitle": "Record money in and out. Every record for the period is listed below.",
-    "fullSubtitle": "Record money, post manual entries and close months. Every entry for the period is listed below.",
+    "subtitle": "Record money that does not come from sales here. Sales, purchases and payments are recorded for you: choose Show → Everything to see them too.",
+    "fullSubtitle": "Record money, post manual entries and close months. Choose Show → Everything to see sales, purchases and payments as well.",
     "notStartedNoEdit": "The books have not been started yet. Ask the owner to start them.",
     "closedUntil": "Closed up to {date}"
   },
@@ -103,8 +103,13 @@
       "amount": "Enter an amount above zero",
       "whatFor": "Choose what the money was spent on",
       "samePlace": "Choose two different places",
-      "vat": "The VAT must be less than the amount"
-    }
+      "vat": "The VAT must be less than the amount",
+      "paidTo": "Choose who was paid"
+    },
+    "paidTo": "Paid to",
+    "paidToStaff": "Who was paid",
+    "paidToOptional": "Paid to (optional)",
+    "paidToNobody": "Nobody in particular"
   },
   "entries": {
     "empty": "Nothing recorded for this period yet",
@@ -145,9 +150,15 @@
     "totals": "Totals",
     "show": {
       "label": "Show",
-      "money": "Money records",
-      "all": "Every entry"
-    }
+      "money": "Typed on this page",
+      "all": "Everything"
+    },
+    "paidToName": "Paid to {name}",
+    "openSale": "Open the receipt",
+    "openCustomer": "Open the customer",
+    "openSupplier": "Open the supplier",
+    "customer": "Customer",
+    "supplier": "Supplier"
   },
   "check": {
     "title": "Books check",

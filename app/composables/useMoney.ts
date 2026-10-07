@@ -60,6 +60,11 @@ export interface BooksEntry {
   has_attachment: boolean
   receipt_number: string | null
   supplier_tin: string | null
+  party_type: 'customer' | 'supplier' | null
+  party_id: string | null
+  party_name: string | null
+  paid_to_user_id: string | null
+  paid_to_name: string | null
   reverses_entry_id: string | null
   reversed_by_entry_id: string | null
   is_reversible: boolean
@@ -119,6 +124,12 @@ export interface MoneyFields {
   vat_amount?: number | null
   supplier_tin?: string | null
   receipt_number?: string | null
+  paid_to_user_id?: string | null
+}
+
+export interface PayablePerson {
+  id: string
+  name: string
 }
 
 export interface ManualLine {
@@ -174,6 +185,7 @@ export const useMoney = () => {
 
   const status = useState<BooksStatus | null>('money:status', () => null)
   const accounts = useState<BooksAccount[]>('money:accounts', () => [])
+  const people = useState<PayablePerson[]>('money:people', () => [])
   const saving = ref(false)
 
   const fetchStatus = async (): Promise<BooksStatus | null> => {
@@ -190,6 +202,15 @@ export const useMoney = () => {
     try {
       const accountsResponse = await apiFetch<ApiEnvelope<BooksAccount[]>>('/api/accounting/accounts')
       accounts.value = accountsResponse.data ?? []
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'money.toasts.loadFailed'))
+    }
+  }
+
+  const fetchPeople = async (): Promise<void> => {
+    try {
+      const peopleResponse = await apiFetch<ApiEnvelope<PayablePerson[]>>('/api/accounting/people')
+      people.value = peopleResponse.data ?? []
     } catch (error: any) {
       toast.error(apiErrorMessage(error, 'money.toasts.loadFailed'))
     }
@@ -361,6 +382,8 @@ export const useMoney = () => {
     saving,
     fetchStatus,
     fetchAccounts,
+    people,
+    fetchPeople,
     fetchOverview,
     fetchBooksCheck,
     fetchEntries,

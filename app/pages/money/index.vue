@@ -58,7 +58,7 @@ const rangeInvalid = computed(() => !fromDate.value || !toDate.value || fromDate
 const period = computed(() => ({ from: fromDate.value, to: toDate.value, shop: shopScope.value === allShops ? undefined : shopScope.value }))
 const entryFilter = computed(() => ({
   ...period.value,
-  source_type: isFull.value && showEveryEntry.value === 'all' ? undefined : moneyPageSources.join(','),
+  source_type: showEveryEntry.value === 'all' ? undefined : moneyPageSources.join(','),
 }))
 const shortDate = (isoDate: string) => formatDate(`${isoDate}T12:00:00`, { day: 'numeric', month: 'short', year: 'numeric' })
 const periodLabel = computed(() => (fromDate.value === toDate.value ? shortDate(fromDate.value) : `${shortDate(fromDate.value)} – ${shortDate(toDate.value)}`))
@@ -216,7 +216,7 @@ onMounted(async () => {
         <Button variant="outline" @click="showCheckDialog = true">{{ t('money.check.open') }}</Button>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 rounded-xl border p-3 sm:grid-cols-2 sm:p-4" :class="isFull ? 'lg:grid-cols-5' : 'lg:grid-cols-4'">
+      <div class="grid grid-cols-1 gap-3 rounded-xl border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-5">
         <div class="flex flex-col gap-1.5">
           <Label for="money-period">{{ t('reports.list.periodLabel') }}</Label>
           <Select v-model="rangePreset">
@@ -244,7 +244,7 @@ onMounted(async () => {
             </SelectContent>
           </Select>
         </div>
-        <div v-if="isFull" class="flex flex-col gap-1.5">
+        <div class="flex flex-col gap-1.5">
           <Label for="money-show">{{ t('money.entries.show.label') }}</Label>
           <Select v-model="showEveryEntry">
             <SelectTrigger id="money-show" class="w-full"><SelectValue /></SelectTrigger>

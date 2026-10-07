@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { FileDown, FileText, Printer, ReceiptText, Share2 } from 'lucide-vue-next'
+import { Ban, FileDown, FileText, Printer, ReceiptText, Share2 } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Sale } from '@/composables/useSales'
 import { fiscalStatusLabel, paymentMethodLabel } from '@/composables/useSales'
@@ -15,9 +16,24 @@ const emit = defineEmits<{ changed: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 const { t, formatDateTime, formatNumber } = useI18n()
 
-const { fetchSale, sendToEfd, downloadingDocument, downloadSaleDocument, shareSaleReceipt } = useSales()
+const { fetchSale, sendToEfd, downloadingDocument, downloadSaleDocument, shareSaleReceipt, voidingSale, voidSale } = useSales()
+const { hasPermission } = usePermissions()
 const sale = ref<Sale | null>(null)
 const sendingFiscal = ref(false)
+const showVoid = ref(false)
+const voidReason = ref('')
+
+const canVoid = computed(() => hasPermission('sales', 'delete') && sale.value !== null && !sale.value.voided_at && !sale.value.order_number)
+
+const confirmVoid = async () => {
+  if (!sale.value || voidReason.value.trim().length < 3) return
+  const voidedSale = await voidSale(sale.value.id, voidReason.value.trim())
+  if (!voidedSale) return
+  sale.value = voidedSale
+  showVoid.value = false
+  voidReason.value = ''
+  emit('changed')
+}
 
 const downloadDocument = () => {
   if (sale.value) downloadSaleDocument(sale.value.id, sale.value.receipt_number)
@@ -67,6 +83,11 @@ const printReceipt = () => {
 
       <Skeleton v-if="!sale" class="h-40 w-full" />
       <div v-else class="flex flex-col gap-3">
+        <div v-if="sale.voided_at" class="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm">
+          <p class="font-medium text-destructive">{{ t('sales.void.voidedBy', { name: sale.voided_by_name ?? '', date: formatDateTime(sale.voided_at) }) }}</p>
+          <p class="text-muted-foreground">{{ sale.void_reason }}</p>
+          <p v-if="sale.credit_note" class="mt-1 text-xs">{{ t('sales.void.creditNote', { status: fiscalStatusLabel(sale.credit_note.status) }) }}</p>
+        </div>
         <div v-for="(saleLine, lineIndex) in sale.items" :key="lineIndex" class="flex items-start justify-between gap-3 text-sm">
           <div class="min-w-0">
             <p class="font-medium">{{ saleLine.product_name }}<template v-if="saleLine.variant_label"> · {{ saleLine.variant_label }}</template></p>
@@ -112,7 +133,18 @@ const printReceipt = () => {
         <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadReceipt"><FileDown /> {{ t('sales.details.receiptPdf') }}</Button>
         <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadDocument"><FileText /> {{ downloadingDocument ? t('common.actions.saving') : t('sales.details.a4Invoice') }}</Button>
         <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> {{ t('sales.details.printReceipt') }}</Button>
+        <Button v-if="canVoid" variant="outline" class="text-destructive hover:text-destructive" @click="showVoid = true"><Ban /> {{ t('sales.void.action') }}</Button>
       </DialogFooter>
+
+      <div v-if="showVoid && sale" class="flex flex-col gap-2 rounded-md border border-destructive/40 p-3">
+        <p class="text-sm font-medium">{{ t('sales.void.title', { number: sale.receipt_number }) }}</p>
+        <p class="text-xs text-muted-foreground">{{ sale.fiscal?.status === 'sent' ? t('sales.void.explainEfd') : t('sales.void.explain') }}</p>
+        <Textarea v-model="voidReason" :placeholder="t('sales.void.reasonPlaceholder')" maxlength="200" rows="2" />
+        <div class="flex justify-end gap-2">
+          <Button variant="ghost" size="sm" @click="showVoid = false">{{ t('common.actions.cancel') }}</Button>
+          <Button variant="destructive" size="sm" :disabled="voidingSale || voidReason.trim().length < 3" @click="confirmVoid">{{ t('sales.void.confirm') }}</Button>
+        </div>
+      </div>
     </DialogContent>
   </Dialog>
 </template>

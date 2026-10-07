@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+import { useEventListener } from '@vueuse/core'
 import { Toaster } from '@/components/ui/sonner'
 import PaywallOverlay from '@/components/license/PaywallOverlay.vue'
 import { useLicense } from '~/composables/useLicense'
@@ -28,6 +29,16 @@ const { isHardLocked } = useLicense()
 
 const route = useRoute()
 const { startIfNew, stop: stopTour } = useTour()
+const { user, fetchCurrentUser } = useAuth()
+const settingsRefreshMilliseconds = 60000
+let lastSettingsRefresh = Date.now()
+
+useEventListener(window, 'focus', () => {
+  const isDue = Date.now() - lastSettingsRefresh > settingsRefreshMilliseconds
+  if (!user.value || !isDue) return
+  lastSettingsRefresh = Date.now()
+  fetchCurrentUser().catch(() => {})
+})
 const pageSettleMilliseconds = 900
 let tourTimer
 

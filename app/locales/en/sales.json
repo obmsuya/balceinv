@@ -50,7 +50,7 @@
     "cash": "Cash",
     "card": "Card",
     "mobile": "Mobile money",
-    "credit": "Pay later"
+    "credit": "On credit"
   },
   "toasts": {
     "loadFailed": "Failed to load sales",
@@ -68,5 +68,18 @@
     "receiptSavedToShare": "Receipt saved. Attach it in WhatsApp or an email to send it."
   },
   "pdfFileType": "PDF document",
-  "shareTitle": "Receipt {number}"
+  "shareTitle": "Receipt {number}",
+  "void": {
+    "action": "Void sale",
+    "title": "Void {number}?",
+    "explain": "The stock goes back, the books are reversed and any debt on this sale is removed. Then ring the sale up again correctly.",
+    "explainEfd": "The EFD already has this receipt, so a credit note will be sent to cancel it. The stock goes back and the books are reversed. Then ring the sale up again correctly.",
+    "reasonPlaceholder": "Why? For example: typed 4 instead of 1",
+    "confirm": "Void sale",
+    "done": "Sale voided",
+    "failed": "The sale could not be voided",
+    "badge": "Voided",
+    "voidedBy": "Voided by {name} · {date}",
+    "creditNote": "EFD credit note: {status}"
+  }
 }

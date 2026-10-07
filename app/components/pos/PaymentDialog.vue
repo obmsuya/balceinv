@@ -157,6 +157,7 @@ const pressNumpad = (key: NumberPadKey) => {
             />
           </div>
 
+          <p v-if="creditSalesOn && !customer" class="-mt-1 text-xs text-muted-foreground">{{ t('pos.payment.creditNeedsCustomer') }}</p>
           <p v-if="creditAllowed" class="-mt-1 text-xs text-muted-foreground">
             <template v-if="creditCustomer">
               {{ t('pos.payment.creditOwes', { name: creditCustomer.name, amount: formatMoney(creditCustomer.balance) }) }}

@@ -148,6 +148,9 @@ names. Add a row here before inventing a new term.
 | overdue | imechelewa | |
 | payment terms (days to pay) | siku za kulipa | |
 | void (a payment) | batilisha | futa |
+| void (a sale) | batilisha mauzo | futa |
+| credit note (EFD) | hati ya kufuta | |
+| on credit (payment method) | mkopo | lipa baadaye |
 | return stock to a supplier | rudisha stoku | |
 | account statement | mwenendo wa akaunti | taarifa |
 | turn off / turn back on (a supplier) | zima / washa tena | |

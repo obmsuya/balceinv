@@ -29,7 +29,9 @@ const placeIcons: Record<string, any> = { cash: Banknote, mobile_money: Smartpho
 const { t, formatNumber } = useI18n()
 const { user } = useAuth()
 const { vatOn } = useFeatures()
-const { accounts, fetchAccounts, recordMoney, uploadReceipt, saving } = useMoney()
+const { accounts, fetchAccounts, people, fetchPeople, recordMoney, uploadReceipt, saving } = useMoney()
+const nobody = 'nobody'
+const paidToChoice = ref(nobody)
 
 const clientRef = ref(newClientRef())
 const entryDate = ref(props.today)
@@ -50,6 +52,7 @@ const photoInput = ref<HTMLInputElement | null>(null)
 
 const isExpense = computed(() => props.kind === 'expense')
 const isMove = computed(() => props.kind === 'money_move')
+const isSalary = computed(() => isExpense.value && accounts.value.find(account => account.id === expenseAccountId.value)?.system_key === 'salaries')
 const spendableAccounts = computed<BooksAccount[]>(() => accounts.value.filter(account => account.is_spendable))
 const shops = computed(() => user.value?.shops ?? [])
 const amount = computed(() => inputTextToMinor(amountText.value))
@@ -81,7 +84,9 @@ watch(open, isOpen => {
   vatText.value = ''
   supplierTin.value = ''
   receiptNumber.value = ''
+  paidToChoice.value = nobody
   if (isExpense.value && accounts.value.length === 0) fetchAccounts()
+  if (isExpense.value && people.value.length === 0) fetchPeople()
 })
 
 const onPhotoPicked = (event: Event) => {
@@ -92,6 +97,7 @@ const onPhotoPicked = (event: Event) => {
 const validationError = (): string | null => {
   if (!amount.value || !Number.isFinite(amount.value) || amount.value <= 0) return t('money.form.errors.amount')
   if (isExpense.value && !expenseAccountId.value) return t('money.form.errors.whatFor')
+  if (isSalary.value && paidToChoice.value === nobody) return t('money.form.errors.paidTo')
   if (isMove.value && moneyAccount.value === toMoneyAccount.value) return t('money.form.errors.samePlace')
   const typedVat = inputTextToMinor(vatText.value)
   if (includesVat.value && typedVat != null && (Number.isNaN(typedVat) || typedVat >= amount.value)) return t('money.form.errors.vat')
@@ -127,6 +133,7 @@ const submit = async () => {
     vat_amount: includesVat.value && typedVat != null && Number.isFinite(typedVat) ? typedVat : null,
     supplier_tin: supplierTin.value.trim() || null,
     receipt_number: receiptNumber.value.trim() || null,
+    paid_to_user_id: isExpense.value && paidToChoice.value !== nobody ? paidToChoice.value : null,
   })
   if (!savedEntry) return
   emit('saved')
@@ -252,6 +259,17 @@ const submit = async () => {
             <SelectContent>
               <SelectItem :value="wholeBusiness">{{ t('money.form.noShop') }}</SelectItem>
               <SelectItem v-for="shop in shops" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div v-if="isExpense" class="flex flex-col gap-1.5">
+          <Label for="money-paid-to">{{ isSalary ? t('money.form.paidToStaff') : t('money.form.paidToOptional') }}</Label>
+          <Select v-model="paidToChoice">
+            <SelectTrigger id="money-paid-to" class="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem :value="nobody">{{ t('money.form.paidToNobody') }}</SelectItem>
+              <SelectItem v-for="person in people" :key="person.id" :value="person.id">{{ person.name }}</SelectItem>
             </SelectContent>
           </Select>
         </div>
