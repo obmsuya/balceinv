@@ -81,5 +81,25 @@
     "badge": "Yamebatilishwa",
     "voidedBy": "Yamebatilishwa na {name} · {date}",
     "creditNote": "Hati ya kufuta ya EFD: {status}"
+  },
+  "refund": {
+    "action": "Rudisha pesa",
+    "title": "Rudisha bidhaa za {number}",
+    "nothingLeft": "Kila kitu kwenye mauzo haya kimesharudishwa.",
+    "canReturn": "Hadi {count} zinaweza kurudi",
+    "quantityOf": "Ngapi za {name} zirudishwe",
+    "method": "Rudisha pesa kwa",
+    "toAccount": "Ipunguze kwenye deni la mteja",
+    "restock": "Rudisha bidhaa kwenye stoku",
+    "reasonPlaceholder": "Kwa nini? Mfano: mteja amerudisha moja, ilikuwa imevunjika",
+    "total": "Rudisha {amount}",
+    "confirm": "Rudisha pesa",
+    "done": "Urejeshaji umerekodiwa",
+    "failed": "Imeshindwa kurekodi urejeshaji",
+    "lineRefunded": "{count} zimerudishwa",
+    "historyTitle": "Imerudishwa {amount}",
+    "restocked": "imerudi kwenye stoku",
+    "notRestocked": "haikurudi kwenye stoku",
+    "cardLine": "Zilizorudishwa: {amount}"
   }
 }

@@ -58,7 +58,7 @@
     "sales": {
       "view": "View sales",
       "create": "Create sales",
-      "edit": "Edit sales",
+      "edit": "Refund sales",
       "delete": "Void sales"
     },
     "users": {

@@ -142,5 +142,8 @@
   "till_discount_not_allowed": "Huruhusiwi kutoa punguzo kaunta. Muulize mmiliki.",
   "sale_already_voided": "Mauzo haya yameshabatilishwa.",
   "sale_from_order": "Mauzo haya yalikamilisha oda ya mteja. Ghairi au badilisha oda badala yake.",
-  "efd_busy": "Mauzo haya yanatumwa EFD sasa hivi. Jaribu tena baada ya muda mfupi."
+  "efd_busy": "Mauzo haya yanatumwa EFD sasa hivi. Jaribu tena baada ya muda mfupi.",
+  "refund_not_possible": "Mauzo haya hayawezi kurudishwa au kubatilishwa hivyo. Mauzo yaliyobatilishwa hayarudishwi, na mauzo yaliyorudishwa yanarudishwa tena badala ya kubatilishwa.",
+  "refund_too_many": "Huwezi kurudisha zaidi ya kilichouzwa.",
+  "refund_credit_not_possible": "Kupunguza kwenye deni la mteja kunawezekana tu kwa mauzo ya mkopo, hadi kiasi kinachodaiwa bado."
 }

@@ -142,5 +142,8 @@
   "till_discount_not_allowed": "You are not allowed to give discounts at the till. Ask the owner.",
   "sale_already_voided": "This sale was already voided.",
   "sale_from_order": "This sale completed a customer order. Cancel or change the order instead.",
-  "efd_busy": "This sale is being sent to the EFD right now. Try again in a moment."
+  "efd_busy": "This sale is being sent to the EFD right now. Try again in a moment.",
+  "refund_not_possible": "This sale cannot be refunded or voided that way. A voided sale cannot be refunded, and a refunded sale is refunded again instead of voided.",
+  "refund_too_many": "You cannot refund more than was sold.",
+  "refund_credit_not_possible": "Taking it off the customer's debt is only possible for a credit sale, up to what is still owed on it."
 }

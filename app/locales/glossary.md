@@ -98,7 +98,8 @@ names. Add a row here before inventing a new term.
 | gross profit | faida ghafi | |
 | renew (subscription) | lipia upya | huisha |
 | activate | washa | amilisha |
-| delete (product; it is hidden and past sales keep it) | futa | weka kando |
+| archive (product; hidden, past sales keep it) | weka kando | futa |
+| delete permanently (product never used) | futa kabisa | |
 | import / export | ingiza / hamisha | |
 | template | kiolezo | |
 | app / software | programu | |
@@ -149,6 +150,7 @@ names. Add a row here before inventing a new term.
 | payment terms (days to pay) | siku za kulipa | |
 | void (a payment) | batilisha | futa |
 | void (a sale) | batilisha mauzo | futa |
+| refund (a sale) | rudisha pesa / urejeshaji | |
 | credit note (EFD) | hati ya kufuta | |
 | on credit (payment method) | mkopo | lipa baadaye |
 | return stock to a supplier | rudisha stoku | |

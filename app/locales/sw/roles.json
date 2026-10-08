@@ -58,7 +58,7 @@
     "sales": {
       "view": "Tazama mauzo",
       "create": "Fanya mauzo",
-      "edit": "Hariri mauzo",
+      "edit": "Kurudisha pesa ya mauzo",
       "delete": "Kubatilisha mauzo"
     },
     "users": {
