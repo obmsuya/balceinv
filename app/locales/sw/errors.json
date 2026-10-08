@@ -124,6 +124,7 @@
   "already_reversed": "Rekodi hii imeshabatilishwa",
   "same_money_account": "Chagua sehemu mbili tofauti za kuhamishia pesa",
   "expense_account_required": "Chagua pesa ilitumika kwa nini",
+  "paid_to_required": "Chagua aliyelipwa mshahara huu",
   "vat_too_large": "VAT lazima iwe chini ya kiasi",
   "account_code_taken": "Akaunti nyingine tayari inatumia namba hiyo",
   "system_account": "Akaunti za mfumo haziwezi kubadilishwa jina wala kuzimwa",
