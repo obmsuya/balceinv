@@ -1,3 +1,4 @@
+import { randomReference } from '~/composables/useCart'
 import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
@@ -30,6 +31,8 @@ export interface SaleAddon {
 }
 
 export interface SaleLine {
+  item_id?: string
+  refunded_quantity?: number
   product_id: string
   product_name: string
   variant_label: string
@@ -115,6 +118,31 @@ export interface Sale {
   void_reason: string | null
   voided_by_name: string | null
   credit_note: SaleFiscal | null
+  refunds: SaleRefund[]
+  refunded_total: number
+}
+
+export type RefundMethod = 'cash' | 'card' | 'mobile' | 'credit'
+
+export interface SaleRefund {
+  id: string
+  sale_id: string
+  method: RefundMethod
+  amount: number
+  tax_amount: number
+  restocked: boolean
+  reason: string
+  created_by_name: string
+  created_at: string
+  lines: { item_id: string; product_name: string; variant_label: string; sku: string; quantity: number; amount: number }[]
+  fiscal: SaleFiscal | null
+}
+
+export interface RefundInput {
+  method: RefundMethod
+  restock: boolean
+  reason: string
+  lines: { item_id: string; quantity: number }[]
 }
 
 export interface SaleSummary {
@@ -135,6 +163,7 @@ export interface SaleTotals {
   total: number
   tax_total: number
   discount_total: number
+  refund_total: number
 }
 
 export interface SaleReceipt {
@@ -331,6 +360,22 @@ export const useSales = () => {
     }
   }
 
+  const refundingSale = ref(false)
+
+  const refundSale = async (saleId: string, refund: RefundInput): Promise<Sale | null> => {
+    refundingSale.value = true
+    try {
+      const refundResponse = await apiFetch<ApiEnvelope<Sale>>(`/api/sales/${saleId}/refunds`, { method: 'POST', body: { ...refund, client_ref: randomReference() } })
+      toast.success(t('sales.refund.done'), { description: refundResponse.data.receipt_number })
+      return refundResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'sales.refund.failed'))
+      return null
+    } finally {
+      refundingSale.value = false
+    }
+  }
+
   const voidingSale = ref(false)
 
   const voidSale = async (saleId: string, reason: string): Promise<Sale | null> => {
@@ -378,6 +423,8 @@ export const useSales = () => {
     shareSaleReceipt,
     voidingSale,
     voidSale,
+    refundingSale,
+    refundSale,
     fetchTillOptions,
     sendToEfd,
     sendWaitingToEfd,

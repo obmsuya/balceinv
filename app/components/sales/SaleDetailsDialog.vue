@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Ban, FileDown, FileText, Printer, ReceiptText, Share2 } from 'lucide-vue-next'
+import { Ban, FileDown, FileText, Printer, ReceiptText, Share2, Undo2 } from 'lucide-vue-next'
+import RefundPanel from '@/components/sales/RefundPanel.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -23,7 +24,16 @@ const sendingFiscal = ref(false)
 const showVoid = ref(false)
 const voidReason = ref('')
 
-const canVoid = computed(() => hasPermission('sales', 'delete') && sale.value !== null && !sale.value.voided_at && !sale.value.order_number)
+const canVoid = computed(() => hasPermission('sales', 'delete') && sale.value !== null && !sale.value.voided_at && !sale.value.order_number && !sale.value.refunds?.length)
+const showRefund = ref(false)
+const hasItemsLeftToRefund = computed(() => sale.value?.items.some(saleLine => saleLine.quantity > (saleLine.refunded_quantity ?? 0)) ?? false)
+const canRefund = computed(() => hasPermission('sales', 'edit') && sale.value !== null && !sale.value.voided_at && hasItemsLeftToRefund.value)
+
+const onRefunded = (refundedSale: Sale) => {
+  sale.value = refundedSale
+  showRefund.value = false
+  emit('changed')
+}
 
 const confirmVoid = async () => {
   if (!sale.value || voidReason.value.trim().length < 3) return
@@ -59,6 +69,8 @@ const sendFiscal = async () => {
 
 watch([open, () => props.saleId], async ([isOpen]) => {
   if (!isOpen || !props.saleId) return
+  showRefund.value = false
+  showVoid.value = false
   sale.value = null
   sale.value = (await fetchSale(props.saleId)) ?? null
 })
@@ -98,6 +110,7 @@ const printReceipt = () => {
             <div class="mt-1 flex flex-wrap gap-1">
               <Badge v-if="saleLine.is_wholesale" variant="secondary" class="font-normal">{{ t('sales.details.wholesale') }}</Badge>
               <Badge v-if="saleLine.discount_name" variant="outline" class="font-normal">{{ saleLine.discount_name }} −{{ formatMoney(saleLine.discount_amount - (saleLine.manual_discount_amount ?? 0)) }}</Badge>
+              <Badge v-if="saleLine.refunded_quantity" variant="outline" class="border-amber-500/40 font-normal text-amber-700 dark:text-amber-400">{{ t('sales.refund.lineRefunded', { count: saleLine.refunded_quantity }) }}</Badge>
               <Badge v-if="saleLine.manual_discount_amount" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">{{ t('sales.details.cashierDiscount', { amount: formatMoney(saleLine.manual_discount_amount) }) }}</Badge>
             </div>
           </div>
@@ -114,6 +127,20 @@ const printReceipt = () => {
           <div v-if="sale.change_given" class="flex justify-between"><dt>{{ t('sales.details.change') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.change_given) }}</dd></div>
         </dl>
         <p v-if="sale.note" class="rounded-md bg-muted/40 px-3 py-2 text-sm">{{ sale.note }}</p>
+        <div v-for="refund in sale.refunds" :key="refund.id" class="rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-sm">
+          <p class="flex items-center justify-between gap-2 font-medium">
+            <span class="flex items-center gap-1.5"><Undo2 class="size-4 text-amber-600" /> {{ t('sales.refund.historyTitle', { amount: formatMoney(refund.amount) }) }}</span>
+            <span class="text-xs font-normal text-muted-foreground">{{ formatDateTime(refund.created_at) }}</span>
+          </p>
+          <p class="text-xs text-muted-foreground">
+            {{ refund.lines.map(refundLine => `${refundLine.quantity} × ${refundLine.product_name}`).join(', ') }} ·
+            {{ refund.method === 'credit' ? t('sales.refund.toAccount') : paymentMethodLabel(refund.method) }} ·
+            {{ refund.restocked ? t('sales.refund.restocked') : t('sales.refund.notRestocked') }} ·
+            {{ refund.created_by_name }}
+          </p>
+          <p class="text-xs">{{ refund.reason }}</p>
+          <p v-if="refund.fiscal" class="text-xs text-muted-foreground">{{ t('sales.void.creditNote', { status: fiscalStatusLabel(refund.fiscal.status) }) }}</p>
+        </div>
         <div v-if="sale.fiscal" class="flex items-start justify-between gap-3 rounded-md border px-3 py-2 text-sm">
           <div class="min-w-0">
             <p class="flex items-center gap-2 font-medium">
@@ -133,8 +160,11 @@ const printReceipt = () => {
         <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadReceipt"><FileDown /> {{ t('sales.details.receiptPdf') }}</Button>
         <Button variant="outline" :disabled="!sale || downloadingDocument" @click="downloadDocument"><FileText /> {{ downloadingDocument ? t('common.actions.saving') : t('sales.details.a4Invoice') }}</Button>
         <Button variant="outline" :disabled="!sale" @click="printReceipt"><Printer /> {{ t('sales.details.printReceipt') }}</Button>
-        <Button v-if="canVoid" variant="outline" class="text-destructive hover:text-destructive" @click="showVoid = true"><Ban /> {{ t('sales.void.action') }}</Button>
+        <Button v-if="canRefund" variant="outline" @click="showRefund = true; showVoid = false"><Undo2 /> {{ t('sales.refund.action') }}</Button>
+        <Button v-if="canVoid" variant="outline" class="text-destructive hover:text-destructive" @click="showVoid = true; showRefund = false"><Ban /> {{ t('sales.void.action') }}</Button>
       </DialogFooter>
+
+      <RefundPanel v-if="showRefund && sale" :sale="sale" @refunded="onRefunded" @cancel="showRefund = false" />
 
       <div v-if="showVoid && sale" class="flex flex-col gap-2 rounded-md border border-destructive/40 p-3">
         <p class="text-sm font-medium">{{ t('sales.void.title', { number: sale.receipt_number }) }}</p>

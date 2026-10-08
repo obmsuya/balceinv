@@ -11,12 +11,12 @@
     "searchLabel": "Tafuta bidhaa",
     "filterByCategory": "Chuja kwa kundi",
     "allCategories": "Makundi yote",
-    "showArchived": "Onyesha zilizofutwa",
+    "showArchived": "Onyesha zilizowekwa kando",
     "emptyFiltered": "Hakuna bidhaa inayolingana na utafutaji huu.",
     "emptyNone": "Bado hakuna bidhaa. Ongeza moja au ingiza faili la Excel.",
-    "archiveTitle": "Futa {name}?",
-    "archiveDescription": "Itaondoka kwenye kaunta na kwenye orodha ya bidhaa, pamoja na aina zake. Mauzo ya zamani hayataathirika, na unaweza kuirejesha kupitia “Onyesha zilizofutwa”.",
-    "archive": "Futa"
+    "archiveTitle": "Weka {name} kando?",
+    "archiveDescription": "Itaondoka kwenye kaunta na kwenye orodha ya bidhaa, pamoja na aina zake. Mauzo ya zamani hayataathirika, na unaweza kuirejesha kupitia “Onyesha zilizowekwa kando”.",
+    "archive": "Weka kando"
   },
   "table": {
     "product": "Bidhaa",
@@ -25,10 +25,10 @@
     "stock": "Stoku",
     "openMenu": "Fungua menyu",
     "addVariant": "Ongeza aina",
-    "archive": "Futa",
+    "archive": "Weka kando",
     "restore": "Rejesha",
     "viewDetails": "Tazama maelezo",
-    "archived": "Imefutwa",
+    "archived": "Imewekwa kando",
     "empty": "Hakuna bidhaa zilizopatikana."
   },
   "search": {
@@ -145,8 +145,8 @@
     "createFailed": "Imeshindwa kuongeza bidhaa",
     "saved": "Bidhaa imehifadhiwa",
     "saveFailed": "Imeshindwa kuhifadhi bidhaa",
-    "archived": "Bidhaa imefutwa",
-    "archiveFailed": "Imeshindwa kufuta bidhaa",
+    "archived": "Bidhaa imewekwa kando",
+    "archiveFailed": "Imeshindwa kuweka bidhaa kando",
     "restored": "Bidhaa imerejeshwa",
     "restoreFailed": "Imeshindwa kurejesha bidhaa",
     "imported": {
@@ -166,5 +166,28 @@
     "saveFailed": "Imeshindwa kuhifadhi nyongeza",
     "deleted": "Nyongeza imefutwa",
     "deleteFailed": "Imeshindwa kufuta nyongeza"
+  },
+  "delete": {
+    "action": "Futa kabisa",
+    "selectAll": "Chagua bidhaa zote za ukurasa huu",
+    "selectOne": "Chagua {name}",
+    "selected": "{count} zimechaguliwa",
+    "clearSelection": "Ondoa uchaguzi",
+    "deleteSelected": "Futa kabisa",
+    "titleOne": "Futa {name} kabisa?",
+    "titleMany": "Futa bidhaa {count} kabisa?",
+    "description": "Zinaondolewa kabisa, pamoja na aina, misimbopau na stoku yake. Bidhaa ambazo tayari zimeuzwa, kununuliwa kwa msambazaji, kuagizwa au kuhamishwa kati ya maduka zinabaki, kwa sababu rekodi za zamani zinazitumia; ziweke kando badala yake.",
+    "confirm": "Futa kabisa",
+    "done": "{count} zimefutwa",
+    "partly": "{deleted} zimefutwa, {skipped} zimebaki",
+    "skippedHint": "Zimebaki kwa sababu zinatumika kwenye rekodi za zamani: {names}. Ziweke kando badala yake.",
+    "failed": "Imeshindwa kufuta bidhaa",
+    "reasons": {
+      "sold": "imeuzwa",
+      "bought": "imenunuliwa kwa msambazaji",
+      "returned_to_supplier": "imerudishwa kwa msambazaji",
+      "ordered": "imeagizwa na mteja",
+      "transferred": "imehamishwa kati ya maduka"
+    }
   }
 }

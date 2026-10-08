@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Download, Package, Plus, Search, Tags, Upload } from 'lucide-vue-next'
+import { Download, Package, Plus, Search, Tags, Trash2, Upload } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
+import { toast } from 'vue-sonner'
 import { createColumns } from '@/components/products/columns'
 import DataTable from '@/components/products/DataTable.vue'
 import ProductDetailsDialog from '@/components/products/ProductDetailsDialog.vue'
@@ -42,6 +43,8 @@ const {
   fetchCategories,
   fetchProduct,
   archiveProduct,
+  deleteProducts,
+  deleting,
   restoreProduct,
   downloadTemplate,
 } = useProducts()
@@ -60,6 +63,32 @@ const detailsProduct = ref<Product | null>(null)
 const showImportDialog = ref(false)
 const showArchiveDialog = ref(false)
 const archiveTarget = ref<Product | null>(null)
+const selectedIds = ref<string[]>([])
+const deleteTargets = ref<Product[]>([])
+const showDeleteDialog = ref(false)
+
+const askToDelete = (targets: Product[]) => {
+  deleteTargets.value = targets
+  showDeleteDialog.value = true
+}
+
+const skippedReasonLabel = (reason: string) => t(`products.delete.reasons.${reason}`)
+
+const confirmDelete = async () => {
+  const deleteResult = await deleteProducts(deleteTargets.value.map(product => product.id))
+  if (!deleteResult) return
+  showDeleteDialog.value = false
+  selectedIds.value = selectedIds.value.filter(selectedId => !deleteResult.deleted.includes(selectedId))
+  const deletedCount = deleteTargets.value.filter(product => deleteResult.deleted.includes(product.id)).length
+  if (deleteResult.skipped.length === 0) {
+    toast.success(t('products.delete.done', { count: deletedCount }))
+  } else {
+    const skippedText = deleteResult.skipped.map(skipped => `${skipped.name} (${skippedReasonLabel(skipped.reason)})`).join(', ')
+    toast.warning(t('products.delete.partly', { deleted: deletedCount, skipped: deleteResult.skipped.length }), { description: t('products.delete.skippedHint', { names: skippedText }), duration: 15000 })
+  }
+  deleteTargets.value = []
+  refreshAfterChange()
+}
 
 const pageEnd = computed(() => Math.min(pageOffset.value + products.value.length, totalProducts.value))
 const hasPreviousPage = computed(() => pageOffset.value > 0)
@@ -140,7 +169,18 @@ const columns = computed(() => createColumns({
     showArchiveDialog.value = true
   },
   onRestore: restore,
+  onDelete: product => askToDelete([product]),
+  isSelected: product => selectedIds.value.includes(product.id),
+  onToggleSelected: (product, isSelected) => {
+    selectedIds.value = isSelected ? [...new Set([...selectedIds.value, product.id])] : selectedIds.value.filter(selectedId => selectedId !== product.id)
+  },
+  allSelected: products.value.length > 0 && products.value.every(product => selectedIds.value.includes(product.id)),
+  onToggleAll: isSelected => {
+    const pageIds = products.value.map(product => product.id)
+    selectedIds.value = isSelected ? [...new Set([...selectedIds.value, ...pageIds])] : selectedIds.value.filter(selectedId => !pageIds.includes(selectedId))
+  },
 }))
+const selectedProducts = computed(() => products.value.filter(product => selectedIds.value.includes(product.id)))
 
 onMounted(() => {
   loadProducts()
@@ -223,6 +263,13 @@ watch(() => route.query.view, async viewedProductId => {
           </div>
         </div>
 
+        <div v-if="selectedIds.length" class="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+          <span class="font-medium">{{ t('products.delete.selected', { count: selectedIds.length }) }}</span>
+          <div class="flex gap-2">
+            <Button variant="ghost" size="sm" @click="selectedIds = []">{{ t('products.delete.clearSelection') }}</Button>
+            <Button variant="destructive" size="sm" :disabled="!selectedProducts.length" @click="askToDelete(selectedProducts)"><Trash2 /> {{ t('products.delete.deleteSelected') }}</Button>
+          </div>
+        </div>
         <div v-if="loading && !products.length" class="flex flex-col gap-2">
           <Skeleton v-for="skeletonRow in 6" :key="skeletonRow" class="h-14 w-full" />
         </div>
@@ -272,8 +319,25 @@ watch(() => route.query.view, async viewedProductId => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
-          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click="confirmArchive">
+          <AlertDialogAction :disabled="saving" @click="confirmArchive">
             {{ t('products.page.archive') }}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog v-model:open="showDeleteDialog">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {{ deleteTargets.length === 1 ? t('products.delete.titleOne', { name: deleteTargets[0]?.name ?? '' }) : t('products.delete.titleMany', { count: deleteTargets.length }) }}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{{ t('products.delete.description') }}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
+          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="deleting" @click.prevent="confirmDelete">
+            {{ t('products.delete.confirm') }}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,11 +1,12 @@
 import type { ColumnDef } from '@tanstack/vue-table'
-import { Archive, ArchiveRestore, Eye, GitBranch, ImageOff, MoreHorizontal, Pencil, TriangleAlert } from 'lucide-vue-next'
+import { Archive, ArchiveRestore, Eye, GitBranch, ImageOff, MoreHorizontal, Pencil, Trash2, TriangleAlert } from 'lucide-vue-next'
 import { h } from 'vue'
 import { formatMoney } from '~/utils/money'
 import { t } from '~/utils/i18n'
 import { assetUrl } from '~/composables/useSettings'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,11 @@ export interface ProductRowActions {
   onAddVariant: (product: Product) => void
   onArchive: (product: Product) => void
   onRestore: (product: Product) => void
+  onDelete: (product: Product) => void
+  isSelected: (product: Product) => boolean
+  onToggleSelected: (product: Product, isSelected: boolean) => void
+  allSelected: boolean
+  onToggleAll: (isSelected: boolean) => void
   canEdit: boolean
   canDelete: boolean
 }
@@ -57,8 +63,9 @@ const renderActions = (product: Product, actions: ProductRowActions) => {
       ]
     : []
   const archiveItem = product.is_active
-    ? actions.canDelete && h(DropdownMenuItem, { class: 'text-destructive focus:text-destructive', onClick: () => actions.onArchive(product) }, () => [h(Archive), t('products.table.archive')])
+    ? actions.canDelete && h(DropdownMenuItem, { onClick: () => actions.onArchive(product) }, () => [h(Archive), t('products.table.archive')])
     : actions.canEdit && h(DropdownMenuItem, { onClick: () => actions.onRestore(product) }, () => [h(ArchiveRestore), t('products.table.restore')])
+  const deleteItem = actions.canDelete && h(DropdownMenuItem, { class: 'text-destructive focus:text-destructive', onClick: () => actions.onDelete(product) }, () => [h(Trash2), t('products.delete.action')])
 
   return h(DropdownMenu, null, {
     default: () => [
@@ -75,14 +82,31 @@ const renderActions = (product: Product, actions: ProductRowActions) => {
           h(DropdownMenuItem, { onClick: () => actions.onView(product) }, () => [h(Eye), t('products.table.viewDetails')]),
           ...editItems,
         ]),
-        archiveItem && h(DropdownMenuSeparator),
+        (archiveItem || deleteItem) && h(DropdownMenuSeparator),
         archiveItem,
+        deleteItem,
       ]),
     ],
   })
 }
 
 export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] => [
+  ...(actions.canDelete
+    ? [{
+        id: 'select',
+        meta: { class: 'w-10' },
+        header: () => h(Checkbox, {
+          modelValue: actions.allSelected,
+          'onUpdate:modelValue': (isChecked: boolean | 'indeterminate') => actions.onToggleAll(isChecked === true),
+          'aria-label': t('products.delete.selectAll'),
+        }),
+        cell: ({ row }: { row: { original: Product } }) => h(Checkbox, {
+          modelValue: actions.isSelected(row.original),
+          'onUpdate:modelValue': (isChecked: boolean | 'indeterminate') => actions.onToggleSelected(row.original, isChecked === true),
+          'aria-label': t('products.delete.selectOne', { name: row.original.name }),
+        }),
+      } as ColumnDef<Product>]
+    : []),
   {
     id: 'image',
     header: '',

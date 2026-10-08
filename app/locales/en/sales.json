@@ -81,5 +81,25 @@
     "badge": "Voided",
     "voidedBy": "Voided by {name} · {date}",
     "creditNote": "EFD credit note: {status}"
+  },
+  "refund": {
+    "action": "Refund",
+    "title": "Refund items from {number}",
+    "nothingLeft": "Everything on this sale was already refunded.",
+    "canReturn": "Up to {count} can come back",
+    "quantityOf": "How many {name} to refund",
+    "method": "Give the money back by",
+    "toAccount": "Take it off the customer's debt",
+    "restock": "Put the items back in stock",
+    "reasonPlaceholder": "Why? For example: customer returned one, it was broken",
+    "total": "Refund {amount}",
+    "confirm": "Refund",
+    "done": "Refund recorded",
+    "failed": "The refund could not be recorded",
+    "lineRefunded": "{count} refunded",
+    "historyTitle": "Refunded {amount}",
+    "restocked": "back in stock",
+    "notRestocked": "not back in stock",
+    "cardLine": "Refunds: {amount}"
   }
 }
