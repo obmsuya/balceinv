@@ -28,8 +28,7 @@ const isAutomatic = computed(() => automaticSources.includes(props.entry?.source
 const sourceLink = computed(() => {
   const entry = props.entry
   if (!entry) return null
-  const isSaleRecord = (entry.source_type === 'sale' || entry.source_type === 'sale_void') && entry.source_id
-  if (isSaleRecord) return { to: `/receipts/${entry.source_id}`, label: t('money.entries.openSale') }
+  if (entry.source_sale_id) return { to: `/receipts/${entry.source_sale_id}`, label: t('money.entries.openSale') }
   if (entry.party_type === 'customer' && entry.party_id) return { to: `/customers/${entry.party_id}`, label: t('money.entries.openCustomer') }
   if (entry.party_type === 'supplier' && entry.party_id) return { to: `/suppliers/${entry.party_id}`, label: t('money.entries.openSupplier') }
   return null

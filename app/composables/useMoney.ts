@@ -54,6 +54,7 @@ export interface BooksEntry {
   entry_date: string
   source_type: string
   source_id: string | null
+  source_sale_id: string | null
   memo: string | null
   shop_id: string | null
   shop_name: string | null
