@@ -116,6 +116,17 @@ export const productPageSize = 50
 export const productImageLimitBytes = 2 * 1024 * 1024
 export const productImportLimitBytes = 5 * 1024 * 1024
 
+export interface SkippedProduct {
+  id: string
+  name: string
+  reason: 'sold' | 'bought' | 'returned_to_supplier' | 'ordered' | 'transferred'
+}
+
+export interface ProductDeleteResult {
+  deleted: string[]
+  skipped: SkippedProduct[]
+}
+
 export const useProducts = () => {
   const { $apiFetch } = useNuxtApp()
   const apiFetch = $apiFetch as typeof $fetch
@@ -251,6 +262,21 @@ export const useProducts = () => {
     }
   }
 
+  const deleting = ref(false)
+
+  const deleteProducts = async (productIds: string[]): Promise<ProductDeleteResult | null> => {
+    deleting.value = true
+    try {
+      const deleteResponse = await apiFetch<ApiEnvelope<ProductDeleteResult>>('/api/products/delete', { method: 'POST', body: { product_ids: productIds } })
+      return deleteResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'products.delete.failed'))
+      return null
+    } finally {
+      deleting.value = false
+    }
+  }
+
   const archiveProduct = async (productId: string): Promise<void> => {
     saving.value = true
     try {
@@ -315,6 +341,8 @@ export const useProducts = () => {
   }
 
   return {
+    deleting,
+    deleteProducts,
     products,
     totalProducts,
     categories,

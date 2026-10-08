@@ -11,12 +11,12 @@
     "searchLabel": "Search products",
     "filterByCategory": "Filter by category",
     "allCategories": "All categories",
-    "showArchived": "Show deleted",
+    "showArchived": "Show archived",
     "emptyFiltered": "No products match this search.",
     "emptyNone": "No products yet. Add one or import a spreadsheet.",
-    "archiveTitle": "Delete {name}?",
-    "archiveDescription": "It disappears from the till and the product list, together with its variants. Past sales keep it, and you can bring it back from “Show deleted”.",
-    "archive": "Delete"
+    "archiveTitle": "Archive {name}?",
+    "archiveDescription": "It disappears from the till and the product list, together with its variants. Past sales keep it, and you can bring it back from “Show archived”.",
+    "archive": "Archive"
   },
   "table": {
     "product": "Product",
@@ -25,10 +25,10 @@
     "stock": "Stock",
     "openMenu": "Open menu",
     "addVariant": "Add variant",
-    "archive": "Delete",
+    "archive": "Archive",
     "restore": "Restore",
     "viewDetails": "View details",
-    "archived": "Deleted",
+    "archived": "Archived",
     "empty": "No products found."
   },
   "search": {
@@ -145,8 +145,8 @@
     "createFailed": "Failed to create the product",
     "saved": "Product saved",
     "saveFailed": "Failed to save the product",
-    "archived": "Product deleted",
-    "archiveFailed": "Failed to delete the product",
+    "archived": "Product archived",
+    "archiveFailed": "Failed to archive the product",
     "restored": "Product restored",
     "restoreFailed": "Failed to restore the product",
     "imported": {
@@ -166,5 +166,28 @@
     "saveFailed": "Failed to save the add-on",
     "deleted": "Add-on deleted",
     "deleteFailed": "Failed to delete the add-on"
+  },
+  "delete": {
+    "action": "Delete permanently",
+    "selectAll": "Select every product on this page",
+    "selectOne": "Select {name}",
+    "selected": "{count} selected",
+    "clearSelection": "Clear",
+    "deleteSelected": "Delete permanently",
+    "titleOne": "Delete {name} permanently?",
+    "titleMany": "Delete {count} products permanently?",
+    "description": "They are removed for good, with their variants, barcodes and stock. Products that were already sold, bought from a supplier, ordered or sent between shops are kept and skipped, because past records use them; archive those instead.",
+    "confirm": "Delete permanently",
+    "done": "{count} deleted",
+    "partly": "{deleted} deleted, {skipped} kept",
+    "skippedHint": "Kept because they are used in past records: {names}. Archive them instead.",
+    "failed": "The products could not be deleted",
+    "reasons": {
+      "sold": "sold",
+      "bought": "bought from a supplier",
+      "returned_to_supplier": "returned to a supplier",
+      "ordered": "ordered by a customer",
+      "transferred": "sent between shops"
+    }
   }
 }
