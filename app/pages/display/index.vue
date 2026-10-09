@@ -76,7 +76,6 @@ onUnmounted(() => {
       <ShoppingBag class="size-20 text-primary" />
       <p class="text-5xl font-bold">{{ t('display.welcome') }}</p>
       <p class="text-2xl text-muted-foreground">{{ t('display.itemsHint') }}</p>
-      <p class="mt-12 text-sm tracking-wide text-muted-foreground">Faltasi POS · pos.faltasi.com</p>
     </main>
 
     <main v-else-if="phase === 'paid'" class="flex flex-1 flex-col items-center justify-center gap-6 text-center">
@@ -113,5 +112,7 @@ onUnmounted(() => {
         <p class="break-all text-6xl font-bold tabular-nums">{{ displayState?.total }}</p>
       </aside>
     </main>
+
+    <footer v-if="phase === 'idle'" class="pb-6 text-center text-sm tracking-wide text-muted-foreground">Faltasi POS · pos.faltasi.com</footer>
   </div>
 </template>
