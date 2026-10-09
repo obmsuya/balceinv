@@ -848,6 +848,7 @@ const efdBadgeLabel = computed(() => {
               <div>
                 <p class="text-sm">{{ t('updates.settings.currentVersion') }}</p>
                 <p class="text-xs text-muted-foreground mt-0.5 select-none" @click="onVersionTap">{{ currentVersion || '—' }}</p>
+                <p class="text-xs text-muted-foreground">Balce Inventory · {{ t('misc.brand.madeBy') }}</p>
               </div>
               <Badge v-if="updateStatus === 'up-to-date'" variant="secondary">
                 <CheckCircle2 class="size-3 mr-1" />{{ t('updates.settings.upToDate') }}
