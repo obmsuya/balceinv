@@ -137,7 +137,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
       </div>
 
-      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} POS &amp; Inventory</p>
+      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} Faltasi · POS &amp; Inventory</p>
 
       <div class="rings" aria-hidden="true">
         <div/><div/><div/>
