@@ -124,6 +124,7 @@
   "already_reversed": "This record was already reversed",
   "same_money_account": "Choose two different places to move the money between",
   "expense_account_required": "Choose what the money was spent on",
+  "paid_to_required": "Choose who was paid this salary",
   "vat_too_large": "The VAT must be less than the amount",
   "account_code_taken": "Another account already uses that code",
   "system_account": "Built-in accounts can't be renamed or turned off",
