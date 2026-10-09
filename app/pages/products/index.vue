@@ -63,7 +63,8 @@ const detailsProduct = ref<Product | null>(null)
 const showImportDialog = ref(false)
 const showArchiveDialog = ref(false)
 const archiveTarget = ref<Product | null>(null)
-const selectedIds = ref<string[]>([])
+const selectedProducts = ref<Product[]>([])
+const selectedIds = computed(() => selectedProducts.value.map(product => product.id))
 const deleteTargets = ref<Product[]>([])
 const showDeleteDialog = ref(false)
 
@@ -78,7 +79,7 @@ const confirmDelete = async () => {
   const deleteResult = await deleteProducts(deleteTargets.value.map(product => product.id))
   if (!deleteResult) return
   showDeleteDialog.value = false
-  selectedIds.value = selectedIds.value.filter(selectedId => !deleteResult.deleted.includes(selectedId))
+  selectedProducts.value = selectedProducts.value.filter(product => !deleteResult.deleted.includes(product.id))
   const deletedCount = deleteTargets.value.filter(product => deleteResult.deleted.includes(product.id)).length
   if (deleteResult.skipped.length === 0) {
     toast.success(t('products.delete.done', { count: deletedCount }))
@@ -172,15 +173,16 @@ const columns = computed(() => createColumns({
   onDelete: product => askToDelete([product]),
   isSelected: product => selectedIds.value.includes(product.id),
   onToggleSelected: (product, isSelected) => {
-    selectedIds.value = isSelected ? [...new Set([...selectedIds.value, product.id])] : selectedIds.value.filter(selectedId => selectedId !== product.id)
+    const otherProducts = selectedProducts.value.filter(selected => selected.id !== product.id)
+    selectedProducts.value = isSelected ? [...otherProducts, product] : otherProducts
   },
   allSelected: products.value.length > 0 && products.value.every(product => selectedIds.value.includes(product.id)),
   onToggleAll: isSelected => {
     const pageIds = products.value.map(product => product.id)
-    selectedIds.value = isSelected ? [...new Set([...selectedIds.value, ...pageIds])] : selectedIds.value.filter(selectedId => !pageIds.includes(selectedId))
+    const offPageProducts = selectedProducts.value.filter(selected => !pageIds.includes(selected.id))
+    selectedProducts.value = isSelected ? [...offPageProducts, ...products.value] : offPageProducts
   },
 }))
-const selectedProducts = computed(() => products.value.filter(product => selectedIds.value.includes(product.id)))
 
 onMounted(() => {
   loadProducts()
@@ -266,7 +268,7 @@ watch(() => route.query.view, async viewedProductId => {
         <div v-if="selectedIds.length" class="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
           <span class="font-medium">{{ t('products.delete.selected', { count: selectedIds.length }) }}</span>
           <div class="flex gap-2">
-            <Button variant="ghost" size="sm" @click="selectedIds = []">{{ t('products.delete.clearSelection') }}</Button>
+            <Button variant="ghost" size="sm" @click="selectedProducts = []">{{ t('products.delete.clearSelection') }}</Button>
             <Button variant="destructive" size="sm" :disabled="!selectedProducts.length" @click="askToDelete(selectedProducts)"><Trash2 /> {{ t('products.delete.deleteSelected') }}</Button>
           </div>
         </div>
