@@ -106,6 +106,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <i class="s3"/><i class="s4"/>
           </div>
           <span>POS</span>
+          <em class="wordmark-vendor">{{ t('misc.brand.by') }} FALTASI</em>
         </div>
 
         <div class="pitch">
@@ -137,7 +138,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </div>
       </div>
 
-      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} POS &amp; Inventory</p>
+      <p class="panel-foot">&copy; {{ new Date().getFullYear() }} Faltasi · POS &amp; Inventory</p>
 
       <div class="rings" aria-hidden="true">
         <div/><div/><div/>
@@ -363,6 +364,15 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-weight: 700;
   letter-spacing: 0.22em;
   color: rgba(255,255,255,0.88);
+}
+.wordmark .wordmark-vendor {
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.4);
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 .squares {
   display: grid;

@@ -35,6 +35,11 @@
       <p class="loading-text">{{ loadingText }}</p>
     </div>
 
+    <div class="vendor" :class="{ visible: show }">
+      <span class="vendor-by">{{ t('misc.brand.by') }}</span>
+      <span class="vendor-name">FALTASI</span>
+    </div>
+
     <!-- Version badge -->
     <div class="version-badge" :class="{ visible: show }">v2.0</div>
   </div>
@@ -275,6 +280,33 @@ onMounted(async () => {
   transition: opacity 0.3s;
 }
 .dark .loading-text { color: #6a8a52; }
+
+/* ── Vendor ──────────────────────────────────────── */
+.vendor {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 1.2s 0.6s;
+}
+.vendor.visible { opacity: 1; }
+.vendor-by {
+  font-size: 0.7rem;
+  color: #9aaa88;
+  letter-spacing: 0.06em;
+}
+.vendor-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #3a5c14;
+  letter-spacing: 0.28em;
+}
+.dark .vendor-by { color: #6a8a52; }
+.dark .vendor-name { color: #a8d470; }
 
 /* ── Version badge ───────────────────────────────── */
 .version-badge {

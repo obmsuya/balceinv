@@ -150,6 +150,7 @@ onMounted(async () => {
 
       <div class="my-2 border-t border-dashed border-black" />
       <p class="whitespace-pre-line text-center">{{ receipt.company.receipt_footer || label('thanks') }}</p>
+      <p class="mt-1 text-center text-[10px]">Faltasi POS · pos.faltasi.com</p>
     </article>
   </div>
 </template>

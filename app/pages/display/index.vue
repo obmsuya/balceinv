@@ -112,5 +112,7 @@ onUnmounted(() => {
         <p class="break-all text-6xl font-bold tabular-nums">{{ displayState?.total }}</p>
       </aside>
     </main>
+
+    <footer v-if="phase === 'idle'" class="pb-6 text-center text-sm tracking-wide text-muted-foreground">Faltasi POS · pos.faltasi.com</footer>
   </div>
 </template>

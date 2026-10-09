@@ -11,5 +11,9 @@
     "body": "This page is restricted to users with specific permissions. If you believe you should have access, please contact your administrator.",
     "goBack": "Go Back",
     "goHome": "Go to Dashboard"
+  },
+  "brand": {
+    "by": "by",
+    "madeBy": "Made by Faltasi"
   }
 }
