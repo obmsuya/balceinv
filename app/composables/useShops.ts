@@ -86,6 +86,20 @@ export const useShops = () => {
     }
   }
 
+  const deleteShop = async (shopId: string): Promise<void> => {
+    saving.value = true
+    try {
+      await apiFetch<ApiEnvelope<{ id: string }>>(`/api/shops/${shopId}/delete`, { method: 'POST' })
+      await Promise.all([fetchShops(), fetchCurrentUser()])
+      toast.success(t('shops.toasts.deleted'))
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'shops.toasts.deleteFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
   return {
     shops,
     loading,
@@ -93,5 +107,6 @@ export const useShops = () => {
     fetchShops,
     saveShop,
     closeShop,
+    deleteShop,
   }
 }

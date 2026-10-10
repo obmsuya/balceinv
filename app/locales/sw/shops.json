@@ -8,7 +8,8 @@
     "editShop": "Hariri {name}",
     "closeShop": "Funga duka",
     "closed": "Yaliyofungwa",
-    "reopen": "Fungua tena"
+    "reopen": "Fungua tena",
+    "deleteShop": "Futa kabisa"
   },
   "form": {
     "editTitle": "Hariri duka",
@@ -33,6 +34,12 @@
     "saved": "Duka limehifadhiwa",
     "saveFailed": "Imeshindwa kuhifadhi duka",
     "closed": "Duka limefungwa",
-    "closeFailed": "Imeshindwa kufunga duka"
+    "closeFailed": "Imeshindwa kufunga duka",
+    "deleted": "Duka limefutwa",
+    "deleteFailed": "Imeshindwa kufuta duka"
+  },
+  "delete": {
+    "title": "Futa {name} kabisa?",
+    "body": "Duka ambalo halijawahi kutumika tu ndilo linaweza kufutwa: bila mauzo, stoku, uhamisho, manunuzi wala kumbukumbu za pesa. Duka lililotumika linabaki; lifunge badala yake."
   }
 }
