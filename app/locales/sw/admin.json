@@ -1,0 +1,133 @@
+{
+  "title": "Usimamizi wa Faltasi",
+  "nav": {
+    "shops": "Maduka",
+    "support": "Ujumbe wa msaada",
+    "audit": "Kumbukumbu za vitendo",
+    "signOut": "Toka",
+    "teamOnly": "Timu tu"
+  },
+  "roles": {
+    "admin": "Msimamizi",
+    "support": "Msaada"
+  },
+  "signIn": {
+    "title": "Kuingia kwa timu",
+    "subtitle": "Kwa timu ya Faltasi tu. Maduka huingia kwenye ukurasa wa kawaida wa kuingia.",
+    "email": "Barua pepe",
+    "password": "Nenosiri",
+    "code": "Namba ya programu ya uthibitisho",
+    "codeHelp": "Namba yenye tarakimu 6 kutoka kwenye programu yako ya uthibitisho",
+    "submit": "Ingia",
+    "failed": "Imeshindwa kuingia"
+  },
+  "shops": {
+    "title": "Maduka",
+    "subtitle": "Biashara {count} kwenye pos.faltasi.com",
+    "search": "Tafuta kwa jina la biashara au barua pepe",
+    "business": "Biashara",
+    "owner": "Mmiliki",
+    "plan": "Kifurushi",
+    "sales30": "Mauzo, siku 30",
+    "lastSale": "Mauzo ya mwisho",
+    "joined": "Alijiunga",
+    "trialUntil": "Majaribio hadi {date}",
+    "planUntil": "Imelipiwa hadi {date}",
+    "ended": "Iliisha {date}",
+    "noPlan": "Bado hakuna kifurushi",
+    "never": "Bado",
+    "create": "Unda duka",
+    "empty": "Hakuna duka linalolingana",
+    "previous": "Iliyotangulia",
+    "next": "Inayofuata",
+    "showing": "Inaonyesha {from}–{to} kati ya {total}",
+    "desktopNote": "Maduka ya kompyuta hayaonekani hapa: data yao inabaki kwenye kompyuta yao. Tafuta leseni yao kwenye zana ya mauzo."
+  },
+  "create": {
+    "title": "Unda duka la mtandaoni",
+    "description": "Mmiliki anapewa nenosiri la mara moja na lazima alibadilishe akiingia mara ya kwanza.",
+    "businessName": "Jina la biashara",
+    "shopName": "Jina la duka la kwanza (si lazima)",
+    "ownerName": "Jina la mmiliki",
+    "ownerEmail": "Barua pepe ya mmiliki",
+    "submit": "Unda duka"
+  },
+  "oneTime": {
+    "title": "Nenosiri la mara moja",
+    "body": "Mpe {email} nenosiri hili. Linaonyeshwa mara moja tu, na lazima alibadilishe akiingia.",
+    "copy": "Nakili",
+    "copied": "Imenakiliwa",
+    "done": "Sawa"
+  },
+  "shop": {
+    "back": "Maduka yote",
+    "subscriptionId": "Kitambulisho cha Usajili",
+    "copyId": "Nakili kitambulisho",
+    "currency": "Sarafu",
+    "shops": "Maduka",
+    "sales30": "Mauzo ya siku 30 zilizopita",
+    "lastSale": "Mauzo ya mwisho",
+    "joined": "Alijiunga",
+    "plan": "Kifurushi",
+    "phone": "Simu",
+    "extendTitle": "Ongeza siku za majaribio",
+    "extendHelp": "Inaongeza siku kwenye majaribio ya bure. Vifurushi vilivyolipiwa vinaongezwa kwa zana ya mauzo.",
+    "days": "Siku",
+    "extend": "Ongeza",
+    "usersTitle": "Watu wanaoingia",
+    "owner": "Mmiliki",
+    "inactive": "Hatumiki",
+    "mustChange": "Lazima abadilishe nenosiri",
+    "reset": "Weka nenosiri jipya",
+    "recent": "Vitendo vya hivi karibuni vya timu",
+    "noRecent": "Bado hakuna kitendo cha timu kwenye biashara hii",
+    "notFound": "Biashara hii haikupatikana.",
+    "resetTitle": "Weka nenosiri jipya kwa {name}?",
+    "resetBody": "Atatolewa kwenye vifaa vyote na atapewa nenosiri la mara moja, ambalo lazima alibadilishe akiingia tena."
+  },
+  "support": {
+    "title": "Ujumbe wa msaada",
+    "subtitle": "Ujumbe uliotumwa kutoka kwenye programu kwa Msaada → Wasiliana na timu ya Balce",
+    "open": "Inasubiri",
+    "all": "Zote",
+    "empty": "Hakuna kinachosubiri",
+    "from": "Kutoka kwa {name}",
+    "handledBy": "Umeshughulikiwa na {name}, {date}",
+    "markHandled": "Weka kama umeshughulikiwa",
+    "emailStatus": "Barua pepe: {status}",
+    "topics": {
+      "question": "Swali",
+      "problem": "Tatizo",
+      "billing": "Malipo",
+      "idea": "Wazo"
+    }
+  },
+  "audit": {
+    "title": "Kumbukumbu za vitendo",
+    "subtitle": "Kila kitendo cha timu kwenye ukurasa huu, vipya kwanza",
+    "when": "Lini",
+    "who": "Nani",
+    "action": "Kitendo",
+    "business": "Biashara",
+    "details": "Maelezo",
+    "empty": "Bado hakuna kitendo",
+    "actions": {
+      "signed_in": "Aliingia",
+      "created_shop": "Aliunda duka",
+      "extended_trial": "Aliongeza majaribio",
+      "reset_password": "Aliweka nenosiri jipya",
+      "handled_support": "Alishughulikia ujumbe wa msaada"
+    }
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia",
+    "shopCreated": "Duka limeundwa",
+    "createFailed": "Imeshindwa kuunda duka",
+    "trialExtended": "Majaribio yameongezwa",
+    "extendFailed": "Imeshindwa kuongeza majaribio",
+    "passwordReset": "Nenosiri jipya limewekwa",
+    "resetFailed": "Imeshindwa kuweka nenosiri jipya",
+    "handled": "Umewekwa kama umeshughulikiwa",
+    "handleFailed": "Imeshindwa kuweka kama umeshughulikiwa"
+  }
+}
