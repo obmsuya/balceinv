@@ -22,12 +22,13 @@ import type { Shop } from '@/composables/useShops'
 
 const { user } = useAuth()
 const { canCreate, canEdit, canDelete } = usePermissions()
-const { shops, loading, saving, fetchShops, saveShop, closeShop } = useShops()
+const { shops, loading, saving, fetchShops, saveShop, closeShop, deleteShop } = useShops()
 const { t } = useI18n()
 
 const showFormDialog = ref(false)
 const editingShop = ref<Shop | null>(null)
 const closeTarget = ref<Shop | null>(null)
+const deleteTarget = ref<Shop | null>(null)
 const form = ref({ name: '', address: '', phone: '', receiptPrefix: '' })
 
 const openShops = computed(() => shops.value.filter(shop => shop.is_active))
@@ -82,6 +83,17 @@ const confirmClose = async () => {
   }
 }
 
+const confirmDelete = async () => {
+  if (!deleteTarget.value) return
+  try {
+    await deleteShop(deleteTarget.value.id)
+    deleteTarget.value = null
+  } catch {
+  }
+}
+
+const canDeleteShop = (shop: Shop) => canDelete('shops') && shop.id !== user.value?.shop_id && (!shop.is_active || openShops.value.length > 1)
+
 onMounted(fetchShops)
 </script>
 
@@ -127,15 +139,19 @@ onMounted(fetchShops)
             <p v-if="shop.address" class="flex items-center gap-1.5"><MapPin class="size-3.5 shrink-0" />{{ shop.address }}</p>
             <p v-if="shop.phone" class="flex items-center gap-1.5"><Phone class="size-3.5 shrink-0" />{{ shop.phone }}</p>
           </div>
-          <Button
-            v-if="canDelete('shops') && openShops.length > 1"
-            variant="outline"
-            size="sm"
-            class="self-start text-destructive hover:text-destructive"
-            @click="closeTarget = shop"
-          >
-            {{ t('shops.page.closeShop') }}
-          </Button>
+          <div v-if="canDelete('shops') && openShops.length > 1" class="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              class="text-destructive hover:text-destructive"
+              @click="closeTarget = shop"
+            >
+              {{ t('shops.page.closeShop') }}
+            </Button>
+            <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="deleteTarget = shop">
+              {{ t('shops.page.deleteShop') }}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -146,6 +162,7 @@ onMounted(fetchShops)
         <Store class="size-4 text-muted-foreground" />
         <span class="flex-1 text-sm">{{ shop.name }}</span>
         <Button v-if="canEdit('shops')" variant="outline" size="sm" :disabled="saving" @click="reopen(shop)">{{ t('shops.page.reopen') }}</Button>
+        <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" :disabled="saving" @click="deleteTarget = shop">{{ t('shops.page.deleteShop') }}</Button>
       </div>
     </div>
 
@@ -191,6 +208,19 @@ onMounted(fetchShops)
         <AlertDialogFooter>
           <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
           <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click="confirmClose">{{ t('shops.page.closeShop') }}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog :open="deleteTarget !== null" @update:open="isOpen => { if (!isOpen) deleteTarget = null }">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{{ t('shops.delete.title', { name: deleteTarget?.name ?? '' }) }}</AlertDialogTitle>
+          <AlertDialogDescription>{{ t('shops.delete.body') }}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
+          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click="confirmDelete">{{ t('shops.page.deleteShop') }}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

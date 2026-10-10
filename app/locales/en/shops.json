@@ -8,7 +8,8 @@
     "editShop": "Edit {name}",
     "closeShop": "Close shop",
     "closed": "Closed",
-    "reopen": "Reopen"
+    "reopen": "Reopen",
+    "deleteShop": "Delete permanently"
   },
   "form": {
     "editTitle": "Edit shop",
@@ -33,6 +34,12 @@
     "saved": "Shop saved",
     "saveFailed": "Failed to save the shop",
     "closed": "Shop closed",
-    "closeFailed": "Failed to close the shop"
+    "closeFailed": "Failed to close the shop",
+    "deleted": "Shop deleted",
+    "deleteFailed": "Failed to delete the shop"
+  },
+  "delete": {
+    "title": "Delete {name} for good?",
+    "body": "Only a shop that was never used can be deleted: no sales, stock, transfers, purchases or money records. A shop that was used stays; close it instead."
   }
 }
