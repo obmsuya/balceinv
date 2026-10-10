@@ -4,7 +4,7 @@ import { homePathFor } from '~/utils/homePath'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const publicRoutes = ['/', '/login', '/setup', '/display']
-  if (publicRoutes.includes(to.path)) return
+  if (publicRoutes.includes(to.path) || to.path.startsWith('/admin')) return
 
   const user = useState<CurrentUser | null>('auth:user')
   const userPermissions = useState<Permission[]>('perms:user', () => [])
