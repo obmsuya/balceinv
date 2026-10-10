@@ -9,7 +9,7 @@ import type { AccountingMode, CompanyFeatures } from '~/composables/useFeatures'
 
 const { t } = useI18n()
 const { features, savingFeatures, saveFeatures } = useFeatures()
-const { canEdit } = usePermissions()
+const { canEdit, canView } = usePermissions()
 
 const canChange = computed(() => canEdit('settings'))
 const draft = reactive<CompanyFeatures>({ ...features.value })
@@ -38,7 +38,11 @@ const setCustomers = (isOn: boolean) => {
 const needsVatNumber = computed(() => draft.vat_registered && !(draft.vat_number ?? '').trim())
 const hasChanges = computed(() => JSON.stringify(draft) !== JSON.stringify(features.value))
 
-const save = () => saveFeatures({ ...draft })
+const save = async () => {
+  const isTurningBooksOn = features.value.accounting_mode === 'off' && draft.accounting_mode !== 'off'
+  const isSaved = await saveFeatures({ ...draft })
+  if (isSaved && isTurningBooksOn && canView('accounting')) await navigateTo('/money')
+}
 </script>
 
 <template>
