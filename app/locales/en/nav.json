@@ -20,7 +20,7 @@
     "orders": "Orders",
     "customers": "Customers",
     "suppliers": "Suppliers",
-    "money": "Money"
+    "money": "Cash flow"
   },
   "header": {
     "toggleNavigation": "Show or hide the menu",
