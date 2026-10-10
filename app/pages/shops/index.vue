@@ -28,7 +28,19 @@ const { t } = useI18n()
 const showFormDialog = ref(false)
 const editingShop = ref<Shop | null>(null)
 const closeTarget = ref<Shop | null>(null)
+const showCloseDialog = ref(false)
 const deleteTarget = ref<Shop | null>(null)
+const showDeleteDialog = ref(false)
+
+const askToClose = (shop: Shop) => {
+  closeTarget.value = shop
+  showCloseDialog.value = true
+}
+
+const askToDelete = (shop: Shop) => {
+  deleteTarget.value = shop
+  showDeleteDialog.value = true
+}
 const form = ref({ name: '', address: '', phone: '', receiptPrefix: '' })
 
 const openShops = computed(() => shops.value.filter(shop => shop.is_active))
@@ -78,7 +90,7 @@ const confirmClose = async () => {
   if (!closeTarget.value) return
   try {
     await closeShop(closeTarget.value.id)
-    closeTarget.value = null
+    showCloseDialog.value = false
   } catch {
   }
 }
@@ -87,7 +99,7 @@ const confirmDelete = async () => {
   if (!deleteTarget.value) return
   try {
     await deleteShop(deleteTarget.value.id)
-    deleteTarget.value = null
+    showDeleteDialog.value = false
   } catch {
   }
 }
@@ -144,11 +156,11 @@ onMounted(fetchShops)
               variant="outline"
               size="sm"
               class="text-destructive hover:text-destructive"
-              @click="closeTarget = shop"
+              @click="askToClose(shop)"
             >
               {{ t('shops.page.closeShop') }}
             </Button>
-            <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="deleteTarget = shop">
+            <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="askToDelete(shop)">
               {{ t('shops.page.deleteShop') }}
             </Button>
           </div>
@@ -162,7 +174,7 @@ onMounted(fetchShops)
         <Store class="size-4 text-muted-foreground" />
         <span class="flex-1 text-sm">{{ shop.name }}</span>
         <Button v-if="canEdit('shops')" variant="outline" size="sm" :disabled="saving" @click="reopen(shop)">{{ t('shops.page.reopen') }}</Button>
-        <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" :disabled="saving" @click="deleteTarget = shop">{{ t('shops.page.deleteShop') }}</Button>
+        <Button v-if="canDeleteShop(shop)" variant="ghost" size="sm" class="text-destructive hover:text-destructive" :disabled="saving" @click="askToDelete(shop)">{{ t('shops.page.deleteShop') }}</Button>
       </div>
     </div>
 
@@ -197,7 +209,7 @@ onMounted(fetchShops)
       </DialogContent>
     </Dialog>
 
-    <AlertDialog :open="closeTarget !== null" @update:open="isOpen => { if (!isOpen) closeTarget = null }">
+    <AlertDialog v-model:open="showCloseDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{{ t('shops.close.title', { name: closeTarget?.name ?? '' }) }}</AlertDialogTitle>
@@ -212,7 +224,7 @@ onMounted(fetchShops)
       </AlertDialogContent>
     </AlertDialog>
 
-    <AlertDialog :open="deleteTarget !== null" @update:open="isOpen => { if (!isOpen) deleteTarget = null }">
+    <AlertDialog v-model:open="showDeleteDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{{ t('shops.delete.title', { name: deleteTarget?.name ?? '' }) }}</AlertDialogTitle>
