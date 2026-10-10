@@ -52,6 +52,7 @@ export interface ProductFields {
 export interface NewProductFields extends ProductFields {
   parent_id: string | null
   opening_quantity: number
+  shop_id: string | null
 }
 
 export interface ProductListFilter {

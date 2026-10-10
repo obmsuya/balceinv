@@ -44,6 +44,10 @@ const emit = defineEmits<{ saved: [product: Product] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
+const { user } = useAuth()
+const stockShopId = ref<string | null>(null)
+const stockShops = computed(() => user.value?.shops ?? [])
+const stockShopName = computed(() => stockShops.value.find(shop => shop.id === stockShopId.value)?.name ?? '')
 const { suppliersOn } = useFeatures()
 const { canView } = usePermissions()
 const { activeSupplierOptions } = useSuppliers()
@@ -160,6 +164,7 @@ const resetForm = () => {
 }
 
 watch(open, isOpen => {
+  if (isOpen) stockShopId.value = user.value?.shop_id ?? stockShops.value[0]?.id ?? null
   if (isOpen) resetForm()
   else clearImage()
 })
@@ -266,6 +271,7 @@ const submit = async () => {
       ...builtFields,
       parent_id: props.mode === 'variant' ? props.parent?.id ?? null : null,
       opening_quantity: openingQuantity,
+      shop_id: stockShopId.value,
     }
     const createdProduct = await createProduct(newFields, imageFile.value)
     if (createdProduct) emit('saved', createdProduct)
@@ -424,6 +430,17 @@ const removeAddon = async (addon: ProductAddon) => {
             <div v-if="!isEditing" class="flex flex-col gap-1.5">
               <Label for="product-opening">{{ t('products.form.openingStock') }}</Label>
               <Input id="product-opening" v-model="form.openingQuantity" inputmode="numeric" />
+              <p v-if="stockShops.length <= 1 && stockShopName" class="text-xs text-muted-foreground">{{ t('products.form.stockGoesTo', { shop: stockShopName }) }}</p>
+            </div>
+            <div v-if="!isEditing && stockShops.length > 1" class="flex flex-col gap-1.5">
+              <Label for="product-stock-shop">{{ t('products.form.stockShop') }}</Label>
+              <Select v-model="stockShopId">
+                <SelectTrigger id="product-stock-shop" class="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="shop in stockShops" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p class="text-xs text-muted-foreground">{{ t('products.form.stockShopHint') }}</p>
             </div>
             <div v-else class="flex flex-col gap-1.5">
               <Label>{{ t('products.form.currentStock') }}</Label>
