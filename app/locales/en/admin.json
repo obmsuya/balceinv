@@ -1,0 +1,133 @@
+{
+  "title": "Faltasi admin",
+  "nav": {
+    "shops": "Shops",
+    "support": "Support inbox",
+    "audit": "Audit log",
+    "signOut": "Sign out",
+    "teamOnly": "Team only"
+  },
+  "roles": {
+    "admin": "Admin",
+    "support": "Support"
+  },
+  "signIn": {
+    "title": "Team sign-in",
+    "subtitle": "For the Faltasi team only. Shops sign in on the normal sign-in page.",
+    "email": "Email",
+    "password": "Password",
+    "code": "Authenticator code",
+    "codeHelp": "The 6-digit code from your authenticator app",
+    "submit": "Sign in",
+    "failed": "Could not sign in"
+  },
+  "shops": {
+    "title": "Shops",
+    "subtitle": "{count} web businesses on pos.faltasi.com",
+    "search": "Search by business name or email",
+    "business": "Business",
+    "owner": "Owner",
+    "plan": "Plan",
+    "sales30": "Sales, 30 days",
+    "lastSale": "Last sale",
+    "joined": "Joined",
+    "trialUntil": "Trial until {date}",
+    "planUntil": "Paid until {date}",
+    "ended": "Ended {date}",
+    "noPlan": "No plan yet",
+    "never": "Never",
+    "create": "Create shop",
+    "empty": "No shops match",
+    "previous": "Previous",
+    "next": "Next",
+    "showing": "Showing {from}–{to} of {total}",
+    "desktopNote": "Desktop shops are not listed here: their data stays on their computer. Find their licence in the sales tool."
+  },
+  "create": {
+    "title": "Create a web shop",
+    "description": "The owner gets a one-time password and must change it at first sign-in.",
+    "businessName": "Business name",
+    "shopName": "First shop name (optional)",
+    "ownerName": "Owner name",
+    "ownerEmail": "Owner email",
+    "submit": "Create shop"
+  },
+  "oneTime": {
+    "title": "One-time password",
+    "body": "Give this to {email}. It is shown only once, and they must change it when they sign in.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "done": "Done"
+  },
+  "shop": {
+    "back": "All shops",
+    "subscriptionId": "Subscription ID",
+    "copyId": "Copy ID",
+    "currency": "Currency",
+    "shops": "Shops",
+    "sales30": "Sales in the last 30 days",
+    "lastSale": "Last sale",
+    "joined": "Joined",
+    "plan": "Plan",
+    "phone": "Phone",
+    "extendTitle": "Extend the trial",
+    "extendHelp": "Adds days to a free trial. Paid plans are renewed with the sales tool.",
+    "days": "Days",
+    "extend": "Extend",
+    "usersTitle": "People who sign in",
+    "owner": "Owner",
+    "inactive": "Inactive",
+    "mustChange": "Must change password",
+    "reset": "Reset password",
+    "recent": "Recent team actions",
+    "noRecent": "No team actions on this business yet",
+    "notFound": "This business could not be found.",
+    "resetTitle": "Reset {name}'s password?",
+    "resetBody": "They are signed out everywhere and get a one-time password, which they must change at their next sign-in."
+  },
+  "support": {
+    "title": "Support inbox",
+    "subtitle": "Messages sent from the apps with Help → Contact the Balce team",
+    "open": "Open",
+    "all": "All",
+    "empty": "Nothing waiting",
+    "from": "From {name}",
+    "handledBy": "Handled by {name}, {date}",
+    "markHandled": "Mark handled",
+    "emailStatus": "Email: {status}",
+    "topics": {
+      "question": "Question",
+      "problem": "Problem",
+      "billing": "Billing",
+      "idea": "Idea"
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Every action the team took in this panel, newest first",
+    "when": "When",
+    "who": "Who",
+    "action": "Action",
+    "business": "Business",
+    "details": "Details",
+    "empty": "No actions yet",
+    "actions": {
+      "signed_in": "Signed in",
+      "created_shop": "Created a shop",
+      "extended_trial": "Extended a trial",
+      "reset_password": "Reset a password",
+      "handled_support": "Handled a support message"
+    }
+  },
+  "toasts": {
+    "loadFailed": "Could not load this",
+    "shopCreated": "Shop created",
+    "createFailed": "Could not create the shop",
+    "trialExtended": "Trial extended",
+    "extendFailed": "Could not extend the trial",
+    "passwordReset": "Password reset",
+    "resetFailed": "Could not reset the password",
+    "handled": "Marked handled",
+    "handleFailed": "Could not mark it handled"
+  }
+}

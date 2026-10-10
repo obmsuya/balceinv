@@ -31,7 +31,7 @@ const routeFeatures: Record<string, (companyFeatures: CompanyFeatures) => boolea
 const publicRoutes = ['/', '/login', '/setup', '/unauthorized', '/display']
 
 export default defineNuxtRouteMiddleware((to) => {
-  if (publicRoutes.includes(to.path)) return
+  if (publicRoutes.includes(to.path) || to.path.startsWith('/admin')) return
 
   const user = useState<CurrentUser | null>('auth:user')
   const userPermissions = useState<Permission[]>('perms:user', () => [])
