@@ -16,7 +16,7 @@
     "recommended": "Recommended",
     "fromToday": "Start from today",
     "fromTodayHelp": "Only what happens from today counts. Your stock today is the starting point.",
-    "moneyTitle": "How much money do you have now?",
+    "moneyTitle": "Your starting capital: how much money do you have now?",
     "moneyHelp": "Optional. Leave empty if you are not sure; you can add it later with “Owner put in”.",
     "cashInDrawer": "Cash in the drawer",
     "mobileMoney": "Mobile money balance",
