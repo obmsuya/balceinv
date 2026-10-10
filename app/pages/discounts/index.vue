@@ -26,6 +26,12 @@ const pageOffset = ref(0)
 const showFormDialog = ref(false)
 const editingDiscount = ref<Discount | null>(null)
 const stopTarget = ref<Discount | null>(null)
+const showStopDialog = ref(false)
+
+const askToStop = (discount: Discount) => {
+  stopTarget.value = discount
+  showStopDialog.value = true
+}
 
 const statusVariant: Record<DiscountStatus, 'default' | 'secondary' | 'outline'> = {
   active: 'default',
@@ -47,7 +53,7 @@ const confirmStop = async () => {
   if (!stopTarget.value) return
   try {
     await stopDiscount(stopTarget.value.id)
-    stopTarget.value = null
+    showStopDialog.value = false
     reload()
   } catch {
   }
@@ -114,7 +120,7 @@ onMounted(reload)
             variant="outline"
             size="sm"
             class="text-destructive hover:text-destructive"
-            @click="stopTarget = discount"
+            @click="askToStop(discount)"
           >
             {{ t('discounts.page.stop') }}
           </Button>
@@ -129,7 +135,7 @@ onMounted(reload)
 
     <DiscountFormDialog v-model:open="showFormDialog" :discount="editingDiscount" @saved="reload" />
 
-    <AlertDialog :open="stopTarget !== null" @update:open="isOpen => { if (!isOpen) stopTarget = null }">
+    <AlertDialog v-model:open="showStopDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{{ t('discounts.page.stopTitle', { name: stopTarget?.name ?? '' }) }}</AlertDialogTitle>
