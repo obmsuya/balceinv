@@ -144,7 +144,10 @@ onUnmounted(() => {
             <img v-if="companyLogoSource" :src="companyLogoSource" alt="" class="size-full bg-background object-contain">
             <Store v-else class="size-4" />
           </div>
-          <span class="hidden truncate text-base font-semibold sm:block">{{ user?.company_name || 'Balce' }}</span>
+          <div class="hidden min-w-0 flex-col sm:flex">
+            <span class="truncate text-base font-semibold leading-tight">{{ user?.company_name || 'Balce' }}</span>
+            <span class="text-[10px] font-semibold uppercase leading-tight tracking-[0.2em] text-muted-foreground">Faltasi POS</span>
+          </div>
         </div>
       </div>
 

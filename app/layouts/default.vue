@@ -28,6 +28,13 @@ const sidebarCollapsed = useState('sidebar-collapsed', () => false)
 const { isHardLocked } = useLicense()
 
 const route = useRoute()
+const { t } = useI18n()
+const navigationSections = ['dashboard', 'pos', 'sales', 'orders', 'customers', 'products', 'stock', 'suppliers', 'discounts', 'money', 'reports', 'notifications', 'shops', 'users', 'roles', 'settings']
+const pageTitle = computed(() => {
+  const section = route.path.split('/')[1]
+  return navigationSections.includes(section) ? t(`nav.items.${section}`) : ''
+})
+useHead({ title: pageTitle })
 const { startIfNew, stop: stopTour } = useTour()
 const { user, fetchCurrentUser } = useAuth()
 const settingsRefreshMilliseconds = 60000

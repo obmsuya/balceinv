@@ -7,5 +7,6 @@ export default defineNuxtPlugin({
   setup() {
     applyBrandColor(cachedBrandColor())
     restoreSavedLocale()
+    useHead({ titleTemplate: pageTitle => (pageTitle ? `${pageTitle} · Faltasi POS` : 'Faltasi POS') })
   },
 })
