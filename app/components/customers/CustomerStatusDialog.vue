@@ -18,12 +18,18 @@ const emit = defineEmits<{ changed: [customer: Customer]; close: [] }>()
 const { t } = useI18n()
 const { deactivateCustomer, restoreCustomer, saving } = useCustomers()
 
+const shownCustomer = ref<Customer | null>(null)
+watch(() => props.customer, chosenCustomer => {
+  if (chosenCustomer) shownCustomer.value = chosenCustomer
+}, { immediate: true })
+
 const confirmChange = async () => {
-  if (!props.customer) return
+  const customer = shownCustomer.value
+  if (!customer) return
   try {
-    const changedCustomer = props.customer.is_active
-      ? await deactivateCustomer(props.customer.id)
-      : await restoreCustomer(props.customer.id)
+    const changedCustomer = customer.is_active
+      ? await deactivateCustomer(customer.id)
+      : await restoreCustomer(customer.id)
     emit('changed', changedCustomer)
     emit('close')
   } catch {
@@ -36,21 +42,21 @@ const confirmChange = async () => {
     <AlertDialogContent>
       <AlertDialogHeader>
         <AlertDialogTitle>
-          {{ customer?.is_active ? t('customers.status.deactivateTitle', { name: customer?.name ?? '' }) : t('customers.status.restoreTitle', { name: customer?.name ?? '' }) }}
+          {{ shownCustomer?.is_active ? t('customers.status.deactivateTitle', { name: shownCustomer?.name ?? '' }) : t('customers.status.restoreTitle', { name: shownCustomer?.name ?? '' }) }}
         </AlertDialogTitle>
         <AlertDialogDescription>
-          {{ customer?.is_active ? t('customers.status.deactivateDescription') : t('customers.status.restoreDescription') }}
-          <template v-if="customer?.is_active && customer.balance > 0"> {{ t('customers.status.stillOwes', { amount: formatMoney(customer.balance) }) }}</template>
+          {{ shownCustomer?.is_active ? t('customers.status.deactivateDescription') : t('customers.status.restoreDescription') }}
+          <template v-if="shownCustomer?.is_active && shownCustomer.balance > 0"> {{ t('customers.status.stillOwes', { amount: formatMoney(shownCustomer.balance) }) }}</template>
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>{{ t('common.actions.cancel') }}</AlertDialogCancel>
         <AlertDialogAction
-          :class="customer?.is_active ? 'bg-destructive text-white hover:bg-destructive/90' : ''"
+          :class="shownCustomer?.is_active ? 'bg-destructive text-white hover:bg-destructive/90' : ''"
           :disabled="saving"
           @click.prevent="confirmChange"
         >
-          {{ customer?.is_active ? t('customers.status.deactivate') : t('customers.status.restore') }}
+          {{ shownCustomer?.is_active ? t('customers.status.deactivate') : t('customers.status.restore') }}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
