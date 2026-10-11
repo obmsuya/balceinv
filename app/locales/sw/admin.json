@@ -6,7 +6,9 @@
     "audit": "Kumbukumbu za vitendo",
     "signOut": "Toka",
     "teamOnly": "Timu tu",
-    "licences": "Leseni"
+    "licences": "Leseni",
+    "groupShops": "Maduka na leseni",
+    "groupTeam": "Timu"
   },
   "roles": {
     "admin": "Msimamizi",
@@ -85,7 +87,9 @@
     "notFound": "Biashara hii haikupatikana.",
     "resetTitle": "Weka nenosiri jipya kwa {name}?",
     "resetBody": "Atatolewa kwenye vifaa vyote na atapewa nenosiri la mara moja, ambalo lazima alibadilishe akiingia tena.",
-    "licence": "Leseni na malipo"
+    "licence": "Leseni na malipo",
+    "role": "Nafasi",
+    "status": "Hali"
   },
   "support": {
     "title": "Ujumbe wa msaada",
@@ -187,6 +191,10 @@
     "deviceRemoved": "Kompyuta imeondolewa",
     "removeFailed": "Imeshindwa kuondoa kompyuta",
     "updateNeeded": "Kuondoa kompyuta kunahitaji sasisho la Wapangaji linalosubiri kuidhinishwa. Hadi hapo, waulize timu ya kiufundi.",
-    "searched": "Uliyotafuta"
+    "searched": "Uliyotafuta",
+    "paidOn": "Tarehe",
+    "amountColumn": "Kiasi",
+    "referenceColumn": "Kumbukumbu",
+    "recordedBy": "Imerekodiwa na"
   }
 }

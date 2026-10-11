@@ -6,7 +6,9 @@
     "audit": "Audit log",
     "signOut": "Sign out",
     "teamOnly": "Team only",
-    "licences": "Licences"
+    "licences": "Licences",
+    "groupShops": "Shops and licences",
+    "groupTeam": "Team"
   },
   "roles": {
     "admin": "Admin",
@@ -85,7 +87,9 @@
     "notFound": "This business could not be found.",
     "resetTitle": "Reset {name}'s password?",
     "resetBody": "They are signed out everywhere and get a one-time password, which they must change at their next sign-in.",
-    "licence": "Licence and payments"
+    "licence": "Licence and payments",
+    "role": "Role",
+    "status": "Status"
   },
   "support": {
     "title": "Support inbox",
@@ -187,6 +191,10 @@
     "deviceRemoved": "Computer removed",
     "removeFailed": "Could not remove the computer",
     "updateNeeded": "Removing computers needs a Wapangaji update that is waiting for approval. Until then, ask the technical team.",
-    "searched": "Searched"
+    "searched": "Searched",
+    "paidOn": "Date",
+    "amountColumn": "Amount",
+    "referenceColumn": "Reference",
+    "recordedBy": "Recorded by"
   }
 }
