@@ -47,7 +47,10 @@ export const darkThemeVariant = (brandColor: string): string => {
   return mixWithWhite(brandColor, 0.85)
 }
 
-export const applyBrandColor = (brandColor: string | null | undefined) => {
+export const faltasiNavy = '#00113A'
+export const faltasiGold = '#D6A24F'
+
+export const setThemeColor = (brandColor: string) => {
   if (!isBrandColor(brandColor) || typeof document === 'undefined') return
 
   const darkVariant = darkThemeVariant(brandColor)
@@ -56,7 +59,11 @@ export const applyBrandColor = (brandColor: string | null | undefined) => {
   rootStyle.setProperty('--brand-foreground', readableTextOn(brandColor))
   rootStyle.setProperty('--brand-dark', darkVariant)
   rootStyle.setProperty('--brand-dark-foreground', readableTextOn(darkVariant))
+}
 
+export const applyBrandColor = (brandColor: string | null | undefined) => {
+  if (!isBrandColor(brandColor) || typeof document === 'undefined') return
+  setThemeColor(brandColor)
   try {
     localStorage.setItem(brandStorageKey, brandColor)
   } catch {}
@@ -68,4 +75,10 @@ export const cachedBrandColor = (): string | null => {
   } catch {
     return null
   }
+}
+
+export const clearThemeColor = () => {
+  if (typeof document === 'undefined') return
+  const rootStyle = document.documentElement.style
+  for (const propertyName of ['--brand', '--brand-foreground', '--brand-dark', '--brand-dark-foreground']) rootStyle.removeProperty(propertyName)
 }

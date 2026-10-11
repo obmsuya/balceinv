@@ -5,7 +5,7 @@
         © {{ currentYear }} {{ user?.company_name || 'Balce' }}. {{ t('nav.footer.rights') }}
       </p>
       <div class="flex items-center gap-3">
-        <span class="text-xs text-muted-foreground">{{ t('misc.brand.madeBy') }}</span>
+        <span class="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><img src="/faltasi-icon.png" alt="" class="size-4 rounded-sm">{{ t('misc.brand.madeBy') }}</span>
         <button
           type="button"
           class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"

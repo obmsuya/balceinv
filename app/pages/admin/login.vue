@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ShieldCheck } from 'lucide-vue-next'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { faltasiNavy, setThemeColor } from '~/utils/brandTheme'
 
 definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const { busy, signIn } = useAdmin()
 useHead({ title: computed(() => t('admin.signIn.title')) })
+onMounted(() => setThemeColor(faltasiNavy))
 
 const email = ref('')
 const password = ref('')
@@ -29,8 +30,8 @@ const submit = async () => {
   <div class="flex min-h-screen items-center justify-center bg-muted/30 px-4">
     <form class="w-full max-w-sm rounded-xl border bg-background p-6 shadow-sm" @submit.prevent="submit">
       <div class="mb-6 flex flex-col items-center gap-2 text-center">
-        <div class="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary"><ShieldCheck class="size-5" /></div>
-        <p class="text-xs font-bold tracking-[0.24em] text-muted-foreground">FALTASI</p>
+        <img src="/faltasi-icon.png" alt="Faltasi" class="size-14 rounded-xl">
+        <p class="text-xs font-bold tracking-[0.24em] text-[#8A6420] dark:text-[#D6A24F]">FALTASI</p>
         <h1 class="text-xl font-semibold">{{ t('admin.signIn.title') }}</h1>
         <p class="text-sm text-muted-foreground">{{ t('admin.signIn.subtitle') }}</p>
       </div>

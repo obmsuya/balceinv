@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, BadgeCheck, Check, Copy, KeyRound } from 'lucide-vue-next'
+import { ArrowLeft, BadgeCheck, Check, Copy } from 'lucide-vue-next'
 import OneTimePasswordDialog from '@/components/admin/OneTimePasswordDialog.vue'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import DataTable from '@/components/admin/DataTable.vue'
+import { shopUserColumns } from '@/components/admin/columns'
 import type { AdminOneTimePassword, AdminShopDetail, AdminShopUser } from '@/composables/useAdmin'
 import { adminPlanLabel } from '@/composables/useAdmin'
 
@@ -30,6 +32,7 @@ const askToReset = (shopUser: AdminShopUser) => {
   resetTarget.value = shopUser
   showResetDialog.value = true
 }
+const userColumns = shopUserColumns(askToReset, () => busy.value)
 
 useHead({ title: computed(() => shop.value?.name ?? t('admin.shops.title')) })
 
@@ -129,20 +132,8 @@ const copySubscriptionId = async () => {
 
       <Card>
         <CardHeader class="pb-2"><CardTitle class="text-base">{{ t('admin.shop.usersTitle') }}</CardTitle></CardHeader>
-        <CardContent class="flex flex-col divide-y">
-          <div v-for="shopUser in shop.users" :key="shopUser.id" class="flex flex-wrap items-center justify-between gap-2 py-3">
-            <div class="min-w-0">
-              <p class="flex flex-wrap items-center gap-2 font-medium">
-                {{ shopUser.name }}
-                <Badge v-if="shopUser.is_owner" variant="secondary">{{ t('admin.shop.owner') }}</Badge>
-                <Badge v-else variant="outline">{{ shopUser.role_name }}</Badge>
-                <Badge v-if="!shopUser.is_active" variant="outline">{{ t('admin.shop.inactive') }}</Badge>
-                <Badge v-if="shopUser.must_change_password" variant="outline">{{ t('admin.shop.mustChange') }}</Badge>
-              </p>
-              <p class="text-sm text-muted-foreground">{{ shopUser.email }}</p>
-            </div>
-            <Button variant="outline" size="sm" :disabled="busy" @click="askToReset(shopUser)"><KeyRound />{{ t('admin.shop.reset') }}</Button>
-          </div>
+        <CardContent>
+          <DataTable :columns="userColumns" :data="shop.users" :page-size="25" />
         </CardContent>
       </Card>
 

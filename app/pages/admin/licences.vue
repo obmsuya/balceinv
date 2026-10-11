@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import DataTable from '@/components/admin/DataTable.vue'
+import { licencePaymentColumns } from '@/components/admin/columns'
 import type { AdminLicenceDevices, AdminLicenceLookup, AdminLicencePackage, AdminLicencePayment, AdminLicencePaymentInput } from '@/composables/useAdmin'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 const route = useRoute()
-const { t, formatDate, formatDateTime } = useI18n()
+const { t, formatDate } = useI18n()
 const {
   busy, wapangaji, isDeviceRemovalMissing, fetchWapangajiStatus, connectWapangaji, disconnectWapangaji,
   lookupLicence, fetchPackages, fetchLicencePayments, recordLicencePayment, fetchLicenceDevices, removeLicenceDevice,
@@ -245,13 +247,7 @@ onMounted(async () => {
         <Card v-if="lookup.found">
           <CardHeader class="pb-2"><CardTitle class="text-base">{{ t('admin.licences.paymentsTitle') }}</CardTitle></CardHeader>
           <CardContent>
-            <p v-if="!payments.length" class="text-sm text-muted-foreground">{{ t('admin.licences.noPayments') }}</p>
-            <ul v-else class="flex flex-col divide-y text-sm">
-              <li v-for="(record, index) in payments" :key="index" class="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span><span class="font-medium">{{ record.package || '—' }}</span> · {{ Math.round(Number(record.amount)).toLocaleString() }} · {{ t(`admin.licences.methods.${record.method}`) }}<template v-if="record.reference"> · {{ record.reference }}</template></span>
-                <span class="text-xs text-muted-foreground">{{ formatDateTime(record.created_at) }}<template v-if="record.processed_by"> · {{ t('admin.licences.by', { name: record.processed_by }) }}</template></span>
-              </li>
-            </ul>
+            <DataTable :columns="licencePaymentColumns" :data="payments" :page-size="10" :empty-text="t('admin.licences.noPayments')" />
           </CardContent>
         </Card>
       </template>

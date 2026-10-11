@@ -36,6 +36,7 @@
     </div>
 
     <div class="vendor" :class="{ visible: show }">
+      <img src="/faltasi-icon.png" alt="" class="vendor-logo">
       <span class="vendor-by">{{ t('misc.brand.by') }}</span>
       <span class="vendor-name">FALTASI</span>
     </div>
@@ -294,6 +295,12 @@ onMounted(async () => {
   transition: opacity 1.2s 0.6s;
 }
 .vendor.visible { opacity: 1; }
+.vendor-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  align-self: center;
+}
 .vendor-by {
   font-size: 0.7rem;
   color: #9aaa88;
