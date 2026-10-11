@@ -5,7 +5,8 @@
     "support": "Support inbox",
     "audit": "Audit log",
     "signOut": "Sign out",
-    "teamOnly": "Team only"
+    "teamOnly": "Team only",
+    "licences": "Licences"
   },
   "roles": {
     "admin": "Admin",
@@ -41,7 +42,7 @@
     "previous": "Previous",
     "next": "Next",
     "showing": "Showing {from}–{to} of {total}",
-    "desktopNote": "Desktop shops are not listed here: their data stays on their computer. Find their licence in the sales tool."
+    "desktopNote": "Desktop shops are not listed here: their data stays on their computer. Find their licence on the Licences page with their Device ID."
   },
   "create": {
     "title": "Create a web shop",
@@ -71,7 +72,7 @@
     "plan": "Plan",
     "phone": "Phone",
     "extendTitle": "Extend the trial",
-    "extendHelp": "Adds days to a free trial. Paid plans are renewed with the sales tool.",
+    "extendHelp": "Adds days to a free trial. Paid plans are renewed on the Licences page.",
     "days": "Days",
     "extend": "Extend",
     "usersTitle": "People who sign in",
@@ -83,7 +84,8 @@
     "noRecent": "No team actions on this business yet",
     "notFound": "This business could not be found.",
     "resetTitle": "Reset {name}'s password?",
-    "resetBody": "They are signed out everywhere and get a one-time password, which they must change at their next sign-in."
+    "resetBody": "They are signed out everywhere and get a one-time password, which they must change at their next sign-in.",
+    "licence": "Licence and payments"
   },
   "support": {
     "title": "Support inbox",
@@ -116,7 +118,10 @@
       "created_shop": "Created a shop",
       "extended_trial": "Extended a trial",
       "reset_password": "Reset a password",
-      "handled_support": "Handled a support message"
+      "handled_support": "Handled a support message",
+      "connected_wapangaji": "Signed in to Wapangaji",
+      "recorded_payment": "Recorded a payment",
+      "removed_device": "Removed a computer"
     }
   },
   "toasts": {
@@ -129,5 +134,59 @@
     "resetFailed": "Could not reset the password",
     "handled": "Marked handled",
     "handleFailed": "Could not mark it handled"
+  },
+  "licences": {
+    "title": "Licences",
+    "subtitle": "Activate, renew and check computers through Wapangaji, for web and desktop shops",
+    "connectTitle": "Sign in to Wapangaji",
+    "connectHelp": "Use your sales tool account. Payments you record are saved under your name in Wapangaji.",
+    "phone": "Phone number",
+    "password": "Password",
+    "connect": "Sign in",
+    "connected": "Signed in to Wapangaji as {name}",
+    "connectedAs": "Wapangaji: {name}",
+    "disconnect": "Sign out of Wapangaji",
+    "connectFailed": "Could not sign in to Wapangaji",
+    "searchTitle": "Find a licence",
+    "searchHelp": "Paste a Device ID (desktop) or a Subscription ID (cloud-…), or search by phone number.",
+    "deviceId": "Device ID or Subscription ID",
+    "orPhone": "Or phone number",
+    "search": "Find",
+    "lookupFailed": "Could not look up the licence",
+    "notFound": "No licence yet. Record a payment below to activate it.",
+    "webShop": "Web shop: {name}",
+    "licenceTitle": "Licence",
+    "plan": "Plan",
+    "expires": "Paid until",
+    "devices": "Computers",
+    "devicesCount": "{count} of {max}",
+    "key": "Licence key",
+    "activateTitle": "Activate or renew",
+    "activateHelp": "Record a payment you received. The days are added to the licence straight away.",
+    "amount": "Amount received (TZS)",
+    "method": "Paid by",
+    "methods": {
+      "cash": "Cash",
+      "mobile_money": "Mobile money",
+      "bank_transfer": "Bank transfer"
+    },
+    "reference": "Reference (optional)",
+    "customerPhone": "Customer phone",
+    "activate": "Record payment",
+    "activated": "Payment recorded and licence updated",
+    "activateFailed": "Could not record the payment",
+    "paymentsTitle": "Payments",
+    "noPayments": "No payments yet",
+    "by": "by {name}",
+    "devicesTitle": "Computers on this licence",
+    "devicesHelp": "Remove an old computer to free a place when the shop reaches its limit.",
+    "showDevices": "Show computers",
+    "remove": "Remove",
+    "removeTitle": "Remove this computer?",
+    "removeBody": "It can no longer use this licence. Another computer can take its place.",
+    "deviceRemoved": "Computer removed",
+    "removeFailed": "Could not remove the computer",
+    "updateNeeded": "Removing computers needs a Wapangaji update that is waiting for approval. Until then, ask the technical team.",
+    "searched": "Searched"
   }
 }

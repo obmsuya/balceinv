@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, Check, Copy, KeyRound } from 'lucide-vue-next'
+import { ArrowLeft, BadgeCheck, Check, Copy, KeyRound } from 'lucide-vue-next'
 import OneTimePasswordDialog from '@/components/admin/OneTimePasswordDialog.vue'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -100,9 +100,14 @@ const copySubscriptionId = async () => {
             <CardTitle class="text-base">{{ t('admin.shop.subscriptionId') }}</CardTitle>
             <CardDescription>{{ t('admin.shop.currency') }}: {{ shop.currency_code }}</CardDescription>
           </CardHeader>
-          <CardContent class="flex items-center gap-2">
-            <code class="flex-1 select-all break-all rounded-md bg-muted px-2 py-1.5 font-mono text-xs">{{ shop.subscription_id }}</code>
-            <Button variant="outline" size="sm" @click="copySubscriptionId"><component :is="isIdCopied ? Check : Copy" />{{ t('admin.shop.copyId') }}</Button>
+          <CardContent class="flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+              <code class="flex-1 select-all break-all rounded-md bg-muted px-2 py-1.5 font-mono text-xs">{{ shop.subscription_id }}</code>
+              <Button variant="outline" size="sm" @click="copySubscriptionId"><component :is="isIdCopied ? Check : Copy" />{{ t('admin.shop.copyId') }}</Button>
+            </div>
+            <Button as-child variant="secondary" size="sm" class="w-fit">
+              <NuxtLink :to="{ path: '/admin/licences', query: { hardware_id: shop.subscription_id } }"><BadgeCheck />{{ t('admin.shop.licence') }}</NuxtLink>
+            </Button>
           </CardContent>
         </Card>
         <Card>

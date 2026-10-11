@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ClipboardList, LifeBuoy, LogOut, Store } from 'lucide-vue-next'
+import { BadgeCheck, ClipboardList, LifeBuoy, LogOut, Store } from 'lucide-vue-next'
 import { Toaster } from '@/components/ui/sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ const { staff, signOut } = useAdmin()
 
 const navigationItems = computed(() => [
   { path: '/admin', label: t('admin.nav.shops'), icon: Store, isVisible: true },
+  { path: '/admin/licences', label: t('admin.nav.licences'), icon: BadgeCheck, isVisible: true },
   { path: '/admin/support', label: t('admin.nav.support'), icon: LifeBuoy, isVisible: true },
   { path: '/admin/audit', label: t('admin.nav.audit'), icon: ClipboardList, isVisible: staff.value?.role === 'admin' },
 ].filter(item => item.isVisible))
