@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import DataTable from '@/components/admin/DataTable.vue'
+import { shopColumns } from '@/components/admin/columns'
 import type { AdminOneTimePassword, AdminShopPage } from '@/composables/useAdmin'
-import { adminPageSize, adminPlanLabel } from '@/composables/useAdmin'
+import { adminPageSize } from '@/composables/useAdmin'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -45,7 +45,6 @@ const goToPage = (nextOffset: number) => {
   load()
 }
 
-const planToneClass = { trial: 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300', paid: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-300', ended: 'bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-300', none: 'bg-muted text-muted-foreground' }
 
 const canCreate = computed(() => newShop.value.business_name.trim() && newShop.value.owner_name.trim() && newShop.value.owner_email.includes('@') && !busy.value)
 
@@ -79,44 +78,15 @@ const submitCreate = async () => {
       <Input v-model="search" :placeholder="t('admin.shops.search')" class="bg-background pl-9" />
     </div>
 
-    <div class="overflow-hidden rounded-lg border bg-background">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{{ t('admin.shops.business') }}</TableHead>
-            <TableHead class="hidden md:table-cell">{{ t('admin.shops.owner') }}</TableHead>
-            <TableHead>{{ t('admin.shops.plan') }}</TableHead>
-            <TableHead class="hidden text-right sm:table-cell">{{ t('admin.shops.sales30') }}</TableHead>
-            <TableHead class="hidden lg:table-cell">{{ t('admin.shops.lastSale') }}</TableHead>
-            <TableHead class="hidden lg:table-cell">{{ t('admin.shops.joined') }}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <template v-if="loading && !shopPage.items.length">
-            <TableRow v-for="row in 4" :key="row"><TableCell colspan="6"><Skeleton class="h-6 w-full" /></TableCell></TableRow>
-          </template>
-          <TableRow v-else-if="!shopPage.items.length">
-            <TableCell colspan="6" class="py-10 text-center text-muted-foreground">{{ t('admin.shops.empty') }}</TableCell>
-          </TableRow>
-          <TableRow v-for="shop in shopPage.items" v-else :key="shop.company_id" class="cursor-pointer" @click="navigateTo(`/admin/shops/${shop.company_id}`)">
-            <TableCell>
-              <NuxtLink :to="`/admin/shops/${shop.company_id}`" class="font-medium hover:underline" @click.stop>{{ shop.name }}</NuxtLink>
-              <p class="text-xs text-muted-foreground">{{ shop.phone || '—' }}</p>
-            </TableCell>
-            <TableCell class="hidden md:table-cell">
-              <p class="text-sm">{{ shop.owner_name || '—' }}</p>
-              <p class="text-xs text-muted-foreground">{{ shop.owner_email }}</p>
-            </TableCell>
-            <TableCell>
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" :class="planToneClass[adminPlanLabel(shop).tone]">{{ adminPlanLabel(shop).text }}</span>
-            </TableCell>
-            <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ formatNumber(shop.sales_last_30_days) }}</TableCell>
-            <TableCell class="hidden text-sm lg:table-cell">{{ shop.last_sale_at ? formatDate(shop.last_sale_at) : t('admin.shops.never') }}</TableCell>
-            <TableCell class="hidden text-sm lg:table-cell">{{ formatDate(shop.created_at) }}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </div>
+    <DataTable
+      :columns="shopColumns"
+      :data="shopPage.items"
+      :loading="loading"
+      :page-size="adminPageSize"
+      :empty-text="t('admin.shops.empty')"
+      is-row-clickable
+      @row-click="shop => navigateTo(`/admin/shops/${shop.company_id}`)"
+    />
 
     <div class="flex flex-col items-center justify-between gap-2 text-sm text-muted-foreground sm:flex-row">
       <p>{{ shopPage.total ? t('admin.shops.showing', { from: offset + 1, to: pageEnd, total: shopPage.total }) : '' }}</p>
