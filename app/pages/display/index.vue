@@ -113,6 +113,6 @@ onUnmounted(() => {
       </aside>
     </main>
 
-    <footer v-if="phase === 'idle'" class="pb-6 text-center text-sm tracking-wide text-muted-foreground">Faltasi POS · pos.faltasi.com</footer>
+    <footer v-if="phase === 'idle'" class="flex items-center justify-center gap-2 pb-6 text-sm tracking-wide text-muted-foreground"><img src="/faltasi-icon.png" alt="" class="size-5 rounded">Faltasi POS · pos.faltasi.com</footer>
   </div>
 </template>

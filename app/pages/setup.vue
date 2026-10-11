@@ -106,7 +106,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <i class="s3"/><i class="s4"/>
           </div>
           <span>POS</span>
-          <em class="wordmark-vendor">{{ t('misc.brand.by') }} FALTASI</em>
+          <em class="wordmark-vendor"><img src="/faltasi-icon.png" alt="" class="wordmark-vendor-logo">{{ t('misc.brand.by') }} FALTASI</em>
         </div>
 
         <div class="pitch">
@@ -364,6 +364,14 @@ const onSubmit = form.handleSubmit(async (values) => {
   font-weight: 700;
   letter-spacing: 0.22em;
   color: rgba(255,255,255,0.88);
+}
+.wordmark .wordmark-vendor-logo {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border-radius: 3px;
+  vertical-align: -3px;
 }
 .wordmark .wordmark-vendor {
   font-size: 0.62rem;
