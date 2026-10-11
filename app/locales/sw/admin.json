@@ -5,7 +5,8 @@
     "support": "Ujumbe wa msaada",
     "audit": "Kumbukumbu za vitendo",
     "signOut": "Toka",
-    "teamOnly": "Timu tu"
+    "teamOnly": "Timu tu",
+    "licences": "Leseni"
   },
   "roles": {
     "admin": "Msimamizi",
@@ -41,7 +42,7 @@
     "previous": "Iliyotangulia",
     "next": "Inayofuata",
     "showing": "Inaonyesha {from}–{to} kati ya {total}",
-    "desktopNote": "Maduka ya kompyuta hayaonekani hapa: data yao inabaki kwenye kompyuta yao. Tafuta leseni yao kwenye zana ya mauzo."
+    "desktopNote": "Maduka ya kompyuta hayaonekani hapa: data yao inabaki kwenye kompyuta yao. Tafuta leseni yao kwenye ukurasa wa Leseni kwa Kitambulisho cha Kifaa."
   },
   "create": {
     "title": "Unda duka la mtandaoni",
@@ -71,7 +72,7 @@
     "plan": "Kifurushi",
     "phone": "Simu",
     "extendTitle": "Ongeza siku za majaribio",
-    "extendHelp": "Inaongeza siku kwenye majaribio ya bure. Vifurushi vilivyolipiwa vinaongezwa kwa zana ya mauzo.",
+    "extendHelp": "Inaongeza siku kwenye majaribio ya bure. Vifurushi vilivyolipiwa vinaongezwa kwenye ukurasa wa Leseni.",
     "days": "Siku",
     "extend": "Ongeza",
     "usersTitle": "Watu wanaoingia",
@@ -83,7 +84,8 @@
     "noRecent": "Bado hakuna kitendo cha timu kwenye biashara hii",
     "notFound": "Biashara hii haikupatikana.",
     "resetTitle": "Weka nenosiri jipya kwa {name}?",
-    "resetBody": "Atatolewa kwenye vifaa vyote na atapewa nenosiri la mara moja, ambalo lazima alibadilishe akiingia tena."
+    "resetBody": "Atatolewa kwenye vifaa vyote na atapewa nenosiri la mara moja, ambalo lazima alibadilishe akiingia tena.",
+    "licence": "Leseni na malipo"
   },
   "support": {
     "title": "Ujumbe wa msaada",
@@ -116,7 +118,10 @@
       "created_shop": "Aliunda duka",
       "extended_trial": "Aliongeza majaribio",
       "reset_password": "Aliweka nenosiri jipya",
-      "handled_support": "Alishughulikia ujumbe wa msaada"
+      "handled_support": "Alishughulikia ujumbe wa msaada",
+      "connected_wapangaji": "Aliingia Wapangaji",
+      "recorded_payment": "Alirekodi malipo",
+      "removed_device": "Aliondoa kompyuta"
     }
   },
   "toasts": {
@@ -129,5 +134,59 @@
     "resetFailed": "Imeshindwa kuweka nenosiri jipya",
     "handled": "Umewekwa kama umeshughulikiwa",
     "handleFailed": "Imeshindwa kuweka kama umeshughulikiwa"
+  },
+  "licences": {
+    "title": "Leseni",
+    "subtitle": "Washa, ongeza muda na angalia kompyuta kupitia Wapangaji, kwa maduka ya mtandaoni na ya kompyuta",
+    "connectTitle": "Ingia Wapangaji",
+    "connectHelp": "Tumia akaunti yako ya zana ya mauzo. Malipo unayorekodi yanahifadhiwa kwa jina lako kwenye Wapangaji.",
+    "phone": "Namba ya simu",
+    "password": "Nenosiri",
+    "connect": "Ingia",
+    "connected": "Umeingia Wapangaji kama {name}",
+    "connectedAs": "Wapangaji: {name}",
+    "disconnect": "Toka Wapangaji",
+    "connectFailed": "Imeshindwa kuingia Wapangaji",
+    "searchTitle": "Tafuta leseni",
+    "searchHelp": "Bandika Kitambulisho cha Kifaa (kompyuta) au Kitambulisho cha Usajili (cloud-…), au tafuta kwa namba ya simu.",
+    "deviceId": "Kitambulisho cha Kifaa au cha Usajili",
+    "orPhone": "Au namba ya simu",
+    "search": "Tafuta",
+    "lookupFailed": "Imeshindwa kutafuta leseni",
+    "notFound": "Bado hakuna leseni. Rekodi malipo hapa chini kuiwasha.",
+    "webShop": "Duka la mtandaoni: {name}",
+    "licenceTitle": "Leseni",
+    "plan": "Kifurushi",
+    "expires": "Imelipiwa hadi",
+    "devices": "Kompyuta",
+    "devicesCount": "{count} kati ya {max}",
+    "key": "Ufunguo wa leseni",
+    "activateTitle": "Washa au ongeza muda",
+    "activateHelp": "Rekodi malipo uliyopokea. Siku zinaongezwa kwenye leseni papo hapo.",
+    "amount": "Kiasi kilichopokelewa (TZS)",
+    "method": "Amelipa kwa",
+    "methods": {
+      "cash": "Taslimu",
+      "mobile_money": "Pesa ya simu",
+      "bank_transfer": "Benki"
+    },
+    "reference": "Kumbukumbu (si lazima)",
+    "customerPhone": "Simu ya mteja",
+    "activate": "Rekodi malipo",
+    "activated": "Malipo yamerekodiwa na leseni imesasishwa",
+    "activateFailed": "Imeshindwa kurekodi malipo",
+    "paymentsTitle": "Malipo",
+    "noPayments": "Bado hakuna malipo",
+    "by": "na {name}",
+    "devicesTitle": "Kompyuta kwenye leseni hii",
+    "devicesHelp": "Ondoa kompyuta ya zamani kupata nafasi duka linapofikia kikomo.",
+    "showDevices": "Onyesha kompyuta",
+    "remove": "Ondoa",
+    "removeTitle": "Ondoa kompyuta hii?",
+    "removeBody": "Haitaweza kutumia leseni hii tena. Kompyuta nyingine inaweza kuchukua nafasi yake.",
+    "deviceRemoved": "Kompyuta imeondolewa",
+    "removeFailed": "Imeshindwa kuondoa kompyuta",
+    "updateNeeded": "Kuondoa kompyuta kunahitaji sasisho la Wapangaji linalosubiri kuidhinishwa. Hadi hapo, waulize timu ya kiufundi.",
+    "searched": "Uliyotafuta"
   }
 }
