@@ -85,6 +85,61 @@ export interface AdminOneTimePassword {
   one_time_password: string
 }
 
+export interface WapangajiStatus {
+  connected: boolean
+  name: string
+}
+
+export interface AdminLicence {
+  license_key: string
+  phone: string
+  package: string | null
+  expires_at: string
+  days_granted: number
+  max_devices: number
+  device_count: number
+}
+
+export interface AdminLicenceLookup {
+  found: boolean
+  licence: AdminLicence | null
+  company_id: string | null
+  company_name: string | null
+}
+
+export interface AdminLicencePackage {
+  id: number
+  name: string
+  price: string
+  days_granted: number
+  max_devices: number
+}
+
+export interface AdminLicencePayment {
+  phone: string
+  package: string | null
+  amount: string
+  method: string
+  reference: string
+  processed_by: string | null
+  created_at: string
+}
+
+export interface AdminLicencePaymentInput {
+  hardware_id: string
+  phone: string
+  package_id: number
+  amount: number
+  method: 'cash' | 'mobile_money' | 'bank_transfer'
+  reference: string
+}
+
+export interface AdminLicenceDevices {
+  license_key: string
+  hardware_ids: string[]
+  max_devices: number
+}
+
 interface ApiEnvelope<Payload> {
   success: boolean
   message: string
@@ -229,6 +284,123 @@ export const useAdmin = () => {
     }
   }
 
+  const wapangaji = useState<WapangajiStatus>('admin:wapangaji', () => ({ connected: false, name: '' }))
+  const isDeviceRemovalMissing = useState<boolean>('admin:deviceRemovalMissing', () => false)
+
+  const fetchWapangajiStatus = async () => {
+    try {
+      const statusResponse = await adminFetch<ApiEnvelope<WapangajiStatus>>('/api/admin/wapangaji')
+      wapangaji.value = statusResponse.data
+    } catch {
+      wapangaji.value = { connected: false, name: '' }
+    }
+  }
+
+  const forgetWapangajiWhenExpired = (error: any) => {
+    if (error?.data?.code === 'wapangaji_not_connected') wapangaji.value = { connected: false, name: '' }
+  }
+
+  const connectWapangaji = async (phone: string, password: string): Promise<boolean> => {
+    busy.value = true
+    try {
+      const connectResponse = await adminFetch<ApiEnvelope<WapangajiStatus>>('/api/admin/wapangaji/connect', { method: 'POST', body: { phone, password } })
+      wapangaji.value = connectResponse.data
+      toast.success(t('admin.licences.connected', { name: connectResponse.data.name }))
+      return true
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'admin.licences.connectFailed'))
+      return false
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const disconnectWapangaji = async () => {
+    try {
+      await adminFetch('/api/admin/wapangaji/disconnect', { method: 'POST' })
+    } catch {
+    } finally {
+      wapangaji.value = { connected: false, name: '' }
+    }
+  }
+
+  const lookupLicence = async (hardwareId: string, phone: string): Promise<AdminLicenceLookup | null> => {
+    try {
+      const lookupResponse = await adminFetch<ApiEnvelope<AdminLicenceLookup>>('/api/admin/licences/lookup', { method: 'POST', body: { hardware_id: hardwareId, phone } })
+      return lookupResponse.data
+    } catch (error: any) {
+      forgetWapangajiWhenExpired(error)
+      toast.error(apiErrorMessage(error, 'admin.licences.lookupFailed'))
+      return null
+    }
+  }
+
+  const fetchPackages = async (): Promise<AdminLicencePackage[]> => {
+    try {
+      const packagesResponse = await adminFetch<ApiEnvelope<AdminLicencePackage[]>>('/api/admin/licences/packages')
+      return packagesResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'admin.toasts.loadFailed'))
+      return []
+    }
+  }
+
+  const fetchLicencePayments = async (hardwareId: string): Promise<AdminLicencePayment[]> => {
+    try {
+      const paymentsResponse = await adminFetch<ApiEnvelope<AdminLicencePayment[]>>('/api/admin/licences/payments', { method: 'POST', body: { hardware_id: hardwareId } })
+      return paymentsResponse.data
+    } catch (error: any) {
+      forgetWapangajiWhenExpired(error)
+      return []
+    }
+  }
+
+  const recordLicencePayment = async (payment: AdminLicencePaymentInput): Promise<AdminLicence | null> => {
+    busy.value = true
+    try {
+      const recordResponse = await adminFetch<ApiEnvelope<AdminLicence>>('/api/admin/licences/record-payment', { method: 'POST', body: payment })
+      toast.success(t('admin.licences.activated'))
+      return recordResponse.data
+    } catch (error: any) {
+      forgetWapangajiWhenExpired(error)
+      toast.error(apiErrorMessage(error, 'admin.licences.activateFailed'))
+      return null
+    } finally {
+      busy.value = false
+    }
+  }
+
+  const fetchLicenceDevices = async (hardwareId: string): Promise<AdminLicenceDevices | null> => {
+    try {
+      const devicesResponse = await adminFetch<ApiEnvelope<AdminLicenceDevices>>('/api/admin/licences/devices', { method: 'POST', body: { hardware_id: hardwareId } })
+      isDeviceRemovalMissing.value = false
+      return devicesResponse.data
+    } catch (error: any) {
+      forgetWapangajiWhenExpired(error)
+      if (error?.data?.code === 'wapangaji_update_required') {
+        isDeviceRemovalMissing.value = true
+        return null
+      }
+      toast.error(apiErrorMessage(error, 'admin.toasts.loadFailed'))
+      return null
+    }
+  }
+
+  const removeLicenceDevice = async (hardwareId: string, removeHardwareId: string): Promise<AdminLicenceDevices | null> => {
+    busy.value = true
+    try {
+      const removeResponse = await adminFetch<ApiEnvelope<AdminLicenceDevices>>('/api/admin/licences/remove-device', { method: 'POST', body: { hardware_id: hardwareId, remove_hardware_id: removeHardwareId } })
+      toast.success(t('admin.licences.deviceRemoved'))
+      return removeResponse.data
+    } catch (error: any) {
+      forgetWapangajiWhenExpired(error)
+      toast.error(apiErrorMessage(error, 'admin.licences.removeFailed'))
+      return null
+    } finally {
+      busy.value = false
+    }
+  }
+
   return {
     staff,
     busy,
@@ -243,6 +415,17 @@ export const useAdmin = () => {
     fetchSupport,
     markHandled,
     fetchAudit,
+    wapangaji,
+    isDeviceRemovalMissing,
+    fetchWapangajiStatus,
+    connectWapangaji,
+    disconnectWapangaji,
+    lookupLicence,
+    fetchPackages,
+    fetchLicencePayments,
+    recordLicencePayment,
+    fetchLicenceDevices,
+    removeLicenceDevice,
   }
 }
 
