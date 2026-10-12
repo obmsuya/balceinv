@@ -3,6 +3,7 @@ import { ImageOff, ImageUp, Plus, Puzzle, Smartphone, Trash2, X } from 'lucide-v
 import PhonePhotoDialog from '@/components/products/PhonePhotoDialog.vue'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import MoneyInput from '@/components/MoneyInput.vue'
@@ -48,11 +49,28 @@ const { user } = useAuth()
 const stockShopId = ref<string | null>(null)
 const stockShops = computed(() => user.value?.shops ?? [])
 const stockShopName = computed(() => stockShops.value.find(shop => shop.id === stockShopId.value)?.name ?? '')
+const availableShopIds = ref<string[]>([])
 const { suppliersOn } = useFeatures()
 const { canView } = usePermissions()
 const { activeSupplierOptions } = useSuppliers()
 
-const { createProduct, updateProduct, saving } = useProducts()
+const { createProduct, updateProduct, fetchProduct, saving } = useProducts()
+const canChooseShops = computed(() => user.value?.is_owner === true && stockShops.value.length > 1 && !isVariant.value)
+
+const setShopAvailable = (shopId: string, isAvailable: boolean | 'indeterminate') => {
+  availableShopIds.value = isAvailable === true
+    ? [...new Set([...availableShopIds.value, shopId])]
+    : availableShopIds.value.filter(availableShopId => availableShopId !== shopId)
+}
+
+const loadAvailableShops = async () => {
+  const allShopIds = stockShops.value.map(shop => shop.id)
+  availableShopIds.value = allShopIds
+  if (!isEditing.value || !props.product || !canChooseShops.value) return
+  const productDetail = await fetchProduct(props.product.id)
+  const hiddenShopIds = productDetail?.hidden_shop_ids ?? []
+  availableShopIds.value = allShopIds.filter(shopId => !hiddenShopIds.includes(shopId))
+}
 const { addons, loading: addonsLoading, fetchAddons, createAddon, updateAddon, deleteAddon } = useAddons()
 
 const defaultMinimumStock = '5'
@@ -166,6 +184,7 @@ const resetForm = () => {
 watch(open, isOpen => {
   if (isOpen) stockShopId.value = user.value?.shop_id ?? stockShops.value[0]?.id ?? null
   if (isOpen) resetForm()
+  if (isOpen) loadAvailableShops()
   else clearImage()
 })
 
@@ -252,6 +271,14 @@ const submit = async () => {
   if (typeof builtFields === 'string') {
     toast.error(builtFields)
     return
+  }
+
+  if (canChooseShops.value) {
+    if (!availableShopIds.value.length) {
+      toast.error(t('products.form.errors.noShop'))
+      return
+    }
+    builtFields.shop_ids = availableShopIds.value
   }
 
   try {
@@ -442,13 +469,26 @@ const removeAddon = async (addon: ProductAddon) => {
               </Select>
               <p class="text-xs text-muted-foreground">{{ t('products.form.stockShopHint') }}</p>
             </div>
-            <div v-else class="flex flex-col gap-1.5">
+            <div v-if="isEditing" class="flex flex-col gap-1.5">
               <Label>{{ t('products.form.currentStock') }}</Label>
               <p class="flex h-9 items-center text-sm tabular-nums">{{ product?.quantity ?? '—' }} {{ product?.unit }}</p>
             </div>
             <div class="flex flex-col gap-1.5">
               <Label for="product-min-stock">{{ t('products.form.minStock') }}</Label>
               <Input id="product-min-stock" v-model="form.minStock" inputmode="numeric" />
+            </div>
+          </div>
+
+          <div v-if="canChooseShops" class="flex flex-col gap-2">
+            <div>
+              <Label>{{ t('products.form.availableIn') }}</Label>
+              <p class="mt-0.5 text-xs text-muted-foreground">{{ t('products.form.availableInHint') }}</p>
+            </div>
+            <div class="flex flex-wrap gap-x-5 gap-y-2">
+              <label v-for="shop in stockShops" :key="shop.id" class="flex items-center gap-2 text-sm">
+                <Checkbox :model-value="availableShopIds.includes(shop.id)" @update:model-value="isAvailable => setShopAvailable(shop.id, isAvailable)" />
+                {{ shop.name }}
+              </label>
             </div>
           </div>
 
