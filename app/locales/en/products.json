@@ -29,7 +29,8 @@
     "restore": "Restore",
     "viewDetails": "View details",
     "archived": "Archived",
-    "empty": "No products found."
+    "empty": "No products found.",
+    "notInShop": "Not in this shop"
   },
   "search": {
     "noMatch": "No product matches."
@@ -51,7 +52,8 @@
       "badPrice": "Prices must be numbers of zero or more",
       "badQuantity": "Quantities must be whole numbers",
       "badOpeningStock": "Opening stock must be a whole number",
-      "badAddon": "Enter an add-on name and a price of zero or more"
+      "badAddon": "Enter an add-on name and a price of zero or more",
+      "noShop": "Choose at least one shop that sells this product"
     },
     "detailsTab": "Details",
     "addonsTab": "Add-ons",
@@ -99,7 +101,9 @@
     "addonPrice": "Add-on price",
     "noAddons": "No add-ons yet.",
     "offerAddon": "Offer {name}",
-    "deleteAddon": "Delete {name}"
+    "deleteAddon": "Delete {name}",
+    "availableIn": "Sold in",
+    "availableInHint": "Untick a shop to hide this product there: it will not show at that till."
   },
   "details": {
     "title": "Product details",
@@ -192,5 +196,19 @@
       "ordered": "ordered by a customer",
       "transferred": "sent between shops"
     }
+  },
+  "shops": {
+    "showOther": "Show products from other shops",
+    "addToShop": "Add to a shop",
+    "removeFromShop": "Remove from a shop",
+    "addTitle": "Add {count} products to a shop",
+    "removeTitle": "Remove {count} products from a shop",
+    "addBody": "They will show in that shop and at its till.",
+    "removeBody": "They will no longer show in that shop or at its till. Products the shop still has stock of are kept.",
+    "shop": "Shop",
+    "added": "{count} added to {shop}",
+    "removed": "{count} removed from {shop}",
+    "keptHint": "Kept because the shop still has stock: {names}. Send or sell the stock first.",
+    "failed": "Could not change the shop's products"
   }
 }

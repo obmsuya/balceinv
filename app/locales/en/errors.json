@@ -19,6 +19,8 @@
   "insufficient_stock": "Not enough stock for this sale",
   "no_active_shop": "Choose a shop first",
   "shop_not_assigned": "You aren't assigned to this shop",
+  "product_not_in_shop": "This product is not sold in this shop",
+  "shop_has_stock": "A shop you removed still has stock of this product. Send or sell it first.",
   "shop_closed": "This shop is closed",
   "invalid_payment": "The payment doesn't add up. Check the amounts.",
   "client_ref_reused": "This sale was already saved",
