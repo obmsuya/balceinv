@@ -26,6 +26,8 @@ export interface Product {
   quantity: number | null
   min_stock: number | null
   variant_count: number
+  in_shop: boolean
+  hidden_shop_ids?: string[]
   preferred_supplier_id: string | null
   barcodes: ProductBarcode[]
   created_at: string
@@ -47,6 +49,7 @@ export interface ProductFields {
   barcodes: ProductBarcode[]
   min_stock: number
   preferred_supplier_id?: string
+  shop_ids?: string[]
 }
 
 export interface NewProductFields extends ProductFields {
@@ -59,7 +62,13 @@ export interface ProductListFilter {
   searchText: string
   category: string
   includeArchived: boolean
+  includeOtherShops: boolean
   offset: number
+}
+
+export interface ShopAvailabilityResult {
+  changed: number
+  kept_with_stock: { id: string; name: string }[]
 }
 
 export interface ProductImportProblem {
@@ -146,6 +155,7 @@ export const useProducts = () => {
           q: filter.searchText || undefined,
           category: filter.category || undefined,
           include_archived: filter.includeArchived || undefined,
+          include_other_shops: filter.includeOtherShops || undefined,
           limit: productPageSize,
           offset: filter.offset ?? 0,
         },
@@ -278,6 +288,19 @@ export const useProducts = () => {
     }
   }
 
+  const setShopAvailability = async (productIds: string[], shopId: string, isAvailable: boolean): Promise<ShopAvailabilityResult | null> => {
+    saving.value = true
+    try {
+      const availabilityResponse = await apiFetch<ApiEnvelope<ShopAvailabilityResult>>('/api/products/shops', { method: 'POST', body: { product_ids: productIds, shop_id: shopId, available: isAvailable } })
+      return availabilityResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'products.shops.failed'))
+      return null
+    } finally {
+      saving.value = false
+    }
+  }
+
   const archiveProduct = async (productId: string): Promise<void> => {
     saving.value = true
     try {
@@ -344,6 +367,7 @@ export const useProducts = () => {
   return {
     deleting,
     deleteProducts,
+    setShopAvailability,
     products,
     totalProducts,
     categories,

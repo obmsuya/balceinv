@@ -19,6 +19,8 @@
   "insufficient_stock": "Stoku haitoshi kwa mauzo haya",
   "no_active_shop": "Chagua duka kwanza",
   "shop_not_assigned": "Hujapangiwa duka hili",
+  "product_not_in_shop": "Bidhaa hii haiuzwi kwenye duka hili",
+  "shop_has_stock": "Duka uliloondoa bado lina stoku ya bidhaa hii. Hamisha au uza kwanza.",
   "shop_closed": "Duka hili limefungwa",
   "invalid_payment": "Malipo hayalingani. Angalia kiasi.",
   "client_ref_reused": "Mauzo haya yameshahifadhiwa",

@@ -29,7 +29,8 @@
     "restore": "Rejesha",
     "viewDetails": "Tazama maelezo",
     "archived": "Imewekwa kando",
-    "empty": "Hakuna bidhaa zilizopatikana."
+    "empty": "Hakuna bidhaa zilizopatikana.",
+    "notInShop": "Haipo duka hili"
   },
   "search": {
     "noMatch": "Hakuna bidhaa inayolingana."
@@ -51,7 +52,8 @@
       "badPrice": "Bei lazima iwe sifuri au zaidi",
       "badQuantity": "Idadi lazima iwe namba kamili",
       "badOpeningStock": "Stoku ya kuanzia lazima iwe namba kamili",
-      "badAddon": "Weka jina la nyongeza na bei ya sifuri au zaidi"
+      "badAddon": "Weka jina la nyongeza na bei ya sifuri au zaidi",
+      "noShop": "Chagua angalau duka moja linalouza bidhaa hii"
     },
     "detailsTab": "Maelezo",
     "addonsTab": "Nyongeza",
@@ -99,7 +101,9 @@
     "addonPrice": "Bei ya nyongeza",
     "noAddons": "Bado hakuna nyongeza.",
     "offerAddon": "Washa {name}",
-    "deleteAddon": "Futa {name}"
+    "deleteAddon": "Futa {name}",
+    "availableIn": "Inauzwa katika",
+    "availableInHint": "Ondoa alama kwenye duka kuficha bidhaa hii hapo: haitaonekana kwenye kaunta ya duka hilo."
   },
   "details": {
     "title": "Maelezo ya bidhaa",
@@ -192,5 +196,19 @@
       "ordered": "imeagizwa na mteja",
       "transferred": "imehamishwa kati ya maduka"
     }
+  },
+  "shops": {
+    "showOther": "Onyesha bidhaa za maduka mengine",
+    "addToShop": "Ongeza kwenye duka",
+    "removeFromShop": "Ondoa kwenye duka",
+    "addTitle": "Ongeza bidhaa {count} kwenye duka",
+    "removeTitle": "Ondoa bidhaa {count} kwenye duka",
+    "addBody": "Zitaonekana kwenye duka hilo na kaunta yake.",
+    "removeBody": "Hazitaonekana tena kwenye duka hilo wala kaunta yake. Bidhaa ambazo duka bado lina stoku zinabaki.",
+    "shop": "Duka",
+    "added": "{count} zimeongezwa {shop}",
+    "removed": "{count} zimeondolewa {shop}",
+    "keptHint": "Zimebaki kwa sababu duka bado lina stoku: {names}. Hamisha au uza stoku kwanza.",
+    "failed": "Imeshindwa kubadilisha bidhaa za duka"
   }
 }
