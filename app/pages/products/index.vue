@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, Package, Plus, Search, Tags, Trash2, Upload } from 'lucide-vue-next'
+import { Download, Package, Plus, Search, Store, Tags, Trash2, Upload } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { createColumns } from '@/components/products/columns'
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -45,6 +46,7 @@ const {
   archiveProduct,
   deleteProducts,
   deleting,
+  setShopAvailability,
   restoreProduct,
   downloadTemplate,
 } = useProducts()
@@ -52,6 +54,35 @@ const {
 const searchText = ref('')
 const categoryFilter = ref(allCategories)
 const includeArchived = ref(false)
+const includeOtherShops = ref(false)
+const { user } = useAuth()
+const switchableShops = computed(() => user.value?.shops ?? [])
+const canManageShops = computed(() => user.value?.is_owner === true && switchableShops.value.length > 1)
+const showShopDialog = ref(false)
+const shopDialogAction = ref<'add' | 'remove'>('add')
+const shopDialogShopId = ref('')
+
+const openShopDialog = (action: 'add' | 'remove') => {
+  shopDialogAction.value = action
+  shopDialogShopId.value = user.value?.shop_id ?? switchableShops.value[0]?.id ?? ''
+  showShopDialog.value = true
+}
+
+const confirmShopChange = async () => {
+  if (!shopDialogShopId.value) return
+  const shopName = switchableShops.value.find(shop => shop.id === shopDialogShopId.value)?.name ?? ''
+  const availabilityResult = await setShopAvailability(selectedIds.value, shopDialogShopId.value, shopDialogAction.value === 'add')
+  if (!availabilityResult) return
+  showShopDialog.value = false
+  const doneMessage = shopDialogAction.value === 'add' ? t('products.shops.added', { count: availabilityResult.changed, shop: shopName }) : t('products.shops.removed', { count: availabilityResult.changed, shop: shopName })
+  if (availabilityResult.kept_with_stock.length) {
+    toast.warning(doneMessage, { description: t('products.shops.keptHint', { names: availabilityResult.kept_with_stock.map(kept => kept.name).join(', ') }), duration: 15000 })
+  } else {
+    toast.success(doneMessage)
+  }
+  selectedProducts.value = []
+  loadProducts()
+}
 const pageOffset = ref(0)
 
 const showFormDialog = ref(false)
@@ -100,6 +131,7 @@ const loadProducts = () => fetchProducts({
   searchText: searchText.value.trim(),
   category: categoryFilter.value === allCategories ? '' : categoryFilter.value,
   includeArchived: includeArchived.value,
+  includeOtherShops: includeOtherShops.value,
   offset: pageOffset.value,
 })
 
@@ -116,7 +148,7 @@ const refreshAfterChange = () => {
 const searchAfterTyping = useDebounceFn(reloadFromFirstPage, 300)
 
 watch(searchText, searchAfterTyping)
-watch([categoryFilter, includeArchived], reloadFromFirstPage)
+watch([categoryFilter, includeArchived, includeOtherShops], reloadFromFirstPage)
 
 const goToPage = (nextOffset: number) => {
   pageOffset.value = Math.max(nextOffset, 0)
@@ -263,12 +295,18 @@ watch(() => route.query.view, async viewedProductId => {
             <Switch id="show-archived" v-model="includeArchived" />
             <Label for="show-archived" class="whitespace-nowrap font-normal">{{ t('products.page.showArchived') }}</Label>
           </div>
+          <div v-if="canManageShops" class="flex items-center gap-2">
+            <Switch id="show-other-shops" v-model="includeOtherShops" />
+            <Label for="show-other-shops" class="whitespace-nowrap font-normal">{{ t('products.shops.showOther') }}</Label>
+          </div>
         </div>
 
         <div v-if="selectedIds.length" class="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
           <span class="font-medium">{{ t('products.delete.selected', { count: selectedIds.length }) }}</span>
           <div class="flex gap-2">
             <Button variant="ghost" size="sm" @click="selectedProducts = []">{{ t('products.delete.clearSelection') }}</Button>
+            <Button v-if="canManageShops" variant="outline" size="sm" @click="openShopDialog('add')"><Store /> {{ t('products.shops.addToShop') }}</Button>
+            <Button v-if="canManageShops" variant="outline" size="sm" @click="openShopDialog('remove')"><Store /> {{ t('products.shops.removeFromShop') }}</Button>
             <Button variant="destructive" size="sm" :disabled="!selectedProducts.length" @click="askToDelete(selectedProducts)"><Trash2 /> {{ t('products.delete.deleteSelected') }}</Button>
           </div>
         </div>
@@ -310,6 +348,28 @@ watch(() => route.query.view, async viewedProductId => {
     />
 
     <ProductImportDialog v-model:open="showImportDialog" @imported="refreshAfterChange" />
+
+    <Dialog v-model:open="showShopDialog">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{{ shopDialogAction === 'add' ? t('products.shops.addTitle', { count: selectedIds.length }) : t('products.shops.removeTitle', { count: selectedIds.length }) }}</DialogTitle>
+          <DialogDescription>{{ shopDialogAction === 'add' ? t('products.shops.addBody') : t('products.shops.removeBody') }}</DialogDescription>
+        </DialogHeader>
+        <div class="flex flex-col gap-1.5">
+          <Label for="shop-dialog-shop">{{ t('products.shops.shop') }}</Label>
+          <Select v-model="shopDialogShopId">
+            <SelectTrigger id="shop-dialog-shop" class="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="shop in switchableShops" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="showShopDialog = false">{{ t('common.actions.cancel') }}</Button>
+          <Button :variant="shopDialogAction === 'remove' ? 'destructive' : 'default'" :disabled="saving || !shopDialogShopId" @click="confirmShopChange">{{ shopDialogAction === 'add' ? t('products.shops.addToShop') : t('products.shops.removeFromShop') }}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <AlertDialog v-model:open="showArchiveDialog">
       <AlertDialogContent>

@@ -126,6 +126,7 @@ export const createColumns = (actions: ProductRowActions): ColumnDef<Product>[] 
             `${product.variant_count}`,
           ]),
           !product.is_active && h(Badge, { variant: 'secondary', class: 'shrink-0 font-normal' }, () => t('products.table.archived')),
+          product.in_shop === false && h(Badge, { variant: 'outline', class: 'shrink-0 border-dashed font-normal text-muted-foreground' }, () => t('products.table.notInShop')),
         ]),
         h('span', { class: 'font-mono text-xs text-muted-foreground' }, product.sku),
       ])
