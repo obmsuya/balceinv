@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { CalendarX2, Check, CheckCircle2, Clock, Copy, LogOut, RefreshCw, UserRound } from 'lucide-vue-next'
+import { CalendarX2, Check, CheckCircle2, Clock, Copy, LogOut, RefreshCw, Trash2, UserRound } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useLicense } from '@/composables/useLicense'
 import { useAuth } from '@/composables/useAuth'
 import PaymentFlow from './PaymentFlow.vue'
+import ClearDataForm from '@/components/settings/ClearDataForm.vue'
 
 const {
   licenseStatus,
@@ -69,6 +70,9 @@ const finishDialogPayment = () => {
 }
 
 const reloadNow = () => window.location.reload()
+
+const clearFormVisible = ref(false)
+const canClearTestData = computed(() => currentUserCanManageBilling.value && lockReason.value !== 'clock' && licenseStatus.value?.is_trial === true)
 
 const deviceIdCopied = ref(false)
 
@@ -137,6 +141,16 @@ const copyDeviceId = async () => {
 
       <div v-if="lockReason !== 'clock' && currentUserCanManageBilling" class="rounded-2xl border bg-card p-5 shadow-sm">
         <PaymentFlow @finish="reloadNow" />
+      </div>
+
+      <div v-if="canClearTestData && !isUnlocking" class="rounded-2xl border border-destructive/30 bg-card p-5 shadow-sm">
+        <ClearDataForm v-if="clearFormVisible" @cancel="clearFormVisible = false" />
+        <div v-else class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm text-muted-foreground">{{ t('clearData.suggest.locked') }}</p>
+          <Button variant="outline" class="shrink-0" @click="clearFormVisible = true">
+            <Trash2 class="size-4 mr-2" />{{ t('clearData.suggest.action') }}
+          </Button>
+        </div>
       </div>
 
       <div
