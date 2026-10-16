@@ -16,7 +16,8 @@
     "cashier": "Cashier",
     "paidBy": "Paid by",
     "items": "Items",
-    "empty": "No sales in this period."
+    "empty": "No sales in this period.",
+    "shop": "Shop"
   },
   "details": {
     "title": "Sale",
@@ -101,5 +102,6 @@
     "restocked": "back in stock",
     "notRestocked": "not back in stock",
     "cardLine": "Refunds: {amount}"
-  }
+  },
+  "subtitleAllShops": "Every receipt from all your shops"
 }
