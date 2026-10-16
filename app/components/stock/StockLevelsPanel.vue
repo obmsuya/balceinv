@@ -7,15 +7,19 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import OtherShopsStock from '@/components/stock/OtherShopsStock.vue'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel, stockPageSize } from '@/composables/useStock'
 
 const props = defineProps<{ shop: string; canAdjust: boolean; initialStatus: '' | 'low' | 'out' }>()
-const emit = defineEmits<{ adjust: [level: StockLevel]; history: [level: StockLevel] }>()
+const emit = defineEmits<{ adjust: [level: StockLevel]; history: [level: StockLevel]; bring: [level: StockLevel, fromShopId: string] }>()
 
 const allLevels = 'all'
 const { t, formatNumber } = useI18n()
 const { levels, totalLevels, loading, fetchLevels } = useStock()
+const { user } = useAuth()
+
+const hasOtherShops = computed(() => (user.value?.shops.length ?? 0) > 1)
 
 const searchText = ref('')
 const statusFilter = ref<string>(props.initialStatus || allLevels)
@@ -109,6 +113,7 @@ defineExpose({ reload })
             </TableCell>
             <TableCell>
               <div class="flex justify-end gap-1">
+                <OtherShopsStock v-if="hasOtherShops && !shop && level.status !== 'ok'" :level="level" :can-bring="canAdjust" @bring="emit('bring', level, $event)" />
                 <Button variant="ghost" size="icon" :aria-label="t('stock.levels.historyOf', { product: productLabel(level) })" @click="emit('history', level)">
                   <History />
                 </Button>
