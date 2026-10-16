@@ -160,5 +160,9 @@
   "efd_busy": "This sale is being sent to the EFD right now. Try again in a moment.",
   "refund_not_possible": "This sale cannot be refunded or voided that way. A voided sale cannot be refunded, and a refunded sale is refunded again instead of voided.",
   "refund_too_many": "You cannot refund more than was sold.",
-  "refund_credit_not_possible": "Taking it off the customer's debt is only possible for a credit sale, up to what is still owed on it."
+  "refund_credit_not_possible": "Taking it off the customer's debt is only possible for a credit sale, up to what is still owed on it.",
+  "clear_owner_only": "Only the owner can clear the business data",
+  "clear_name_mismatch": "The business name you typed does not match",
+  "clear_wrong_password": "The password is not right",
+  "clear_no_shop": "There is no open shop to keep. Open a shop first."
 }

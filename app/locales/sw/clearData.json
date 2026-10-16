@@ -1,0 +1,43 @@
+{
+  "card": {
+    "title": "Futa data zote",
+    "description": "Umemaliza kujaribu? Ondoa kila ulichojaribu na uanze kuuza kweli.",
+    "button": "Futa data zote",
+    "ownerOnly": "Mmiliki pekee ndiye anaweza kufuta data ya biashara."
+  },
+  "removes": {
+    "title": "Hii inaondoa",
+    "items": "Bidhaa, stoku na historia ya stoku, uhamisho wa stoku kati ya maduka na taarifa za stoku",
+    "sales": "Mauzo, risiti, marejesho, oda za wateja na wateja",
+    "suppliers": "Wasambazaji, oda za ununuzi na stoku iliyopokelewa",
+    "books": "Mzunguko wa fedha na vitabu vya hesabu",
+    "shops": "Maduka yote isipokuwa {shop}",
+    "staff": "Akaunti zote za wafanyakazi isipokuwa yako"
+  },
+  "keeps": {
+    "title": "Hii inabaki",
+    "items": "Akaunti yako ya mmiliki, jina la biashara, nembo na mipangilio, majukumu, na usajili wako. Namba za risiti zinaanza tena kwa 1."
+  },
+  "dialog": {
+    "title": "Futa data zote?",
+    "description": "Hili haliwezi kurudishwa. Hakuna kinachoweza kurejesha data.",
+    "typeName": "Andika jina la biashara kuthibitisha",
+    "typeNameHint": "Andika {name}",
+    "password": "Nenosiri lako",
+    "confirm": "Futa data zote",
+    "clearing": "Inafuta… usifunge Balce",
+    "done": "Imefutwa. Inafungua biashara yako safi…",
+    "backupFirst": "Unataka kubaki na nakala? Tengeneza nakala rudufu kwenye Mipangilio → Nakala rudufu kwanza."
+  },
+  "suggest": {
+    "trial": "Umemaliza kujaribu? Futa data ya majaribio kabla ya kuanza kuuza.",
+    "action": "Futa data ya majaribio",
+    "locked": "Ulikuwa unajaribu tu? Futa data ya majaribio sasa, kisha chagua mpango ukiwa tayari.",
+    "hide": "Ficha"
+  },
+  "toasts": {
+    "cleared": "Data zote zimefutwa",
+    "clearedDetail": "Bidhaa {products} na mauzo {sales} yameondolewa",
+    "failed": "Imeshindikana kufuta data. Hakuna kilichofutwa."
+  }
+}
