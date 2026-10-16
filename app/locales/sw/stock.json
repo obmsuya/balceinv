@@ -31,7 +31,10 @@
     "changeStockOf": "Badilisha stoku ya {product}",
     "empty": "Hakuna bidhaa inayolingana.",
     "total": "Jumla",
-    "otherShopsNote": "Stoku hubadilishwa kwenye duka unalofanyia kazi. Hamia duka hilo ili kuibadilisha huko."
+    "otherShopsNote": "Stoku hubadilishwa kwenye duka unalofanyia kazi. Hamia duka hilo ili kuibadilisha huko.",
+    "otherShopsOf": "{product} kwenye maduka mengine",
+    "noneElsewhere": "Hakuna duka jingine lenye stoku hii.",
+    "bringHere": "Leta hapa"
   },
   "history": {
     "reason": "Sababu",
@@ -96,8 +99,12 @@
       "chooseShop": "Chagua duka la kutuma",
       "noProducts": "Ongeza angalau bidhaa moja",
       "badQuantity": "Weka namba kamili zaidi ya sifuri kwa {product}",
-      "notEnough": "{product}: zipo {quantity} {unit} tu hapa"
-    }
+      "notEnough": "{product}: zipo {quantity} {unit} tu hapa",
+      "notEnoughAt": "{product}: zipo {quantity} {unit} tu {shop}"
+    },
+    "takeFrom": "Chukua kutoka",
+    "sourceShop": "Duka linalotoa stoku",
+    "atShop": "{shop}: {quantity} {unit}"
   },
   "transfers": {
     "title": "Uhamisho",
