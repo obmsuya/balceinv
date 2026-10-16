@@ -18,6 +18,15 @@ export interface StockLevel {
   quantity: number
   min_stock: number
   status: StockStatus
+  shops?: ShopStockLevel[]
+}
+
+export interface ShopStockLevel {
+  shop_id: string
+  shop_name: string
+  quantity: number
+  min_stock: number
+  status: StockStatus
 }
 
 export interface StockSummary {
@@ -42,16 +51,21 @@ export interface StockMovement {
   reference: string | null
   user_id: string | null
   user_name: string | null
+  shop_id: string
+  shop_name: string
   created_at: string
 }
 
 export interface LevelFilter {
+  shop?: string
+  productId?: string
   searchText: string
   status: '' | 'low' | 'out'
   offset: number
 }
 
 export interface MovementFilter {
+  shop?: string
   productId?: string
   reason: '' | MovementReason
   fromDate: string
@@ -124,6 +138,8 @@ export const useStock = () => {
     try {
       const levelPage = await apiFetch<ApiEnvelope<Page<StockLevel>>>('/api/stock', {
         query: {
+          shop: filter.shop || undefined,
+          product_id: filter.productId || undefined,
           q: filter.searchText || undefined,
           status: filter.status || undefined,
           limit: stockPageSize,
@@ -139,9 +155,9 @@ export const useStock = () => {
     }
   }
 
-  const fetchSummary = async (): Promise<void> => {
+  const fetchSummary = async (shop = ''): Promise<void> => {
     try {
-      const summaryResponse = await apiFetch<ApiEnvelope<StockSummary>>('/api/stock/summary')
+      const summaryResponse = await apiFetch<ApiEnvelope<StockSummary>>('/api/stock/summary', { query: { shop: shop || undefined } })
       summary.value = summaryResponse.data
     } catch (error: any) {
       toast.error(apiErrorMessage(error, 'stock.toasts.summaryFailed'))
@@ -153,6 +169,7 @@ export const useStock = () => {
     try {
       const movementPage = await apiFetch<ApiEnvelope<Page<StockMovement>>>('/api/stock-movements', {
         query: {
+          shop: filter.shop || undefined,
           product_id: filter.productId || undefined,
           reason: filter.reason || undefined,
           from: localDayStart(filter.fromDate),

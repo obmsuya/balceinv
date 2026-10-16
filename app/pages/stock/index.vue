@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AdjustStockDialog from '@/components/stock/AdjustStockDialog.vue'
+import ShopScopeSelect from '@/components/ShopScopeSelect.vue'
 import SendStockDialog from '@/components/stock/SendStockDialog.vue'
 import StockHistoryPanel from '@/components/stock/StockHistoryPanel.vue'
 import StockLevelsPanel from '@/components/stock/StockLevelsPanel.vue'
@@ -24,6 +25,7 @@ const { summary, fetchSummary } = useStock()
 const initialStatus = ['low', 'out'].includes(String(route.query.status)) ? String(route.query.status) as 'low' | 'out' : ''
 const activeTab = ref(['history', 'transfers'].includes(String(route.query.tab)) ? String(route.query.tab) : 'levels')
 const historyProduct = ref<{ id: string; label: string } | null>(null)
+const shopScope = ref('')
 const showAdjustDialog = ref(false)
 const adjustLevel = ref<StockLevel | null>(null)
 const showSendDialog = ref(false)
@@ -36,7 +38,12 @@ const transfersPanel = ref<InstanceType<typeof TransfersPanel> | null>(null)
 const canChangeStock = computed(() => canCreate('stock_movements'))
 const canRecordArrival = computed(() => (suppliersOn.value || accountingOn.value) && canCreate('purchases'))
 const hasOtherShops = computed(() => (user.value?.shops.length ?? 0) > 1)
-const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
+const scopedShopName = computed(() => user.value?.shops.find(shop => shop.id === (shopScope.value || user.value?.shop_id))?.name)
+const subtitle = computed(() => {
+  if (shopScope.value === 'all') return t('stock.page.subtitleAllShops')
+  return scopedShopName.value && hasOtherShops.value ? t('stock.page.subtitleAtShop', { shop: scopedShopName.value }) : t('stock.page.subtitle')
+})
+const changesThisShop = computed(() => canChangeStock.value && shopScope.value === '')
 
 const openAdjust = (level: StockLevel | null) => {
   adjustLevel.value = level
@@ -49,13 +56,14 @@ const openHistory = (level: StockLevel) => {
 }
 
 const refreshAfterChange = () => {
-  fetchSummary()
+  fetchSummary(shopScope.value)
   levelsPanel.value?.reload()
   historyPanel.value?.reload()
   transfersPanel.value?.reload()
 }
 
-onMounted(fetchSummary)
+watch(shopScope, () => fetchSummary(shopScope.value))
+onMounted(() => fetchSummary(shopScope.value))
 </script>
 
 <template>
@@ -63,11 +71,10 @@ onMounted(fetchSummary)
     <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('stock.page.title') }}</h1>
-        <p class="mt-1 text-muted-foreground">
-          {{ activeShopName && hasOtherShops ? t('stock.page.subtitleAtShop', { shop: activeShopName }) : t('stock.page.subtitle') }}
-        </p>
+        <p class="mt-1 text-muted-foreground">{{ subtitle }}</p>
       </div>
-      <div v-if="canChangeStock || canRecordArrival" class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2">
+        <ShopScopeSelect v-model="shopScope" />
         <Button v-if="canRecordArrival" variant="outline" data-tour="stock-arrived" @click="showArrivedDialog = true">
           <PackagePlus />
           {{ t('suppliers.page.recordArrived') }}
@@ -76,7 +83,7 @@ onMounted(fetchSummary)
           <Send />
           {{ t('stock.page.sendStock') }}
         </Button>
-        <Button v-if="canChangeStock" data-tour="stock-change" @click="openAdjust(null)">
+        <Button v-if="changesThisShop" data-tour="stock-change" @click="openAdjust(null)">
           <SlidersHorizontal />
           {{ t('stock.page.changeStock') }}
         </Button>
@@ -135,10 +142,10 @@ onMounted(fetchSummary)
             <TabsTrigger v-if="hasOtherShops" value="transfers" class="flex-1 sm:flex-none">{{ t('stock.page.transfersTab') }}</TabsTrigger>
           </TabsList>
           <TabsContent value="levels" class="mt-4">
-            <StockLevelsPanel ref="levelsPanel" :can-adjust="canChangeStock" :initial-status="initialStatus" @adjust="openAdjust" @history="openHistory" />
+            <StockLevelsPanel ref="levelsPanel" :shop="shopScope" :can-adjust="changesThisShop" :initial-status="initialStatus" @adjust="openAdjust" @history="openHistory" />
           </TabsContent>
           <TabsContent value="history" class="mt-4">
-            <StockHistoryPanel ref="historyPanel" :product-filter="historyProduct" @clear-product="historyProduct = null" />
+            <StockHistoryPanel ref="historyPanel" :shop="shopScope" :product-filter="historyProduct" @clear-product="historyProduct = null" />
           </TabsContent>
           <TabsContent v-if="hasOtherShops" value="transfers" class="mt-4">
             <TransfersPanel ref="transfersPanel" />

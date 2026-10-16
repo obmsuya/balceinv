@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel, stockPageSize } from '@/composables/useStock'
 
-const props = defineProps<{ canAdjust: boolean; initialStatus: '' | 'low' | 'out' }>()
+const props = defineProps<{ shop: string; canAdjust: boolean; initialStatus: '' | 'low' | 'out' }>()
 const emit = defineEmits<{ adjust: [level: StockLevel]; history: [level: StockLevel] }>()
 
 const allLevels = 'all'
@@ -27,7 +27,11 @@ const statusVariant: Record<string, 'secondary' | 'outline' | 'destructive'> = {
   out: 'destructive',
 }
 
+const shopColumns = computed(() => levels.value.find(level => level.shops?.length)?.shops?.map(shopLevel => ({ id: shopLevel.shop_id, name: shopLevel.shop_name })) ?? [])
+const shopLevelOf = (level: StockLevel, shopId: string) => level.shops?.find(shopLevel => shopLevel.shop_id === shopId)
+
 const reload = () => fetchLevels({
+  shop: props.shop,
   searchText: searchText.value.trim(),
   status: statusFilter.value === allLevels ? '' : statusFilter.value as 'low' | 'out',
   offset: pageOffset.value,
@@ -39,7 +43,7 @@ const reloadFromFirstPage = () => {
 }
 
 watch(searchText, useDebounceFn(reloadFromFirstPage, 300))
-watch(statusFilter, reloadFromFirstPage)
+watch([statusFilter, () => props.shop], reloadFromFirstPage)
 onMounted(reload)
 
 const goToPage = (nextOffset: number) => {
@@ -69,6 +73,8 @@ defineExpose({ reload })
       </Select>
     </div>
 
+    <p v-if="shop" class="text-sm text-muted-foreground">{{ t('stock.levels.otherShopsNote') }}</p>
+
     <div v-if="loading && !levels.length" class="flex flex-col gap-2">
       <Skeleton v-for="skeletonRow in 5" :key="skeletonRow" class="h-12 w-full" />
     </div>
@@ -77,8 +83,9 @@ defineExpose({ reload })
         <TableHeader>
           <TableRow>
             <TableHead>{{ t('products.table.product') }}</TableHead>
-            <TableHead class="text-right">{{ t('stock.levels.inStock') }}</TableHead>
-            <TableHead class="hidden text-right sm:table-cell">{{ t('stock.levels.warnAt') }}</TableHead>
+            <TableHead v-for="shopColumn in shopColumns" :key="shopColumn.id" class="text-right">{{ shopColumn.name }}</TableHead>
+            <TableHead class="text-right">{{ shopColumns.length ? t('stock.levels.total') : t('stock.levels.inStock') }}</TableHead>
+            <TableHead v-if="!shopColumns.length" class="hidden text-right sm:table-cell">{{ t('stock.levels.warnAt') }}</TableHead>
             <TableHead class="hidden md:table-cell">{{ t('common.fields.status') }}</TableHead>
             <TableHead class="w-24" />
           </TableRow>
@@ -89,11 +96,14 @@ defineExpose({ reload })
               <p class="font-medium leading-tight">{{ productLabel(level) }}</p>
               <p class="font-mono text-xs text-muted-foreground">{{ level.sku }}</p>
             </TableCell>
+            <TableCell v-for="shopColumn in shopColumns" :key="shopColumn.id" class="text-right">
+              <Badge :variant="statusVariant[shopLevelOf(level, shopColumn.id)?.status ?? 'out']" class="whitespace-nowrap tabular-nums">{{ shopLevelOf(level, shopColumn.id)?.quantity ?? 0 }}</Badge>
+            </TableCell>
             <TableCell class="text-right">
               <Badge :variant="statusVariant[level.status]" class="whitespace-nowrap tabular-nums md:hidden">{{ level.quantity }} {{ level.unit }}</Badge>
               <span class="hidden tabular-nums md:inline">{{ level.quantity }} {{ level.unit }}</span>
             </TableCell>
-            <TableCell class="hidden text-right tabular-nums text-muted-foreground sm:table-cell">{{ level.min_stock }}</TableCell>
+            <TableCell v-if="!shopColumns.length" class="hidden text-right tabular-nums text-muted-foreground sm:table-cell">{{ level.min_stock }}</TableCell>
             <TableCell class="hidden md:table-cell">
               <Badge :variant="statusVariant[level.status]">{{ t(`stock.status.${level.status}`) }}</Badge>
             </TableCell>
@@ -109,7 +119,7 @@ defineExpose({ reload })
             </TableCell>
           </TableRow>
           <TableRow v-if="!levels.length">
-            <TableCell colspan="5" class="h-24 text-center text-muted-foreground">{{ t('stock.levels.empty') }}</TableCell>
+            <TableCell :colspan="shopColumns.length ? 4 + shopColumns.length : 5" class="h-24 text-center text-muted-foreground">{{ t('stock.levels.empty') }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
