@@ -30,6 +30,7 @@
       "title": "Clear read notifications?",
       "description": "Read notifications are removed from this shop. Unread ones stay.",
       "confirm": "Clear"
-    }
+    },
+    "subtitleAllShops": "Stock that ran low or ran out in your shops"
   }
 }
