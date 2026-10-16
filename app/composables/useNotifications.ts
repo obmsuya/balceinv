@@ -6,6 +6,8 @@ export type NotificationKind = 'low_stock' | 'out_of_stock'
 export interface StockNotification {
   id: string
   kind: NotificationKind
+  shop_id: string
+  shop_name: string
   product_id: string
   product_name: string
   variant_label: string
@@ -70,6 +72,10 @@ const playChime = () => {
 export const useNotifications = () => {
   const { $apiFetch } = useNuxtApp()
   const apiFetch = $apiFetch as typeof $fetch
+  const { user } = useAuth()
+
+  const showsShopNames = computed(() => (user.value?.shops.length ?? 0) > 1)
+  const alertScope = computed(() => (showsShopNames.value ? 'all' : undefined))
 
   const notifications = ref<StockNotification[]>([])
   const totalNotifications = ref(0)
@@ -81,7 +87,7 @@ export const useNotifications = () => {
     loading.value = true
     try {
       const notificationPage = await apiFetch<ApiEnvelope<Page<StockNotification>>>('/api/notifications', {
-        query: { unread: unreadOnly || undefined, limit, offset },
+        query: { shop: alertScope.value, unread: unreadOnly || undefined, limit, offset },
       })
       notifications.value = notificationPage.data.items
       totalNotifications.value = notificationPage.data.total
@@ -94,7 +100,7 @@ export const useNotifications = () => {
 
   const fetchUnreadCount = async (): Promise<void> => {
     try {
-      const countResponse = await apiFetch<ApiEnvelope<{ count: number }>>('/api/notifications/unread-count')
+      const countResponse = await apiFetch<ApiEnvelope<{ count: number }>>('/api/notifications/unread-count', { query: { shop: alertScope.value } })
       const hasNewNotification = unreadCount.value !== null && countResponse.data.count > unreadCount.value
       unreadCount.value = countResponse.data.count
       if (hasNewNotification && soundEnabled.value) playChime()
@@ -104,7 +110,7 @@ export const useNotifications = () => {
 
   const markRead = async (notificationId: string): Promise<void> => {
     try {
-      const markResponse = await apiFetch<ApiEnvelope<{ changed: number }>>(`/api/notifications/${notificationId}/read`, { method: 'POST' })
+      const markResponse = await apiFetch<ApiEnvelope<{ changed: number }>>(`/api/notifications/${notificationId}/read`, { method: 'POST', query: { shop: alertScope.value } })
       const readNotification = notifications.value.find(notification => notification.id === notificationId)
       if (readNotification) readNotification.is_read = true
       unreadCount.value = Math.max((unreadCount.value ?? 0) - markResponse.data.changed, 0)
@@ -115,7 +121,7 @@ export const useNotifications = () => {
 
   const markAllRead = async (): Promise<void> => {
     try {
-      await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read-all', { method: 'POST' })
+      await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read-all', { method: 'POST', query: { shop: alertScope.value } })
       notifications.value.forEach(notification => { notification.is_read = true })
       unreadCount.value = 0
       toast.success(t('notifications.toasts.markedAllRead'))
@@ -126,7 +132,7 @@ export const useNotifications = () => {
 
   const clearRead = async (): Promise<void> => {
     try {
-      const clearResponse = await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read', { method: 'DELETE' })
+      const clearResponse = await apiFetch<ApiEnvelope<{ changed: number }>>('/api/notifications/read', { method: 'DELETE', query: { shop: alertScope.value } })
       notifications.value = notifications.value.filter(notification => !notification.is_read)
       totalNotifications.value = Math.max(totalNotifications.value - clearResponse.data.changed, 0)
       toast.success(t('notifications.toasts.cleared'))
@@ -154,6 +160,7 @@ export const useNotifications = () => {
 
   return {
     notifications,
+    showsShopNames,
     totalNotifications,
     unreadCount,
     soundEnabled,

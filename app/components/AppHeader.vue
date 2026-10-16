@@ -54,6 +54,7 @@ const {
   markRead,
   loadSoundSetting,
   toggleSound,
+  showsShopNames,
 } = useNotifications()
 
 const sidebarCollapsed = useState('sidebar-collapsed', () => false)
@@ -227,7 +228,7 @@ onUnmounted(() => {
                     </span>
                     <span class="min-w-0 flex-1">
                       <span class="line-clamp-2 block text-sm font-medium">{{ notificationMessage(notification) }}</span>
-                      <span class="block text-xs text-muted-foreground">{{ formatRelativeTime(notification.created_at) }}</span>
+                      <span class="block text-xs text-muted-foreground"><template v-if="showsShopNames">{{ notification.shop_name }} · </template>{{ formatRelativeTime(notification.created_at) }}</span>
                     </span>
                   </button>
                 </div>
