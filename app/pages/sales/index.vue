@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import SaleDetailsDialog from '@/components/sales/SaleDetailsDialog.vue'
+import ShopScopeSelect from '@/components/ShopScopeSelect.vue'
 import { fiscalStatusLabel, paymentMethodLabel, salePageSize } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
@@ -21,6 +22,7 @@ const localToday = () => {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
 }
 
+const shopScope = ref('')
 const searchText = ref('')
 const fromDate = ref(localToday())
 const toDate = ref(localToday())
@@ -31,9 +33,14 @@ const efdEnabled = ref(false)
 const fiscalWaiting = ref(false)
 const sendingWaiting = ref(false)
 
-const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
+const scopedShopName = computed(() => user.value?.shops.find(shop => shop.id === (shopScope.value || user.value?.shop_id))?.name)
+const showsEveryShop = computed(() => shopScope.value === 'all')
+const subtitle = computed(() => {
+  if (showsEveryShop.value) return t('sales.subtitleAllShops')
+  return scopedShopName.value ? t('sales.subtitleShop', { shop: scopedShopName.value }) : t('sales.subtitle')
+})
 
-const reload = () => fetchSales({ searchText: searchText.value.trim(), fromDate: fromDate.value, toDate: toDate.value, offset: pageOffset.value, fiscalWaiting: fiscalWaiting.value })
+const reload = () => fetchSales({ shop: shopScope.value, searchText: searchText.value.trim(), fromDate: fromDate.value, toDate: toDate.value, offset: pageOffset.value, fiscalWaiting: fiscalWaiting.value })
 
 const reloadFromFirstPage = () => {
   pageOffset.value = 0
@@ -41,7 +48,7 @@ const reloadFromFirstPage = () => {
 }
 
 watch(searchText, useDebounceFn(reloadFromFirstPage, 300))
-watch([fromDate, toDate, fiscalWaiting], reloadFromFirstPage)
+watch([shopScope, fromDate, toDate, fiscalWaiting], reloadFromFirstPage)
 
 const goToPage = (nextOffset: number) => {
   pageOffset.value = Math.max(nextOffset, 0)
@@ -74,8 +81,9 @@ onMounted(async () => {
     <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('sales.title') }}</h1>
-        <p class="mt-1 text-muted-foreground">{{ activeShopName ? t('sales.subtitleShop', { shop: activeShopName }) : t('sales.subtitle') }}</p>
+        <p class="mt-1 text-muted-foreground">{{ subtitle }}</p>
       </div>
+      <ShopScopeSelect v-model="shopScope" />
       <div v-if="efdEnabled" class="flex flex-wrap gap-2">
         <Button :variant="fiscalWaiting ? 'default' : 'outline'" size="sm" :aria-pressed="fiscalWaiting" @click="fiscalWaiting = !fiscalWaiting">
           {{ fiscalStatusLabel('pending') }}
@@ -157,6 +165,7 @@ onMounted(async () => {
             <TableHeader>
               <TableRow>
                 <TableHead>{{ t('sales.table.receipt') }}</TableHead>
+                <TableHead v-if="showsEveryShop">{{ t('sales.table.shop') }}</TableHead>
                 <TableHead class="hidden sm:table-cell">{{ t('sales.table.cashier') }}</TableHead>
                 <TableHead class="hidden md:table-cell">{{ t('sales.table.paidBy') }}</TableHead>
                 <TableHead class="hidden text-right sm:table-cell">{{ t('sales.table.items') }}</TableHead>
@@ -175,6 +184,7 @@ onMounted(async () => {
                   </p>
                   <p class="text-xs text-muted-foreground">{{ formatTime(sale.created_at) }}</p>
                 </TableCell>
+                <TableCell v-if="showsEveryShop" class="text-sm">{{ sale.shop_name }}</TableCell>
                 <TableCell class="hidden text-sm sm:table-cell">{{ sale.cashier_name }}</TableCell>
                 <TableCell class="hidden md:table-cell">
                   <div class="flex flex-wrap gap-1">
@@ -185,7 +195,7 @@ onMounted(async () => {
                 <TableCell class="text-right font-semibold tabular-nums" :class="sale.voided_at ? 'line-through' : ''">{{ formatMoney(sale.total) }}</TableCell>
               </TableRow>
               <TableRow v-if="!sales.length">
-                <TableCell colspan="5" class="h-24 text-center text-muted-foreground">{{ t('sales.table.empty') }}</TableCell>
+                <TableCell :colspan="showsEveryShop ? 6 : 5" class="h-24 text-center text-muted-foreground">{{ t('sales.table.empty') }}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
