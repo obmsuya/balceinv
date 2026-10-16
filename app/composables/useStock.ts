@@ -126,11 +126,28 @@ export const useStock = () => {
   const loading = ref(false)
   const saving = ref(false)
 
-  const searchLevels = async (searchText: string, limit = 8): Promise<StockLevel[]> => {
+  const searchLevels = async (searchText: string, limit = 8, shop = ''): Promise<StockLevel[]> => {
     const levelPage = await apiFetch<ApiEnvelope<Page<StockLevel>>>('/api/stock', {
-      query: { q: searchText || undefined, limit },
+      query: { shop: shop || undefined, q: searchText || undefined, limit },
     })
     return levelPage.data.items
+  }
+
+  const findLevel = async (productId: string, shop = ''): Promise<StockLevel | undefined> => {
+    try {
+      const levelPage = await apiFetch<ApiEnvelope<Page<StockLevel>>>('/api/stock', {
+        query: { shop: shop || undefined, product_id: productId, limit: 1 },
+      })
+      return levelPage.data.items[0]
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'stock.toasts.levelsFailed'))
+      return undefined
+    }
+  }
+
+  const fetchShopsHolding = async (productId: string): Promise<ShopStockLevel[]> => {
+    const everyShopLevel = await findLevel(productId, 'all')
+    return everyShopLevel?.shops ?? []
   }
 
   const fetchLevels = async (filter: LevelFilter): Promise<void> => {
@@ -213,6 +230,8 @@ export const useStock = () => {
     loading,
     saving,
     searchLevels,
+    findLevel,
+    fetchShopsHolding,
     fetchLevels,
     fetchSummary,
     fetchMovements,

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
 
-const props = defineProps<{ excludeIds?: string[]; placeholder?: string }>()
+const props = defineProps<{ excludeIds?: string[]; placeholder?: string; shop?: string }>()
 const emit = defineEmits<{ pick: [level: StockLevel] }>()
 
 const { t } = useI18n()
@@ -27,7 +27,7 @@ const runSearch = useDebounceFn(async () => {
   }
   isSearching.value = true
   try {
-    matches.value = await searchLevels(trimmedText)
+    matches.value = await searchLevels(trimmedText, 8, props.shop ?? '')
   } catch {
     matches.value = []
   } finally {
