@@ -140,7 +140,9 @@
     "row": "Row",
     "column": "Column",
     "problem": "Problem",
-    "moreProblems": "And {count} more. Fix these first, then upload again."
+    "moreProblems": "And {count} more. Fix these first, then upload again.",
+    "stockShop": "Opening stock goes to",
+    "stockShopFixed": "Opening stock goes to {shop}."
   },
   "toasts": {
     "loadFailed": "Failed to load products",

@@ -140,7 +140,9 @@
     "row": "Mstari",
     "column": "Safu",
     "problem": "Tatizo",
-    "moreProblems": "Na mengine {count}. Rekebisha haya kwanza, kisha pakia tena."
+    "moreProblems": "Na mengine {count}. Rekebisha haya kwanza, kisha pakia tena.",
+    "stockShop": "Stoku ya mwanzo itaingia",
+    "stockShopFixed": "Stoku ya mwanzo itaingia {shop}."
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia bidhaa",
