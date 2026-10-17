@@ -142,7 +142,8 @@
     "problem": "Tatizo",
     "moreProblems": "Na mengine {count}. Rekebisha haya kwanza, kisha pakia tena.",
     "stockShop": "Stoku ya mwanzo itaingia",
-    "stockShopFixed": "Stoku ya mwanzo itaingia {shop}."
+    "stockShopFixed": "Stoku ya mwanzo itaingia {shop}.",
+    "limits": "Hadi MB {size} na mistari {rows}. Mistari mitupu haihesabiwi."
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia bidhaa",

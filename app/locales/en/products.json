@@ -142,7 +142,8 @@
     "problem": "Problem",
     "moreProblems": "And {count} more. Fix these first, then upload again.",
     "stockShop": "Opening stock goes to",
-    "stockShopFixed": "Opening stock goes to {shop}."
+    "stockShopFixed": "Opening stock goes to {shop}.",
+    "limits": "Up to {size} MB and {rows} rows. Blank rows do not count."
   },
   "toasts": {
     "loadFailed": "Failed to load products",
