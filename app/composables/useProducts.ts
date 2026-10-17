@@ -124,7 +124,9 @@ export interface PhoneUploadState {
 
 export const productPageSize = 50
 export const productImageLimitBytes = 2 * 1024 * 1024
-export const productImportLimitBytes = 5 * 1024 * 1024
+export const productImportLimitMegabytes = 5
+export const productImportLimitBytes = productImportLimitMegabytes * 1024 * 1024
+export const productImportRowLimit = 5000
 
 export interface SkippedProduct {
   id: string

@@ -8,13 +8,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ProductImportResult } from '@/composables/useProducts'
-import { ProductImportError, productImportLimitBytes } from '@/composables/useProducts'
+import { ProductImportError, productImportLimitBytes, productImportLimitMegabytes, productImportRowLimit } from '@/composables/useProducts'
 
 const emit = defineEmits<{ imported: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
-const { t } = useI18n()
+const { t, formatNumber } = useI18n()
 const { importProducts, downloadTemplate, saving } = useProducts()
 const { user } = useAuth()
 
@@ -92,6 +92,7 @@ const runImport = async () => {
             accept=".xlsx,.csv"
             @change="onFilePicked"
           />
+          <p class="text-xs text-muted-foreground">{{ t('products.import.limits', { size: productImportLimitMegabytes, rows: formatNumber(productImportRowLimit) }) }}</p>
         </div>
         <div v-if="userShops.length > 1" class="flex flex-col gap-1.5">
           <Label for="product-import-shop">{{ t('products.import.stockShop') }}</Label>
