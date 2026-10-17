@@ -11,7 +11,8 @@
     "outOfStock": "Imeisha",
     "levelsTab": "Viwango",
     "historyTab": "Historia",
-    "transfersTab": "Uhamisho"
+    "transfersTab": "Uhamisho",
+    "subtitleAllShops": "Kilichopo kwenye rafu za maduka yako yote, na kila mabadiliko yake"
   },
   "status": {
     "ok": "Ipo",
@@ -28,7 +29,9 @@
     "warnAt": "Onya ikifika",
     "historyOf": "Historia ya {product}",
     "changeStockOf": "Badilisha stoku ya {product}",
-    "empty": "Hakuna bidhaa inayolingana."
+    "empty": "Hakuna bidhaa inayolingana.",
+    "total": "Jumla",
+    "otherShopsNote": "Stoku hubadilishwa kwenye duka unalofanyia kazi. Hamia duka hilo ili kuibadilisha huko."
   },
   "history": {
     "reason": "Sababu",
@@ -39,7 +42,8 @@
     "change": "Badiliko",
     "after": "Salio",
     "by": "Aliyefanya",
-    "empty": "Hakuna mabadiliko ya stoku yanayolingana."
+    "empty": "Hakuna mabadiliko ya stoku yanayolingana.",
+    "shop": "Duka"
   },
   "reasons": {
     "opening": "Stoku ya kuanzia",

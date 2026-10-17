@@ -11,7 +11,8 @@
     "outOfStock": "Out of stock",
     "levelsTab": "Levels",
     "historyTab": "History",
-    "transfersTab": "Transfers"
+    "transfersTab": "Transfers",
+    "subtitleAllShops": "What is on the shelves in all your shops, and every change to it"
   },
   "status": {
     "ok": "In stock",
@@ -28,7 +29,9 @@
     "warnAt": "Warn at",
     "historyOf": "History of {product}",
     "changeStockOf": "Change stock of {product}",
-    "empty": "No products match."
+    "empty": "No products match.",
+    "total": "Total",
+    "otherShopsNote": "Stock is changed in the shop you are working in. Switch shops to change it there."
   },
   "history": {
     "reason": "Reason",
@@ -39,7 +42,8 @@
     "change": "Change",
     "after": "After",
     "by": "By",
-    "empty": "No stock changes match."
+    "empty": "No stock changes match.",
+    "shop": "Shop"
   },
   "reasons": {
     "opening": "Opening stock",

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { MovementReason } from '@/composables/useStock'
 import { movementReasonLabel, movementReasons, productLabel, stockPageSize } from '@/composables/useStock'
 
-const props = defineProps<{ productFilter: { id: string; label: string } | null }>()
+const props = defineProps<{ shop: string; productFilter: { id: string; label: string } | null }>()
 const emit = defineEmits<{ clearProduct: [] }>()
 
 const allReasons = 'all'
@@ -22,7 +22,10 @@ const fromDate = ref('')
 const toDate = ref('')
 const pageOffset = ref(0)
 
+const showsEveryShop = computed(() => props.shop === 'all')
+
 const reload = () => fetchMovements({
+  shop: props.shop,
   productId: props.productFilter?.id,
   reason: reasonFilter.value === allReasons ? '' : reasonFilter.value as MovementReason,
   fromDate: fromDate.value,
@@ -35,7 +38,7 @@ const reloadFromFirstPage = () => {
   reload()
 }
 
-watch([reasonFilter, fromDate, toDate, () => props.productFilter?.id], reloadFromFirstPage)
+watch([reasonFilter, fromDate, toDate, () => props.productFilter?.id, () => props.shop], reloadFromFirstPage)
 onMounted(reload)
 
 const goToPage = (nextOffset: number) => {
@@ -87,6 +90,7 @@ defineExpose({ reload })
         <TableHeader>
           <TableRow>
             <TableHead>{{ t('stock.history.when') }}</TableHead>
+            <TableHead v-if="showsEveryShop">{{ t('stock.history.shop') }}</TableHead>
             <TableHead>{{ t('products.table.product') }}</TableHead>
             <TableHead>{{ t('stock.history.reason') }}</TableHead>
             <TableHead class="text-right">{{ t('stock.history.change') }}</TableHead>
@@ -97,6 +101,7 @@ defineExpose({ reload })
         <TableBody>
           <TableRow v-for="movement in movements" :key="movement.id">
             <TableCell class="whitespace-nowrap text-sm text-muted-foreground">{{ formatDateTime(movement.created_at) }}</TableCell>
+            <TableCell v-if="showsEveryShop" class="text-sm">{{ movement.shop_name }}</TableCell>
             <TableCell>
               <p class="font-medium leading-tight">{{ productLabel(movement) }}</p>
               <p v-if="movement.reference && !movement.reason.startsWith('transfer')" class="text-xs text-muted-foreground">{{ movement.reference }}</p>
@@ -109,7 +114,7 @@ defineExpose({ reload })
             <TableCell class="hidden text-sm text-muted-foreground lg:table-cell">{{ movement.user_name ?? '—' }}</TableCell>
           </TableRow>
           <TableRow v-if="!movements.length">
-            <TableCell colspan="6" class="h-24 text-center text-muted-foreground">{{ t('stock.history.empty') }}</TableCell>
+            <TableCell :colspan="showsEveryShop ? 7 : 6" class="h-24 text-center text-muted-foreground">{{ t('stock.history.empty') }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
