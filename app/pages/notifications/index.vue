@@ -20,6 +20,7 @@ import { notificationMessage, notificationPageSize, relativeTime } from '~/compo
 
 const {
   notifications,
+  showsShopNames,
   totalNotifications,
   unreadCount,
   soundEnabled,
@@ -80,7 +81,7 @@ onMounted(() => {
     <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('notifications.page.title') }}</h1>
-        <p class="mt-1 text-muted-foreground">{{ t('notifications.page.subtitle') }}</p>
+        <p class="mt-1 text-muted-foreground">{{ showsShopNames ? t('notifications.page.subtitleAllShops') : t('notifications.page.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <Button variant="outline" size="sm" @click="toggleSound">
@@ -138,7 +139,7 @@ onMounted(() => {
         <button type="button" class="min-w-0 flex-1 text-left" @click="openProduct(notification)">
           <span class="block font-medium">{{ notificationMessage(notification) }}</span>
           <span class="block text-sm text-muted-foreground">
-            {{ relativeTime(notification.created_at) }} · {{ t('notifications.page.nowQuantity', { quantity: notification.current_quantity, unit: notification.unit }) }}
+            <template v-if="showsShopNames">{{ notification.shop_name }} · </template>{{ relativeTime(notification.created_at) }} · {{ t('notifications.page.nowQuantity', { quantity: notification.current_quantity, unit: notification.unit }) }}
           </span>
         </button>
         <Button v-if="!notification.is_read" variant="ghost" size="sm" class="shrink-0" @click="markRead(notification.id)">{{ t('notifications.page.markRead') }}</Button>
