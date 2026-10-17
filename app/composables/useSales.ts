@@ -153,6 +153,8 @@ export interface SaleSummary {
   unit_count: number
   payment_methods: PaymentMethod[]
   cashier_name: string
+  shop_id: string
+  shop_name: string
   fiscal_status: FiscalStatus | null
   voided_at: string | null
   created_at: string
@@ -185,6 +187,7 @@ export interface SaleReceipt {
 }
 
 export interface SaleFilter {
+  shop?: string
   searchText: string
   fromDate: string
   toDate: string
@@ -251,6 +254,7 @@ export const useSales = () => {
   }
 
   const saleQuery = (filter: SaleFilter) => ({
+    shop: filter.shop || undefined,
     q: filter.searchText || undefined,
     from: localDayStart(filter.fromDate),
     to: localDayAfter(filter.toDate),

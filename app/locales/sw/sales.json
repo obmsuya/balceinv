@@ -16,7 +16,8 @@
     "cashier": "Keshia",
     "paidBy": "Njia ya malipo",
     "items": "Bidhaa",
-    "empty": "Hakuna mauzo katika kipindi hiki."
+    "empty": "Hakuna mauzo katika kipindi hiki.",
+    "shop": "Duka"
   },
   "details": {
     "title": "Mauzo",
@@ -101,5 +102,6 @@
     "restocked": "imerudi kwenye stoku",
     "notRestocked": "haikurudi kwenye stoku",
     "cardLine": "Zilizorudishwa: {amount}"
-  }
+  },
+  "subtitleAllShops": "Risiti zote za maduka yako yote"
 }
