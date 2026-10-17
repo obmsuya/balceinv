@@ -160,5 +160,9 @@
   "efd_busy": "Mauzo haya yanatumwa EFD sasa hivi. Jaribu tena baada ya muda mfupi.",
   "refund_not_possible": "Mauzo haya hayawezi kurudishwa au kubatilishwa hivyo. Mauzo yaliyobatilishwa hayarudishwi, na mauzo yaliyorudishwa yanarudishwa tena badala ya kubatilishwa.",
   "refund_too_many": "Huwezi kurudisha zaidi ya kilichouzwa.",
-  "refund_credit_not_possible": "Kupunguza kwenye deni la mteja kunawezekana tu kwa mauzo ya mkopo, hadi kiasi kinachodaiwa bado."
+  "refund_credit_not_possible": "Kupunguza kwenye deni la mteja kunawezekana tu kwa mauzo ya mkopo, hadi kiasi kinachodaiwa bado.",
+  "clear_owner_only": "Mmiliki pekee ndiye anaweza kufuta data ya biashara",
+  "clear_name_mismatch": "Jina la biashara ulilowandika halilingani",
+  "clear_wrong_password": "Nenosiri si sahihi",
+  "clear_no_shop": "Hakuna duka lililo wazi la kubaki. Fungua duka kwanza."
 }

@@ -1,0 +1,43 @@
+{
+  "card": {
+    "title": "Clear all data",
+    "description": "Finished testing? Remove everything you tried and start selling for real.",
+    "button": "Clear all data",
+    "ownerOnly": "Only the owner can clear the business data."
+  },
+  "removes": {
+    "title": "This removes",
+    "items": "Products, stock and stock history, transfers between shops and stock alerts",
+    "sales": "Sales, receipts, refunds, customer orders and customers",
+    "suppliers": "Suppliers, purchase orders and stock deliveries",
+    "books": "Cash flow and the books",
+    "shops": "Every shop except {shop}",
+    "staff": "Every staff account except yours"
+  },
+  "keeps": {
+    "title": "This keeps",
+    "items": "Your owner account, the business name, logo and settings, the roles, and your subscription. Receipt numbers start again at 1."
+  },
+  "dialog": {
+    "title": "Clear all data?",
+    "description": "This cannot be undone. Nothing can bring the data back.",
+    "typeName": "Type the business name to confirm",
+    "typeNameHint": "Type {name}",
+    "password": "Your password",
+    "confirm": "Clear all data",
+    "clearing": "Clearing… do not close Balce",
+    "done": "Cleared. Opening your clean business…",
+    "backupFirst": "Want to keep a copy? Make a backup in Settings → Backups first."
+  },
+  "suggest": {
+    "trial": "Done testing? Clear the test data before you start selling.",
+    "action": "Clear test data",
+    "locked": "Only tested Balce? Clear the test data now, then choose a plan when you are ready.",
+    "hide": "Hide"
+  },
+  "toasts": {
+    "cleared": "All data cleared",
+    "clearedDetail": "{products} products and {sales} sales removed",
+    "failed": "Could not clear the data. Nothing was deleted."
+  }
+}

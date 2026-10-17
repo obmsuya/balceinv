@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { CreditCard, Wallet } from 'lucide-vue-next'
+import { CreditCard, Trash2, Wallet } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useLicense } from '@/composables/useLicense'
 import { useAuth } from '@/composables/useAuth'
+import ClearDataDialog from '@/components/settings/ClearDataDialog.vue'
 
 const {
   licenseStatus,
@@ -19,6 +20,7 @@ const { user } = useAuth()
 const { t, formatDate } = useI18n()
 
 const showPanel = ref(false)
+const clearDialogOpen = ref(false)
 const currentUserCanManageBilling = computed(() => user.value?.is_owner === true)
 const indicatorIsVisible = computed(() => !isHardLocked.value && (isTrial.value || isInGracePeriod.value || isExpiringSoon.value))
 
@@ -50,6 +52,11 @@ const panelMessage = computed(() => {
 
 const actionLabel = computed(() => (isTrial.value ? t('license.paywall.subscribeTitle') : t('license.indicator.renewNow')))
 const badgeClass = computed(() => (isInGracePeriod.value ? 'bg-destructive text-white' : 'bg-amber-500 text-white'))
+
+const openClearData = () => {
+  showPanel.value = false
+  clearDialogOpen.value = true
+}
 
 const startPayment = () => {
   showPanel.value = false
@@ -103,6 +110,13 @@ watch(isInGracePeriod, (inGrace) => {
         </Button>
         <p v-else class="text-xs text-muted-foreground text-center">{{ t('license.indicator.askOwner') }}</p>
       </div>
+      <div v-if="isTrial && currentUserCanManageBilling" class="border-t px-4 py-3">
+        <p class="text-xs text-muted-foreground">{{ t('clearData.suggest.trial') }}</p>
+        <Button size="sm" variant="outline" class="mt-2 w-full" @click="openClearData">
+          <Trash2 class="size-4 mr-1.5" />{{ t('clearData.suggest.action') }}
+        </Button>
+      </div>
     </PopoverContent>
   </Popover>
+  <ClearDataDialog v-if="currentUserCanManageBilling" v-model:open="clearDialogOpen" />
 </template>

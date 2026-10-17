@@ -35,6 +35,7 @@ import { Badge } from '@/components/ui/badge'
 import BackupPanel from '@/components/backup/BackupPanel.vue'
 import NetworkPanel from '@/components/settings/NetworkPanel.vue'
 import FeaturesPanel from '@/components/settings/FeaturesPanel.vue'
+import ClearDataCard from '@/components/settings/ClearDataCard.vue'
 import {
   Select,
   SelectContent,
@@ -455,6 +456,9 @@ const efdBadgeLabel = computed(() => {
             </div>
           </CardContent>
         </Card>
+
+        <!-- Owner only. Sends business_name and password to POST /api/business/clear-data. -->
+        <ClearDataCard v-if="user?.is_owner" />
       </TabsContent>
 
       <TabsContent value="features" class="mt-4">
