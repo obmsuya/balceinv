@@ -31,7 +31,10 @@
     "changeStockOf": "Change stock of {product}",
     "empty": "No products match.",
     "total": "Total",
-    "otherShopsNote": "Stock is changed in the shop you are working in. Switch shops to change it there."
+    "otherShopsNote": "Stock is changed in the shop you are working in. Switch shops to change it there.",
+    "otherShopsOf": "{product} in other shops",
+    "noneElsewhere": "No other shop has any.",
+    "bringHere": "Bring here"
   },
   "history": {
     "reason": "Reason",
@@ -96,8 +99,12 @@
       "chooseShop": "Choose the shop to send to",
       "noProducts": "Add at least one product",
       "badQuantity": "Enter a whole number above zero for {product}",
-      "notEnough": "Only {quantity} {unit} of {product} here"
-    }
+      "notEnough": "Only {quantity} {unit} of {product} here",
+      "notEnoughAt": "Only {quantity} {unit} of {product} at {shop}"
+    },
+    "takeFrom": "Take from",
+    "sourceShop": "Shop the stock leaves",
+    "atShop": "{quantity} {unit} at {shop}"
   },
   "transfers": {
     "title": "Transfer",

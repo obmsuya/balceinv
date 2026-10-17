@@ -29,6 +29,8 @@ const shopScope = ref('')
 const showAdjustDialog = ref(false)
 const adjustLevel = ref<StockLevel | null>(null)
 const showSendDialog = ref(false)
+const sendFromShopId = ref('')
+const sendProductId = ref('')
 const showArrivedDialog = ref(false)
 
 const levelsPanel = ref<InstanceType<typeof StockLevelsPanel> | null>(null)
@@ -55,6 +57,18 @@ const openHistory = (level: StockLevel) => {
   activeTab.value = 'history'
 }
 
+const openSend = () => {
+  sendFromShopId.value = ''
+  sendProductId.value = ''
+  showSendDialog.value = true
+}
+
+const bringStock = (level: StockLevel, fromShopId: string) => {
+  sendFromShopId.value = fromShopId
+  sendProductId.value = level.product_id
+  showSendDialog.value = true
+}
+
 const refreshAfterChange = () => {
   fetchSummary(shopScope.value)
   levelsPanel.value?.reload()
@@ -79,7 +93,7 @@ onMounted(() => fetchSummary(shopScope.value))
           <PackagePlus />
           {{ t('suppliers.page.recordArrived') }}
         </Button>
-        <Button v-if="canChangeStock && hasOtherShops" variant="outline" data-tour="stock-send" @click="showSendDialog = true">
+        <Button v-if="canChangeStock && hasOtherShops" variant="outline" data-tour="stock-send" @click="openSend">
           <Send />
           {{ t('stock.page.sendStock') }}
         </Button>
@@ -142,7 +156,7 @@ onMounted(() => fetchSummary(shopScope.value))
             <TabsTrigger v-if="hasOtherShops" value="transfers" class="flex-1 sm:flex-none">{{ t('stock.page.transfersTab') }}</TabsTrigger>
           </TabsList>
           <TabsContent value="levels" class="mt-4">
-            <StockLevelsPanel ref="levelsPanel" :shop="shopScope" :can-adjust="changesThisShop" :initial-status="initialStatus" @adjust="openAdjust" @history="openHistory" />
+            <StockLevelsPanel ref="levelsPanel" :shop="shopScope" :can-adjust="changesThisShop" :initial-status="initialStatus" @adjust="openAdjust" @history="openHistory" @bring="bringStock" />
           </TabsContent>
           <TabsContent value="history" class="mt-4">
             <StockHistoryPanel ref="historyPanel" :shop="shopScope" :product-filter="historyProduct" @clear-product="historyProduct = null" />
@@ -155,7 +169,7 @@ onMounted(() => fetchSummary(shopScope.value))
     </Card>
 
     <AdjustStockDialog v-model:open="showAdjustDialog" :initial-level="adjustLevel" @saved="refreshAfterChange" />
-    <SendStockDialog v-if="hasOtherShops" v-model:open="showSendDialog" @sent="refreshAfterChange" />
+    <SendStockDialog v-if="hasOtherShops" v-model:open="showSendDialog" :initial-from-shop-id="sendFromShopId" :initial-product-id="sendProductId" @sent="refreshAfterChange" />
     <StockArrivedDialog v-if="canRecordArrival" v-model:open="showArrivedDialog" @saved="refreshAfterChange" />
   </div>
 </template>

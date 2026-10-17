@@ -25,6 +25,7 @@ export interface StockTransfer {
 }
 
 export interface TransferFields {
+  from_shop_id?: string
   to_shop_id: string
   note: string | null
   items: Array<{ product_id: string; quantity: number }>
