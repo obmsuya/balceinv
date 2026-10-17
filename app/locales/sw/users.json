@@ -49,7 +49,11 @@
     "resetPassword": "Badilisha nenosiri",
     "openMenu": "Fungua menyu",
     "searchPlaceholder": "Tafuta kwa jina au barua pepe...",
-    "total": { "one": "Jumla ya mtumiaji {count}", "other": "Jumla ya watumiaji {count}" }
+    "total": {
+      "one": "Jumla ya mtumiaji {count}",
+      "other": "Jumla ya watumiaji {count}"
+    },
+    "allShops": "Maduka yote"
   },
   "toasts": {
     "loadFailed": "Imeshindwa kupakia watumiaji",

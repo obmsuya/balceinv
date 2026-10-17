@@ -49,7 +49,11 @@
     "resetPassword": "Reset password",
     "openMenu": "Open menu",
     "searchPlaceholder": "Search by name or email...",
-    "total": { "one": "{count} user total", "other": "{count} users total" }
+    "total": {
+      "one": "{count} user total",
+      "other": "{count} users total"
+    },
+    "allShops": "All shops"
   },
   "toasts": {
     "loadFailed": "Failed to load users",
