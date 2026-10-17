@@ -35,7 +35,7 @@
   "logo_too_large": "Nembo isizidi MB 1",
   "invalid_logo": "Nembo hii haiwezi kutumika",
   "file_too_large": "Faili ni kubwa mno",
-  "invalid_import": "Faili lina makosa. Rekebisha mistari iliyoonyeshwa kisha ujaribu tena.",
+  "invalid_import": "Faili hili haliwezi kutumika. Tumia faili la Excel (.xlsx) au CSV lenye safu za kiolezo, ndani ya kikomo cha ukubwa na idadi ya mistari.",
   "import_rejected": "Faili lina makosa. Rekebisha mistari iliyoonyeshwa kisha ujaribu tena.",
   "invalid_discount": "Angalia taarifa za punguzo",
   "invalid_transfer": "Angalia taarifa za uhamisho",

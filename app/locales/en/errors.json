@@ -35,7 +35,7 @@
   "logo_too_large": "The logo must be 1 MB or smaller",
   "invalid_logo": "This logo can't be used",
   "file_too_large": "The file is too big",
-  "invalid_import": "The file has mistakes. Fix the rows shown and try again.",
+  "invalid_import": "This file cannot be used. Use an Excel (.xlsx) or CSV file with the template's columns, within the size and row limits.",
   "import_rejected": "The file has mistakes. Fix the rows shown and try again.",
   "invalid_discount": "Check the discount details",
   "invalid_transfer": "Check the transfer details",
