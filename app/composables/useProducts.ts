@@ -331,11 +331,12 @@ export const useProducts = () => {
     }
   }
 
-  const importProducts = async (spreadsheetFile: File): Promise<ProductImportResult> => {
+  const importProducts = async (spreadsheetFile: File, stockShopId = ''): Promise<ProductImportResult> => {
     saving.value = true
     try {
       const importForm = new FormData()
       importForm.append('file', spreadsheetFile)
+      if (stockShopId) importForm.append('shop_id', stockShopId)
       const importResponse = await apiFetch<ApiEnvelope<ProductImportResult>>('/api/products/upload', {
         method: 'POST',
         body: importForm,

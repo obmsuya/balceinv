@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ProductImportResult } from '@/composables/useProducts'
 import { ProductImportError, productImportLimitBytes } from '@/composables/useProducts'
@@ -15,6 +16,11 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
 const { importProducts, downloadTemplate, saving } = useProducts()
+const { user } = useAuth()
+
+const userShops = computed(() => user.value?.shops ?? [])
+const stockShopId = ref('')
+const stockShopName = computed(() => userShops.value.find(shop => shop.id === stockShopId.value)?.name ?? '')
 
 const pickedFile = ref<File | null>(null)
 const fileInputKey = ref(0)
@@ -29,6 +35,7 @@ const hiddenProblemCount = computed(() => {
 
 watch(open, isOpen => {
   if (!isOpen) return
+  stockShopId.value = user.value?.shop_id ?? ''
   pickedFile.value = null
   fileInputKey.value++
   importResult.value = null
@@ -53,7 +60,7 @@ const onFilePicked = (event: Event) => {
 const runImport = async () => {
   if (!pickedFile.value) return
   try {
-    importResult.value = await importProducts(pickedFile.value)
+    importResult.value = await importProducts(pickedFile.value, stockShopId.value)
     pickedFile.value = null
     fileInputKey.value++
     emit('imported')
@@ -86,6 +93,18 @@ const runImport = async () => {
             @change="onFilePicked"
           />
         </div>
+        <div v-if="userShops.length > 1" class="flex flex-col gap-1.5">
+          <Label for="product-import-shop">{{ t('products.import.stockShop') }}</Label>
+          <Select v-model="stockShopId">
+            <SelectTrigger id="product-import-shop" class="w-full sm:w-64">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="shop in userShops" :key="shop.id" :value="shop.id">{{ shop.name }}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <p v-else-if="stockShopName" class="text-sm text-muted-foreground">{{ t('products.import.stockShopFixed', { shop: stockShopName }) }}</p>
         <Button variant="outline" size="sm" class="self-start" type="button" @click="downloadTemplate">
           <Download />
           {{ t('products.import.downloadTemplate') }}
