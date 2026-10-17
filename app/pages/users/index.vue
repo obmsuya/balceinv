@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { UserPlus } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
-import { columns } from '@/components/users/columns';
+import { columnsFor } from '@/components/users/columns';
 import DataTable from '@/components/users/DataTable.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -58,6 +58,7 @@ const newPassword = ref('');
 
 const { user } = useAuth()
 const assignableShops = computed(() => user.value?.shops ?? [])
+const tableColumns = computed(() => columnsFor(new Map(assignableShops.value.map(shop => [shop.id, shop.name]))))
 const showShopAssignment = computed(() => assignableShops.value.length > 1)
 onMounted(async () => {
   await fetchUsers();
@@ -238,7 +239,7 @@ const confirmDelete = async () => {
         <CardDescription>{{ t('users.page.listDescription') }}</CardDescription>
       </CardHeader>
       <CardContent>
-        <DataTable :columns="columns" :data="users" />
+        <DataTable :columns="tableColumns" :data="users" />
       </CardContent>
     </Card>
 

@@ -25,6 +25,21 @@ const dispatchUserAction = (actionName: string, user: ManagedUser) => {
   window.dispatchEvent(new CustomEvent(actionName, { detail: user }))
 }
 
+const worksInColumn = (shopNameById: Map<string, string>): ColumnDef<ManagedUser> => ({
+  id: 'works_in',
+  header: () => t('users.form.worksIn'),
+  cell: ({ row }) => {
+    if (row.original.role.is_owner) return h('div', { class: 'text-sm text-muted-foreground' }, t('users.table.allShops'))
+    const shopNames = row.original.shop_ids.map(shopId => shopNameById.get(shopId)).filter(Boolean)
+    return h('div', { class: 'flex flex-wrap gap-1' }, shopNames.map(shopName => h(Badge, { variant: 'outline', class: 'font-normal' }, () => shopName)))
+  },
+})
+
+export const columnsFor = (shopNameById: Map<string, string>): ColumnDef<ManagedUser>[] => {
+  if (shopNameById.size < 2) return columns
+  return [...columns.slice(0, 3), worksInColumn(shopNameById), ...columns.slice(3)]
+}
+
 export const columns: ColumnDef<ManagedUser>[] = [
   {
     accessorKey: 'name',
