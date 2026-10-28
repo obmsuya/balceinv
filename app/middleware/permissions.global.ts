@@ -18,6 +18,7 @@ const routePermissions: Record<string, { resource: string; action: string }> = {
   '/suppliers': { resource: 'suppliers', action: 'view' },
   '/customers': { resource: 'customers', action: 'view' },
   '/orders': { resource: 'orders', action: 'view' },
+  '/invoices': { resource: 'invoices', action: 'view' },
   '/money': { resource: 'accounting', action: 'view' },
 }
 
@@ -25,6 +26,7 @@ const routeFeatures: Record<string, (companyFeatures: CompanyFeatures) => boolea
   '/suppliers': companyFeatures => companyFeatures.suppliers_enabled,
   '/customers': companyFeatures => companyFeatures.customers_enabled,
   '/orders': companyFeatures => companyFeatures.customers_enabled && companyFeatures.customer_orders_enabled,
+  '/invoices': companyFeatures => companyFeatures.invoices_enabled && (companyFeatures.customers_enabled || companyFeatures.suppliers_enabled),
   '/money': companyFeatures => companyFeatures.accounting_mode !== 'off',
 }
 

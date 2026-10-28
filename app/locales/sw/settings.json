@@ -205,7 +205,9 @@
       "credit": "Kuuza kwa mkopo (madeni)",
       "creditHelp": "Mruhusu mteja alipe baadaye. Balce inahifadhi deni la kila mmoja na kukukumbusha.",
       "orders": "Oda za wateja",
-      "ordersHelp": "Pokea oda na malipo ya awali, weka stoku pembeni, kisha kamilisha mauzo mteja anapochukua."
+      "ordersHelp": "Pokea oda na malipo ya awali, weka stoku pembeni, kisha kamilisha mauzo mteja anapochukua.",
+      "invoices": "Ankara na nukuu za bei",
+      "invoicesHelp": "Tuma ankara zenye nembo yako, ankara za awali, nukuu za bei na hati za kupokelea, na fuatilia kinachodaiwa. Inahitaji Wateja au Wasambazaji kuwashwa."
     },
     "accounting": {
       "title": "Uhasibu",

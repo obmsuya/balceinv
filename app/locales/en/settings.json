@@ -205,7 +205,9 @@
       "credit": "Sell on credit (madeni)",
       "creditHelp": "Let a customer pay later. Balce keeps what each one owes and reminds you.",
       "orders": "Customer orders",
-      "ordersHelp": "Take an order with a deposit, keep the stock aside, and finish the sale when they collect."
+      "ordersHelp": "Take an order with a deposit, keep the stock aside, and finish the sale when they collect.",
+      "invoices": "Invoices and quotations",
+      "invoicesHelp": "Send branded invoices, proforma invoices, quotations and delivery notes, and track what is still owed. Needs Customers or Suppliers on."
     },
     "accounting": {
       "title": "Accounting",

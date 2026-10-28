@@ -46,7 +46,8 @@
     "customers": "Customers",
     "orders": "Customer orders",
     "accounting": "Accounting",
-    "tillDiscounts": "Till discounts"
+    "tillDiscounts": "Till discounts",
+    "invoices": "Invoices and quotations"
   },
   "permissions": {
     "products": {
@@ -141,6 +142,12 @@
     },
     "tillDiscounts": {
       "create": "Give discounts at the till"
+    },
+    "invoices": {
+      "view": "View invoices and quotations",
+      "create": "Make invoices, quotations and delivery notes",
+      "edit": "Issue, deliver and record payments on invoices",
+      "delete": "Cancel invoices"
     }
   },
   "table": {
