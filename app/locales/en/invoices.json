@@ -12,29 +12,15 @@
   },
   "summary": {
     "owed": "Owed to you",
-    "owedCount": {
-      "one": "On {count} invoice",
-      "other": "On {count} invoices"
-    },
     "overdue": "Overdue",
-    "overdueCount": {
-      "one": "{count} past its due date",
-      "other": "{count} past their due date"
-    },
-    "nothingOverdue": "Nothing is late",
     "paidThisMonth": "Paid this month",
-    "awaitingDelivery": {
-      "one": "{count} invoice waiting for delivery",
-      "other": "{count} invoices waiting for delivery"
-    }
+    "awaitingTitle": "Waiting for delivery"
   },
   "tabs": {
-    "all": "All",
     "invoice": "Invoices",
-    "proforma": "Proforma",
-    "quotation": "Quotations",
     "delivery_note": "Delivery notes",
-    "supplier_invoice": "Supplier invoices"
+    "offers": "Quotes",
+    "supplier_invoice": "Suppliers"
   },
   "stateFilter": {
     "all": "Everything",
@@ -96,8 +82,7 @@
     "terms": "Terms",
     "balanceDue": "Balance due",
     "status": "Status",
-    "supplier": "Supplier",
-    "party": "Customer or supplier"
+    "supplier": "Supplier"
   },
   "editor": {
     "newTitle": "New {kind}",
@@ -198,8 +183,8 @@
     "description": "The products leave {shop} stock now and {name} owes this invoice. Do this when the goods actually go out.",
     "descriptionNoStock": "{name} owes this invoice from now. Do this when the work is done.",
     "confirm": "Mark delivered",
-    "supplierDescription": "{name} owes this from now: it comes off what you owe them. Products on it leave {shop} stock now.",
-    "supplierTitle": "Charge {number} to the supplier?"
+    "supplierTitle": "Charge {number} to the supplier?",
+    "supplierDescription": "{name} owes this from now: it comes off what you owe them. Products on it leave {shop} stock now."
   },
   "voidPayment": {
     "title": "Cancel this payment?",

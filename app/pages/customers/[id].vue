@@ -18,7 +18,7 @@ import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vu
 import InvoiceDetailsSheet from '@/components/invoices/InvoiceDetailsSheet.vue'
 import InvoiceEditorDialog from '@/components/invoices/InvoiceEditorDialog.vue'
 import type { Invoice } from '@/composables/useInvoices'
-import { invoiceBadgeClasses, invoiceBadgeTone, isBill } from '@/composables/useInvoices'
+import { invoiceBadgeTone, invoiceBadgeVariant, isBill } from '@/composables/useInvoices'
 import type { DocumentSource } from '@/composables/useStatements'
 import type { Customer, CustomerPayment, CustomerSale, CustomerStatement, StatementEntry } from '@/composables/useCustomers'
 import { agingBuckets, agingLabel, customerSalePageSize, whatsappReminderUrl } from '@/composables/useCustomers'
@@ -111,7 +111,7 @@ const openInvoiceId = ref<string | null>(null)
 const editingInvoice = ref<Invoice | null>(null)
 const invoiceCustomer = computed(() => (customer.value ? { id: customer.value.id, name: customer.value.name, phone: customer.value.phone } : null))
 
-const loadInvoices = () => fetchInvoices({ kind: '', state: '', searchText: '', offset: 0, customerId })
+const loadInvoices = () => fetchInvoices({ kinds: [], state: '', searchText: '', offset: 0, customerId })
 
 const refreshInvoices = () => {
   loadInvoices()
@@ -446,23 +446,30 @@ onMounted(() => {
                 <p class="text-sm text-muted-foreground">{{ t('invoices.customer.none') }}</p>
                 <Button v-if="canCreate('invoices') && customer.is_active" size="sm" @click="startInvoice"><FilePlus2 />{{ t('invoices.customer.newInvoice') }}</Button>
               </div>
-              <div v-else class="flex flex-col divide-y rounded-md border">
-                <button
-                  v-for="invoice in customerInvoices"
-                  :key="invoice.id"
-                  type="button"
-                  class="flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-accent"
-                  @click="openInvoice(invoice.id)"
-                >
-                  <div class="min-w-0">
-                    <p class="font-mono text-sm font-medium">{{ invoice.number }}</p>
-                    <p class="text-xs text-muted-foreground">{{ t(`invoices.kind.${invoice.kind}`) }} · {{ formatDate(`${invoice.issue_date}T00:00:00`) }}</p>
-                  </div>
-                  <div class="flex shrink-0 flex-col items-end gap-1">
-                    <span class="text-sm font-semibold tabular-nums" :class="invoice.is_overdue ? 'text-destructive' : ''">{{ isBill(invoice) && invoice.status !== 'cancelled' ? formatMoney(invoice.balance_due) : formatMoney(invoice.total) }}</span>
-                    <Badge :class="invoiceBadgeClasses[invoiceBadgeTone(invoice)]">{{ t(`invoices.badge.${invoiceBadgeTone(invoice)}`) }}</Badge>
-                  </div>
-                </button>
+              <div v-else class="overflow-x-auto rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{{ t('invoices.fields.number') }}</TableHead>
+                      <TableHead class="hidden text-right sm:table-cell">{{ t('common.fields.total') }}</TableHead>
+                      <TableHead class="text-right">{{ t('invoices.fields.balanceDue') }}</TableHead>
+                      <TableHead class="hidden sm:table-cell">{{ t('common.fields.status') }}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="invoice in customerInvoices" :key="invoice.id" class="cursor-pointer" @click="openInvoice(invoice.id)">
+                      <TableCell>
+                        <p class="whitespace-nowrap font-mono text-sm font-medium">{{ invoice.number }}</p>
+                        <p class="text-xs text-muted-foreground">{{ t(`invoices.kind.${invoice.kind}`) }} · {{ formatDate(`${invoice.issue_date}T00:00:00`) }}</p>
+                      </TableCell>
+                      <TableCell class="hidden text-right tabular-nums sm:table-cell">{{ invoice.kind === 'delivery_note' ? '—' : formatMoney(invoice.total) }}</TableCell>
+                      <TableCell class="text-right font-semibold tabular-nums" :class="invoice.is_overdue ? 'text-destructive' : ''">{{ isBill(invoice) && invoice.status !== 'cancelled' ? formatMoney(invoice.balance_due) : '—' }}</TableCell>
+                      <TableCell class="hidden sm:table-cell">
+                        <Badge :variant="invoiceBadgeVariant[invoiceBadgeTone(invoice)]" class="whitespace-nowrap">{{ t(`invoices.badge.${invoiceBadgeTone(invoice)}`) }}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </div>
             </TabsContent>
           </Tabs>
