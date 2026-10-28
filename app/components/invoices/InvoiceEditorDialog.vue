@@ -378,7 +378,7 @@ const save = async (thenIssue: boolean) => {
             </div>
           </div>
 
-          <div class="sticky bottom-0 -mx-1 flex flex-col-reverse gap-2 bg-background px-1 pt-2 sm:flex-row sm:justify-end">
+          <div class="sticky bottom-0 -mx-1 flex flex-wrap justify-end gap-2 bg-background px-1 py-2">
             <Button type="button" variant="outline" @click="open = false">{{ savedInvoice ? t('invoices.editor.close') : t('common.actions.cancel') }}</Button>
             <Button type="submit" variant="secondary" :disabled="saving">{{ saving ? t('common.actions.saving') : t('invoices.editor.saveDraft') }}</Button>
             <Button type="button" :disabled="saving" @click="save(true)">{{ t('invoices.editor.saveAndIssue') }}</Button>

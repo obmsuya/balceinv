@@ -12,12 +12,21 @@
   },
   "summary": {
     "owed": "Owed to you",
-    "owedCount": "On {count} invoices",
+    "owedCount": {
+      "one": "On {count} invoice",
+      "other": "On {count} invoices"
+    },
     "overdue": "Overdue",
-    "overdueCount": "{count} past their due date",
+    "overdueCount": {
+      "one": "{count} past its due date",
+      "other": "{count} past their due date"
+    },
     "nothingOverdue": "Nothing is late",
     "paidThisMonth": "Paid this month",
-    "awaitingDelivery": "{count} invoices waiting for delivery"
+    "awaitingDelivery": {
+      "one": "{count} invoice waiting for delivery",
+      "other": "{count} invoices waiting for delivery"
+    }
   },
   "tabs": {
     "all": "All",
