@@ -178,6 +178,11 @@ names. Add a row here before inventing a new term.
 | receipt photo | picha ya risiti | |
 | stock gains / stock losses | ongezeko la stoku / hasara ya stoku | |
 | invoice | ankara | |
+| proforma invoice | ankara ya awali | proforma |
+| quotation | nukuu ya bei | kwotesheni |
+| delivery note | hati ya kupokelea | |
+| deliver (an invoice) | kabidhi | |
+| in credit (paid ahead) | ana salio | |
 | filter(s) | kichujio / vichujio | |
 | tab (on a page) | kichupo / vichupo | |
 | PDF document | hati ya PDF | |

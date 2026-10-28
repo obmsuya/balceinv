@@ -115,7 +115,7 @@
   "order_not_draft": "Only an order that was not sent can be marked as sent",
   "order_supplier_mismatch": "The stock must come from the supplier on the order",
   "date_in_future": "The date cannot be in the future",
-  "invalid_date": "Use a valid date",
+  "invalid_date": "A date is not valid",
   "reason_required": "Write why",
   "invalid_format": "Choose Excel or PDF",
   "old_data_not_found": "No data from the old Balce was found on this computer",
@@ -164,5 +164,17 @@
   "clear_owner_only": "Only the owner can clear the business data",
   "clear_name_mismatch": "The business name you typed does not match",
   "clear_wrong_password": "The password is not right",
-  "clear_no_shop": "There is no open shop to keep. Open a shop first."
+  "clear_no_shop": "There is no open shop to keep. Open a shop first.",
+  "party_required": "Choose who the document is for",
+  "line_description_required": "Write what each typed line is for",
+  "line_price_required": "Give each typed line a price",
+  "discount_too_high": "A line discount cannot be more than the line",
+  "due_before_issue": "The due date cannot be before the date",
+  "not_draft": "Only a draft can be changed",
+  "not_a_bill": "Only invoices can be delivered or paid",
+  "already_delivered": "This invoice was already delivered",
+  "payment_too_high": "The payment is more than what is still owed",
+  "has_payments": "Cancel the payments on this invoice first",
+  "cannot_convert": "This document cannot be turned into that",
+  "try_again": "Someone saved at the same moment. Try again."
 }

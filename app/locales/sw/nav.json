@@ -20,7 +20,8 @@
     "orders": "Oda",
     "customers": "Wateja",
     "suppliers": "Wasambazaji",
-    "money": "Mzunguko wa fedha"
+    "money": "Mzunguko wa fedha",
+    "invoices": "Ankara"
   },
   "header": {
     "toggleNavigation": "Onyesha au ficha menyu",

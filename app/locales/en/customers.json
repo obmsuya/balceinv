@@ -84,7 +84,8 @@
     "paymentsTab": "Payments",
     "statementTab": "Statement",
     "onCredit": "On credit",
-    "noPurchases": "No purchases yet"
+    "noPurchases": "No purchases yet",
+    "inCredit": "In credit {amount}"
   },
   "payments": {
     "recordTitle": "Record payment",
@@ -118,7 +119,8 @@
     "nothing": "Nothing happened in these dates",
     "creditSale": "On credit · receipt {receipt}",
     "payment": "Payment · {reference}",
-    "documentTitle": "Customer statement"
+    "documentTitle": "Customer statement",
+    "invoice": "Invoice {number}"
   },
   "whatsapp": {
     "message": "Hello {name}, this is a friendly reminder from {shop}. Your balance with us is {amount}. Please pay when you can. Thank you!"

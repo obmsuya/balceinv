@@ -11,6 +11,7 @@ import {
   MapPin,
   Hash,
   Mail,
+  FileSpreadsheet,
   Volume2,
   TestTube,
   RefreshCw,
@@ -71,6 +72,15 @@ const businessForm = ref({
   receipt_language: 'en',
 })
 
+// ─── Invoice details form ──────────────────────────────────────────────────
+// Source: settings.company.email, invoice_payment_details, invoice_terms, invoice_due_days (companies table)
+const invoiceForm = ref({
+  business_email: '',
+  invoice_payment_details: '',
+  invoice_terms: '',
+  invoice_due_days: 30,
+})
+
 // ─── System form ────────────────────────────────────────────────────────────
 // Source: settings.* (settings table)
 const systemForm = ref({
@@ -120,6 +130,7 @@ const notificationForm = ref({
 
 // ─── Per-section saving state ─────────────────────────────────────────────────
 const savingBusiness = ref(false)
+const savingInvoiceDetails = ref(false)
 const savingSystem = ref(false)
 const savingHardware = ref(false)
 const savingEfd = ref(false)
@@ -142,6 +153,13 @@ const loadForms = () => {
     receipt_footer: c.receipt_footer ?? '',
     default_locale: c.default_locale || 'en',
     receipt_language: s.receipt_language || 'en',
+  }
+
+  invoiceForm.value = {
+    business_email: c.email ?? '',
+    invoice_payment_details: c.invoice_payment_details ?? '',
+    invoice_terms: c.invoice_terms ?? '',
+    invoice_due_days: c.invoice_due_days ?? 30,
   }
 
   systemForm.value = {
@@ -240,6 +258,17 @@ const saveBusiness = async () => {
     await updateSettings({ ...businessForm.value })
   } catch {} finally {
     savingBusiness.value = false
+  }
+}
+
+// ─── Save: Invoice details ───────────────────────────────────────────────────
+// Sends: business_email, invoice_payment_details, invoice_terms, invoice_due_days  →  companies table
+const saveInvoiceDetails = async () => {
+  savingInvoiceDetails.value = true
+  try {
+    await updateSettings({ ...invoiceForm.value, invoice_due_days: Number(invoiceForm.value.invoice_due_days) || 0 })
+  } catch {} finally {
+    savingInvoiceDetails.value = false
   }
 }
 
@@ -452,6 +481,44 @@ const efdBadgeLabel = computed(() => {
               <Button data-tour="settings-save" :disabled="savingBusiness" @click="saveBusiness">
                 <Save class="size-4 mr-2" />
                 {{ savingBusiness ? t('common.actions.saving') : t('settings.business.save') }}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Sends business_email, invoice_payment_details, invoice_terms and invoice_due_days; printed on every invoice PDF. -->
+        <Card>
+          <CardHeader class="pb-3">
+            <CardTitle class="flex items-center gap-2 text-base"><FileSpreadsheet class="size-4" />{{ t('settings.invoiceDetails.title') }}</CardTitle>
+            <CardDescription>{{ t('settings.invoiceDetails.description') }}</CardDescription>
+          </CardHeader>
+          <CardContent class="flex flex-col gap-4">
+            <div class="grid gap-4 sm:grid-cols-[1fr_10rem]">
+              <div class="flex min-w-0 flex-col gap-1.5">
+                <Label for="business-email">{{ t('settings.invoiceDetails.email') }}</Label>
+                <div class="relative">
+                  <Mail class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input id="business-email" v-model="invoiceForm.business_email" type="email" class="pl-9" placeholder="mauzo@biashara.co.tz" :disabled="!canEditSettings" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Label for="invoice-due-days">{{ t('settings.invoiceDetails.dueDays') }}</Label>
+                <Input id="invoice-due-days" v-model.number="invoiceForm.invoice_due_days" type="number" min="0" max="365" inputmode="numeric" :disabled="!canEditSettings" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <Label for="invoice-payment-details">{{ t('settings.invoiceDetails.paymentDetails') }}</Label>
+              <Textarea id="invoice-payment-details" v-model="invoiceForm.invoice_payment_details" maxlength="600" class="min-h-20 resize-y" :placeholder="t('settings.invoiceDetails.paymentDetailsPlaceholder')" :disabled="!canEditSettings" />
+              <p class="text-xs text-muted-foreground">{{ t('settings.invoiceDetails.paymentDetailsHelp') }}</p>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <Label for="invoice-terms">{{ t('settings.invoiceDetails.terms') }}</Label>
+              <Textarea id="invoice-terms" v-model="invoiceForm.invoice_terms" maxlength="1000" class="min-h-16 resize-y" :placeholder="t('settings.invoiceDetails.termsPlaceholder')" :disabled="!canEditSettings" />
+            </div>
+            <div v-if="canEditSettings" class="flex justify-end pt-1">
+              <Button :disabled="savingInvoiceDetails" @click="saveInvoiceDetails">
+                <Save class="size-4 mr-2" />
+                {{ savingInvoiceDetails ? t('common.actions.saving') : t('settings.invoiceDetails.save') }}
               </Button>
             </div>
           </CardContent>

@@ -75,8 +75,9 @@ export interface CustomerSale {
 
 export interface StatementEntry {
   at: string
-  kind: 'credit_sale' | 'payment'
+  kind: 'credit_sale' | 'invoice' | 'payment'
   sale_id: string | null
+  invoice_id: string | null
   payment_id: string | null
   reference: string
   debit: number

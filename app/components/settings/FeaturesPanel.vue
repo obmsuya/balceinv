@@ -25,6 +25,7 @@ const accountingModes = computed(() => [
 const setSuppliers = (isOn: boolean) => {
   draft.suppliers_enabled = isOn
   if (!isOn) draft.purchase_orders_enabled = false
+  if (!draft.suppliers_enabled && !draft.customers_enabled) draft.invoices_enabled = false
 }
 
 const setCustomers = (isOn: boolean) => {
@@ -33,6 +34,7 @@ const setCustomers = (isOn: boolean) => {
     draft.credit_sales_enabled = false
     draft.customer_orders_enabled = false
   }
+  if (!draft.suppliers_enabled && !draft.customers_enabled) draft.invoices_enabled = false
 }
 
 const needsVatNumber = computed(() => draft.vat_registered && !(draft.vat_number ?? '').trim())
@@ -96,6 +98,13 @@ const save = async () => {
             <p class="text-sm text-muted-foreground">{{ t('settings.features.selling.ordersHelp') }}</p>
           </div>
           <Switch id="feature-orders" v-model="draft.customer_orders_enabled" :disabled="!canChange || !draft.customers_enabled" />
+        </div>
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <Label for="feature-invoices">{{ t('settings.features.selling.invoices') }}</Label>
+            <p class="text-sm text-muted-foreground">{{ t('settings.features.selling.invoicesHelp') }}</p>
+          </div>
+          <Switch id="feature-invoices" v-model="draft.invoices_enabled" :disabled="!canChange || (!draft.customers_enabled && !draft.suppliers_enabled)" />
         </div>
       </CardContent>
     </Card>

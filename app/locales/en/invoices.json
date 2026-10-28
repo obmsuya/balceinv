@@ -1,0 +1,220 @@
+{
+  "page": {
+    "title": "Invoices",
+    "subtitle": "Bill customers, send quotations and delivery notes, and see what is still owed.",
+    "new": "New",
+    "searchPlaceholder": "Search by number, customer or their order number",
+    "stateFilter": "Show",
+    "noMatch": "Nothing matches",
+    "emptyTitle": "No invoices yet",
+    "emptyBody": "Make an invoice when a customer will pay later, or a quotation before they decide. Each one goes out with your logo and how to pay.",
+    "firstInvoice": "Make your first invoice"
+  },
+  "summary": {
+    "owed": "Owed to you",
+    "overdue": "Overdue",
+    "paidThisMonth": "Paid this month",
+    "awaitingTitle": "Waiting for delivery"
+  },
+  "tabs": {
+    "invoice": "Invoices",
+    "delivery_note": "Delivery notes",
+    "offers": "Quotes"
+  },
+  "stateFilter": {
+    "all": "Everything",
+    "unpaid": "Unpaid",
+    "part_paid": "Part paid",
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "draft": "Drafts",
+    "cancelled": "Cancelled"
+  },
+  "kind": {
+    "invoice": "Invoice",
+    "proforma": "Proforma invoice",
+    "quotation": "Quotation",
+    "delivery_note": "Delivery note",
+    "supplier_invoice": "Supplier invoice"
+  },
+  "kindHelp": {
+    "invoice": "Bill a customer who pays now or later",
+    "proforma": "Price offer they can pay against before you deliver",
+    "quotation": "Prices for the customer to accept",
+    "delivery_note": "Goods list without prices, signed on delivery"
+  },
+  "badge": {
+    "paid": "Paid",
+    "part_paid": "Part paid",
+    "unpaid": "Unpaid",
+    "overdue": "Overdue",
+    "draft": "Draft",
+    "accepted": "Accepted",
+    "cancelled": "Cancelled",
+    "issued": "Sent"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "card": "Card",
+    "mobile": "Mobile money",
+    "bank": "Bank",
+    "offset": "Taken off what we owe"
+  },
+  "fields": {
+    "number": "Number",
+    "customer": "Customer",
+    "billTo": "Bill to",
+    "preparedFor": "Prepared for",
+    "deliverTo": "Deliver to",
+    "issueDate": "Date",
+    "dueDate": "Due date",
+    "validUntil": "Valid until",
+    "reference": "Their order no. (LPO)",
+    "lines": "Items",
+    "description": "Description",
+    "quantity": "Qty",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "discount": "Discount",
+    "subtotal": "Subtotal",
+    "notes": "Notes",
+    "terms": "Terms",
+    "balanceDue": "Balance due",
+    "status": "Status"
+  },
+  "editor": {
+    "newTitle": "New {kind}",
+    "editTitle": "{kind} {number}",
+    "type": "Type",
+    "help": {
+      "invoice": "Nothing changes in stock until you mark the goods delivered. Payments can be recorded before or after.",
+      "proforma": "A price offer the customer can pay against. Turn it into an invoice when they agree.",
+      "quotation": "Prices for the customer to accept. Turn it into an invoice with one click.",
+      "delivery_note": "A list of goods for the driver, without prices. Stock does not change.",
+      "supplier_invoice": "A bill you send to a supplier."
+    },
+    "chooseCustomer": "Choose or add a customer",
+    "dueDefault": "Leave empty to use your usual days to pay",
+    "referencePlaceholder": "e.g. LPO-4471",
+    "addTypedLine": "Add typed line",
+    "searchPlaceholder": "Add a product by name or SKU",
+    "noLinesYet": "Add products from stock, or a typed line for a service such as transport or labour.",
+    "descriptionPlaceholder": "What is it for?",
+    "fromProduct": "From your products",
+    "inShop": "{quantity} {unit} in this shop",
+    "removeLine": "Remove line {line}",
+    "addDiscount": "Discount",
+    "pricesIncludeVat": "Prices include VAT",
+    "notesPlaceholder": "Shown on the document, e.g. delivery instructions",
+    "termsPlaceholder": "Payment terms",
+    "termsDefaultPlaceholder": "Leave empty to use your default terms from Settings",
+    "close": "Close",
+    "saveDraft": "Save draft",
+    "saveAndIssue": "Save and send",
+    "errors": {
+      "chooseCustomer": "Choose a customer first",
+      "noLines": "Add at least one item",
+      "noDescription": "Write what line {line} is for",
+      "badQuantity": "Enter a whole number above zero for line {line}",
+      "badPrice": "Enter a price for line {line}",
+      "badDiscount": "The discount on line {line} is more than the line",
+      "dueBeforeIssue": "The due date cannot be before the date"
+    }
+  },
+  "preview": {
+    "title": "Preview",
+    "emptyTitle": "The preview appears after you save the draft",
+    "emptyBody": "Save the draft to see the PDF exactly as the customer will get it.",
+    "failed": "The preview could not be shown. Download the PDF instead.",
+    "page": "Page {page} of {pages}"
+  },
+  "detail": {
+    "title": "Invoice",
+    "downloadPdf": "PDF",
+    "share": "Share",
+    "edit": "Edit",
+    "balanceDue": "Balance due",
+    "fullyPaid": "Paid in full",
+    "overdueSince": "Overdue since {date}",
+    "dueOn": "Due {date}",
+    "goods": "Goods",
+    "deliveredOn": "Delivered {date}",
+    "notDelivered": "Not delivered yet",
+    "vatIncluded": "VAT {rate}% (included)",
+    "paid": "Paid",
+    "payments": "Payments",
+    "voided": "cancelled",
+    "voidPayment": "Cancel this payment",
+    "related": "Linked documents",
+    "madeFrom": "From {kind} {number}",
+    "createdBy": "Made by {name} · {date}",
+    "deliveredBy": "Delivered by {name} · {date}",
+    "cancelledBy": "Cancelled by {name} · {date}",
+    "issue": "Send (mark as issued)",
+    "recordPayment": "Record payment",
+    "markDelivered": "Mark delivered",
+    "accept": "Customer accepted",
+    "makeInvoice": "Make invoice",
+    "makeDeliveryNote": "Make delivery note",
+    "cancel": "Cancel"
+  },
+  "payment": {
+    "title": "Payment for {number}",
+    "description": "Still owed: {amount}.",
+    "beforeDelivery": "Still owed: {amount}. The goods are not delivered yet, so the customer shows as paid ahead until they are.",
+    "amount": "Amount ({currency})",
+    "reference": "Reference (optional)",
+    "referencePlaceholder": "e.g. M-Pesa code",
+    "save": "Record payment",
+    "errors": {
+      "badAmount": "Enter an amount above zero",
+      "tooMuch": "This is more than what is still owed ({amount})"
+    }
+  },
+  "deliver": {
+    "title": "Deliver {number}?",
+    "description": "The products leave {shop} stock now and {name} owes this invoice. Do this when the goods actually go out.",
+    "descriptionNoStock": "{name} owes this invoice from now. Do this when the work is done.",
+    "confirm": "Mark delivered"
+  },
+  "voidPayment": {
+    "title": "Cancel this payment?",
+    "description": "{amount} will no longer count as paid. The money record is cancelled too.",
+    "confirm": "Cancel payment"
+  },
+  "cancelDialog": {
+    "title": "Cancel {number}?",
+    "description": "The document stays in the list as cancelled. Nothing else changes.",
+    "descriptionDelivered": "The products go back into stock and the customer no longer owes it. The books are reversed.",
+    "confirm": "Cancel document"
+  },
+  "customer": {
+    "title": "Invoices",
+    "none": "No invoices for this customer yet.",
+    "newInvoice": "New invoice",
+    "viewAll": "See all"
+  },
+  "toasts": {
+    "loadFailed": "The invoices could not be loaded",
+    "invoiceLoadFailed": "The document could not be opened",
+    "saved": "{number} saved",
+    "saveFailed": "The document could not be saved",
+    "issued": "{number} is ready to send",
+    "issueFailed": "The document could not be marked as sent",
+    "accepted": "{number} accepted",
+    "acceptFailed": "The quotation could not be marked accepted",
+    "delivered": "{number} delivered",
+    "deliverFailed": "The invoice could not be marked delivered",
+    "paymentRecorded": "Payment recorded on {number}",
+    "paymentFailed": "The payment could not be recorded",
+    "paymentVoided": "Payment cancelled on {number}",
+    "paymentVoidFailed": "The payment could not be cancelled",
+    "converted": "{number} made",
+    "convertFailed": "The new document could not be made",
+    "cancelled": "{number} cancelled",
+    "cancelFailed": "The document could not be cancelled",
+    "pdfSaved": "PDF saved",
+    "pdfSavedToShare": "PDF saved. Send it from your files.",
+    "pdfFailed": "The PDF could not be made"
+  }
+}

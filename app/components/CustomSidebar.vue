@@ -15,7 +15,8 @@ import {
   ClipboardList,
   Contact,
   Truck,
-  Wallet
+  Wallet,
+  FileSpreadsheet
 } from 'lucide-vue-next';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +39,7 @@ const sidebarCollapsed = useState('sidebar-collapsed', () => false);
 const { user, logout } = useAuth();
 const { canView } = usePermissions();
 const { isCloud, fetchPlatform } = usePlatform();
-const { suppliersOn, customersOn, customerOrdersOn, accountingOn } = useFeatures();
+const { suppliersOn, customersOn, customerOrdersOn, invoicesOn, accountingOn } = useFeatures();
 
 onMounted(fetchPlatform);
 
@@ -61,6 +62,7 @@ const navigationItems = computed(() => {
     { path: '/pos', icon: CreditCard, label: t('nav.items.pos'), resource: 'sales' },
     { path: '/sales', icon: ShoppingCart, label: t('nav.items.sales'), resource: 'sales' },
     { path: '/orders', icon: ClipboardList, label: t('nav.items.orders'), resource: 'orders', isFeatureOn: customerOrdersOn.value },
+    { path: '/invoices', icon: FileSpreadsheet, label: t('nav.items.invoices'), resource: 'invoices', isFeatureOn: invoicesOn.value },
     { path: '/customers', icon: Contact, label: t('nav.items.customers'), resource: 'customers', isFeatureOn: customersOn.value },
     { path: '/products', icon: Package, label: t('nav.items.products'), resource: 'products' },
     { path: '/stock', icon: Boxes, label: t('nav.items.stock'), resource: 'stock_movements' },

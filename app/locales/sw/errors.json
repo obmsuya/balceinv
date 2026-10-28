@@ -115,7 +115,7 @@
   "order_not_draft": "Oda ambayo haijatumwa tu ndiyo inaweza kuwekwa kuwa imetumwa",
   "order_supplier_mismatch": "Stoku lazima itoke kwa msambazaji wa oda",
   "date_in_future": "Tarehe haiwezi kuwa ya baadaye",
-  "invalid_date": "Tumia tarehe sahihi",
+  "invalid_date": "Tarehe moja si sahihi",
   "reason_required": "Andika sababu",
   "invalid_format": "Chagua Excel au PDF",
   "old_data_not_found": "Hakuna data za Balce ya zamani zilizopatikana kwenye kompyuta hii",
@@ -164,5 +164,17 @@
   "clear_owner_only": "Mmiliki pekee ndiye anaweza kufuta data ya biashara",
   "clear_name_mismatch": "Jina la biashara ulilowandika halilingani",
   "clear_wrong_password": "Nenosiri si sahihi",
-  "clear_no_shop": "Hakuna duka lililo wazi la kubaki. Fungua duka kwanza."
+  "clear_no_shop": "Hakuna duka lililo wazi la kubaki. Fungua duka kwanza.",
+  "party_required": "Chagua hati ni ya nani",
+  "line_description_required": "Andika kila mstari wa kuandika ni kwa ajili ya nini",
+  "line_price_required": "Weka bei kwa kila mstari wa kuandika",
+  "discount_too_high": "Punguzo la mstari haliwezi kuzidi mstari wenyewe",
+  "due_before_issue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati",
+  "not_draft": "Rasimu pekee ndiyo inaweza kubadilishwa",
+  "not_a_bill": "Ankara pekee ndizo zinaweza kukabidhiwa au kulipwa",
+  "already_delivered": "Ankara hii imeshakabidhiwa",
+  "payment_too_high": "Malipo ni zaidi ya kinachodaiwa bado",
+  "has_payments": "Ghairi malipo ya ankara hii kwanza",
+  "cannot_convert": "Hati hii haiwezi kubadilishwa kuwa hiyo",
+  "try_again": "Mtu mwingine amehifadhi wakati huo huo. Jaribu tena."
 }
