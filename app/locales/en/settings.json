@@ -229,5 +229,17 @@
       "saved": "Features saved",
       "saveFailed": "Could not save the features"
     }
+  },
+  "invoiceDetails": {
+    "title": "Invoices",
+    "description": "Printed on every invoice, quotation and delivery note you send.",
+    "email": "Business email",
+    "dueDays": "Days to pay",
+    "paymentDetails": "How customers pay you",
+    "paymentDetailsPlaceholder": "CRDB Bank · A/C 0150 1234 5678 00\nM-Pesa Lipa Namba 5566778",
+    "paymentDetailsHelp": "Bank account and Lipa number. Shown under the totals so customers know where to send the money.",
+    "terms": "Default terms",
+    "termsPlaceholder": "e.g. Pay within 30 days. Goods stay ours until paid in full.",
+    "save": "Save invoice details"
   }
 }

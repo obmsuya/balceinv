@@ -229,5 +229,17 @@
       "saved": "Vipengele vimehifadhiwa",
       "saveFailed": "Imeshindwa kuhifadhi vipengele"
     }
+  },
+  "invoiceDetails": {
+    "title": "Ankara",
+    "description": "Huchapishwa kwenye kila ankara, nukuu ya bei na hati ya kupokelea unayotuma.",
+    "email": "Barua pepe ya biashara",
+    "dueDays": "Siku za kulipa",
+    "paymentDetails": "Jinsi wateja wanavyokulipa",
+    "paymentDetailsPlaceholder": "CRDB Bank · A/C 0150 1234 5678 00\nM-Pesa Lipa Namba 5566778",
+    "paymentDetailsHelp": "Akaunti ya benki na namba ya Lipa. Huonyeshwa chini ya jumla ili wateja wajue wapi pa kutuma pesa.",
+    "terms": "Masharti ya kawaida",
+    "termsPlaceholder": "mfano: Lipa ndani ya siku 30. Bidhaa ni zetu hadi zilipwe zote.",
+    "save": "Hifadhi maelezo ya ankara"
   }
 }

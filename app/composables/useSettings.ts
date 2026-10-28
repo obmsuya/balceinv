@@ -16,6 +16,10 @@ export interface CompanyProfile {
   default_locale: string
   receipt_header: string | null
   receipt_footer: string | null
+  email: string | null
+  invoice_payment_details: string | null
+  invoice_terms: string | null
+  invoice_due_days: number
 }
 
 export interface Settings {
@@ -57,6 +61,10 @@ export interface UpdateSettingsInput {
   business_tin?: string
   receipt_header?: string
   receipt_footer?: string
+  business_email?: string
+  invoice_payment_details?: string
+  invoice_terms?: string
+  invoice_due_days?: number
   primary_color?: string
   currency_code?: string
   currency_decimals?: number
