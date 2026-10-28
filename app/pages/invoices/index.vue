@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import InvoiceDetailsSheet from '@/components/invoices/InvoiceDetailsSheet.vue'
 import InvoiceEditorDialog from '@/components/invoices/InvoiceEditorDialog.vue'
 import type { Invoice, InvoiceKind, InvoiceStateFilter } from '@/composables/useInvoices'
-import { customerInvoiceKinds, invoiceBadgeClasses, invoiceBadgeTone, invoicePageSize, isBill } from '@/composables/useInvoices'
+import { availableInvoiceKinds, invoiceBadgeClasses, invoiceBadgeTone, invoicePageSize, isBill } from '@/composables/useInvoices'
 import { formatMoney } from '~/utils/money'
 
 type KindTab = 'all' | InvoiceKind
@@ -22,10 +22,11 @@ type StateChoice = 'all' | Exclude<InvoiceStateFilter, ''>
 
 const { t, formatDate } = useI18n()
 const { canCreate, canEdit } = usePermissions()
-const { customersOn } = useFeatures()
+const { customersOn, suppliersOn } = useFeatures()
 const { invoices, totalInvoices, summary, loading, fetchInvoices, fetchSummary } = useInvoices()
 
-const kindTabs: KindTab[] = ['all', ...customerInvoiceKinds]
+const creatableKinds = computed(() => availableInvoiceKinds(customersOn.value, suppliersOn.value))
+const kindTabs = computed<KindTab[]>(() => ['all', ...creatableKinds.value])
 const stateChoices: StateChoice[] = ['all', 'unpaid', 'part_paid', 'overdue', 'paid', 'draft', 'cancelled']
 
 const activeKind = ref<KindTab>('all')
@@ -96,12 +97,12 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('invoices.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ t('invoices.page.subtitle') }}</p>
       </div>
-      <DropdownMenu v-if="canCreate('invoices') && customersOn">
+      <DropdownMenu v-if="canCreate('invoices') && creatableKinds.length">
         <DropdownMenuTrigger as-child>
           <Button><Plus />{{ t('invoices.page.new') }}<ChevronDown class="opacity-70" /></Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="w-56">
-          <DropdownMenuItem v-for="kind in customerInvoiceKinds" :key="kind" class="flex flex-col items-start gap-0.5" @select="startNew(kind)">
+          <DropdownMenuItem v-for="kind in creatableKinds" :key="kind" class="flex flex-col items-start gap-0.5" @select="startNew(kind)">
             <span class="font-medium">{{ t(`invoices.kind.${kind}`) }}</span>
             <span class="text-xs text-muted-foreground">{{ t(`invoices.kindHelp.${kind}`) }}</span>
           </DropdownMenuItem>
@@ -181,7 +182,7 @@ onMounted(reload)
             <TableHeader>
               <TableRow>
                 <TableHead>{{ t('invoices.fields.number') }}</TableHead>
-                <TableHead>{{ t('invoices.fields.customer') }}</TableHead>
+                <TableHead>{{ t(suppliersOn ? 'invoices.fields.party' : 'invoices.fields.customer') }}</TableHead>
                 <TableHead class="hidden md:table-cell">{{ t('invoices.fields.dueDate') }}</TableHead>
                 <TableHead class="hidden text-right sm:table-cell">{{ t('common.fields.total') }}</TableHead>
                 <TableHead class="text-right">{{ t('invoices.fields.balanceDue') }}</TableHead>

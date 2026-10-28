@@ -23,8 +23,8 @@ import MoneyInput from '@/components/MoneyInput.vue'
 import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
 import ReasonDialog from '@/components/suppliers/ReasonDialog.vue'
 import type { CustomerPaymentMethod } from '@/composables/useCustomers'
-import type { Invoice, InvoicePayment } from '@/composables/useInvoices'
-import { invoiceBadgeClasses, invoiceBadgeTone, isBill, isOffer } from '@/composables/useInvoices'
+import type { Invoice, InvoicePayment, InvoicePaymentMethod } from '@/composables/useInvoices'
+import { invoiceBadgeClasses, invoiceBadgeTone, isBill, isOffer, supplierInvoiceMethods } from '@/composables/useInvoices'
 import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
 import { openExternal } from '~/utils/openExternal'
 
@@ -42,7 +42,7 @@ const {
 const invoice = ref<Invoice | null>(null)
 const showPayment = ref(false)
 const paymentText = ref('')
-const paymentMethod = ref<CustomerPaymentMethod | null>('cash')
+const paymentMethod = ref<InvoicePaymentMethod | null>('cash')
 const paymentReference = ref('')
 const showDeliver = ref(false)
 const showCancel = ref(false)
@@ -55,6 +55,13 @@ const canPay = computed(() => isOpenBill.value && (invoice.value?.balance_due ??
 const canDeliver = computed(() => invoice.value != null && isBill(invoice.value) && invoice.value.status !== 'cancelled' && !invoice.value.delivered_at && canEdit('invoices'))
 const canMakeInvoice = computed(() => invoice.value != null && isOffer(invoice.value) && (invoice.value.status === 'issued' || invoice.value.status === 'accepted') && canCreate('invoices'))
 const canMakeDeliveryNote = computed(() => invoice.value?.kind === 'invoice' && invoice.value.status === 'issued' && canCreate('invoices'))
+const isSupplierBill = computed(() => invoice.value?.kind === 'supplier_invoice')
+const partyLabelKey = computed(() => {
+  if (!invoice.value) return 'invoices.fields.billTo'
+  if (isSupplierBill.value) return 'invoices.fields.supplier'
+  if (invoice.value.kind === 'delivery_note') return 'invoices.fields.deliverTo'
+  return isOffer(invoice.value) ? 'invoices.fields.preparedFor' : 'invoices.fields.billTo'
+})
 const hasProductLines = computed(() => (invoice.value?.lines ?? []).some(line => line.product_id))
 
 const dateLabel = (dateText: string): string => formatDate(`${dateText}T00:00:00`)
@@ -93,7 +100,7 @@ const deliver = async () => {
 
 const openPayment = () => {
   paymentText.value = minorToInputText(invoice.value?.balance_due ?? 0)
-  paymentMethod.value = 'cash'
+  paymentMethod.value = isSupplierBill.value ? 'offset' : 'cash'
   paymentReference.value = ''
   showPayment.value = true
 }
@@ -190,8 +197,8 @@ const callCustomer = () => {
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div class="col-span-2 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
             <div class="min-w-0">
-              <p class="text-xs text-muted-foreground">{{ t(invoice.kind === 'delivery_note' ? 'invoices.fields.deliverTo' : isOffer(invoice) ? 'invoices.fields.preparedFor' : 'invoices.fields.billTo') }}</p>
-              <NuxtLink v-if="invoice.party.type === 'customer' && canView('customers')" :to="`/customers/${invoice.party.id}`" class="block truncate font-medium hover:underline">{{ invoice.party.name }}</NuxtLink>
+              <p class="text-xs text-muted-foreground">{{ t(partyLabelKey) }}</p>
+              <NuxtLink v-if="canView(invoice.party.type === 'customer' ? 'customers' : 'suppliers')" :to="`/${invoice.party.type === 'customer' ? 'customers' : 'suppliers'}/${invoice.party.id}`" class="block truncate font-medium hover:underline">{{ invoice.party.name }}</NuxtLink>
               <p v-else class="truncate font-medium">{{ invoice.party.name }}</p>
               <p v-if="invoice.party.email" class="truncate text-xs text-muted-foreground">{{ invoice.party.email }}</p>
             </div>
@@ -275,7 +282,7 @@ const callCustomer = () => {
           <Button v-if="invoice.status === 'draft' && canEdit('invoices')" class="h-11" :disabled="saving" @click="issue"><Send />{{ t('invoices.detail.issue') }}</Button>
           <Button v-if="canPay" class="h-11" :disabled="saving" @click="openPayment"><HandCoins />{{ t('invoices.detail.recordPayment') }}</Button>
           <div class="grid grid-cols-2 gap-2">
-            <Button v-if="canDeliver" variant="outline" :disabled="saving" @click="showDeliver = true"><Truck />{{ t('invoices.detail.markDelivered') }}</Button>
+            <Button v-if="canDeliver" variant="outline" :disabled="saving" @click="showDeliver = true"><Truck />{{ t(isSupplierBill ? 'invoices.detail.chargeSupplier' : 'invoices.detail.markDelivered') }}</Button>
             <Button v-if="isOffer(invoice) && invoice.status === 'issued' && canEdit('invoices')" variant="outline" :disabled="saving" @click="accept"><CircleCheck />{{ t('invoices.detail.accept') }}</Button>
             <Button v-if="canMakeInvoice" variant="outline" :disabled="saving" @click="convert('invoice')"><FilePlus2 />{{ t('invoices.detail.makeInvoice') }}</Button>
             <Button v-if="canMakeDeliveryNote" variant="outline" :disabled="saving" @click="convert('delivery_note')"><FilePlus2 />{{ t('invoices.detail.makeDeliveryNote') }}</Button>
@@ -289,7 +296,7 @@ const callCustomer = () => {
           <DialogHeader>
             <DialogTitle>{{ t('invoices.payment.title', { number: invoice?.number ?? '' }) }}</DialogTitle>
             <DialogDescription>
-              {{ invoice?.delivered_at ? t('invoices.payment.description', { amount: formatMoney(invoice?.balance_due ?? 0) }) : t('invoices.payment.beforeDelivery', { amount: formatMoney(invoice?.balance_due ?? 0) }) }}
+              {{ isSupplierBill ? t('invoices.payment.supplierDescription', { name: invoice?.party.name ?? '', amount: formatMoney(invoice?.balance_due ?? 0) }) : invoice?.delivered_at ? t('invoices.payment.description', { amount: formatMoney(invoice?.balance_due ?? 0) }) : t('invoices.payment.beforeDelivery', { amount: formatMoney(invoice?.balance_due ?? 0) }) }}
             </DialogDescription>
           </DialogHeader>
           <form class="flex flex-col gap-4" @submit.prevent="savePayment">
@@ -297,7 +304,21 @@ const callCustomer = () => {
               <Label for="invoice-payment-amount">{{ t('invoices.payment.amount', { currency: currencyCode() }) }}</Label>
               <MoneyInput id="invoice-payment-amount" v-model="paymentText" class="h-11 text-lg tabular-nums" />
             </div>
-            <PaymentMethodChoice v-model="paymentMethod" />
+            <div v-if="isSupplierBill" class="grid grid-cols-2 gap-2" role="radiogroup" :aria-label="t('invoices.payment.method')">
+              <button
+                v-for="method in supplierInvoiceMethods"
+                :key="method"
+                type="button"
+                role="radio"
+                class="rounded-lg border px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-accent"
+                :class="paymentMethod === method ? 'border-primary bg-primary/5' : ''"
+                :aria-checked="paymentMethod === method"
+                @click="paymentMethod = method"
+              >
+                {{ t(`invoices.paymentMethod.${method}`) }}
+              </button>
+            </div>
+            <PaymentMethodChoice v-else :model-value="paymentMethod as CustomerPaymentMethod | null" @update:model-value="method => paymentMethod = method" />
             <div class="flex flex-col gap-1.5">
               <Label for="invoice-payment-reference">{{ t('invoices.payment.reference') }}</Label>
               <Input id="invoice-payment-reference" v-model="paymentReference" maxlength="80" :placeholder="t('invoices.payment.referencePlaceholder')" />
@@ -313,14 +334,14 @@ const callCustomer = () => {
       <AlertDialog :open="showDeliver" @update:open="isOpen => showDeliver = isOpen">
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{{ t('invoices.deliver.title', { number: invoice?.number ?? '' }) }}</AlertDialogTitle>
+            <AlertDialogTitle>{{ t(isSupplierBill ? 'invoices.deliver.supplierTitle' : 'invoices.deliver.title', { number: invoice?.number ?? '' }) }}</AlertDialogTitle>
             <AlertDialogDescription>
-              {{ hasProductLines ? t('invoices.deliver.description', { shop: invoice?.shop_name ?? '', name: invoice?.party.name ?? '' }) : t('invoices.deliver.descriptionNoStock', { name: invoice?.party.name ?? '' }) }}
+              {{ isSupplierBill ? t('invoices.deliver.supplierDescription', { shop: invoice?.shop_name ?? '', name: invoice?.party.name ?? '' }) : hasProductLines ? t('invoices.deliver.description', { shop: invoice?.shop_name ?? '', name: invoice?.party.name ?? '' }) : t('invoices.deliver.descriptionNoStock', { name: invoice?.party.name ?? '' }) }}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{{ t('common.actions.back') }}</AlertDialogCancel>
-            <AlertDialogAction :disabled="saving" @click.prevent="deliver">{{ t('invoices.deliver.confirm') }}</AlertDialogAction>
+            <AlertDialogAction :disabled="saving" @click.prevent="deliver">{{ t(isSupplierBill ? 'invoices.detail.chargeSupplier' : 'invoices.deliver.confirm') }}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

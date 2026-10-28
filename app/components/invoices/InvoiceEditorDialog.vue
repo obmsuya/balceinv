@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { Percent, Plus, Trash2, UserPlus, UserRound } from 'lucide-vue-next'
+import { Percent, Plus, Trash2, Truck, UserPlus, UserRound } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import MoneyInput from '@/components/MoneyInput.vue'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import StockProductSearch from '@/components/stock/StockProductSearch.vue'
 import InvoicePdfPreview from '@/components/invoices/InvoicePdfPreview.vue'
 import type { Invoice, InvoiceFields, InvoiceKind, InvoiceLineInput } from '@/composables/useInvoices'
-import { customerInvoiceKinds } from '@/composables/useInvoices'
+import { availableInvoiceKinds } from '@/composables/useInvoices'
+import type { Supplier } from '@/composables/useSuppliers'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
 import { formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
@@ -39,16 +41,20 @@ const props = defineProps<{
   invoice?: Invoice | null
   presetKind?: InvoiceKind
   presetCustomer?: EditorCustomer | null
+  presetSupplierId?: string | null
 }>()
 const emit = defineEmits<{ saved: [invoice: Invoice]; issued: [invoice: Invoice] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
-const { vatOn } = useFeatures()
+const { vatOn, customersOn, suppliersOn } = useFeatures()
+const { activeSupplierOptions } = useSuppliers()
 const { createInvoice, updateInvoice, issueInvoice, fetchInvoicePdfBytes, saving } = useInvoices()
 
 const kind = ref<InvoiceKind>('invoice')
 const customer = ref<EditorCustomer | null>(null)
+const supplierId = ref('')
+const suppliers = ref<Supplier[]>([])
 const issueDate = ref('')
 const dueDate = ref('')
 const reference = ref('')
@@ -64,6 +70,13 @@ let nextRowKey = 1
 const isEditing = computed(() => savedInvoice.value != null)
 const isDeliveryNote = computed(() => kind.value === 'delivery_note')
 const isOfferKind = computed(() => kind.value === 'quotation' || kind.value === 'proforma')
+const isSupplierBill = computed(() => kind.value === 'supplier_invoice')
+const kindChoices = computed(() => availableInvoiceKinds(customersOn.value, suppliersOn.value))
+const partyLabelKey = computed(() => {
+  if (isSupplierBill.value) return 'invoices.fields.supplier'
+  if (isDeliveryNote.value) return 'invoices.fields.deliverTo'
+  return isOfferKind.value ? 'invoices.fields.preparedFor' : 'invoices.fields.billTo'
+})
 const chosenProductIds = computed(() => rows.value.flatMap(row => (row.productId ? [row.productId] : [])))
 
 const todayText = (): string => {
@@ -104,7 +117,8 @@ const blankRow = (): EditorRow => ({
 
 const fillFrom = (invoice: Invoice) => {
   kind.value = invoice.kind
-  customer.value = { id: invoice.party.id, name: invoice.party.name, phone: invoice.party.phone }
+  customer.value = invoice.party.type === 'customer' ? { id: invoice.party.id, name: invoice.party.name, phone: invoice.party.phone } : null
+  supplierId.value = invoice.party.type === 'supplier' ? invoice.party.id : ''
   issueDate.value = invoice.issue_date
   dueDate.value = invoice.due_date ?? ''
   reference.value = invoice.reference ?? ''
@@ -135,8 +149,9 @@ const refreshPreview = async () => {
   }
 }
 
-watch(open, isOpen => {
+watch(open, async isOpen => {
   if (!isOpen) return
+  if (suppliersOn.value) activeSupplierOptions().then(options => suppliers.value = options)
   savedInvoice.value = props.invoice ?? null
   previewBytes.value = null
   if (props.invoice) {
@@ -144,8 +159,9 @@ watch(open, isOpen => {
     refreshPreview()
     return
   }
-  kind.value = props.presetKind ?? 'invoice'
+  kind.value = props.presetKind ?? kindChoices.value[0] ?? 'invoice'
   customer.value = props.presetCustomer ?? null
+  supplierId.value = props.presetSupplierId ?? ''
   issueDate.value = todayText()
   dueDate.value = ''
   reference.value = ''
@@ -170,7 +186,11 @@ const addTypedLine = () => {
 }
 
 const validLines = (): InvoiceLineInput[] | null => {
-  if (!customer.value) {
+  if (isSupplierBill.value && !supplierId.value) {
+    toast.error(t('invoices.editor.errors.chooseSupplier'))
+    return null
+  }
+  if (!isSupplierBill.value && !customer.value) {
     toast.error(t('invoices.editor.errors.chooseCustomer'))
     return null
   }
@@ -222,7 +242,8 @@ const save = async (thenIssue: boolean) => {
   if (!lines) return
   const fields: InvoiceFields = {
     kind: kind.value,
-    customer_id: customer.value!.id,
+    customer_id: isSupplierBill.value ? undefined : customer.value!.id,
+    supplier_id: isSupplierBill.value ? supplierId.value : undefined,
     issue_date: issueDate.value || undefined,
     due_date: isDeliveryNote.value ? undefined : dueDate.value || undefined,
     reference: reference.value.trim() || undefined,
@@ -261,9 +282,9 @@ const save = async (thenIssue: boolean) => {
 
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <form class="flex min-w-0 flex-col gap-5" @submit.prevent="save(false)">
-          <div v-if="!savedInvoice" class="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" :aria-label="t('invoices.editor.type')">
+          <div v-if="!savedInvoice && kindChoices.length > 1" class="grid grid-cols-2 gap-2" :class="kindChoices.length > 4 ? 'sm:grid-cols-5' : 'sm:grid-cols-4'" role="radiogroup" :aria-label="t('invoices.editor.type')">
             <button
-              v-for="choice in customerInvoiceKinds"
+              v-for="choice in kindChoices"
               :key="choice"
               type="button"
               role="radio"
@@ -276,8 +297,20 @@ const save = async (thenIssue: boolean) => {
             </button>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <Label>{{ t(isDeliveryNote ? 'invoices.fields.deliverTo' : isOfferKind ? 'invoices.fields.preparedFor' : 'invoices.fields.billTo') }}</Label>
+          <div v-if="isSupplierBill" class="flex flex-col gap-1.5">
+            <Label for="invoice-supplier">{{ t(partyLabelKey) }}</Label>
+            <Select v-model="supplierId">
+              <SelectTrigger id="invoice-supplier" class="w-full">
+                <Truck class="size-4 text-muted-foreground" />
+                <SelectValue :placeholder="t('invoices.editor.chooseSupplier')" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div v-else class="flex flex-col gap-1.5">
+            <Label>{{ t(partyLabelKey) }}</Label>
             <button
               type="button"
               class="flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm hover:bg-accent"
