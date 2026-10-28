@@ -23,3 +23,19 @@ export const saveFile = async (fileBytes: Uint8Array, fileName: string, filter: 
   URL.revokeObjectURL(downloadUrl)
   return fileName
 }
+
+export type ShareOutcome = { shared: true } | { shared: false; savedName: string | null; cancelled: boolean }
+
+export const sharePdf = async (fileBytes: Uint8Array, fileName: string, title: string, filter: SaveFilter): Promise<ShareOutcome> => {
+  const pdfFile = new File([fileBytes], fileName, { type: 'application/pdf' })
+  const canShareFile = typeof navigator.canShare === 'function' && navigator.canShare({ files: [pdfFile] })
+  if (canShareFile) {
+    try {
+      await navigator.share({ files: [pdfFile], title })
+      return { shared: true }
+    } catch (shareError: any) {
+      if (shareError?.name === 'AbortError') return { shared: false, savedName: null, cancelled: true }
+    }
+  }
+  return { shared: false, savedName: await saveFile(fileBytes, fileName, filter), cancelled: false }
+}

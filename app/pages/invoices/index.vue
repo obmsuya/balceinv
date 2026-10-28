@@ -14,19 +14,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import InvoiceDetailsSheet from '@/components/invoices/InvoiceDetailsSheet.vue'
 import InvoiceEditorDialog from '@/components/invoices/InvoiceEditorDialog.vue'
 import type { Invoice, InvoiceKind, InvoiceListTab, InvoiceStateFilter } from '@/composables/useInvoices'
-import { customerInvoiceKinds, invoiceBadgeTone, invoiceBadgeVariant, invoiceListTabKinds, invoicePageSize, isBill } from '@/composables/useInvoices'
+import { availableInvoiceKinds, invoiceBadgeTone, invoiceBadgeVariant, invoiceListTabKinds, invoicePageSize, isBill } from '@/composables/useInvoices'
 import { formatMoney } from '~/utils/money'
 
 type StateChoice = 'all' | Exclude<InvoiceStateFilter, ''>
 
 const { t, formatDate, formatNumber } = useI18n()
 const { canCreate, canEdit } = usePermissions()
-const { customersOn } = useFeatures()
+const { customersOn, suppliersOn } = useFeatures()
 const { invoices, totalInvoices, summary, loading, fetchInvoices, fetchSummary } = useInvoices()
 
-const listTabs: InvoiceListTab[] = ['invoice', 'offers', 'delivery_note']
+const creatableKinds = computed(() => availableInvoiceKinds(customersOn.value, suppliersOn.value))
+const listTabs = computed<InvoiceListTab[]>(() => [
+  ...(customersOn.value ? ['invoice', 'offers', 'delivery_note'] as InvoiceListTab[] : []),
+  ...(suppliersOn.value ? ['supplier_invoice'] as InvoiceListTab[] : []),
+])
 
-const activeTab = ref<InvoiceListTab>('invoice')
+const activeTab = ref<InvoiceListTab>(listTabs.value[0] ?? 'invoice')
 const activeState = ref<StateChoice>('all')
 const searchText = ref('')
 const pageOffset = ref(0)
@@ -36,9 +40,10 @@ const editingInvoice = ref<Invoice | null>(null)
 const showDetails = ref(false)
 const openInvoiceId = ref<string | null>(null)
 
-const showsPayments = computed(() => activeTab.value === 'invoice')
+const showsPayments = computed(() => activeTab.value === 'invoice' || activeTab.value === 'supplier_invoice')
 const stateChoices = computed<StateChoice[]>(() => (showsPayments.value ? ['all', 'unpaid', 'part_paid', 'overdue', 'paid', 'draft', 'cancelled'] : ['all', 'draft', 'cancelled']))
-const columnCount = computed(() => ({ invoice: 6, offers: 5, delivery_note: 4 })[activeTab.value])
+const columnCount = computed(() => ({ invoice: 6, offers: 5, delivery_note: 4, supplier_invoice: 6 })[activeTab.value])
+const partyHeading = computed(() => (activeTab.value === 'supplier_invoice' ? 'invoices.fields.supplier' : 'invoices.fields.customer'))
 const isFiltered = computed(() => searchText.value.trim() !== '' || activeState.value !== 'all')
 const isFirstUse = computed(() => !loading.value && !invoices.value.length && !isFiltered.value && activeTab.value === 'invoice')
 
@@ -102,12 +107,12 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('invoices.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ t('invoices.page.subtitle') }}</p>
       </div>
-      <DropdownMenu v-if="canCreate('invoices') && customersOn">
+      <DropdownMenu v-if="canCreate('invoices') && creatableKinds.length">
         <DropdownMenuTrigger as-child>
           <Button><Plus />{{ t('invoices.page.new') }}<ChevronDown class="opacity-70" /></Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="w-56">
-          <DropdownMenuItem v-for="kind in customerInvoiceKinds" :key="kind" class="flex flex-col items-start gap-0.5" @select="startNew(kind)">
+          <DropdownMenuItem v-for="kind in creatableKinds" :key="kind" class="flex flex-col items-start gap-0.5" @select="startNew(kind)">
             <span class="font-medium">{{ t(`invoices.kind.${kind}`) }}</span>
             <span class="text-xs text-muted-foreground">{{ t(`invoices.kindHelp.${kind}`) }}</span>
           </DropdownMenuItem>
@@ -194,8 +199,8 @@ onMounted(reload)
                 <TableHeader>
                   <TableRow>
                     <TableHead>{{ t('invoices.fields.number') }}</TableHead>
-                    <TableHead class="hidden sm:table-cell">{{ t('invoices.fields.customer') }}</TableHead>
-                    <TableHead class="hidden md:table-cell">{{ t(activeTab === 'offers' ? 'invoices.fields.validUntil' : activeTab === 'invoice' ? 'invoices.fields.dueDate' : 'invoices.fields.issueDate') }}</TableHead>
+                    <TableHead class="hidden sm:table-cell">{{ t(partyHeading) }}</TableHead>
+                    <TableHead class="hidden md:table-cell">{{ t(activeTab === 'offers' ? 'invoices.fields.validUntil' : activeTab === 'delivery_note' ? 'invoices.fields.issueDate' : 'invoices.fields.dueDate') }}</TableHead>
                     <TableHead v-if="activeTab !== 'delivery_note'" class="text-right" :class="showsPayments ? 'hidden sm:table-cell' : ''">{{ t('common.fields.total') }}</TableHead>
                     <TableHead v-if="showsPayments" class="text-right">{{ t('invoices.fields.balanceDue') }}</TableHead>
                     <TableHead class="hidden sm:table-cell">{{ t('common.fields.status') }}</TableHead>

@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { saveFile, sharePdf } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type PaymentMethod = 'cash' | 'bank' | 'mobile'
@@ -259,6 +260,7 @@ export const useSuppliers = () => {
 
   const loading = ref(false)
   const saving = ref(false)
+  const downloadingOrder = ref(false)
 
   const listSuppliers = async (query: { searchText?: string; includeInactive?: boolean; offset?: number; limit?: number } = {}): Promise<Page<Supplier>> => {
     loading.value = true
@@ -527,6 +529,41 @@ export const useSuppliers = () => {
     }
   }
 
+  const orderPdfBytes = async (orderId: string): Promise<Uint8Array> => {
+    const documentBytes = await apiFetch<ArrayBuffer>(`/api/purchase-orders/${orderId}/document`, {
+      query: { format: 'pdf' },
+      responseType: 'arrayBuffer',
+    })
+    return new Uint8Array(documentBytes)
+  }
+
+  const orderPdfName = (orderNumber: string): string => `${orderNumber.replace(/[^A-Za-z0-9._-]/g, '-')}.pdf`
+  const pdfFilter = () => ({ name: t('sales.pdfFileType'), extensions: ['pdf'] })
+
+  const downloadOrderPdf = async (orderId: string, orderNumber: string): Promise<void> => {
+    downloadingOrder.value = true
+    try {
+      const savedName = await saveFile(await orderPdfBytes(orderId), orderPdfName(orderNumber), pdfFilter())
+      if (savedName) toast.success(t('suppliers.toasts.orderPdfSaved'), { description: savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.orderPdfFailed'))
+    } finally {
+      downloadingOrder.value = false
+    }
+  }
+
+  const shareOrderPdf = async (orderId: string, orderNumber: string): Promise<void> => {
+    downloadingOrder.value = true
+    try {
+      const outcome = await sharePdf(await orderPdfBytes(orderId), orderPdfName(orderNumber), orderNumber, pdfFilter())
+      if (!outcome.shared && outcome.savedName) toast.success(t('suppliers.toasts.orderPdfSavedToShare'), { description: outcome.savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.orderPdfFailed'))
+    } finally {
+      downloadingOrder.value = false
+    }
+  }
+
   const sendOrder = async (orderId: string): Promise<PurchaseOrder> => {
     saving.value = true
     try {
@@ -556,6 +593,9 @@ export const useSuppliers = () => {
   }
 
   return {
+    downloadingOrder,
+    downloadOrderPdf,
+    shareOrderPdf,
     loading,
     saving,
     listSuppliers,

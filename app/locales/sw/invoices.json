@@ -19,7 +19,8 @@
   "tabs": {
     "invoice": "Ankara",
     "delivery_note": "Hati za kupokelea",
-    "offers": "Nukuu"
+    "offers": "Nukuu",
+    "supplier_invoice": "Wasambazaji"
   },
   "stateFilter": {
     "all": "Kila kitu",
@@ -80,7 +81,8 @@
     "notes": "Maelezo",
     "terms": "Masharti",
     "balanceDue": "Kinachodaiwa",
-    "status": "Hali"
+    "status": "Hali",
+    "supplier": "Msambazaji"
   },
   "editor": {
     "newTitle": "{kind} mpya",
@@ -118,8 +120,10 @@
       "badQuantity": "Weka namba nzima zaidi ya sifuri kwa mstari {line}",
       "badPrice": "Weka bei kwa mstari {line}",
       "badDiscount": "Punguzo la mstari {line} ni zaidi ya mstari wenyewe",
-      "dueBeforeIssue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati"
-    }
+      "dueBeforeIssue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati",
+      "chooseSupplier": "Chagua msambazaji kwanza"
+    },
+    "chooseSupplier": "Chagua msambazaji"
   },
   "preview": {
     "title": "Tazama",
@@ -156,7 +160,8 @@
     "accept": "Mteja amekubali",
     "makeInvoice": "Andaa ankara",
     "makeDeliveryNote": "Andaa hati ya kupokelea",
-    "cancel": "Ghairi"
+    "cancel": "Ghairi",
+    "chargeSupplier": "Mtoze msambazaji"
   },
   "payment": {
     "title": "Malipo ya {number}",
@@ -169,13 +174,17 @@
     "errors": {
       "badAmount": "Weka kiasi zaidi ya sifuri",
       "tooMuch": "Hiki ni zaidi ya kinachodaiwa bado ({amount})"
-    }
+    },
+    "method": "Jinsi ilivyolipwa",
+    "supplierDescription": "Ipunguze kwenye unachomdai {name}, au rekodi pesa aliyokulipa. Bado anadaiwa: {amount}."
   },
   "deliver": {
     "title": "Kabidhi {number}?",
     "description": "Bidhaa zinatoka kwenye stoku ya {shop} sasa na {name} anadaiwa ankara hii. Fanya hivi bidhaa zikitoka kweli.",
     "descriptionNoStock": "{name} anadaiwa ankara hii kuanzia sasa. Fanya hivi kazi ikikamilika.",
-    "confirm": "Weka imekabidhiwa"
+    "confirm": "Weka imekabidhiwa",
+    "supplierTitle": "Mtoze msambazaji {number}?",
+    "supplierDescription": "{name} anadaiwa hii kuanzia sasa: inapunguzwa kwenye unachomdai. Bidhaa zilizo humu zinatoka kwenye stoku ya {shop} sasa."
   },
   "voidPayment": {
     "title": "Ghairi malipo haya?",
@@ -216,5 +225,8 @@
     "pdfSaved": "PDF imehifadhiwa",
     "pdfSavedToShare": "PDF imehifadhiwa. Itume kutoka kwenye faili zako.",
     "pdfFailed": "Imeshindwa kuandaa PDF"
+  },
+  "supplier": {
+    "newInvoice": "Mtoze msambazaji huyu"
   }
 }

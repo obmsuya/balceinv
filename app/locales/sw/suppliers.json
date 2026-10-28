@@ -72,7 +72,9 @@
       "opening_balance": "Deni la zamani",
       "purchase": "Stoku imefika",
       "payment": "Malipo",
-      "return": "Imerudishwa"
+      "return": "Imerudishwa",
+      "invoice": "Ankara kwa msambazaji",
+      "receipt": "Pesa kutoka kwa msambazaji"
     },
     "documentTitle": "Mwenendo wa akaunti ya msambazaji"
   },
@@ -191,7 +193,9 @@
       "partly_received": "Imefika sehemu",
       "received": "Imefika yote",
       "cancelled": "Imeghairiwa"
-    }
+    },
+    "pdf": "PDF",
+    "share": "Tuma"
   },
   "reason": {
     "label": "Kwa nini?",
@@ -231,6 +235,9 @@
     "orderSent": "Oda imewekwa kuwa imetumwa",
     "orderSendFailed": "Imeshindwa kuweka oda kuwa imetumwa",
     "orderCancelled": "Oda imeghairiwa",
-    "orderCancelFailed": "Imeshindwa kughairi oda"
+    "orderCancelFailed": "Imeshindwa kughairi oda",
+    "orderPdfSaved": "Oda imehifadhiwa",
+    "orderPdfSavedToShare": "Oda imehifadhiwa. Itume kutoka kwenye faili zako",
+    "orderPdfFailed": "Imeshindwa kuhifadhi oda"
   }
 }

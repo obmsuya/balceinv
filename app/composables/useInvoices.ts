@@ -1,5 +1,5 @@
 import { toast } from 'vue-sonner'
-import { saveFile } from '~/utils/download'
+import { saveFile, sharePdf } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type InvoiceKind = 'invoice' | 'proforma' | 'quotation' | 'delivery_note' | 'supplier_invoice'
@@ -149,6 +149,13 @@ export const invoicePageSize = 50
 
 export const customerInvoiceKinds: InvoiceKind[] = ['invoice', 'proforma', 'quotation', 'delivery_note']
 
+export const supplierInvoiceMethods: InvoicePaymentMethod[] = ['offset', 'cash', 'bank', 'mobile']
+
+export const availableInvoiceKinds = (customersOn: boolean, suppliersOn: boolean): InvoiceKind[] => [
+  ...(customersOn ? customerInvoiceKinds : []),
+  ...(suppliersOn ? ['supplier_invoice' as InvoiceKind] : []),
+]
+
 export const invoiceStateFilters: InvoiceStateFilter[] = ['', 'unpaid', 'part_paid', 'overdue', 'paid', 'draft', 'cancelled']
 
 export const isBill = (invoice: Pick<Invoice, 'kind'>): boolean => invoice.kind === 'invoice' || invoice.kind === 'supplier_invoice'
@@ -178,12 +185,13 @@ export const invoiceBadgeVariant: Record<InvoiceBadgeTone, 'default' | 'secondar
   issued: 'default',
 }
 
-export type InvoiceListTab = 'invoice' | 'offers' | 'delivery_note'
+export type InvoiceListTab = 'invoice' | 'offers' | 'delivery_note' | 'supplier_invoice'
 
 export const invoiceListTabKinds: Record<InvoiceListTab, InvoiceKind[]> = {
   invoice: ['invoice'],
   offers: ['quotation', 'proforma'],
   delivery_note: ['delivery_note'],
+  supplier_invoice: ['supplier_invoice'],
 }
 
 export const invoiceFileName = (invoiceNumber: string): string => `${invoiceNumber.replace(/[^A-Za-z0-9._-]/g, '-')}.pdf`
@@ -311,19 +319,8 @@ export const useInvoices = () => {
     downloading.value = true
     try {
       const documentBytes = await fetchInvoicePdfBytes(invoiceId, language)
-      const documentFileName = invoiceFileName(invoiceNumber)
-      const documentFile = new File([documentBytes], documentFileName, { type: 'application/pdf' })
-      const canShareFile = typeof navigator.canShare === 'function' && navigator.canShare({ files: [documentFile] })
-      if (canShareFile) {
-        try {
-          await navigator.share({ files: [documentFile], title: invoiceNumber })
-          return
-        } catch (shareError: any) {
-          if (shareError?.name === 'AbortError') return
-        }
-      }
-      const savedName = await saveFile(documentBytes, documentFileName, pdfFilter())
-      if (savedName) toast.success(t('invoices.toasts.pdfSavedToShare'), { description: savedName })
+      const outcome = await sharePdf(documentBytes, invoiceFileName(invoiceNumber), invoiceNumber, pdfFilter())
+      if (!outcome.shared && outcome.savedName) toast.success(t('invoices.toasts.pdfSavedToShare'), { description: outcome.savedName })
     } catch (error: any) {
       toast.error(apiErrorMessage(error, 'invoices.toasts.pdfFailed'))
     } finally {

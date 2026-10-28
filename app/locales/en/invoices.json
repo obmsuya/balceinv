@@ -19,7 +19,8 @@
   "tabs": {
     "invoice": "Invoices",
     "delivery_note": "Delivery notes",
-    "offers": "Quotes"
+    "offers": "Quotes",
+    "supplier_invoice": "Suppliers"
   },
   "stateFilter": {
     "all": "Everything",
@@ -80,7 +81,8 @@
     "notes": "Notes",
     "terms": "Terms",
     "balanceDue": "Balance due",
-    "status": "Status"
+    "status": "Status",
+    "supplier": "Supplier"
   },
   "editor": {
     "newTitle": "New {kind}",
@@ -118,8 +120,10 @@
       "badQuantity": "Enter a whole number above zero for line {line}",
       "badPrice": "Enter a price for line {line}",
       "badDiscount": "The discount on line {line} is more than the line",
-      "dueBeforeIssue": "The due date cannot be before the date"
-    }
+      "dueBeforeIssue": "The due date cannot be before the date",
+      "chooseSupplier": "Choose a supplier first"
+    },
+    "chooseSupplier": "Choose a supplier"
   },
   "preview": {
     "title": "Preview",
@@ -156,7 +160,8 @@
     "accept": "Customer accepted",
     "makeInvoice": "Make invoice",
     "makeDeliveryNote": "Make delivery note",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "chargeSupplier": "Charge the supplier"
   },
   "payment": {
     "title": "Payment for {number}",
@@ -169,13 +174,17 @@
     "errors": {
       "badAmount": "Enter an amount above zero",
       "tooMuch": "This is more than what is still owed ({amount})"
-    }
+    },
+    "method": "How it was settled",
+    "supplierDescription": "Take it off what you owe {name}, or record money they paid you. Still owed: {amount}."
   },
   "deliver": {
     "title": "Deliver {number}?",
     "description": "The products leave {shop} stock now and {name} owes this invoice. Do this when the goods actually go out.",
     "descriptionNoStock": "{name} owes this invoice from now. Do this when the work is done.",
-    "confirm": "Mark delivered"
+    "confirm": "Mark delivered",
+    "supplierTitle": "Charge {number} to the supplier?",
+    "supplierDescription": "{name} owes this from now: it comes off what you owe them. Products on it leave {shop} stock now."
   },
   "voidPayment": {
     "title": "Cancel this payment?",
@@ -216,5 +225,8 @@
     "pdfSaved": "PDF saved",
     "pdfSavedToShare": "PDF saved. Send it from your files.",
     "pdfFailed": "The PDF could not be made"
+  },
+  "supplier": {
+    "newInvoice": "Bill this supplier"
   }
 }
