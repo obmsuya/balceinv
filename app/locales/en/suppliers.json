@@ -72,7 +72,9 @@
       "opening_balance": "Already owed",
       "purchase": "Stock arrived",
       "payment": "Payment",
-      "return": "Returned"
+      "return": "Returned",
+      "invoice": "Invoice to the supplier",
+      "receipt": "Money from the supplier"
     },
     "documentTitle": "Supplier statement"
   },
@@ -191,7 +193,9 @@
       "partly_received": "Part arrived",
       "received": "All arrived",
       "cancelled": "Cancelled"
-    }
+    },
+    "pdf": "PDF",
+    "share": "Share"
   },
   "reason": {
     "label": "Why?",
@@ -231,6 +235,9 @@
     "orderSent": "Order marked as sent",
     "orderSendFailed": "Failed to mark the order as sent",
     "orderCancelled": "Order cancelled",
-    "orderCancelFailed": "Failed to cancel the order"
+    "orderCancelFailed": "Failed to cancel the order",
+    "orderPdfSaved": "Order saved",
+    "orderPdfSavedToShare": "Order saved. Send it from your files",
+    "orderPdfFailed": "The order could not be saved"
   }
 }

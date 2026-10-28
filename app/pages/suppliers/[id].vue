@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ClipboardPlus, Eye, FileSpreadsheet, FileText, Mail, MessageCircle, PackageMinus, PackagePlus, Pencil, Phone, Power, Wallet } from 'lucide-vue-next'
+import { ArrowLeft, ClipboardPlus, Eye, FilePlus2, FileSpreadsheet, FileText, Mail, MessageCircle, PackageMinus, PackagePlus, Pencil, Phone, Power, Wallet } from 'lucide-vue-next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import InvoiceEditorDialog from '@/components/invoices/InvoiceEditorDialog.vue'
 import OrderFormDialog from '@/components/suppliers/OrderFormDialog.vue'
 import OrdersPanel from '@/components/suppliers/OrdersPanel.vue'
 import PaySupplierDialog from '@/components/suppliers/PaySupplierDialog.vue'
@@ -36,7 +37,7 @@ const supplierId = String(route.params.id)
 
 const { t, formatDate } = useI18n()
 const { canCreate, canEdit, canDelete, canView } = usePermissions()
-const { purchaseOrdersOn } = useFeatures()
+const { purchaseOrdersOn, invoicesOn } = useFeatures()
 const { fetchSupplier, fetchStatement, saveSupplier, deactivateSupplier, saving, loading } = useSuppliers()
 
 const supplier = ref<Supplier | null>(null)
@@ -51,6 +52,8 @@ const showPay = ref(false)
 const showArrived = ref(false)
 const showReturn = ref(false)
 const showOrderForm = ref(false)
+const showInvoiceEditor = ref(false)
+const canBillSupplier = computed(() => invoicesOn.value && canCreate('invoices'))
 const showDeactivate = ref(false)
 
 const purchasesPanel = ref<InstanceType<typeof PurchasesPanel> | null>(null)
@@ -158,6 +161,7 @@ onMounted(reloadAll)
         <Button v-if="supplier.is_active && canCreate('purchases')" variant="outline" @click="showArrived = true"><PackagePlus /> {{ t('suppliers.page.recordArrived') }}</Button>
         <Button v-if="canEdit('purchases')" variant="outline" @click="showReturn = true"><PackageMinus /> {{ t('suppliers.detail.returnStock') }}</Button>
         <Button v-if="supplier.is_active && purchaseOrdersOn && canEdit('purchases')" variant="outline" @click="showOrderForm = true"><ClipboardPlus /> {{ t('suppliers.page.newOrder') }}</Button>
+        <Button v-if="supplier.is_active && canBillSupplier" variant="outline" @click="showInvoiceEditor = true"><FilePlus2 /> {{ t('invoices.supplier.newInvoice') }}</Button>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -279,6 +283,7 @@ onMounted(reloadAll)
       <StockArrivedDialog v-model:open="showArrived" :supplier-id="supplier.id" @saved="reloadAll" />
       <ReturnStockDialog v-model:open="showReturn" :supplier="supplier" @returned="reloadAll" />
       <OrderFormDialog v-if="purchaseOrdersOn" v-model:open="showOrderForm" :supplier="supplier" @saved="reloadAll" />
+      <InvoiceEditorDialog v-if="canBillSupplier" v-model:open="showInvoiceEditor" preset-kind="supplier_invoice" :preset-supplier-id="supplierId" @saved="reloadAll" @issued="reloadAll" />
 
       <AlertDialog v-model:open="showDeactivate">
         <AlertDialogContent>

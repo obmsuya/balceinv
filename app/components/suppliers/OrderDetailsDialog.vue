@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ban, PackageCheck, Send } from 'lucide-vue-next'
+import { Ban, FileDown, PackageCheck, Send, Share2 } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -18,7 +18,7 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { t, formatDate, formatDateTime } = useI18n()
 const { canCreate, canEdit, canDelete } = usePermissions()
-const { fetchOrder, sendOrder, cancelOrder, saving } = useSuppliers()
+const { fetchOrder, sendOrder, cancelOrder, saving, downloadingOrder, downloadOrderPdf, shareOrderPdf } = useSuppliers()
 
 const order = ref<PurchaseOrder | null>(null)
 const showCancel = ref(false)
@@ -94,6 +94,11 @@ const onReceived = async () => {
           <span>{{ t('suppliers.orders.expectedTotal') }}</span>
           <span class="tabular-nums">{{ formatMoney(order.expected_total) }}</span>
         </p>
+
+        <div class="flex flex-wrap gap-2">
+          <Button variant="outline" :disabled="downloadingOrder" @click="shareOrderPdf(order.id, order.order_number)"><Share2 /> {{ t('suppliers.orders.share') }}</Button>
+          <Button variant="outline" :disabled="downloadingOrder" @click="downloadOrderPdf(order.id, order.order_number)"><FileDown /> {{ t('suppliers.orders.pdf') }}</Button>
+        </div>
 
         <div v-if="isOpenOrder" class="flex flex-wrap gap-2">
           <Button v-if="canCreate('purchases')" @click="showReceive = true"><PackageCheck /> {{ t('suppliers.orders.receive') }}</Button>
