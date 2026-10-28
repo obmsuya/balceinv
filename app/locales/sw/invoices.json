@@ -1,0 +1,225 @@
+{
+  "page": {
+    "title": "Ankara",
+    "subtitle": "Dai wateja, tuma nukuu za bei na hati za kupokelea, na uone kinachodaiwa bado.",
+    "new": "Mpya",
+    "searchPlaceholder": "Tafuta kwa namba, mteja au namba ya oda yao",
+    "stateFilter": "Onyesha",
+    "noMatch": "Hakuna kinacholingana",
+    "emptyTitle": "Bado hakuna ankara",
+    "emptyBody": "Andaa ankara mteja akilipa baadaye, au nukuu ya bei kabla hajaamua. Kila moja hutoka na nembo yako na jinsi ya kulipa.",
+    "firstInvoice": "Andaa ankara yako ya kwanza"
+  },
+  "summary": {
+    "owed": "Unachodai",
+    "owedCount": "Kwenye ankara {count}",
+    "overdue": "Zilizochelewa",
+    "overdueCount": "{count} zimepita tarehe ya kulipa",
+    "nothingOverdue": "Hakuna iliyochelewa",
+    "paidThisMonth": "Zilizolipwa mwezi huu",
+    "awaitingDelivery": "Ankara {count} zinasubiri kukabidhiwa"
+  },
+  "tabs": {
+    "all": "Zote",
+    "invoice": "Ankara",
+    "proforma": "Za awali",
+    "quotation": "Nukuu za bei",
+    "delivery_note": "Hati za kupokelea"
+  },
+  "stateFilter": {
+    "all": "Kila kitu",
+    "unpaid": "Hazijalipwa",
+    "part_paid": "Zimelipwa kiasi",
+    "overdue": "Zilizochelewa",
+    "paid": "Zimelipwa",
+    "draft": "Rasimu",
+    "cancelled": "Zilizoghairiwa"
+  },
+  "kind": {
+    "invoice": "Ankara",
+    "proforma": "Ankara ya awali",
+    "quotation": "Nukuu ya bei",
+    "delivery_note": "Hati ya kupokelea",
+    "supplier_invoice": "Ankara kwa msambazaji"
+  },
+  "kindHelp": {
+    "invoice": "Dai mteja anayelipa sasa au baadaye",
+    "proforma": "Bei anayoweza kulipia kabla hujakabidhi",
+    "quotation": "Bei kwa mteja kukubali",
+    "delivery_note": "Orodha ya bidhaa bila bei, husainiwa zikipokelewa"
+  },
+  "badge": {
+    "paid": "Imelipwa",
+    "part_paid": "Imelipwa kiasi",
+    "unpaid": "Haijalipwa",
+    "overdue": "Imechelewa",
+    "draft": "Rasimu",
+    "accepted": "Imekubaliwa",
+    "cancelled": "Imeghairiwa",
+    "issued": "Imetumwa"
+  },
+  "paymentMethod": {
+    "cash": "Taslimu",
+    "card": "Kadi",
+    "mobile": "Pesa ya simu",
+    "bank": "Benki",
+    "offset": "Imetolewa kwenye tunachodaiwa"
+  },
+  "fields": {
+    "number": "Namba",
+    "customer": "Mteja",
+    "billTo": "Kwa",
+    "preparedFor": "Imeandaliwa kwa",
+    "deliverTo": "Peleka kwa",
+    "issueDate": "Tarehe",
+    "dueDate": "Tarehe ya kulipa",
+    "validUntil": "Inatumika hadi",
+    "reference": "Namba ya oda yao (LPO)",
+    "lines": "Bidhaa",
+    "description": "Maelezo",
+    "quantity": "Idadi",
+    "unit": "Kipimo",
+    "unitPrice": "Bei ya kipande",
+    "discount": "Punguzo",
+    "subtotal": "Jumla ndogo",
+    "notes": "Maelezo",
+    "terms": "Masharti",
+    "balanceDue": "Kinachodaiwa",
+    "status": "Hali"
+  },
+  "editor": {
+    "newTitle": "{kind} mpya",
+    "editTitle": "{kind} {number}",
+    "type": "Aina",
+    "help": {
+      "invoice": "Stoku haibadiliki hadi uweke kuwa bidhaa zimekabidhiwa. Malipo yanaweza kurekodiwa kabla au baada.",
+      "proforma": "Bei ambayo mteja anaweza kulipia. Ibadilishe kuwa ankara akikubali.",
+      "quotation": "Bei kwa mteja kukubali. Ibadilishe kuwa ankara kwa kubofya mara moja.",
+      "delivery_note": "Orodha ya bidhaa kwa dereva, bila bei. Stoku haibadiliki.",
+      "supplier_invoice": "Ankara unayomtumia msambazaji."
+    },
+    "chooseCustomer": "Chagua au ongeza mteja",
+    "dueDefault": "Acha wazi kutumia siku zako za kawaida za kulipa",
+    "referencePlaceholder": "mfano: LPO-4471",
+    "addTypedLine": "Ongeza mstari wa kuandika",
+    "searchPlaceholder": "Ongeza bidhaa kwa jina au SKU",
+    "noLinesYet": "Ongeza bidhaa kutoka stoku, au mstari wa kuandika kwa huduma kama usafiri au ufundi.",
+    "descriptionPlaceholder": "Ni kwa ajili ya nini?",
+    "fromProduct": "Kutoka kwenye bidhaa zako",
+    "inShop": "{quantity} {unit} dukani hapa",
+    "removeLine": "Ondoa mstari {line}",
+    "addDiscount": "Punguzo",
+    "pricesIncludeVat": "Bei zinajumuisha VAT",
+    "notesPlaceholder": "Huonekana kwenye hati, mfano maelekezo ya kupeleka",
+    "termsPlaceholder": "Masharti ya malipo",
+    "termsDefaultPlaceholder": "Acha wazi kutumia masharti yako ya kawaida kutoka Mipangilio",
+    "close": "Funga",
+    "saveDraft": "Hifadhi rasimu",
+    "saveAndIssue": "Hifadhi na tuma",
+    "errors": {
+      "chooseCustomer": "Chagua mteja kwanza",
+      "noLines": "Ongeza angalau bidhaa moja",
+      "noDescription": "Andika mstari {line} ni kwa ajili ya nini",
+      "badQuantity": "Weka namba nzima zaidi ya sifuri kwa mstari {line}",
+      "badPrice": "Weka bei kwa mstari {line}",
+      "badDiscount": "Punguzo la mstari {line} ni zaidi ya mstari wenyewe",
+      "dueBeforeIssue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati"
+    }
+  },
+  "preview": {
+    "title": "Tazama",
+    "emptyTitle": "Utaona hati baada ya kuhifadhi rasimu",
+    "emptyBody": "Hifadhi rasimu uone PDF kama mteja atakavyoipata.",
+    "failed": "Imeshindwa kuonyesha hati. Pakua PDF badala yake.",
+    "page": "Ukurasa {page} kati ya {pages}"
+  },
+  "detail": {
+    "title": "Ankara",
+    "downloadPdf": "PDF",
+    "share": "Tuma",
+    "edit": "Hariri",
+    "balanceDue": "Kinachodaiwa",
+    "fullyPaid": "Imelipwa yote",
+    "overdueSince": "Imechelewa tangu {date}",
+    "dueOn": "Ilipwe {date}",
+    "goods": "Bidhaa",
+    "deliveredOn": "Zimekabidhiwa {date}",
+    "notDelivered": "Bado hazijakabidhiwa",
+    "vatIncluded": "VAT {rate}% (imejumuishwa)",
+    "paid": "Imelipwa",
+    "payments": "Malipo",
+    "voided": "imeghairiwa",
+    "voidPayment": "Ghairi malipo haya",
+    "related": "Hati zinazohusiana",
+    "madeFrom": "Kutoka {kind} {number}",
+    "createdBy": "Imeandaliwa na {name} · {date}",
+    "deliveredBy": "Imekabidhiwa na {name} · {date}",
+    "cancelledBy": "Imeghairiwa na {name} · {date}",
+    "issue": "Tuma (weka kuwa imetolewa)",
+    "recordPayment": "Rekodi malipo",
+    "markDelivered": "Weka imekabidhiwa",
+    "accept": "Mteja amekubali",
+    "makeInvoice": "Andaa ankara",
+    "makeDeliveryNote": "Andaa hati ya kupokelea",
+    "cancel": "Ghairi"
+  },
+  "payment": {
+    "title": "Malipo ya {number}",
+    "description": "Kinachodaiwa bado: {amount}.",
+    "beforeDelivery": "Kinachodaiwa bado: {amount}. Bidhaa bado hazijakabidhiwa, kwa hiyo mteja ataonekana amelipa mapema hadi zikabidhiwe.",
+    "amount": "Kiasi ({currency})",
+    "reference": "Kumbukumbu (si lazima)",
+    "referencePlaceholder": "mfano: namba ya M-Pesa",
+    "save": "Rekodi malipo",
+    "errors": {
+      "badAmount": "Weka kiasi zaidi ya sifuri",
+      "tooMuch": "Hiki ni zaidi ya kinachodaiwa bado ({amount})"
+    }
+  },
+  "deliver": {
+    "title": "Kabidhi {number}?",
+    "description": "Bidhaa zinatoka kwenye stoku ya {shop} sasa na {name} anadaiwa ankara hii. Fanya hivi bidhaa zikitoka kweli.",
+    "descriptionNoStock": "{name} anadaiwa ankara hii kuanzia sasa. Fanya hivi kazi ikikamilika.",
+    "confirm": "Weka imekabidhiwa"
+  },
+  "voidPayment": {
+    "title": "Ghairi malipo haya?",
+    "description": "{amount} haitahesabika tena kama imelipwa. Rekodi ya pesa inaghairiwa pia.",
+    "confirm": "Ghairi malipo"
+  },
+  "cancelDialog": {
+    "title": "Ghairi {number}?",
+    "description": "Hati inabaki kwenye orodha kama imeghairiwa. Hakuna kingine kinachobadilika.",
+    "descriptionDelivered": "Bidhaa zinarudi kwenye stoku na mteja hadaiwi tena. Hesabu zinarudishwa.",
+    "confirm": "Ghairi hati"
+  },
+  "customer": {
+    "title": "Ankara",
+    "none": "Bado hakuna ankara za mteja huyu.",
+    "newInvoice": "Ankara mpya",
+    "viewAll": "Ona zote"
+  },
+  "toasts": {
+    "loadFailed": "Imeshindwa kupakia ankara",
+    "invoiceLoadFailed": "Imeshindwa kufungua hati",
+    "saved": "{number} imehifadhiwa",
+    "saveFailed": "Imeshindwa kuhifadhi hati",
+    "issued": "{number} iko tayari kutumwa",
+    "issueFailed": "Imeshindwa kuweka hati kuwa imetumwa",
+    "accepted": "{number} imekubaliwa",
+    "acceptFailed": "Imeshindwa kuweka nukuu kuwa imekubaliwa",
+    "delivered": "{number} imekabidhiwa",
+    "deliverFailed": "Imeshindwa kuweka ankara kuwa imekabidhiwa",
+    "paymentRecorded": "Malipo yamerekodiwa kwenye {number}",
+    "paymentFailed": "Imeshindwa kurekodi malipo",
+    "paymentVoided": "Malipo yameghairiwa kwenye {number}",
+    "paymentVoidFailed": "Imeshindwa kughairi malipo",
+    "converted": "{number} imeandaliwa",
+    "convertFailed": "Imeshindwa kuandaa hati mpya",
+    "cancelled": "{number} imeghairiwa",
+    "cancelFailed": "Imeshindwa kughairi hati",
+    "pdfSaved": "PDF imehifadhiwa",
+    "pdfSavedToShare": "PDF imehifadhiwa. Itume kutoka kwenye faili zako.",
+    "pdfFailed": "Imeshindwa kuandaa PDF"
+  }
+}
