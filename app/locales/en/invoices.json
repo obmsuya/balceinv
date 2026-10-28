@@ -12,28 +12,14 @@
   },
   "summary": {
     "owed": "Owed to you",
-    "owedCount": {
-      "one": "On {count} invoice",
-      "other": "On {count} invoices"
-    },
     "overdue": "Overdue",
-    "overdueCount": {
-      "one": "{count} past its due date",
-      "other": "{count} past their due date"
-    },
-    "nothingOverdue": "Nothing is late",
     "paidThisMonth": "Paid this month",
-    "awaitingDelivery": {
-      "one": "{count} invoice waiting for delivery",
-      "other": "{count} invoices waiting for delivery"
-    }
+    "awaitingTitle": "Waiting for delivery"
   },
   "tabs": {
-    "all": "All",
     "invoice": "Invoices",
-    "proforma": "Proforma",
-    "quotation": "Quotations",
-    "delivery_note": "Delivery notes"
+    "delivery_note": "Delivery notes",
+    "offers": "Quotes"
   },
   "stateFilter": {
     "all": "Everything",

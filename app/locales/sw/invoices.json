@@ -12,28 +12,14 @@
   },
   "summary": {
     "owed": "Unachodai",
-    "owedCount": {
-      "one": "Kwenye ankara {count}",
-      "other": "Kwenye ankara {count}"
-    },
     "overdue": "Zilizochelewa",
-    "overdueCount": {
-      "one": "{count} imepita tarehe ya kulipa",
-      "other": "{count} zimepita tarehe ya kulipa"
-    },
-    "nothingOverdue": "Hakuna iliyochelewa",
     "paidThisMonth": "Zilizolipwa mwezi huu",
-    "awaitingDelivery": {
-      "one": "Ankara {count} inasubiri kukabidhiwa",
-      "other": "Ankara {count} zinasubiri kukabidhiwa"
-    }
+    "awaitingTitle": "Zinasubiri kukabidhiwa"
   },
   "tabs": {
-    "all": "Zote",
     "invoice": "Ankara",
-    "proforma": "Za awali",
-    "quotation": "Nukuu za bei",
-    "delivery_note": "Hati za kupokelea"
+    "delivery_note": "Hati za kupokelea",
+    "offers": "Nukuu"
   },
   "stateFilter": {
     "all": "Kila kitu",
