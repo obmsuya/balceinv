@@ -84,7 +84,8 @@
     "paymentsTab": "Malipo",
     "statementTab": "Mwenendo wa deni",
     "onCredit": "Mkopo",
-    "noPurchases": "Bado hajanunua"
+    "noPurchases": "Bado hajanunua",
+    "inCredit": "Ana salio {amount}"
   },
   "payments": {
     "recordTitle": "Pokea malipo ya deni",
@@ -118,7 +119,8 @@
     "nothing": "Hakuna kilichotokea katika tarehe hizi",
     "creditSale": "Mkopo · risiti {receipt}",
     "payment": "Malipo · {reference}",
-    "documentTitle": "Mwenendo wa deni"
+    "documentTitle": "Mwenendo wa deni",
+    "invoice": "Ankara {number}"
   },
   "whatsapp": {
     "message": "Habari {name}, huu ni ukumbusho wa kirafiki kutoka {shop}. Deni lako kwetu ni {amount}. Tafadhali lipa utakapoweza. Asante!"

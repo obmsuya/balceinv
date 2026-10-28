@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArchiveRestore, ArrowLeft, Eye, FileSpreadsheet, FileText, HandCoins, Mail, MessageCircle, Pencil, Phone, UserX } from 'lucide-vue-next'
+import { ArchiveRestore, ArrowLeft, Eye, FilePlus2, FileSpreadsheet, FileText, HandCoins, Mail, MessageCircle, Pencil, Phone, UserX } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,10 @@ import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerStatusDialog from '@/components/customers/CustomerStatusDialog.vue'
 import RecordPaymentDialog from '@/components/customers/RecordPaymentDialog.vue'
 import DocumentPreviewDialog from '@/components/reports/DocumentPreviewDialog.vue'
+import InvoiceDetailsSheet from '@/components/invoices/InvoiceDetailsSheet.vue'
+import InvoiceEditorDialog from '@/components/invoices/InvoiceEditorDialog.vue'
+import type { Invoice } from '@/composables/useInvoices'
+import { invoiceBadgeClasses, invoiceBadgeTone, isBill } from '@/composables/useInvoices'
 import type { DocumentSource } from '@/composables/useStatements'
 import type { Customer, CustomerPayment, CustomerSale, CustomerStatement, StatementEntry } from '@/composables/useCustomers'
 import { agingBuckets, agingLabel, customerSalePageSize, whatsappReminderUrl } from '@/composables/useCustomers'
@@ -25,8 +29,9 @@ import { openExternal } from '~/utils/openExternal'
 const route = useRoute()
 const { t, formatDate, formatDateTime } = useI18n()
 const { user } = useAuth()
-const { canEdit, canDelete } = usePermissions()
-const { creditSalesOn } = useFeatures()
+const { canView, canCreate, canEdit, canDelete } = usePermissions()
+const { creditSalesOn, invoicesOn } = useFeatures()
+const { invoices: customerInvoices, loading: loadingInvoices, fetchInvoices } = useInvoices()
 const { fetchCustomer, fetchCustomerSales, fetchPayments, fetchStatement, voidPayment, saving } = useCustomers()
 const { openBrowserReceipt } = usePrint()
 
@@ -99,8 +104,41 @@ const refreshMoney = () => {
   if (statement.value) loadStatement()
 }
 
-const statementEntryLabel = (entry: StatementEntry): string =>
-  entry.kind === 'credit_sale' ? t('customers.statement.creditSale', { receipt: entry.reference }) : t('customers.statement.payment', { reference: entry.reference })
+const showsInvoices = computed(() => invoicesOn.value && canView('invoices'))
+const showInvoiceEditor = ref(false)
+const showInvoiceDetails = ref(false)
+const openInvoiceId = ref<string | null>(null)
+const editingInvoice = ref<Invoice | null>(null)
+const invoiceCustomer = computed(() => (customer.value ? { id: customer.value.id, name: customer.value.name, phone: customer.value.phone } : null))
+
+const loadInvoices = () => fetchInvoices({ kind: '', state: '', searchText: '', offset: 0, customerId })
+
+const refreshInvoices = () => {
+  loadInvoices()
+  refreshMoney()
+}
+
+const startInvoice = () => {
+  editingInvoice.value = null
+  showInvoiceEditor.value = true
+}
+
+const openInvoice = (invoiceId: string) => {
+  openInvoiceId.value = invoiceId
+  showInvoiceDetails.value = true
+}
+
+const editInvoice = (invoice: Invoice) => {
+  editingInvoice.value = invoice
+  showInvoiceDetails.value = false
+  showInvoiceEditor.value = true
+}
+
+const statementEntryLabel = (entry: StatementEntry): string => {
+  if (entry.kind === 'credit_sale') return t('customers.statement.creditSale', { receipt: entry.reference })
+  if (entry.kind === 'invoice') return t('customers.statement.invoice', { number: entry.reference })
+  return t('customers.statement.payment', { reference: entry.reference })
+}
 
 const callCustomer = () => {
   if (customer.value?.phone) openExternal(`tel:${customer.value.phone}`)
@@ -135,6 +173,7 @@ const confirmVoid = async () => {
 
 watch(activeTab, tab => {
   if (tab === 'statement' && !statement.value) loadStatement()
+  if (tab === 'invoices') loadInvoices()
 })
 
 onMounted(() => {
@@ -181,6 +220,10 @@ onMounted(() => {
             <HandCoins />
             {{ t('customers.payments.recordTitle') }}
           </Button>
+          <Button v-if="showsInvoices && canCreate('invoices') && customer.is_active" variant="outline" @click="startInvoice">
+            <FilePlus2 />
+            {{ t('invoices.customer.newInvoice') }}
+          </Button>
           <Button v-if="canEdit('customers')" variant="outline" @click="showEditDialog = true">
             <Pencil />
             {{ t('common.actions.edit') }}
@@ -201,7 +244,10 @@ onMounted(() => {
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Card>
           <CardHeader class="pb-2"><CardTitle class="text-sm font-medium">{{ t('customers.detail.owesNow') }}</CardTitle></CardHeader>
-          <CardContent><p class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(customer.balance) }}</p></CardContent>
+          <CardContent>
+            <p v-if="customer.balance < 0" class="text-xl font-bold tabular-nums text-emerald-700 sm:text-2xl dark:text-emerald-400">{{ t('customers.detail.inCredit', { amount: formatMoney(-customer.balance) }) }}</p>
+            <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(customer.balance) }}</p>
+          </CardContent>
         </Card>
         <Card>
           <CardHeader class="pb-2"><CardTitle class="text-sm font-medium">{{ t('customers.detail.overdue') }}</CardTitle></CardHeader>
@@ -252,6 +298,7 @@ onMounted(() => {
               <TabsTrigger value="purchases" class="flex-1 sm:flex-none">{{ t('customers.detail.purchasesTab') }}</TabsTrigger>
               <TabsTrigger value="payments" class="flex-1 sm:flex-none">{{ t('customers.detail.paymentsTab') }}</TabsTrigger>
               <TabsTrigger value="statement" class="flex-1 sm:flex-none">{{ t('customers.detail.statementTab') }}</TabsTrigger>
+              <TabsTrigger v-if="showsInvoices" value="invoices" class="flex-1 sm:flex-none">{{ t('invoices.customer.title') }}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="purchases" class="mt-4 flex flex-col gap-4">
@@ -389,12 +436,43 @@ onMounted(() => {
                 </Table>
               </div>
             </TabsContent>
+
+            <TabsContent v-if="showsInvoices" value="invoices" class="mt-4 flex flex-col gap-3">
+              <div v-if="loadingInvoices && !customerInvoices.length" class="flex flex-col gap-2">
+                <Skeleton v-for="skeletonRow in 3" :key="skeletonRow" class="h-12 w-full" />
+              </div>
+              <div v-else-if="!customerInvoices.length" class="flex flex-col items-center gap-2 py-8 text-center">
+                <FileText class="size-8 text-muted-foreground/50" />
+                <p class="text-sm text-muted-foreground">{{ t('invoices.customer.none') }}</p>
+                <Button v-if="canCreate('invoices') && customer.is_active" size="sm" @click="startInvoice"><FilePlus2 />{{ t('invoices.customer.newInvoice') }}</Button>
+              </div>
+              <div v-else class="flex flex-col divide-y rounded-md border">
+                <button
+                  v-for="invoice in customerInvoices"
+                  :key="invoice.id"
+                  type="button"
+                  class="flex items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-accent"
+                  @click="openInvoice(invoice.id)"
+                >
+                  <div class="min-w-0">
+                    <p class="font-mono text-sm font-medium">{{ invoice.number }}</p>
+                    <p class="text-xs text-muted-foreground">{{ t(`invoices.kind.${invoice.kind}`) }} · {{ formatDate(`${invoice.issue_date}T00:00:00`) }}</p>
+                  </div>
+                  <div class="flex shrink-0 flex-col items-end gap-1">
+                    <span class="text-sm font-semibold tabular-nums" :class="invoice.is_overdue ? 'text-destructive' : ''">{{ isBill(invoice) && invoice.status !== 'cancelled' ? formatMoney(invoice.balance_due) : formatMoney(invoice.total) }}</span>
+                    <Badge :class="invoiceBadgeClasses[invoiceBadgeTone(invoice)]">{{ t(`invoices.badge.${invoiceBadgeTone(invoice)}`) }}</Badge>
+                  </div>
+                </button>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
       <CustomerFormDialog v-model:open="showEditDialog" :customer="customer" @saved="refreshMoney" />
       <RecordPaymentDialog v-model:open="showPaymentDialog" :customer="customer" @recorded="refreshMoney" />
+      <InvoiceEditorDialog v-if="showsInvoices && (canCreate('invoices') || canEdit('invoices'))" v-model:open="showInvoiceEditor" :invoice="editingInvoice" :preset-customer="invoiceCustomer" @saved="refreshInvoices" @issued="invoice => { refreshInvoices(); openInvoice(invoice.id) }" />
+      <InvoiceDetailsSheet v-if="showsInvoices" v-model:open="showInvoiceDetails" :invoice-id="openInvoiceId" @changed="refreshInvoices" @open-invoice="openInvoice" @edit="editInvoice" />
       <CustomerStatusDialog :customer="statusTarget" @changed="changedCustomer => { customer = changedCustomer }" @close="statusTarget = null" />
 
       <Dialog :open="voidTarget !== null" @update:open="isOpen => { if (!isOpen) voidTarget = null }">
