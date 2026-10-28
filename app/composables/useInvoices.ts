@@ -123,7 +123,7 @@ export interface InvoicePaymentInput {
 }
 
 export interface InvoiceFilter {
-  kind: InvoiceKind | ''
+  kinds: InvoiceKind[]
   state: InvoiceStateFilter
   searchText: string
   offset: number
@@ -167,15 +167,23 @@ export const invoiceBadgeTone = (invoice: Pick<Invoice, 'status' | 'payment_stat
   return 'issued'
 }
 
-export const invoiceBadgeClasses: Record<InvoiceBadgeTone, string> = {
-  paid: 'border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
-  part_paid: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300',
-  unpaid: 'border-border bg-transparent text-foreground',
-  overdue: 'border-transparent bg-destructive text-white',
-  draft: 'border-transparent bg-secondary text-secondary-foreground',
-  accepted: 'border-transparent bg-primary/15 text-primary',
-  cancelled: 'border-transparent bg-muted text-muted-foreground line-through',
-  issued: 'border-border bg-transparent text-foreground',
+export const invoiceBadgeVariant: Record<InvoiceBadgeTone, 'default' | 'secondary' | 'outline' | 'destructive'> = {
+  paid: 'secondary',
+  part_paid: 'outline',
+  unpaid: 'default',
+  overdue: 'destructive',
+  draft: 'outline',
+  accepted: 'secondary',
+  cancelled: 'destructive',
+  issued: 'default',
+}
+
+export type InvoiceListTab = 'invoice' | 'offers' | 'delivery_note'
+
+export const invoiceListTabKinds: Record<InvoiceListTab, InvoiceKind[]> = {
+  invoice: ['invoice'],
+  offers: ['quotation', 'proforma'],
+  delivery_note: ['delivery_note'],
 }
 
 export const invoiceFileName = (invoiceNumber: string): string => `${invoiceNumber.replace(/[^A-Za-z0-9._-]/g, '-')}.pdf`
@@ -198,7 +206,7 @@ export const useInvoices = () => {
     try {
       const invoicePage = await apiFetch<ApiEnvelope<Page<Invoice>>>('/api/invoices', {
         query: {
-          kind: filter.kind || undefined,
+          kind: filter.kinds.join(',') || undefined,
           payment: isPaymentFilter ? filter.state : undefined,
           status: isStatusFilter ? filter.state : undefined,
           q: filter.searchText || undefined,

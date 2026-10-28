@@ -24,7 +24,7 @@ import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
 import ReasonDialog from '@/components/suppliers/ReasonDialog.vue'
 import type { CustomerPaymentMethod } from '@/composables/useCustomers'
 import type { Invoice, InvoicePayment } from '@/composables/useInvoices'
-import { invoiceBadgeClasses, invoiceBadgeTone, isBill, isOffer } from '@/composables/useInvoices'
+import { invoiceBadgeTone, invoiceBadgeVariant, isBill, isOffer } from '@/composables/useInvoices'
 import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
 import { openExternal } from '~/utils/openExternal'
 
@@ -164,7 +164,7 @@ const callCustomer = () => {
       <SheetHeader class="border-b p-4 pr-12">
         <SheetTitle class="flex flex-wrap items-center gap-2">
           <span class="font-mono">{{ invoice?.number ?? t('invoices.detail.title') }}</span>
-          <Badge v-if="invoice" :class="invoiceBadgeClasses[badgeTone]">{{ t(`invoices.badge.${badgeTone}`) }}</Badge>
+          <Badge v-if="invoice" :variant="invoiceBadgeVariant[badgeTone]" class="whitespace-nowrap">{{ t(`invoices.badge.${badgeTone}`) }}</Badge>
         </SheetTitle>
         <SheetDescription v-if="invoice">{{ t(`invoices.kind.${invoice.kind}`) }} · {{ invoice.shop_name }}</SheetDescription>
       </SheetHeader>
