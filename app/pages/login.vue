@@ -12,6 +12,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { homePathFor } from '~/utils/homePath'
@@ -26,14 +27,68 @@ const formSchema = toTypedSchema(z.object({
   password: z.string().min(1, { error: () => t('auth.validation.passwordRequired') })
 }))
 
-const { login, isLoading } = useAuth()
+const { login, isLoading, sendResetCode, resetPassword } = useAuth()
+const route = useRoute()
+const isResetting = computed(() => route.path === '/forgot-password')
+const resetStep = ref<'email' | 'code'>('email')
+const resetEmail = ref('')
+const resetCode = ref('')
+const newPassword = ref('')
+const resetBusy = ref(false)
+const resetProblem = ref('')
+const emailAfterReset = useState<string>('auth:email-after-reset', () => '')
 const form = useForm({ validationSchema: formSchema })
 const mounted = ref(false)
 const showPassword = ref(false)
 
 onMounted(() => {
+  if (!isResetting.value && emailAfterReset.value) {
+    form.setFieldValue('email', emailAfterReset.value)
+    emailAfterReset.value = ''
+  }
   setTimeout(() => { mounted.value = true }, 60)
 })
+
+const askForCode = async () => {
+  resetProblem.value = ''
+  if (!/^\S+@\S+\.\S+$/.test(resetEmail.value.trim())) {
+    resetProblem.value = t('auth.validation.emailInvalid')
+    return
+  }
+  resetBusy.value = true
+  try {
+    await sendResetCode(resetEmail.value.trim())
+    resetStep.value = 'code'
+    toast.success(t('auth.reset.toasts.codeSent'))
+  } catch (error: any) {
+    toast.error(t('auth.reset.toasts.codeFailed'), { description: apiErrorMessage(error, 'errors.error') })
+  } finally {
+    resetBusy.value = false
+  }
+}
+
+const setNewPassword = async () => {
+  resetProblem.value = ''
+  if (!/^\d{6}$/.test(resetCode.value.trim())) {
+    resetProblem.value = t('auth.reset.validation.code')
+    return
+  }
+  if (newPassword.value.length < 8) {
+    resetProblem.value = t('auth.reset.validation.password')
+    return
+  }
+  resetBusy.value = true
+  try {
+    await resetPassword({ email: resetEmail.value.trim(), code: resetCode.value.trim(), new_password: newPassword.value })
+    toast.success(t('auth.reset.toasts.changed'))
+    emailAfterReset.value = resetEmail.value.trim()
+    await navigateTo('/login')
+  } catch (error: any) {
+    toast.error(t('auth.reset.toasts.changeFailed'), { description: apiErrorMessage(error, 'errors.error') })
+  } finally {
+    resetBusy.value = false
+  }
+}
 
 const onSubmit = form.handleSubmit(async (values) => {
   try {
@@ -96,7 +151,52 @@ const onSubmit = form.handleSubmit(async (values) => {
       <div class="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-      <div class="form-box">
+      <div v-if="isResetting" class="form-box">
+        <div class="form-head">
+          <h2>{{ t('auth.reset.title') }}</h2>
+          <p>{{ resetStep === 'email' ? t('auth.reset.subtitle') : t('auth.reset.codeSubtitle', { email: resetEmail.trim() }) }}</p>
+        </div>
+
+        <form v-if="resetStep === 'email'" class="fields" @submit.prevent="askForCode">
+          <div class="grid gap-2">
+            <Label for="reset-email">{{ t('auth.form.email') }}</Label>
+            <Input id="reset-email" v-model="resetEmail" type="email" placeholder="you@company.com" autocomplete="email" :disabled="resetBusy" autofocus />
+          </div>
+          <p v-if="resetProblem" class="text-sm text-destructive">{{ resetProblem }}</p>
+          <Button type="submit" class="w-full h-11" :disabled="resetBusy">
+            {{ resetBusy ? t('auth.reset.sending') : t('auth.reset.sendCode') }}
+          </Button>
+        </form>
+
+        <form v-else class="fields" @submit.prevent="setNewPassword">
+          <div class="grid gap-2">
+            <Label for="reset-code">{{ t('auth.reset.code') }}</Label>
+            <Input id="reset-code" v-model="resetCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456" class="tracking-[0.3em] tabular-nums" :disabled="resetBusy" autofocus />
+          </div>
+          <div class="grid gap-2">
+            <Label for="reset-password">{{ t('auth.reset.newPassword') }}</Label>
+            <div class="relative">
+              <Input id="reset-password" v-model="newPassword" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="••••••••" class="pr-10" :disabled="resetBusy" />
+              <button type="button" class="eye-btn" @click="showPassword = !showPassword"
+                :aria-label="showPassword ? t('auth.form.hidePassword') : t('auth.form.showPassword')">
+                <component :is="showPassword ? EyeOff : Eye" class="size-4" />
+              </button>
+            </div>
+          </div>
+          <p v-if="resetProblem" class="text-sm text-destructive">{{ resetProblem }}</p>
+          <Button type="submit" class="w-full h-11" :disabled="resetBusy">
+            {{ resetBusy ? t('auth.reset.saving') : t('auth.reset.setPassword') }}
+          </Button>
+          <p class="text-xs text-muted-foreground">{{ t('auth.reset.noCodeHint') }}</p>
+          <button type="button" class="ghost-link self-start" :disabled="resetBusy" @click="askForCode">{{ t('auth.reset.sendAgain') }}</button>
+        </form>
+
+        <div class="bottom-links">
+          <NuxtLink to="/login" class="setup-link">{{ t('auth.reset.backToSignIn') }}</NuxtLink>
+        </div>
+      </div>
+
+      <div v-else class="form-box">
         <div class="form-head">
           <h2>{{ t('auth.form.title') }}</h2>
           <p>{{ t('auth.form.subtitle') }}</p>

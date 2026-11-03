@@ -176,5 +176,6 @@
   "payment_too_high": "The payment is more than what is still owed",
   "has_payments": "Cancel the payments on this invoice first",
   "cannot_convert": "This document cannot be turned into that",
-  "try_again": "Someone saved at the same moment. Try again."
+  "try_again": "Someone saved at the same moment. Try again.",
+  "invalid_reset_code": "The code is wrong or has expired. Ask for a new one."
 }

@@ -176,5 +176,6 @@
   "payment_too_high": "Malipo ni zaidi ya kinachodaiwa bado",
   "has_payments": "Ghairi malipo ya ankara hii kwanza",
   "cannot_convert": "Hati hii haiwezi kubadilishwa kuwa hiyo",
-  "try_again": "Mtu mwingine amehifadhi wakati huo huo. Jaribu tena."
+  "try_again": "Mtu mwingine amehifadhi wakati huo huo. Jaribu tena.",
+  "invalid_reset_code": "Namba si sahihi au imeisha muda. Omba mpya."
 }

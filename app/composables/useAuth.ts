@@ -198,6 +198,14 @@ export const useAuth = () => {
 
   const checkSetup = async (): Promise<boolean> => (await fetchSetupStatus()).configured
 
+  const sendResetCode = async (email: string): Promise<void> => {
+    await apiFetch<ApiEnvelope<null>>('/api/auth/password-reset/code', { method: 'POST', body: { email } })
+  }
+
+  const resetPassword = async (reset: { email: string; code: string; new_password: string }): Promise<void> => {
+    await apiFetch<ApiEnvelope<null>>('/api/auth/password-reset', { method: 'POST', body: reset })
+  }
+
   return {
     user: readonly(user),
     isLoading: readonly(isLoading),
@@ -205,6 +213,8 @@ export const useAuth = () => {
     logout,
     setup,
     checkSetup,
+    sendResetCode,
+    resetPassword,
     fetchSetupStatus,
     fetchCurrentUser,
     switchShop,
