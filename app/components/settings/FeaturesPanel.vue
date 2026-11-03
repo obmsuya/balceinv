@@ -106,6 +106,13 @@ const save = async () => {
           </div>
           <Switch id="feature-invoices" v-model="draft.invoices_enabled" :disabled="!canChange || (!draft.customers_enabled && !draft.suppliers_enabled)" />
         </div>
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <Label for="feature-winga">{{ t('settings.features.selling.winga') }}</Label>
+            <p class="text-sm text-muted-foreground">{{ t('settings.features.selling.wingaHelp') }}</p>
+          </div>
+          <Switch id="feature-winga" v-model="draft.winga_enabled" :disabled="!canChange" />
+        </div>
       </CardContent>
     </Card>
 

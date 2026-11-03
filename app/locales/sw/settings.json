@@ -207,7 +207,9 @@
       "orders": "Oda za wateja",
       "ordersHelp": "Pokea oda na malipo ya awali, weka stoku pembeni, kisha kamilisha mauzo mteja anapochukua.",
       "invoices": "Ankara na nukuu za bei",
-      "invoicesHelp": "Tuma ankara zenye nembo yako, ankara za awali, nukuu za bei na hati za kupokelea, na fuatilia kinachodaiwa. Inahitaji Wateja au Wasambazaji kuwashwa."
+      "invoicesHelp": "Tuma ankara zenye nembo yako, ankara za awali, nukuu za bei na hati za kupokelea, na fuatilia kinachodaiwa. Inahitaji Wateja au Wasambazaji kuwashwa.",
+      "winga": "Mistari ya winga",
+      "wingaHelp": "Ruhusu kaunta na oda za wateja kuandika mstari wa winga. Unahesabiwa kwenye mauzo na pesa zilizopokelewa, haupunguzi stoku, na sehemu ya winga inahesabiwa kama gharama."
     },
     "accounting": {
       "title": "Uhasibu",

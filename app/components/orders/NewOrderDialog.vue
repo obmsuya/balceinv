@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trash2, UserPlus, UserRound } from 'lucide-vue-next'
+import { Handshake, Trash2, UserPlus, UserRound } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useDebounceFn } from '@vueuse/core'
 import { Button } from '@/components/ui/button'
@@ -9,10 +9,14 @@ import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
+import LineDiscountPopover from '@/components/pos/LineDiscountPopover.vue'
+import LineExtraPopover from '@/components/pos/LineExtraPopover.vue'
+import WingaLineDialog from '@/components/pos/WingaLineDialog.vue'
 import StockProductSearch from '@/components/stock/StockProductSearch.vue'
 import type { CartCustomer } from '@/composables/useCart'
 import type { CustomerPaymentMethod } from '@/composables/useCustomers'
 import type { Order } from '@/composables/useOrders'
+import type { ManualDiscount, SaleQuote, WingaLineInput } from '@/composables/useSales'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
 import { currencyCode, formatMoney, inputTextToMinor } from '~/utils/money'
@@ -20,6 +24,8 @@ import { currencyCode, formatMoney, inputTextToMinor } from '~/utils/money'
 interface OrderRow {
   level: StockLevel
   quantityText: string
+  manualDiscount: ManualDiscount | null
+  extra: ManualDiscount | null
 }
 
 const emit = defineEmits<{ created: [order: Order] }>()
@@ -29,9 +35,15 @@ const open = defineModel<boolean>('open', { default: false })
 const { t } = useI18n()
 const { createOrder, saving } = useOrders()
 const { quoteSale } = useSales()
+const { wingaOn } = useFeatures()
+const { hasPermission } = usePermissions()
+const canDiscount = computed(() => hasPermission('till_discounts', 'create'))
 
 const customer = ref<CartCustomer | null>(null)
 const rows = ref<OrderRow[]>([])
+const wingaRows = ref<WingaLineInput[]>([])
+const showWingaDialog = ref(false)
+const quote = ref<SaleQuote | null>(null)
 const dueDate = ref('')
 const note = ref('')
 const depositText = ref('')
@@ -48,25 +60,39 @@ const rowQuantity = (row: OrderRow): number | null => {
 
 const orderItems = computed(() => rows.value
   .filter(row => rowQuantity(row) != null)
-  .map(row => ({ product_id: row.level.product_id, quantity: rowQuantity(row)! })))
+  .map(row => ({
+    product_id: row.level.product_id,
+    quantity: rowQuantity(row)!,
+    ...(row.manualDiscount ? { manual_discount: row.manualDiscount } : {}),
+    ...(row.extra ? { extra: row.extra } : {}),
+  })))
 
-const estimatedTotal = computed(() => rows.value.reduce((sum, row) => sum + row.level.price * (rowQuantity(row) ?? 0), 0))
+const wingaTotal = computed(() => wingaRows.value.reduce((sum, wingaRow) => sum + wingaRow.quantity * wingaRow.unit_price, 0))
+const estimatedTotal = computed(() => rows.value.reduce((sum, row) => sum + row.level.price * (rowQuantity(row) ?? 0), 0) + wingaTotal.value)
+const quotedLineTotal = (rowIndex: number): number | null => {
+  const row = rows.value[rowIndex]!
+  const quotedRowIndex = rows.value.filter(candidate => rowQuantity(candidate) != null).indexOf(row)
+  return quotedRowIndex >= 0 ? quote.value?.lines[quotedRowIndex]?.line_total ?? null : null
+}
 const orderTotal = computed(() => quotedTotal.value ?? estimatedTotal.value)
 
 const refreshQuote = useDebounceFn(async () => {
-  if (!orderItems.value.length) {
+  if (!orderItems.value.length && !wingaRows.value.length) {
     quotedTotal.value = null
+    quote.value = null
     return
   }
   try {
-    const quote = await quoteSale(orderItems.value.map(item => ({ ...item, addon_ids: [] })))
-    quotedTotal.value = quote.total
+    const freshQuote = await quoteSale(orderItems.value.map(item => ({ ...item, addon_ids: [] })), wingaRows.value)
+    quote.value = freshQuote
+    quotedTotal.value = freshQuote.total
   } catch {
+    quote.value = null
     quotedTotal.value = null
   }
 }, 250)
 
-watch(orderItems, () => {
+watch([orderItems, wingaRows], () => {
   quotedTotal.value = null
   refreshQuote()
 }, { deep: true })
@@ -75,6 +101,8 @@ watch(open, isOpen => {
   if (!isOpen) return
   customer.value = null
   rows.value = []
+  wingaRows.value = []
+  quote.value = null
   dueDate.value = ''
   note.value = ''
   depositText.value = ''
@@ -83,7 +111,7 @@ watch(open, isOpen => {
 })
 
 const addRow = (level: StockLevel) => {
-  rows.value.push({ level, quantityText: '1' })
+  rows.value.push({ level, quantityText: '1', manualDiscount: null, extra: null })
 }
 
 const submit = async () => {
@@ -91,7 +119,7 @@ const submit = async () => {
     toast.error(t('orders.new.errors.chooseCustomer'))
     return
   }
-  if (!rows.value.length) {
+  if (!rows.value.length && !wingaRows.value.length) {
     toast.error(t('orders.new.errors.noProducts'))
     return
   }
@@ -118,6 +146,7 @@ const submit = async () => {
     const createdOrder = await createOrder({
       customer_id: customer.value.id,
       items: orderItems.value,
+      winga_lines: wingaRows.value,
       due_date: dueDate.value || null,
       note: note.value.trim() || null,
       deposit: depositAmount ? { method: depositMethod.value ?? 'cash', amount: depositAmount } : null,
@@ -158,18 +187,55 @@ const submit = async () => {
           <StockProductSearch :exclude-ids="chosenProductIds" :placeholder="t('orders.new.searchPlaceholder')" @pick="addRow" />
         </div>
 
-        <div v-for="(row, rowIndex) in rows" :key="row.level.product_id" class="flex items-center gap-2 rounded-lg border px-3 py-2">
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium">{{ productLabel(row.level) }}</p>
-            <p class="text-xs text-muted-foreground tabular-nums">{{ formatMoney(row.level.price) }} · {{ t('orders.new.inShop', { quantity: row.level.quantity, unit: row.level.unit }) }}</p>
+        <div v-for="(row, rowIndex) in rows" :key="row.level.product_id" class="flex flex-col gap-2 rounded-lg border px-3 py-2">
+          <div class="flex items-center gap-2">
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium">{{ productLabel(row.level) }}</p>
+              <p class="text-xs text-muted-foreground tabular-nums">{{ formatMoney(row.level.price) }} · {{ t('orders.new.inShop', { quantity: row.level.quantity, unit: row.level.unit }) }}</p>
+            </div>
+            <Input v-model="row.quantityText" inputmode="numeric" class="w-20" :aria-label="t('orders.new.quantityOf', { product: productLabel(row.level) })" />
+            <Button type="button" variant="ghost" size="icon" :aria-label="t('orders.new.remove', { product: productLabel(row.level) })" @click="rows.splice(rowIndex, 1)">
+              <Trash2 class="text-destructive" />
+            </Button>
           </div>
-          <Input v-model="row.quantityText" inputmode="numeric" class="w-20" :aria-label="t('orders.new.quantityOf', { product: productLabel(row.level) })" />
-          <Button type="button" variant="ghost" size="icon" :aria-label="t('orders.new.remove', { product: productLabel(row.level) })" @click="rows.splice(rowIndex, 1)">
+          <div class="flex items-center gap-1">
+            <LineDiscountPopover
+              v-if="canDiscount"
+              :product-name="productLabel(row.level)"
+              :manual-discount="row.manualDiscount"
+              :gross-amount="row.level.price * (rowQuantity(row) ?? 0)"
+              @apply="manualDiscount => row.manualDiscount = manualDiscount"
+            />
+            <LineExtraPopover
+              :product-name="productLabel(row.level)"
+              :extra="row.extra"
+              :list-unit-price="row.level.price"
+              :quantity="rowQuantity(row) ?? 0"
+              @apply="extra => row.extra = extra"
+            />
+            <span v-if="quotedLineTotal(rowIndex) != null" class="ml-auto text-sm font-medium tabular-nums">{{ formatMoney(quotedLineTotal(rowIndex)!) }}</span>
+          </div>
+        </div>
+
+        <div v-for="(wingaRow, wingaIndex) in wingaRows" :key="wingaIndex" class="flex items-center gap-2 rounded-lg border border-amber-500/30 px-3 py-2">
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium">{{ t('pos.winga.badge') }} · {{ wingaRow.name }}</p>
+            <p class="text-xs text-muted-foreground tabular-nums">
+              {{ wingaRow.quantity }} × {{ formatMoney(wingaRow.unit_price) }}<template v-if="wingaRow.winga_share"> · {{ t('pos.winga.shareShort', { amount: formatMoney(wingaRow.winga_share) }) }}</template>
+            </p>
+          </div>
+          <span class="text-sm font-medium tabular-nums">{{ formatMoney(wingaRow.quantity * wingaRow.unit_price) }}</span>
+          <Button type="button" variant="ghost" size="icon" :aria-label="t('pos.winga.remove', { name: wingaRow.name })" @click="wingaRows.splice(wingaIndex, 1)">
             <Trash2 class="text-destructive" />
           </Button>
         </div>
+        <Button v-if="wingaOn" type="button" variant="outline" size="sm" class="self-start" @click="showWingaDialog = true">
+          <Handshake />
+          {{ t('pos.winga.addLine') }}
+        </Button>
+        <WingaLineDialog v-if="wingaOn" v-model:open="showWingaDialog" @add="wingaLine => wingaRows.push(wingaLine)" />
 
-        <div v-if="rows.length" class="flex items-baseline justify-between rounded-lg bg-muted/60 px-3 py-2">
+        <div v-if="rows.length || wingaRows.length" class="flex items-baseline justify-between rounded-lg bg-muted/60 px-3 py-2">
           <span class="text-sm text-muted-foreground">{{ quotedTotal == null ? t('orders.new.aboutTotal') : t('common.fields.total') }}</span>
           <span class="text-xl font-bold tabular-nums">{{ formatMoney(orderTotal) }}</span>
         </div>

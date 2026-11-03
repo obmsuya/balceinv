@@ -58,6 +58,9 @@ names. Add a row here before inventing a new term.
 | category | kundi | kategoria |
 | variant (size, colour) | aina | |
 | add-on | nyongeza | |
+| extra (price added on a till line) | ziada | nyongeza (that is an add-on) |
+| winga (a broker who sells through the shop) | winga | dalali, wakala |
+| reset code (password) | namba ya kubadili nenosiri | |
 | barcode | msimbopau | |
 | SKU | SKU | |
 | unit (pcs, kg) | kipimo | |

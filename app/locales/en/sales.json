@@ -36,7 +36,9 @@
     "a4Invoice": "A4 invoice (PDF)",
     "receiptPdf": "Receipt (PDF)",
     "share": "Share",
-    "cashierDiscount": "Cashier discount −{amount}"
+    "cashierDiscount": "Cashier discount −{amount}",
+    "extraPerItem": "Extra +{amount} each",
+    "wingaShare": "Winga share {amount}"
   },
   "efd": {
     "sending": "Sending to EFD…"

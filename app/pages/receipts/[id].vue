@@ -120,6 +120,13 @@ onMounted(async () => {
           <span>−{{ money(saleLine.manual_discount_amount) }}</span>
         </div>
       </div>
+      <div v-for="(wingaLine, wingaIndex) in receipt.sale.winga_lines ?? []" :key="`winga-${wingaIndex}`" class="mb-1.5">
+        <p class="font-bold">{{ wingaLine.name }}</p>
+        <div class="flex justify-between">
+          <span>{{ wingaLine.quantity }} × {{ money(wingaLine.unit_price) }}</span>
+          <span>{{ money(wingaLine.line_total) }}</span>
+        </div>
+      </div>
 
       <div class="my-2 border-t border-dashed border-black" />
       <div v-if="receipt.sale.discount_total" class="flex justify-between"><span>{{ label('subtotal') }}</span><span>{{ money(receipt.sale.subtotal) }}</span></div>

@@ -1,7 +1,7 @@
 import { useDebounceFn } from '@vueuse/core'
 import { apiErrorMessage, t } from '~/utils/i18n'
 import type { CartLine } from '~/composables/useCart'
-import type { SaleLine, SaleLineInput, SaleQuote } from '~/composables/useSales'
+import type { SaleLine, SaleLineInput, SaleQuote, WingaLineInput } from '~/composables/useSales'
 
 export interface LinePrice {
   amount: number
@@ -27,7 +27,16 @@ export const useTillQuote = () => {
     quantity: cartLine.quantity,
     addon_ids: cartLine.addons.map(addon => addon.id),
     ...(cartLine.manualDiscount ? { manual_discount: cartLine.manualDiscount } : {}),
+    ...(cartLine.extra ? { extra: cartLine.extra } : {}),
   })))
+
+  const wingaItems = computed<WingaLineInput[]>(() => (activeSlot.value.wingaLines ?? []).map(wingaLine => ({
+    name: wingaLine.name,
+    quantity: wingaLine.quantity,
+    unit_price: wingaLine.unitPrice,
+    winga_share: wingaLine.wingaShare,
+  })))
+  const wingaTotal = computed(() => wingaItems.value.reduce((sum, wingaItem) => sum + wingaItem.quantity * wingaItem.unit_price, 0))
 
   const quotedByKey = computed(() => {
     const linesByKey = new Map<string, SaleLine>()
@@ -42,20 +51,23 @@ export const useTillQuote = () => {
     const quotedLine = quotedByKey.value.get(cartLine.key) ?? null
     const inStock = quotedLine?.in_stock ?? null
     const quotedDiscountMatches = (quotedLine?.manual_discount_amount ?? 0) > 0 === Boolean(cartLine.manualDiscount)
-    if (quotedLine && quotedLine.quantity === cartLine.quantity && quotedDiscountMatches) {
+    const quotedExtraMatches = (quotedLine?.extra_unit_amount ?? 0) > 0 === Boolean(cartLine.extra)
+    if (quotedLine && quotedLine.quantity === cartLine.quantity && quotedDiscountMatches && quotedExtraMatches) {
       return { amount: quotedLine.line_total, isExact: true, quoted: quotedLine, inStock }
     }
     if (quotedLine) {
       return { amount: Math.round((quotedLine.line_total / quotedLine.quantity) * cartLine.quantity), isExact: false, quoted: quotedLine, inStock }
     }
     const addonsUnitTotal = cartLine.addons.reduce((sum, addon) => sum + addon.price, 0)
-    return { amount: (cartLine.price + addonsUnitTotal) * cartLine.quantity, isExact: false, quoted: null, inStock }
+    const extraUnitAmount = cartLine.extra?.kind === 'amount' ? cartLine.extra.value : 0
+    return { amount: (cartLine.price + extraUnitAmount + addonsUnitTotal) * cartLine.quantity, isExact: false, quoted: null, inStock }
   }
 
   const linePrices = computed(() => activeSlot.value.lines.map(priceOf))
-  const total = computed(() => linePrices.value.reduce((sum, linePrice) => sum + linePrice.amount, 0))
+  const total = computed(() => linePrices.value.reduce((sum, linePrice) => sum + linePrice.amount, 0) + wingaTotal.value)
   const isExact = computed(() => quote.value !== null
     && quote.value.lines.length === linePrices.value.length
+    && quote.value.winga_lines.length === wingaItems.value.length
     && linePrices.value.every(linePrice => linePrice.isExact))
   const shortLineCount = computed(() => activeSlot.value.lines.filter((cartLine, lineIndex) => {
     const inStock = linePrices.value[lineIndex]?.inStock
@@ -65,8 +77,9 @@ export const useTillQuote = () => {
   const requestQuote = async (): Promise<void> => {
     const generation = ++quoteGeneration
     const requestedItems = cartItems.value
+    const requestedWingaItems = wingaItems.value
     const requestedKeys = activeSlot.value.lines.map(cartLine => cartLine.key)
-    if (!requestedItems.length) {
+    if (!requestedItems.length && !requestedWingaItems.length) {
       quote.value = null
       quotedKeys.value = []
       quoteError.value = ''
@@ -75,7 +88,7 @@ export const useTillQuote = () => {
     }
     quoting.value = true
     try {
-      const freshQuote = await quoteSale(requestedItems)
+      const freshQuote = await quoteSale(requestedItems, requestedWingaItems)
       if (generation !== quoteGeneration) return
       quote.value = freshQuote
       quotedKeys.value = requestedKeys
@@ -98,7 +111,7 @@ export const useTillQuote = () => {
     }
   }
 
-  watch(cartItems, () => {
+  watch([cartItems, wingaItems], () => {
     quoting.value = true
     requestQuoteSoon()
   }, { deep: true })
@@ -108,6 +121,7 @@ export const useTillQuote = () => {
     quoteError,
     quoting,
     cartItems,
+    wingaItems,
     linePrices,
     total,
     isExact,
