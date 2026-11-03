@@ -112,9 +112,21 @@ const printReceipt = () => {
               <Badge v-if="saleLine.discount_name" variant="outline" class="font-normal">{{ saleLine.discount_name }} −{{ formatMoney(saleLine.discount_amount - (saleLine.manual_discount_amount ?? 0)) }}</Badge>
               <Badge v-if="saleLine.refunded_quantity" variant="outline" class="border-amber-500/40 font-normal text-amber-700 dark:text-amber-400">{{ t('sales.refund.lineRefunded', { count: saleLine.refunded_quantity }) }}</Badge>
               <Badge v-if="saleLine.manual_discount_amount" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">{{ t('sales.details.cashierDiscount', { amount: formatMoney(saleLine.manual_discount_amount) }) }}</Badge>
+              <Badge v-if="saleLine.extra_unit_amount" variant="outline" class="border-sky-500/40 font-normal text-sky-700 dark:text-sky-400">{{ t('sales.details.extraPerItem', { amount: formatMoney(saleLine.extra_unit_amount) }) }}</Badge>
             </div>
           </div>
           <span class="shrink-0 font-medium tabular-nums">{{ formatMoney(saleLine.line_total) }}</span>
+        </div>
+        <div v-for="(wingaLine, wingaIndex) in sale.winga_lines ?? []" :key="`winga-${wingaIndex}`" class="flex items-start justify-between gap-3 text-sm">
+          <div class="min-w-0">
+            <p class="font-medium">{{ wingaLine.name }}</p>
+            <p class="text-xs text-muted-foreground tabular-nums">{{ wingaLine.quantity }} × {{ formatMoney(wingaLine.unit_price) }}</p>
+            <div class="mt-1 flex flex-wrap gap-1">
+              <Badge variant="outline" class="border-amber-500/40 font-normal text-amber-700 dark:text-amber-400">{{ t('pos.winga.badge') }}</Badge>
+              <Badge v-if="wingaLine.winga_share" variant="outline" class="font-normal">{{ t('sales.details.wingaShare', { amount: formatMoney(wingaLine.winga_share) }) }}</Badge>
+            </div>
+          </div>
+          <span class="shrink-0 font-medium tabular-nums">{{ formatMoney(wingaLine.line_total) }}</span>
         </div>
 
         <Separator />

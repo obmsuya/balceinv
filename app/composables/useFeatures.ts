@@ -10,6 +10,7 @@ export interface CompanyFeatures {
   credit_sales_enabled: boolean
   customer_orders_enabled: boolean
   invoices_enabled: boolean
+  winga_enabled: boolean
   accounting_mode: AccountingMode
   vat_registered: boolean
   vat_number: string | null
@@ -28,6 +29,7 @@ export const featuresOff: CompanyFeatures = {
   credit_sales_enabled: false,
   customer_orders_enabled: false,
   invoices_enabled: false,
+  winga_enabled: false,
   accounting_mode: 'off',
   vat_registered: false,
   vat_number: null,
@@ -46,6 +48,7 @@ export const useFeatures = () => {
   const creditSalesOn = computed(() => features.value.customers_enabled && features.value.credit_sales_enabled)
   const customerOrdersOn = computed(() => features.value.customers_enabled && features.value.customer_orders_enabled)
   const invoicesOn = computed(() => features.value.invoices_enabled && (features.value.customers_enabled || features.value.suppliers_enabled))
+  const wingaOn = computed(() => features.value.winga_enabled)
   const accountingOn = computed(() => features.value.accounting_mode !== 'off')
   const fullAccountingOn = computed(() => features.value.accounting_mode === 'full')
   const vatOn = computed(() => features.value.vat_registered)
@@ -73,6 +76,7 @@ export const useFeatures = () => {
     creditSalesOn,
     customerOrdersOn,
     invoicesOn,
+    wingaOn,
     accountingOn,
     fullAccountingOn,
     vatOn,

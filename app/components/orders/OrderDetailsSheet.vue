@@ -197,10 +197,21 @@ const callCustomer = () => {
               <p class="text-xs text-muted-foreground tabular-nums">
                 {{ orderLine.quantity }} {{ orderLine.unit }} × {{ formatMoney(orderLine.unit_price) }}
                 <template v-if="orderLine.is_wholesale"> · {{ t('pos.cart.wholesale') }}</template>
-                <template v-if="orderLine.discount_name"> · {{ orderLine.discount_name }} −{{ formatMoney(orderLine.discount_amount) }}</template>
+                <template v-if="orderLine.discount_name"> · {{ orderLine.discount_name }} −{{ formatMoney(orderLine.discount_amount - (orderLine.manual_discount_amount ?? 0)) }}</template>
+                <template v-if="orderLine.manual_discount_amount"> · {{ t('sales.details.cashierDiscount', { amount: formatMoney(orderLine.manual_discount_amount) }) }}</template>
+                <template v-if="orderLine.extra_unit_amount"> · {{ t('sales.details.extraPerItem', { amount: formatMoney(orderLine.extra_unit_amount) }) }}</template>
               </p>
             </div>
             <span class="shrink-0 font-medium tabular-nums">{{ formatMoney(orderLine.line_total) }}</span>
+          </div>
+          <div v-for="(wingaLine, wingaIndex) in order.winga_lines ?? []" :key="`winga-${wingaIndex}`" class="flex items-start justify-between gap-3 text-sm">
+            <div class="min-w-0">
+              <p class="font-medium">{{ t('pos.winga.badge') }} · {{ wingaLine.name }}</p>
+              <p class="text-xs text-muted-foreground tabular-nums">
+                {{ wingaLine.quantity }} × {{ formatMoney(wingaLine.unit_price) }}<template v-if="wingaLine.winga_share"> · {{ t('sales.details.wingaShare', { amount: formatMoney(wingaLine.winga_share) }) }}</template>
+              </p>
+            </div>
+            <span class="shrink-0 font-medium tabular-nums">{{ formatMoney(wingaLine.line_total) }}</span>
           </div>
         </div>
 

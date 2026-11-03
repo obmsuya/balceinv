@@ -1,7 +1,7 @@
 import { toast } from 'vue-sonner'
 import { apiErrorMessage, t } from '~/utils/i18n'
 import type { CustomerPaymentMethod } from '~/composables/useCustomers'
-import type { PaymentInput } from '~/composables/useSales'
+import type { ManualDiscount, PaymentInput, WingaLine, WingaLineInput } from '~/composables/useSales'
 
 export type OrderStatus = 'open' | 'ready' | 'collected' | 'cancelled'
 
@@ -16,6 +16,8 @@ export interface OrderLine {
   is_wholesale: boolean
   discount_name: string | null
   discount_amount: number
+  manual_discount_amount: number
+  extra_unit_amount: number
   line_total: number
 }
 
@@ -47,6 +49,7 @@ export interface Order {
   balance_due: number
   line_count: number
   lines: OrderLine[]
+  winga_lines: WingaLine[]
   payments: OrderPayment[]
   sale_id: string | null
   sale_receipt_number: string | null
@@ -66,7 +69,8 @@ export interface OrderDeposit {
 
 export interface NewOrderFields {
   customer_id: string
-  items: { product_id: string; quantity: number }[]
+  items: { product_id: string; quantity: number; manual_discount?: ManualDiscount; extra?: ManualDiscount }[]
+  winga_lines: WingaLineInput[]
   due_date: string | null
   note: string | null
   deposit: OrderDeposit | null

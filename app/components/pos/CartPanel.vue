@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Grid3x3, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, UserPlus, UserRound, X } from 'lucide-vue-next'
+import { Grid3x3, Handshake, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCart, Trash2, TriangleAlert, UserPlus, UserRound, X } from 'lucide-vue-next'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import NumberPad from '@/components/pos/NumberPad.vue'
 import LineDiscountPopover from '@/components/pos/LineDiscountPopover.vue'
+import LineExtraPopover from '@/components/pos/LineExtraPopover.vue'
+import WingaLineDialog from '@/components/pos/WingaLineDialog.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,12 +36,15 @@ const {
   slotUnitCounts,
   setQuantity,
   setLineDiscount,
+  setLineExtra,
+  addWingaLine,
+  removeWingaLine,
   setNote,
   setCustomer,
   selectSlot,
 } = useCart()
 const { t, formatNumber } = useI18n()
-const { customersOn } = useFeatures()
+const { customersOn, wingaOn } = useFeatures()
 const { hasPermission } = usePermissions()
 const canDiscount = computed(() => hasPermission('till_discounts', 'create'))
 
@@ -50,15 +55,23 @@ const showNumpad = ref(true)
 const flashingKey = ref<string | null>(null)
 const showNote = ref(false)
 const showCustomerPicker = ref(false)
+const showWingaDialog = ref(false)
 let flashTimer: ReturnType<typeof setTimeout> | null = null
 
-const hasLines = computed(() => activeSlot.value.lines.length > 0)
+const wingaLines = computed(() => activeSlot.value.wingaLines ?? [])
+const hasLines = computed(() => activeSlot.value.lines.length > 0 || wingaLines.value.length > 0)
 const canPay = computed(() => hasLines.value && !props.quoteError && props.shortLineCount === 0 && !props.preparingPayment)
 
 const isShort = (lineIndex: number) => {
   const inStock = props.linePrices[lineIndex]?.inStock
   const cartLine = activeSlot.value.lines[lineIndex]
   return inStock != null && cartLine !== undefined && cartLine.quantity > inStock
+}
+
+const listUnitPrice = (lineIndex: number) => {
+  const cartLine = activeSlot.value.lines[lineIndex]!
+  const quotedLine = props.linePrices[lineIndex]?.quoted
+  return quotedLine ? quotedLine.unit_price - quotedLine.extra_unit_amount : cartLine.price
 }
 
 const eachPrice = (lineIndex: number) => {
@@ -279,6 +292,13 @@ watch(activeSlotIndex, () => {
                 :gross-amount="eachPrice(lineIndex) * cartLine.quantity"
                 @apply="manualDiscount => setLineDiscount(cartLine.key, manualDiscount)"
               />
+              <LineExtraPopover
+                :product-name="cartLine.name"
+                :extra="cartLine.extra"
+                :list-unit-price="listUnitPrice(lineIndex)"
+                :quantity="cartLine.quantity"
+                @apply="extra => setLineExtra(cartLine.key, extra)"
+              />
               <Badge v-if="linePrices[lineIndex]?.quoted?.is_wholesale" variant="secondary" class="font-normal">{{ t('pos.cart.wholesale') }}</Badge>
               <Badge v-if="linePrices[lineIndex]?.quoted?.discount_name && (linePrices[lineIndex]?.quoted?.discount_amount ?? 0) > (linePrices[lineIndex]?.quoted?.manual_discount_amount ?? 0)" variant="outline" class="border-emerald-500/40 font-normal text-emerald-700 dark:text-emerald-400">
                 {{ linePrices[lineIndex]?.quoted?.discount_name }}
@@ -290,6 +310,25 @@ watch(activeSlotIndex, () => {
             <TriangleAlert class="size-3.5" />
             {{ t('pos.cart.onlyLeft', { count: linePrices[lineIndex]?.inStock ?? 0, unit: cartLine.unit }) }}
           </p>
+        </li>
+        <li v-for="wingaLine in wingaLines" :key="wingaLine.key" class="flex flex-col gap-1 px-3 py-2.5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="flex items-center gap-1.5 truncate font-medium leading-tight">
+                <Badge variant="outline" class="border-amber-500/40 px-1.5 py-0 text-[10px] font-medium uppercase text-amber-700 dark:text-amber-400">{{ t('pos.winga.badge') }}</Badge>
+                <span class="truncate">{{ wingaLine.name }}</span>
+              </p>
+              <p class="text-xs text-muted-foreground tabular-nums">
+                {{ wingaLine.quantity }} × {{ formatMoney(wingaLine.unitPrice) }}<template v-if="wingaLine.wingaShare"> · {{ t('pos.winga.shareShort', { amount: formatMoney(wingaLine.wingaShare) }) }}</template>
+              </p>
+            </div>
+            <div class="flex shrink-0 items-center gap-1">
+              <span class="font-semibold tabular-nums">{{ formatMoney(wingaLine.quantity * wingaLine.unitPrice) }}</span>
+              <Button variant="ghost" size="icon" class="size-7 text-muted-foreground" :aria-label="t('pos.winga.remove', { name: wingaLine.name })" @click="removeWingaLine(wingaLine.key)">
+                <X />
+              </Button>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -303,6 +342,15 @@ watch(activeSlotIndex, () => {
     </div>
 
     <div class="flex flex-col gap-2 border-t bg-muted/20 p-3">
+      <button v-if="wingaOn" type="button" class="flex items-center gap-1.5 self-start text-xs text-muted-foreground hover:text-foreground" @click="showWingaDialog = true">
+        <Handshake class="size-3.5" />
+        {{ t('pos.winga.addLine') }}
+      </button>
+      <WingaLineDialog
+        v-if="wingaOn"
+        v-model:open="showWingaDialog"
+        @add="wingaLine => addWingaLine({ name: wingaLine.name, quantity: wingaLine.quantity, unitPrice: wingaLine.unit_price, wingaShare: wingaLine.winga_share })"
+      />
       <template v-if="hasLines">
         <div v-if="showNote" class="relative">
           <Textarea

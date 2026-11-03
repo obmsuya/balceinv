@@ -31,7 +31,7 @@ const { publish: publishToDisplay, openDisplay } = useCustomerDisplay()
 const { user } = useAuth()
 const { t } = useI18n()
 const { customersOn } = useFeatures()
-const { quote, quoteError, quoting, cartItems, linePrices, total, isExact, shortLineCount, requestQuote, settleQuote } = useTillQuote()
+const { quote, quoteError, quoting, cartItems, wingaItems, linePrices, total, isExact, shortLineCount, requestQuote, settleQuote } = useTillQuote()
 
 const searchText = ref('')
 const categoryFilter = ref(allCategories)
@@ -137,7 +137,7 @@ const clearCart = () => {
 }
 
 const startPayment = async () => {
-  if (!activeSlot.value.lines.length || preparingPayment.value || showPayment.value) return
+  if (!unitCount.value || preparingPayment.value || showPayment.value) return
   preparingPayment.value = true
   try {
     if (!isExact.value || quoting.value) await settleQuote()
@@ -156,7 +156,7 @@ const startPayment = async () => {
 const completeSale = async (payments: PaymentInput[]) => {
   const clientRef = checkoutReference()
   try {
-    const sale = await createSale(clientRef, cartItems.value, payments, activeSlot.value.note.trim() || null, saleCustomer.value?.id ?? null)
+    const sale = await createSale(clientRef, cartItems.value, payments, activeSlot.value.note.trim() || null, saleCustomer.value?.id ?? null, wingaItems.value)
     showPayment.value = false
     clearActive()
     saleFiscal.value = sale.fiscal
@@ -201,7 +201,11 @@ const displayState = computed(() => {
     name: cartLine.variantLabel ? `${cartLine.name} · ${cartLine.variantLabel}` : cartLine.name,
     quantity: cartLine.quantity,
     amount: formatMoney(linePrices.value[lineIndex]?.amount ?? 0),
-  }))
+  })).concat(wingaItems.value.map(wingaItem => ({
+    name: wingaItem.name,
+    quantity: wingaItem.quantity,
+    amount: formatMoney(wingaItem.quantity * wingaItem.unit_price),
+  })))
   const discountTotal = isExact.value ? quote.value?.discount_total ?? 0 : 0
   return {
     phase: displayLines.length ? 'cart' as const : 'idle' as const,
@@ -240,7 +244,7 @@ onMounted(async () => {
   loadCarts()
   loadProducts()
   fetchCategories()
-  if (cartItems.value.length) requestQuote()
+  if (cartItems.value.length || wingaItems.value.length) requestQuote()
   focusSearch()
   tillOptions.value = await fetchTillOptions()
   if (!tillOptions.value?.efd_enabled) return

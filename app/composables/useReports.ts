@@ -12,6 +12,9 @@ export interface ReportSummary {
   total: number
   tax_total: number
   discount_total: number
+  extra_total: number
+  winga_total: number
+  winga_share_total: number
   net_sales: number
   cost_total: number
   gross_profit: number
