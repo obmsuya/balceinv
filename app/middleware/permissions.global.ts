@@ -30,7 +30,7 @@ const routeFeatures: Record<string, (companyFeatures: CompanyFeatures) => boolea
   '/money': companyFeatures => companyFeatures.accounting_mode !== 'off',
 }
 
-const publicRoutes = ['/', '/login', '/setup', '/unauthorized', '/display']
+const publicRoutes = ['/', '/login', '/forgot-password', '/setup', '/unauthorized', '/display']
 
 export default defineNuxtRouteMiddleware((to) => {
   if (publicRoutes.includes(to.path) || to.path.startsWith('/admin')) return
