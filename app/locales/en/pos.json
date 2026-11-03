@@ -122,5 +122,33 @@
     "takesOff": "Takes {amount} off this line",
     "remove": "Remove",
     "apply": "Apply"
+  },
+  "extra": {
+    "add": "Extra",
+    "title": "Extra on {name}",
+    "percentOn": "Percent on top",
+    "amountOn": "Amount per item ({currency})",
+    "perItem": "The extra is added to each item on this line.",
+    "addsOn": "Adds {amount} to this line",
+    "remove": "Remove",
+    "apply": "Apply"
+  },
+  "winga": {
+    "badge": "Winga",
+    "addLine": "Add winga line",
+    "title": "Winga line",
+    "description": "Something a winga sold through the shop. It counts in the total but takes nothing from stock.",
+    "name": "What was sold",
+    "namePlaceholder": "e.g. Phone case",
+    "quantity": "Quantity",
+    "price": "Price each",
+    "share": "Winga share (optional)",
+    "sharePlaceholder": "Empty if the shop keeps it all",
+    "shareHelp": "What the winga takes from this line. It counts as cost, so profit stays true.",
+    "shareTooHigh": "The share cannot be more than the line total",
+    "lineTotal": "Line total {amount}",
+    "add": "Add to cart",
+    "remove": "Remove {name}",
+    "shareShort": "winga {amount}"
   }
 }

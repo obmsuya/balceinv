@@ -36,7 +36,9 @@
     "a4Invoice": "Ankara A4 (PDF)",
     "receiptPdf": "Risiti (PDF)",
     "share": "Tuma",
-    "cashierDiscount": "Punguzo la keshia −{amount}"
+    "cashierDiscount": "Punguzo la keshia −{amount}",
+    "extraPerItem": "Ziada +{amount} kila moja",
+    "wingaShare": "Sehemu ya winga {amount}"
   },
   "efd": {
     "sending": "Inatuma kwa EFD…"

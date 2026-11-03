@@ -17,6 +17,15 @@ export interface CartLine {
   quantity: number
   addons: CartAddon[]
   manualDiscount?: ManualDiscount | null
+  extra?: ManualDiscount | null
+}
+
+export interface CartWingaLine {
+  key: string
+  name: string
+  quantity: number
+  unitPrice: number
+  wingaShare: number
 }
 
 export interface CartCustomer {
@@ -27,6 +36,7 @@ export interface CartCustomer {
 
 export interface CartSlot {
   lines: CartLine[]
+  wingaLines?: CartWingaLine[]
   clientRef: string | null
   note: string
   customer?: CartCustomer | null
@@ -70,8 +80,10 @@ export const useCart = () => {
   const numpadBuffer = useState<string>('pos:numpad-buffer', () => '')
 
   const activeSlot = computed(() => slots.value[activeSlotIndex.value]!)
-  const unitCount = computed(() => activeSlot.value.lines.reduce((sum, line) => sum + line.quantity, 0))
-  const slotUnitCounts = computed(() => slots.value.map(slot => slot.lines.reduce((sum, line) => sum + line.quantity, 0)))
+  const unitsIn = (slot: CartSlot) => slot.lines.reduce((sum, line) => sum + line.quantity, 0)
+    + (slot.wingaLines ?? []).reduce((sum, wingaLine) => sum + wingaLine.quantity, 0)
+  const unitCount = computed(() => unitsIn(activeSlot.value))
+  const slotUnitCounts = computed(() => slots.value.map(unitsIn))
 
   const loadCarts = () => {
     slots.value = readSlots(storageKey.value)
@@ -112,6 +124,23 @@ export const useCart = () => {
     const cartLine = activeSlot.value.lines.find(line => line.key === key)
     if (!cartLine) return
     cartLine.manualDiscount = manualDiscount
+    touch()
+  }
+
+  const setLineExtra = (key: string, extra: ManualDiscount | null) => {
+    const cartLine = activeSlot.value.lines.find(line => line.key === key)
+    if (!cartLine) return
+    cartLine.extra = extra
+    touch()
+  }
+
+  const addWingaLine = (wingaLine: Omit<CartWingaLine, 'key'>) => {
+    activeSlot.value.wingaLines = [...(activeSlot.value.wingaLines ?? []), { ...wingaLine, key: randomReference() }]
+    touch()
+  }
+
+  const removeWingaLine = (key: string) => {
+    activeSlot.value.wingaLines = (activeSlot.value.wingaLines ?? []).filter(wingaLine => wingaLine.key !== key)
     touch()
   }
 
@@ -171,6 +200,9 @@ export const useCart = () => {
     addLine,
     setQuantity,
     setLineDiscount,
+    setLineExtra,
+    addWingaLine,
+    removeWingaLine,
     clearActive,
     restoreSlot,
     setNote,

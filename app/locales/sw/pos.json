@@ -122,5 +122,33 @@
     "takesOff": "Inapunguza {amount} kwenye bidhaa hii",
     "remove": "Ondoa",
     "apply": "Weka"
+  },
+  "extra": {
+    "add": "Ziada",
+    "title": "Ziada kwa {name}",
+    "percentOn": "Asilimia ya ziada",
+    "amountOn": "Kiasi kwa kila bidhaa ({currency})",
+    "perItem": "Ziada inaongezwa kwa kila bidhaa kwenye mstari huu.",
+    "addsOn": "Inaongeza {amount} kwenye bidhaa hii",
+    "remove": "Ondoa",
+    "apply": "Weka"
+  },
+  "winga": {
+    "badge": "Winga",
+    "addLine": "Ongeza mstari wa winga",
+    "title": "Mstari wa winga",
+    "description": "Kitu ambacho winga ameuza kupitia duka. Kinahesabiwa kwenye jumla lakini hakipunguzi stoku.",
+    "name": "Kilichouzwa",
+    "namePlaceholder": "mf. Kava la simu",
+    "quantity": "Idadi",
+    "price": "Bei ya kimoja",
+    "share": "Sehemu ya winga (si lazima)",
+    "sharePlaceholder": "Acha wazi kama duka linabaki na yote",
+    "shareHelp": "Anachochukua winga kwenye mstari huu. Kinahesabiwa kama gharama, hivyo faida inabaki sahihi.",
+    "shareTooHigh": "Sehemu haiwezi kuzidi jumla ya mstari",
+    "lineTotal": "Jumla ya mstari {amount}",
+    "add": "Weka kwenye kikapu",
+    "remove": "Ondoa {name}",
+    "shareShort": "winga {amount}"
   }
 }

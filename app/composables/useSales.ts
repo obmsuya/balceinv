@@ -17,6 +17,18 @@ export interface SaleLineInput {
   quantity: number
   addon_ids: string[]
   manual_discount?: ManualDiscount
+  extra?: ManualDiscount
+}
+
+export interface WingaLineInput {
+  name: string
+  quantity: number
+  unit_price: number
+  winga_share: number
+}
+
+export interface WingaLine extends WingaLineInput {
+  line_total: number
 }
 
 export interface PaymentInput {
@@ -46,6 +58,7 @@ export interface SaleLine {
   discount_name: string | null
   discount_amount: number
   manual_discount_amount: number
+  extra_unit_amount: number
   line_total: number
   in_stock?: number
 }
@@ -80,6 +93,7 @@ export const fiscalStatusLabel = (status: FiscalStatus): string => t(`sales.fisc
 
 export interface SaleQuote {
   lines: SaleLine[]
+  winga_lines: WingaLine[]
   subtotal: number
   discount_total: number
   total: number
@@ -112,6 +126,7 @@ export interface Sale {
   order_number: string | null
   created_at: string
   items: SaleLine[]
+  winga_lines: WingaLine[]
   payments: PaymentInput[]
   fiscal: SaleFiscal | null
   voided_at: string | null
@@ -232,20 +247,20 @@ export const useSales = () => {
   const loading = ref(false)
   const saving = ref(false)
 
-  const quoteSale = async (items: SaleLineInput[]): Promise<SaleQuote> => {
+  const quoteSale = async (items: SaleLineInput[], wingaLines: WingaLineInput[] = []): Promise<SaleQuote> => {
     const quoteResponse = await apiFetch<ApiEnvelope<SaleQuote>>('/api/sales/quote', {
       method: 'POST',
-      body: { items },
+      body: { items, winga_lines: wingaLines },
     })
     return quoteResponse.data
   }
 
-  const createSale = async (clientRef: string, items: SaleLineInput[], payments: PaymentInput[], note: string | null, customerId: string | null): Promise<Sale> => {
+  const createSale = async (clientRef: string, items: SaleLineInput[], payments: PaymentInput[], note: string | null, customerId: string | null, wingaLines: WingaLineInput[] = []): Promise<Sale> => {
     saving.value = true
     try {
       const saleResponse = await apiFetch<ApiEnvelope<Sale>>('/api/sales', {
         method: 'POST',
-        body: { client_ref: clientRef, items, payments, note, customer_id: customerId ?? undefined },
+        body: { client_ref: clientRef, items, winga_lines: wingaLines.length ? wingaLines : undefined, payments, note, customer_id: customerId ?? undefined },
       })
       return saleResponse.data
     } finally {
