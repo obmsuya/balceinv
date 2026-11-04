@@ -82,6 +82,14 @@
     "previous": "Previous",
     "next": "Next"
   },
+  "help": {
+    "extraTitle": "Extra",
+    "extraText": "Raises this line's price, for example in a busy market or when someone brought the customer. The customer pays it, and Reports → Brk and Extra lists it.",
+    "brkTitle": "Brk line",
+    "brkText": "Brk (brokerage) records something sold through the shop that is not your stock, like an item fetched from another shop. It takes nothing from stock, and the customer sees only the item name.",
+    "brkShareTitle": "Brk share",
+    "brkShareText": "The part of this line that is paid out, to the broker or the other shop. It counts as cost and shows in Reports → Brk and Extra for the evening count."
+  },
   "language": {
     "label": "Language",
     "en": "English",

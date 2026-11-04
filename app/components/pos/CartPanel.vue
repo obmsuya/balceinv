@@ -3,6 +3,7 @@ import { Grid3x3, Handshake, LoaderCircle, Minus, NotebookPen, Plus, ShoppingCar
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import NumberPad from '@/components/pos/NumberPad.vue'
 import LineDiscountPopover from '@/components/pos/LineDiscountPopover.vue'
+import HelpTip from '@/components/HelpTip.vue'
 import LineExtraPopover from '@/components/pos/LineExtraPopover.vue'
 import WingaLineDialog from '@/components/pos/WingaLineDialog.vue'
 import type { NumberPadKey } from '@/components/pos/NumberPad.vue'
@@ -342,10 +343,13 @@ watch(activeSlotIndex, () => {
     </div>
 
     <div class="flex flex-col gap-2 border-t bg-muted/20 p-3">
-      <button v-if="wingaOn" type="button" class="flex items-center gap-1.5 self-start text-xs text-muted-foreground hover:text-foreground" @click="showWingaDialog = true">
-        <Handshake class="size-3.5" />
-        {{ t('pos.winga.addLine') }}
-      </button>
+      <div v-if="wingaOn" class="flex items-center gap-1 self-start">
+        <button type="button" class="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" @click="showWingaDialog = true">
+          <Handshake class="size-3.5" />
+          {{ t('pos.winga.addLine') }}
+        </button>
+        <HelpTip :title="t('common.help.brkTitle')" :text="t('common.help.brkText')" />
+      </div>
       <WingaLineDialog
         v-if="wingaOn"
         v-model:open="showWingaDialog"
