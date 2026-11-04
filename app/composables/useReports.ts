@@ -30,6 +30,9 @@ export interface ReportDay {
   tax_total: number
   cost_total: number
   gross_profit: number
+  extra_total: number
+  winga_total: number
+  winga_share_total: number
 }
 
 export interface ReportProduct {
