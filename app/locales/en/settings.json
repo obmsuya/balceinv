@@ -208,8 +208,8 @@
       "ordersHelp": "Take an order with a deposit, keep the stock aside, and finish the sale when they collect.",
       "invoices": "Invoices and quotations",
       "invoicesHelp": "Send branded invoices, proforma invoices, quotations and delivery notes, and track what is still owed. Needs Customers or Suppliers on.",
-      "winga": "Winga lines",
-      "wingaHelp": "Let the till and customer orders take a typed line for a winga. It counts in sales and the cash taken, takes nothing from stock, and the winga share counts as cost."
+      "winga": "Brk lines",
+      "wingaHelp": "Brk (brokerage) lets the till and customer orders take a typed line for something that is not your stock. It counts in sales and the cash taken, takes nothing from stock, and the Brk share counts as cost. Customers see only the item name."
     },
     "accounting": {
       "title": "Accounting",
