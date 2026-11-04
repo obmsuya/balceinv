@@ -134,21 +134,21 @@
     "apply": "Apply"
   },
   "winga": {
-    "badge": "Winga",
-    "addLine": "Add winga line",
-    "title": "Winga line",
-    "description": "Something a winga sold through the shop. It counts in the total but takes nothing from stock.",
+    "badge": "Brk",
+    "addLine": "Add Brk line",
+    "title": "Brk line",
+    "description": "Something sold through the shop that is not your stock, like an item fetched from another shop. It counts in the total but takes nothing from stock.",
     "name": "What was sold",
     "namePlaceholder": "e.g. Phone case",
     "quantity": "Quantity",
     "price": "Price each",
-    "share": "Winga share (optional)",
+    "share": "Brk share (optional)",
     "sharePlaceholder": "Empty if the shop keeps it all",
-    "shareHelp": "What the winga takes from this line. It counts as cost, so profit stays true.",
+    "shareHelp": "The part paid out from this line, to the broker or the other shop. It counts as cost, so profit stays true.",
     "shareTooHigh": "The share cannot be more than the line total",
     "lineTotal": "Line total {amount}",
     "add": "Add to cart",
     "remove": "Remove {name}",
-    "shareShort": "winga {amount}"
+    "shareShort": "Brk {amount}"
   }
 }
