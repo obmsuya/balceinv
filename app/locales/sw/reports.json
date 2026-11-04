@@ -109,7 +109,7 @@
     },
     "daily": {
       "title": "Mauzo kwa siku",
-      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na Brk zikiwepo."
+      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na winga zikiwepo."
     },
     "products": {
       "title": "Bidhaa zilizouzwa",
@@ -117,11 +117,11 @@
     },
     "staff": {
       "title": "Mauzo kwa mfanyakazi",
-      "description": "Idadi ya mauzo ya kila mtu na kiasi alichokusanya, pamoja na Ziada na Brk yake."
+      "description": "Idadi ya mauzo ya kila mtu na kiasi alichokusanya, pamoja na Ziada na winga yake."
     },
     "brkExtra": {
-      "title": "Brk na Ziada",
-      "description": "Kila mstari wa Ziada na Brk pamoja na risiti na mfanyakazi, kwa hesabu ya jioni na malipo."
+      "title": "Winga na Ziada",
+      "description": "Kila mstari wa Ziada na winga pamoja na risiti na mfanyakazi, kwa hesabu ya jioni na malipo."
     },
     "shops": {
       "title": "Mauzo kwa duka",

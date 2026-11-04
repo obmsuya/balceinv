@@ -59,7 +59,7 @@ names. Add a row here before inventing a new term.
 | variant (size, colour) | aina | |
 | add-on | nyongeza | |
 | extra (price added on a till line) | ziada | nyongeza (that is an add-on) |
-| Brk (brokerage line: sold through the shop, not our stock) | Brk | winga, dalali, wakala (customers must not understand it) |
+| Brk (brokerage line: sold through the shop, not our stock; English shows "Brk") | winga | dalali, wakala, Brk |
 | reset code (password) | namba ya kubadili nenosiri | |
 | barcode | msimbopau | |
 | SKU | SKU | |
