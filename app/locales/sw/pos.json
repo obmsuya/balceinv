@@ -106,7 +106,8 @@
     "cartCleared": "Kikapu kimefutwa",
     "undo": "Tendua",
     "saleOffline": "Mauzo hayajafika kwenye seva. Jaribu tena; hayatarekodiwa mara mbili.",
-    "saleFailed": "Imeshindwa kukamilisha mauzo"
+    "saleFailed": "Imeshindwa kukamilisha mauzo",
+    "saleAlreadySaved": "Mauzo haya yalishahifadhiwa kabla mtandao haujakatika. Kikapu kimesafishwa; fungua Mauzo kuyaona au kuchapisha risiti."
   },
   "customer": {
     "add": "Ongeza mteja",

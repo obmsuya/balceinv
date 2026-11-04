@@ -106,7 +106,8 @@
     "cartCleared": "Cart cleared",
     "undo": "Undo",
     "saleOffline": "The sale did not reach the server. Try again; it will not be charged twice.",
-    "saleFailed": "The sale failed"
+    "saleFailed": "The sale failed",
+    "saleAlreadySaved": "This sale was already saved before the connection dropped. The cart is cleared; open Sales to see it or print the receipt."
   },
   "customer": {
     "add": "Add customer",
