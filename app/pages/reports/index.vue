@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { BookOpen, Boxes, CalendarDays, Eye, FileSpreadsheet, FileText, HandCoins, Landmark, PackageX, Receipt, Scale, ShoppingBag, Store, TrendingUp, Truck, Users, Wallet } from 'lucide-vue-next'
+import { BookOpen, Boxes, CalendarDays, Coins, Eye, FileSpreadsheet, FileText, HandCoins, Landmark, PackageX, Receipt, Scale, ShoppingBag, Store, TrendingUp, Truck, Users, Wallet } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -104,6 +104,7 @@ const reportRows = computed<ReportRow[]>(() => {
       salesRow('daily', 'reports.list.daily', CalendarDays),
       salesRow('products', 'reports.list.products', ShoppingBag),
       salesRow('cashiers', 'reports.list.staff', Users),
+      salesRow('brk-extra', 'reports.list.brkExtra', Coins),
     )
     if (shopScope.value === allShopsScope && shopChoices.value.length > 1) rows.push(salesRow('shops', 'reports.list.shops', Store))
     rows.push(stockRow('inventory', 'reports.list.stockOnHand', Boxes), stockRow('dead-stock', 'reports.list.notSelling', PackageX))

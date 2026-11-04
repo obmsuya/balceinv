@@ -109,7 +109,7 @@
     },
     "daily": {
       "title": "Sales per day",
-      "description": "Every day in the period with its sales, takings, cost and profit."
+      "description": "Every day in the period with its sales, takings, cost and profit, plus Extra and Brk when there are any."
     },
     "products": {
       "title": "Products sold",
@@ -117,7 +117,11 @@
     },
     "staff": {
       "title": "Sales per staff member",
-      "description": "How many sales each person made and how much they took."
+      "description": "How many sales each person made and how much they took, plus their Extra and Brk."
+    },
+    "brkExtra": {
+      "title": "Brk and Extra",
+      "description": "Every Extra and Brk line with its receipt and staff member, for the evening count and paying out."
     },
     "shops": {
       "title": "Sales per shop",
