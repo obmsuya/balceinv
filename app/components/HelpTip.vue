@@ -21,7 +21,7 @@ defineProps<{
         <CircleHelp class="size-3.5" />
       </button>
     </PopoverTrigger>
-    <PopoverContent class="w-64 space-y-1 text-sm" side="top" @click.stop>
+    <PopoverContent class="z-[60] w-64 space-y-1 text-sm" side="top" @click.stop>
       <p class="font-medium">{{ title }}</p>
       <p class="text-muted-foreground">{{ text }}</p>
     </PopoverContent>
