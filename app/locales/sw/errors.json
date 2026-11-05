@@ -177,8 +177,8 @@
   "has_payments": "Ghairi malipo ya ankara hii kwanza",
   "cannot_convert": "Hati hii haiwezi kubadilishwa kuwa hiyo",
   "try_again": "Mtu mwingine amehifadhi wakati huo huo. Jaribu tena.",
-  "winga_off": "Mistari ya Brk imezimwa. Iwashe kwenye Mipangilio → Vipengele.",
-  "invalid_winga_line": "Ipe mstari wa Brk jina, na sehemu isizidi jumla ya mstari.",
+  "winga_off": "Mistari ya winga imezimwa. Iwashe kwenye Mipangilio → Vipengele.",
+  "invalid_winga_line": "Ipe mstari wa winga jina, na sehemu isizidi jumla ya mstari.",
   "empty_sale": "Ongeza angalau bidhaa moja.",
   "invalid_reset_code": "Namba si sahihi au imeisha muda. Omba mpya."
 }

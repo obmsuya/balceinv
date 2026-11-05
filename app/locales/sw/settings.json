@@ -208,8 +208,8 @@
       "ordersHelp": "Pokea oda na malipo ya awali, weka stoku pembeni, kisha kamilisha mauzo mteja anapochukua.",
       "invoices": "Ankara na nukuu za bei",
       "invoicesHelp": "Tuma ankara zenye nembo yako, ankara za awali, nukuu za bei na hati za kupokelea, na fuatilia kinachodaiwa. Inahitaji Wateja au Wasambazaji kuwashwa.",
-      "winga": "Mistari ya Brk",
-      "wingaHelp": "Brk (udalali) inaruhusu kaunta na oda za wateja kuandika mstari wa kitu ambacho si stoku yako. Unahesabiwa kwenye mauzo na pesa zilizopokelewa, haupunguzi stoku, na sehemu ya Brk inahesabiwa kama gharama. Mteja anaona jina la kitu tu."
+      "winga": "Mistari ya winga",
+      "wingaHelp": "Winga inaruhusu kaunta na oda za wateja kuandika mstari wa kitu ambacho si stoku yako. Unahesabiwa kwenye mauzo na pesa zilizopokelewa, haupunguzi stoku, na sehemu ya winga inahesabiwa kama gharama. Mteja anaona jina la kitu tu."
     },
     "accounting": {
       "title": "Uhasibu",

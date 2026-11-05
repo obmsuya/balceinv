@@ -135,21 +135,21 @@
     "apply": "Weka"
   },
   "winga": {
-    "badge": "Brk",
-    "addLine": "Ongeza mstari wa Brk",
-    "title": "Mstari wa Brk",
+    "badge": "Winga",
+    "addLine": "Ongeza mstari wa winga",
+    "title": "Mstari wa winga",
     "description": "Kitu kilichouzwa kupitia duka ambacho si stoku yako, kama bidhaa iliyochukuliwa duka lingine. Kinahesabiwa kwenye jumla lakini hakipunguzi stoku.",
     "name": "Kilichouzwa",
     "namePlaceholder": "mf. Kava la simu",
     "quantity": "Idadi",
     "price": "Bei ya kimoja",
-    "share": "Sehemu ya Brk (si lazima)",
+    "share": "Sehemu ya winga (si lazima)",
     "sharePlaceholder": "Acha wazi kama duka linabaki na yote",
-    "shareHelp": "Kiasi kinacholipwa kutoka kwenye mstari huu, kwa dalali au duka lingine. Kinahesabiwa kama gharama, hivyo faida inabaki sahihi.",
+    "shareHelp": "Kiasi kinacholipwa kutoka kwenye mstari huu, kwa winga au duka lingine. Kinahesabiwa kama gharama, hivyo faida inabaki sahihi.",
     "shareTooHigh": "Sehemu haiwezi kuzidi jumla ya mstari",
     "lineTotal": "Jumla ya mstari {amount}",
     "add": "Weka kwenye kikapu",
     "remove": "Ondoa {name}",
-    "shareShort": "Brk {amount}"
+    "shareShort": "winga {amount}"
   }
 }
