@@ -169,6 +169,7 @@
   "line_description_required": "Write what each typed line is for",
   "line_price_required": "Give each typed line a price",
   "discount_too_high": "A line discount cannot be more than the line",
+  "invoice_price_locked": "A product's price cannot be changed on an invoice. Use Discount or Extra.",
   "due_before_issue": "The due date cannot be before the date",
   "not_draft": "Only a draft can be changed",
   "not_a_bill": "Only invoices can be delivered or paid",
