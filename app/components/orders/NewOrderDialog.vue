@@ -76,7 +76,9 @@ const quotedLineTotal = (rowIndex: number): number | null => {
 }
 const orderTotal = computed(() => quotedTotal.value ?? estimatedTotal.value)
 
+let quoteGeneration = 0
 const refreshQuote = useDebounceFn(async () => {
+  const generation = quoteGeneration
   if (!orderItems.value.length && !wingaRows.value.length) {
     quotedTotal.value = null
     quote.value = null
@@ -84,15 +86,18 @@ const refreshQuote = useDebounceFn(async () => {
   }
   try {
     const freshQuote = await quoteSale(orderItems.value.map(item => ({ ...item, addon_ids: [] })), wingaRows.value)
+    if (generation !== quoteGeneration) return
     quote.value = freshQuote
     quotedTotal.value = freshQuote.total
   } catch {
+    if (generation !== quoteGeneration) return
     quote.value = null
     quotedTotal.value = null
   }
 }, 250)
 
 watch([orderItems, wingaRows], () => {
+  quoteGeneration++
   quotedTotal.value = null
   refreshQuote()
 }, { deep: true })

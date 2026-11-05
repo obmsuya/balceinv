@@ -18,17 +18,20 @@ export const useTillQuote = () => {
 
   const quote = ref<SaleQuote | null>(null)
   const quotedKeys = ref<string[]>([])
+  const quotedRequests = ref<string[]>([])
+  const quotedWingaRequest = ref('')
   const quoteError = ref('')
   const quoting = ref(false)
   let quoteGeneration = 0
 
-  const cartItems = computed<SaleLineInput[]>(() => activeSlot.value.lines.map(cartLine => ({
+  const lineRequest = (cartLine: CartLine): SaleLineInput => ({
     product_id: cartLine.productId,
     quantity: cartLine.quantity,
     addon_ids: cartLine.addons.map(addon => addon.id),
     ...(cartLine.manualDiscount ? { manual_discount: cartLine.manualDiscount } : {}),
     ...(cartLine.extra ? { extra: cartLine.extra } : {}),
-  })))
+  })
+  const cartItems = computed<SaleLineInput[]>(() => activeSlot.value.lines.map(lineRequest))
 
   const wingaItems = computed<WingaLineInput[]>(() => (activeSlot.value.wingaLines ?? []).map(wingaLine => ({
     name: wingaLine.name,
@@ -39,20 +42,19 @@ export const useTillQuote = () => {
   const wingaTotal = computed(() => wingaItems.value.reduce((sum, wingaItem) => sum + wingaItem.quantity * wingaItem.unit_price, 0))
 
   const quotedByKey = computed(() => {
-    const linesByKey = new Map<string, SaleLine>()
+    const linesByKey = new Map<string, { line: SaleLine, request: string }>()
     quotedKeys.value.forEach((lineKey, lineIndex) => {
       const quotedLine = quote.value?.lines[lineIndex]
-      if (quotedLine) linesByKey.set(lineKey, quotedLine)
+      if (quotedLine) linesByKey.set(lineKey, { line: quotedLine, request: quotedRequests.value[lineIndex] ?? '' })
     })
     return linesByKey
   })
 
   const priceOf = (cartLine: CartLine): LinePrice => {
-    const quotedLine = quotedByKey.value.get(cartLine.key) ?? null
+    const quotedEntry = quotedByKey.value.get(cartLine.key)
+    const quotedLine = quotedEntry?.line ?? null
     const inStock = quotedLine?.in_stock ?? null
-    const quotedDiscountMatches = (quotedLine?.manual_discount_amount ?? 0) > 0 === Boolean(cartLine.manualDiscount)
-    const quotedExtraMatches = (quotedLine?.extra_unit_amount ?? 0) > 0 === Boolean(cartLine.extra)
-    if (quotedLine && quotedLine.quantity === cartLine.quantity && quotedDiscountMatches && quotedExtraMatches) {
+    if (quotedLine && quotedEntry?.request === JSON.stringify(lineRequest(cartLine))) {
       return { amount: quotedLine.line_total, isExact: true, quoted: quotedLine, inStock }
     }
     if (quotedLine) {
@@ -67,7 +69,7 @@ export const useTillQuote = () => {
   const total = computed(() => linePrices.value.reduce((sum, linePrice) => sum + linePrice.amount, 0) + wingaTotal.value)
   const isExact = computed(() => quote.value !== null
     && quote.value.lines.length === linePrices.value.length
-    && quote.value.winga_lines.length === wingaItems.value.length
+    && quotedWingaRequest.value === JSON.stringify(wingaItems.value)
     && linePrices.value.every(linePrice => linePrice.isExact))
   const shortLineCount = computed(() => activeSlot.value.lines.filter((cartLine, lineIndex) => {
     const inStock = linePrices.value[lineIndex]?.inStock
@@ -82,6 +84,8 @@ export const useTillQuote = () => {
     if (!requestedItems.length && !requestedWingaItems.length) {
       quote.value = null
       quotedKeys.value = []
+      quotedRequests.value = []
+      quotedWingaRequest.value = ''
       quoteError.value = ''
       quoting.value = false
       return
@@ -92,6 +96,8 @@ export const useTillQuote = () => {
       if (generation !== quoteGeneration) return
       quote.value = freshQuote
       quotedKeys.value = requestedKeys
+      quotedRequests.value = requestedItems.map(requestedItem => JSON.stringify(requestedItem))
+      quotedWingaRequest.value = JSON.stringify(requestedWingaItems)
       quoteError.value = ''
     } catch (error: any) {
       if (generation !== quoteGeneration) return

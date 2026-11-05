@@ -167,6 +167,12 @@ const completeSale = async (payments: PaymentInput[]) => {
     const nextSaleElement = nextSaleButton.value?.$el as HTMLButtonElement | undefined
     nextSaleElement?.focus()
   } catch (error: any) {
+    if (error?.data?.code === 'client_ref_reused') {
+      showPayment.value = false
+      clearActive()
+      toast.warning(t('pos.toasts.saleAlreadySaved'))
+      return
+    }
     const isOffline = !error?.status && !error?.statusCode
     toast.error(isOffline ? t('pos.toasts.saleOffline') : apiErrorMessage(error, 'pos.toasts.saleFailed'))
     if (!isOffline) {
