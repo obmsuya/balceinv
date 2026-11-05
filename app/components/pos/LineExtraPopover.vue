@@ -71,6 +71,7 @@ const remove = () => {
           ? 'border-sky-500/40 text-sky-700 hover:bg-sky-500/10 dark:text-sky-400'
           : 'border-dashed text-muted-foreground hover:bg-muted hover:text-foreground'"
         :aria-label="t('pos.extra.title', { name: productName })"
+        :title="t('common.help.extraText')"
         @click.stop
       >
         <TrendingUp class="size-3" />
@@ -78,7 +79,10 @@ const remove = () => {
       </button>
     </PopoverTrigger>
     <PopoverContent class="w-72 space-y-3" align="end" @click.stop>
-      <p class="text-sm font-semibold">{{ t('pos.extra.title', { name: productName }) }}</p>
+      <div>
+        <p class="text-sm font-semibold">{{ t('pos.extra.title', { name: productName }) }}</p>
+        <p class="mt-0.5 text-xs text-muted-foreground">{{ t('common.help.extraText') }}</p>
+      </div>
       <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
         <button
           v-for="choice in [{ kind: 'amount', label: currencyCode(), icon: Tag }, { kind: 'percent', label: t('pos.discount.percent'), icon: Percent }]"

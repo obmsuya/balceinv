@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MoneyInput from '@/components/MoneyInput.vue'
 import { Button } from '@/components/ui/button'
+import HelpTip from '@/components/HelpTip.vue'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -65,7 +66,10 @@ const add = () => {
           </div>
         </div>
         <div class="grid gap-1.5">
-          <Label for="winga-share">{{ t('pos.winga.share') }}</Label>
+          <div class="flex items-center gap-1">
+            <Label for="winga-share">{{ t('pos.winga.share') }}</Label>
+            <HelpTip :title="t('common.help.brkShareTitle')" :text="t('common.help.brkShareText')" />
+          </div>
           <MoneyInput id="winga-share" v-model="shareText" :placeholder="t('pos.winga.sharePlaceholder')" />
           <p class="text-xs" :class="shareTooHigh ? 'text-destructive' : 'text-muted-foreground'">
             {{ shareTooHigh ? t('pos.winga.shareTooHigh') : t('pos.winga.shareHelp') }}

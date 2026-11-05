@@ -82,6 +82,14 @@
     "previous": "Iliyotangulia",
     "next": "Inayofuata"
   },
+  "help": {
+    "extraTitle": "Ziada",
+    "extraText": "Inaongeza bei ya mstari huu, kwa mfano soko likiwa na wateja wengi au mtu akileta mteja. Mteja analipa, na inaonekana kwenye Ripoti → Winga na Ziada.",
+    "brkTitle": "Mstari wa winga",
+    "brkText": "Winga ni kitu kilichouzwa kupitia duka ambacho si stoku yako, kama bidhaa iliyochukuliwa duka lingine. Haipunguzi stoku, na mteja anaona jina la kitu tu.",
+    "brkShareTitle": "Sehemu ya winga",
+    "brkShareText": "Sehemu ya mstari huu inayolipwa, kwa winga au duka lingine. Inahesabiwa kama gharama na inaonekana kwenye Ripoti → Winga na Ziada kwa hesabu ya jioni."
+  },
   "language": {
     "label": "Lugha",
     "en": "English",

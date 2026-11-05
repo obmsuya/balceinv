@@ -2,6 +2,7 @@
 import { Handshake, Trash2, UserPlus, UserRound } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useDebounceFn } from '@vueuse/core'
+import HelpTip from '@/components/HelpTip.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -234,10 +235,13 @@ const submit = async () => {
             <Trash2 class="text-destructive" />
           </Button>
         </div>
-        <Button v-if="wingaOn" type="button" variant="outline" size="sm" class="self-start" @click="showWingaDialog = true">
-          <Handshake />
-          {{ t('pos.winga.addLine') }}
-        </Button>
+        <div v-if="wingaOn" class="flex items-center gap-1 self-start">
+          <Button type="button" variant="outline" size="sm" @click="showWingaDialog = true">
+            <Handshake />
+            {{ t('pos.winga.addLine') }}
+          </Button>
+          <HelpTip :title="t('common.help.brkTitle')" :text="t('common.help.brkText')" />
+        </div>
         <WingaLineDialog v-if="wingaOn" v-model:open="showWingaDialog" @add="wingaLine => wingaRows.push(wingaLine)" />
 
         <div v-if="rows.length || wingaRows.length" class="flex items-baseline justify-between rounded-lg bg-muted/60 px-3 py-2">
