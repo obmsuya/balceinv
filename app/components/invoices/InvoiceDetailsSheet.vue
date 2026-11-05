@@ -217,10 +217,14 @@ const callCustomer = () => {
         <div class="flex flex-col gap-2">
           <div v-for="line in invoice.lines" :key="line.id" class="flex items-start justify-between gap-3 text-sm">
             <div class="min-w-0">
-              <p class="font-medium">{{ line.description }}</p>
+              <p class="font-medium">
+                <Badge v-if="line.is_winga" variant="outline" class="mr-1 border-amber-500/40 px-1.5 py-0 font-normal text-amber-700 dark:text-amber-400">{{ t('pos.winga.badge') }}</Badge>{{ line.description }}
+              </p>
               <p class="text-xs tabular-nums text-muted-foreground">
                 {{ line.quantity }} {{ line.unit }}<template v-if="invoice.kind !== 'delivery_note'"> × {{ formatMoney(line.unit_price) }}</template>
+                <template v-if="line.extra_unit_amount"> · {{ t('invoices.detail.extraEach', { amount: formatMoney(line.extra_unit_amount) }) }}</template>
                 <template v-if="line.discount_amount"> · −{{ formatMoney(line.discount_amount) }}</template>
+                <template v-if="line.winga_share"> · {{ t('pos.winga.shareShort', { amount: formatMoney(line.winga_share) }) }}</template>
                 <template v-if="line.sku"> · {{ line.sku }}</template>
               </p>
             </div>

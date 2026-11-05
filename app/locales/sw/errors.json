@@ -169,6 +169,7 @@
   "line_description_required": "Andika kila mstari wa kuandika ni kwa ajili ya nini",
   "line_price_required": "Weka bei kwa kila mstari wa kuandika",
   "discount_too_high": "Punguzo la mstari haliwezi kuzidi mstari wenyewe",
+  "invoice_price_locked": "Bei ya bidhaa haiwezi kubadilishwa kwenye ankara. Tumia Punguzo au Ziada.",
   "due_before_issue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati",
   "not_draft": "Rasimu pekee ndiyo inaweza kubadilishwa",
   "not_a_bill": "Ankara pekee ndizo zinaweza kukabidhiwa au kulipwa",

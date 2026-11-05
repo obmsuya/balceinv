@@ -105,7 +105,6 @@
     "fromProduct": "From your products",
     "inShop": "{quantity} {unit} in this shop",
     "removeLine": "Remove line {line}",
-    "addDiscount": "Discount",
     "pricesIncludeVat": "Prices include VAT",
     "notesPlaceholder": "Shown on the document, e.g. delivery instructions",
     "termsPlaceholder": "Payment terms",
@@ -119,11 +118,14 @@
       "noDescription": "Write what line {line} is for",
       "badQuantity": "Enter a whole number above zero for line {line}",
       "badPrice": "Enter a price for line {line}",
-      "badDiscount": "The discount on line {line} is more than the line",
       "dueBeforeIssue": "The due date cannot be before the date",
-      "chooseSupplier": "Choose a supplier first"
+      "chooseSupplier": "Choose a supplier first",
+      "badShare": "The Brk share on line {line} is more than the line"
     },
-    "chooseSupplier": "Choose a supplier"
+    "chooseSupplier": "Choose a supplier",
+    "pricesLocked": "Product prices come from your products. Change them with Discount or Extra.",
+    "brkHint": "Not your stock. The Brk share counts as cost.",
+    "lineNumber": "Line {line}"
   },
   "preview": {
     "title": "Preview",
@@ -161,7 +163,8 @@
     "makeInvoice": "Make invoice",
     "makeDeliveryNote": "Make delivery note",
     "cancel": "Cancel",
-    "chargeSupplier": "Charge the supplier"
+    "chargeSupplier": "Charge the supplier",
+    "extraEach": "+{amount} each"
   },
   "payment": {
     "title": "Payment for {number}",
@@ -228,5 +231,16 @@
   },
   "supplier": {
     "newInvoice": "Bill this supplier"
+  },
+  "fromOrder": {
+    "title": "Fill from a saved order",
+    "description": "Pick an order. Its customer, items, Discount, Extra and Brk lines fill this document.",
+    "search": "Search by order number or customer",
+    "none": "No orders here",
+    "lines": "{count} lines",
+    "button": "Fill from a saved order",
+    "buttonHint": "Bring in the customer and items of an order you already saved",
+    "filled": "Filled from order {number}. Check it, then save.",
+    "discountsDropped": "The order had discounts, but you are not allowed to give discounts, so they were left out."
   }
 }

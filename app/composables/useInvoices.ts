@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import type { ManualDiscount } from '~/composables/useSales'
 import { saveFile, sharePdf } from '~/utils/download'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
@@ -26,8 +27,11 @@ export interface InvoiceLine {
   unit: string
   quantity: number
   unit_price: number
+  extra_unit_amount: number
   discount_amount: number
   line_total: number
+  is_winga: boolean
+  winga_share: number
 }
 
 export interface InvoicePayment {
@@ -101,7 +105,10 @@ export interface InvoiceLineInput {
   unit: string
   quantity: number
   unit_price?: number
-  discount_amount: number
+  discount?: ManualDiscount
+  extra?: ManualDiscount
+  is_winga?: boolean
+  winga_share?: number
 }
 
 export interface InvoiceFields {

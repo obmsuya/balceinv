@@ -105,7 +105,6 @@
     "fromProduct": "Kutoka kwenye bidhaa zako",
     "inShop": "{quantity} {unit} dukani hapa",
     "removeLine": "Ondoa mstari {line}",
-    "addDiscount": "Punguzo",
     "pricesIncludeVat": "Bei zinajumuisha VAT",
     "notesPlaceholder": "Huonekana kwenye hati, mfano maelekezo ya kupeleka",
     "termsPlaceholder": "Masharti ya malipo",
@@ -119,11 +118,14 @@
       "noDescription": "Andika mstari {line} ni kwa ajili ya nini",
       "badQuantity": "Weka namba nzima zaidi ya sifuri kwa mstari {line}",
       "badPrice": "Weka bei kwa mstari {line}",
-      "badDiscount": "Punguzo la mstari {line} ni zaidi ya mstari wenyewe",
       "dueBeforeIssue": "Tarehe ya kulipa haiwezi kuwa kabla ya tarehe ya hati",
-      "chooseSupplier": "Chagua msambazaji kwanza"
+      "chooseSupplier": "Chagua msambazaji kwanza",
+      "badShare": "Sehemu ya winga kwenye mstari {line} ni zaidi ya mstari"
     },
-    "chooseSupplier": "Chagua msambazaji"
+    "chooseSupplier": "Chagua msambazaji",
+    "pricesLocked": "Bei za bidhaa zinatoka kwenye bidhaa zako. Zibadilishe kwa Punguzo au Ziada.",
+    "brkHint": "Si stoku yako. Sehemu ya winga inahesabiwa kama gharama.",
+    "lineNumber": "Mstari {line}"
   },
   "preview": {
     "title": "Tazama",
@@ -161,7 +163,8 @@
     "makeInvoice": "Andaa ankara",
     "makeDeliveryNote": "Andaa hati ya kupokelea",
     "cancel": "Ghairi",
-    "chargeSupplier": "Mtoze msambazaji"
+    "chargeSupplier": "Mtoze msambazaji",
+    "extraEach": "+{amount} kila kimoja"
   },
   "payment": {
     "title": "Malipo ya {number}",
@@ -228,5 +231,16 @@
   },
   "supplier": {
     "newInvoice": "Mtoze msambazaji huyu"
+  },
+  "fromOrder": {
+    "title": "Jaza kutoka kwenye oda",
+    "description": "Chagua oda. Mteja wake, bidhaa, Punguzo, Ziada na mistari ya winga vitajaza hati hii.",
+    "search": "Tafuta kwa namba ya oda au mteja",
+    "none": "Hakuna oda hapa",
+    "lines": "mistari {count}",
+    "button": "Jaza kutoka kwenye oda iliyohifadhiwa",
+    "buttonHint": "Leta mteja na bidhaa za oda uliyokwisha hifadhi",
+    "filled": "Imejazwa kutoka oda {number}. Ikague, kisha uhifadhi.",
+    "discountsDropped": "Oda ilikuwa na punguzo, lakini huruhusiwi kutoa punguzo, kwa hiyo yameachwa."
   }
 }
