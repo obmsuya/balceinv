@@ -290,7 +290,8 @@ watch(activeSlotIndex, () => {
                 v-if="canDiscount"
                 :product-name="cartLine.name"
                 :manual-discount="cartLine.manualDiscount"
-                :gross-amount="eachPrice(lineIndex) * cartLine.quantity"
+                :item-price="eachPrice(lineIndex)"
+                :quantity="cartLine.quantity"
                 @apply="manualDiscount => setLineDiscount(cartLine.key, manualDiscount)"
               />
               <LineExtraPopover

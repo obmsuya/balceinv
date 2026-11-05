@@ -46,12 +46,24 @@ export const cartSlotCount = 3
 
 const emptySlot = (): CartSlot => ({ lines: [], clientRef: null, note: '', customer: null })
 
-const storageKeyFor = (shopId: string | null | undefined) => `balce:pos-carts:${shopId ?? 'none'}`
+const storageKeyFor = (shopId: string | null | undefined) => `balce:pos-carts:v2:${shopId ?? 'none'}`
+const lineDiscountStorageKeyFor = (shopId: string | null | undefined) => `balce:pos-carts:${shopId ?? 'none'}`
 
-const readSlots = (storageKey: string): CartSlot[] => {
+// ponytail: carts held before v2.0.17 stored a TZS discount for the whole line; this turns it into a discount each, once. Remove it once every till has opened on v2.0.17.
+const withDiscountEach = (heldSlots: CartSlot[]): CartSlot[] => heldSlots.map(heldSlot => ({
+  ...heldSlot,
+  lines: heldSlot.lines.map(cartLine => cartLine.manualDiscount?.kind === 'amount'
+    ? { ...cartLine, manualDiscount: { kind: 'amount' as const, value: Math.max(Math.round(cartLine.manualDiscount.value / cartLine.quantity), 1) } }
+    : cartLine),
+}))
+
+const readSlots = (shopId: string | null | undefined): CartSlot[] => {
   try {
-    const storedSlots = JSON.parse(localStorage.getItem(storageKey) ?? 'null')
+    const storedSlots = JSON.parse(localStorage.getItem(storageKeyFor(shopId)) ?? 'null')
     if (Array.isArray(storedSlots) && storedSlots.length === cartSlotCount) return storedSlots
+    const lineDiscountSlots = JSON.parse(localStorage.getItem(lineDiscountStorageKeyFor(shopId)) ?? 'null')
+    localStorage.removeItem(lineDiscountStorageKeyFor(shopId))
+    if (Array.isArray(lineDiscountSlots) && lineDiscountSlots.length === cartSlotCount) return withDiscountEach(lineDiscountSlots)
   } catch {
   }
   return Array.from({ length: cartSlotCount }, emptySlot)
@@ -86,7 +98,7 @@ export const useCart = () => {
   const slotUnitCounts = computed(() => slots.value.map(unitsIn))
 
   const loadCarts = () => {
-    slots.value = readSlots(storageKey.value)
+    slots.value = readSlots(user.value?.shop_id)
   }
 
   const persist = () => {
