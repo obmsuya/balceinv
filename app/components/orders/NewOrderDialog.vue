@@ -69,11 +69,12 @@ const orderItems = computed(() => rows.value
 
 const wingaTotal = computed(() => wingaRows.value.reduce((sum, wingaRow) => sum + wingaRow.quantity * wingaRow.unit_price, 0))
 const estimatedTotal = computed(() => rows.value.reduce((sum, row) => sum + row.level.price * (rowQuantity(row) ?? 0), 0) + wingaTotal.value)
-const quotedLineTotal = (rowIndex: number): number | null => {
+const quotedLine = (rowIndex: number) => {
   const row = rows.value[rowIndex]!
   const quotedRowIndex = rows.value.filter(candidate => rowQuantity(candidate) != null).indexOf(row)
-  return quotedRowIndex >= 0 ? quote.value?.lines[quotedRowIndex]?.line_total ?? null : null
+  return quotedRowIndex >= 0 ? quote.value?.lines[quotedRowIndex] ?? null : null
 }
+const quotedLineTotal = (rowIndex: number): number | null => quotedLine(rowIndex)?.line_total ?? null
 const orderTotal = computed(() => quotedTotal.value ?? estimatedTotal.value)
 
 const refreshQuote = useDebounceFn(async () => {
@@ -203,7 +204,8 @@ const submit = async () => {
               v-if="canDiscount"
               :product-name="productLabel(row.level)"
               :manual-discount="row.manualDiscount"
-              :gross-amount="row.level.price * (rowQuantity(row) ?? 0)"
+              :item-price="quotedLine(rowIndex)?.unit_price ?? row.level.price"
+              :quantity="rowQuantity(row) ?? 0"
               @apply="manualDiscount => row.manualDiscount = manualDiscount"
             />
             <LineExtraPopover
