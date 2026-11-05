@@ -1,6 +1,9 @@
 import { toast } from 'vue-sonner'
 import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
 
+export const invoiceParts = ['logo', 'status', 'tax_ids', 'issued_by', 'sku', 'unit', 'discount', 'amount_in_words', 'payment_details', 'terms', 'signatures'] as const
+export type InvoicePart = typeof invoiceParts[number]
+
 export interface CompanyProfile {
   id: string
   name: string
@@ -20,6 +23,7 @@ export interface CompanyProfile {
   invoice_payment_details: string | null
   invoice_terms: string | null
   invoice_due_days: number
+  invoice_hidden_parts: InvoicePart[]
 }
 
 export interface Settings {
@@ -65,6 +69,7 @@ export interface UpdateSettingsInput {
   invoice_payment_details?: string
   invoice_terms?: string
   invoice_due_days?: number
+  invoice_hidden_parts?: InvoicePart[]
   primary_color?: string
   currency_code?: string
   currency_decimals?: number

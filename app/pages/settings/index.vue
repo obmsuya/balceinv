@@ -37,6 +37,7 @@ import BackupPanel from '@/components/backup/BackupPanel.vue'
 import NetworkPanel from '@/components/settings/NetworkPanel.vue'
 import FeaturesPanel from '@/components/settings/FeaturesPanel.vue'
 import ClearDataCard from '@/components/settings/ClearDataCard.vue'
+import InvoiceLayoutCard from '@/components/settings/InvoiceLayoutCard.vue'
 import {
   Select,
   SelectContent,
@@ -523,6 +524,9 @@ const efdBadgeLabel = computed(() => {
             </div>
           </CardContent>
         </Card>
+
+        <!-- Sends invoice_hidden_parts only; every invoice, quotation and delivery note PDF leaves those parts out. -->
+        <InvoiceLayoutCard :can-edit="canEditSettings" />
 
         <!-- Owner only. Sends business_name and password to POST /api/business/clear-data. -->
         <ClearDataCard v-if="user?.is_owner" />
