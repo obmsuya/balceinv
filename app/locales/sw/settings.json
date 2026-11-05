@@ -243,5 +243,61 @@
     "terms": "Masharti ya kawaida",
     "termsPlaceholder": "mfano: Lipa ndani ya siku 30. Bidhaa ni zetu hadi zilipwe zote.",
     "save": "Hifadhi maelezo ya ankara"
+  },
+  "invoiceLayout": {
+    "title": "Mpangilio wa ankara",
+    "description": "Gusa sehemu ya ankara, au swichi yake, kuionyesha au kuificha. Sehemu zilizofichwa haziwekwi kwenye ankara, nukuu ya bei wala hati ya kupokelea.",
+    "sampleTitle": "ANKARA YA KODI",
+    "sampleStamp": "IMELIPWA",
+    "sampleAmount": "Kiasi",
+    "shownCount": "Sehemu {shown} kati ya {total} zinaonyeshwa",
+    "showAll": "Onyesha zote",
+    "save": "Hifadhi mpangilio",
+    "parts": {
+      "logo": {
+        "label": "Nembo",
+        "hint": "Nembo yako juu kushoto"
+      },
+      "status": {
+        "label": "Muhuri wa hali",
+        "hint": "IMELIPWA, HAIJALIPWA au IMECHELEWA kando ya kichwa"
+      },
+      "tax_ids": {
+        "label": "TIN na VRN",
+        "hint": "Namba zako za kodi kwenye kisanduku cha maelezo"
+      },
+      "issued_by": {
+        "label": "Imeandaliwa na",
+        "hint": "Aliyeiandaa, ilipohifadhiwa na ilipochapishwa"
+      },
+      "sku": {
+        "label": "Namba za bidhaa",
+        "hint": "SKU chini ya kila bidhaa"
+      },
+      "unit": {
+        "label": "Safu ya kipimo",
+        "hint": "pcs, mfuko, boksi na kadhalika"
+      },
+      "discount": {
+        "label": "Safu ya punguzo",
+        "hint": "Jumla bado zinaonyesha punguzo"
+      },
+      "amount_in_words": {
+        "label": "Kiasi kwa maneno",
+        "hint": "Jumla imeandikwa kwa maneno, mf. Shilingi laki nne tu"
+      },
+      "payment_details": {
+        "label": "Jinsi ya kulipa",
+        "hint": "Namba zako za benki na Lipa kutoka Maelezo ya ankara"
+      },
+      "terms": {
+        "label": "Masharti",
+        "hint": "Masharti yako chini ya jumla"
+      },
+      "signatures": {
+        "label": "Mistari ya sahihi",
+        "hint": "Imeandaliwa na, imepokelewa na, na muhuri"
+      }
+    }
   }
 }

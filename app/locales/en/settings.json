@@ -243,5 +243,61 @@
     "terms": "Default terms",
     "termsPlaceholder": "e.g. Pay within 30 days. Goods stay ours until paid in full.",
     "save": "Save invoice details"
+  },
+  "invoiceLayout": {
+    "title": "Invoice layout",
+    "description": "Tap a part of the invoice, or its switch, to show or hide it. Hidden parts are left off every invoice, quotation and delivery note.",
+    "sampleTitle": "TAX INVOICE",
+    "sampleStamp": "PAID",
+    "sampleAmount": "Amount",
+    "shownCount": "{shown} of {total} parts shown",
+    "showAll": "Show everything",
+    "save": "Save layout",
+    "parts": {
+      "logo": {
+        "label": "Logo",
+        "hint": "Your logo at the top left"
+      },
+      "status": {
+        "label": "Status stamp",
+        "hint": "PAID, UNPAID or OVERDUE beside the title"
+      },
+      "tax_ids": {
+        "label": "TIN and VRN",
+        "hint": "Your tax numbers in the details box"
+      },
+      "issued_by": {
+        "label": "Prepared by",
+        "hint": "Who made it, when it was saved and when it was printed"
+      },
+      "sku": {
+        "label": "Product codes",
+        "hint": "The SKU under each item"
+      },
+      "unit": {
+        "label": "Unit column",
+        "hint": "pcs, bag, box and so on"
+      },
+      "discount": {
+        "label": "Discount column",
+        "hint": "The totals still show the discount"
+      },
+      "amount_in_words": {
+        "label": "Amount in words",
+        "hint": "The total written out, e.g. Four hundred thousand shillings only"
+      },
+      "payment_details": {
+        "label": "How to pay",
+        "hint": "Your bank and Lipa numbers from Invoice details"
+      },
+      "terms": {
+        "label": "Terms",
+        "hint": "Your terms under the totals"
+      },
+      "signatures": {
+        "label": "Signature lines",
+        "hint": "Prepared by, received by and stamp"
+      }
+    }
   }
 }
