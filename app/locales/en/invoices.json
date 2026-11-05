@@ -42,7 +42,8 @@
     "invoice": "Bill a customer who pays now or later",
     "proforma": "Price offer they can pay against before you deliver",
     "quotation": "Prices for the customer to accept",
-    "delivery_note": "Goods list without prices, signed on delivery"
+    "delivery_note": "Goods list without prices, signed on delivery",
+    "supplier_invoice": "A bill you send to a supplier"
   },
   "badge": {
     "paid": "Paid",

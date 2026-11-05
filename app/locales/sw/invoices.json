@@ -42,7 +42,8 @@
     "invoice": "Dai mteja anayelipa sasa au baadaye",
     "proforma": "Bei anayoweza kulipia kabla hujakabidhi",
     "quotation": "Bei kwa mteja kukubali",
-    "delivery_note": "Orodha ya bidhaa bila bei, husainiwa zikipokelewa"
+    "delivery_note": "Orodha ya bidhaa bila bei, husainiwa zikipokelewa",
+    "supplier_invoice": "Dai unalompelekea msambazaji"
   },
   "badge": {
     "paid": "Imelipwa",
