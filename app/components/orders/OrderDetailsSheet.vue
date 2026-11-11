@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleCheck, HandCoins, PackageCheck, Phone, Printer, ReceiptText, XCircle } from 'lucide-vue-next'
+import { CircleCheck, FilePen, HandCoins, PackageCheck, Phone, Printer, ReceiptText, Trash2, XCircle } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import {
   AlertDialog,
@@ -28,16 +28,16 @@ import type { Order } from '@/composables/useOrders'
 import type { PaymentInput } from '@/composables/useSales'
 import { paymentMethodLabel } from '@/composables/useSales'
 import { productLabel } from '@/composables/useStock'
-import { currencyCode, formatMoney, inputTextToMinor } from '~/utils/money'
+import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
 import { openExternal } from '~/utils/openExternal'
 
 const props = defineProps<{ orderId: string | null }>()
-const emit = defineEmits<{ changed: [] }>()
+const emit = defineEmits<{ changed: [], edit: [order: Order] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
 const { t, formatDate, formatDateTime } = useI18n()
-const { canView, canEdit, canDelete } = usePermissions()
+const { canView, canCreate, canEdit, canDelete } = usePermissions()
 const { fetchOrder, addDeposit, markReady, collectOrder, cancelOrder, saving } = useOrders()
 const { printSaleReceipt, openBrowserReceipt } = usePrint()
 
@@ -51,14 +51,22 @@ const showCancel = ref(false)
 const cancelReason = ref('')
 const refundMethod = ref<CustomerPaymentMethod | null>(null)
 const justCollected = ref(false)
+const showEarlyHandOver = ref(false)
+const showDiscard = ref(false)
 
 const isOpenOrReady = computed(() => order.value?.status === 'open' || order.value?.status === 'ready')
+const isDraft = computed(() => order.value?.status === 'draft')
 const statusVariant = computed(() => {
   const status = order.value?.status
   if (status === 'ready') return 'default'
-  if (status === 'cancelled') return 'secondary'
+  if (status === 'cancelled' || status === 'draft') return 'secondary'
   return 'outline'
 })
+const localToday = (): string => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+const isBeforeDueDate = computed(() => Boolean(order.value?.due_date && order.value.due_date > localToday()))
 const orderCustomer = computed(() => (order.value ? { id: order.value.customer_id, name: order.value.customer_name } : null))
 
 const dueDateLabel = (dueDate: string): string => formatDate(`${dueDate}T00:00:00`)
@@ -76,7 +84,7 @@ const applyChange = (changedOrder: Order) => {
 }
 
 const openDeposit = () => {
-  depositText.value = ''
+  depositText.value = minorToInputText(order.value?.balance_due ?? 0)
   depositMethod.value = 'cash'
   showDeposit.value = true
 }
@@ -107,10 +115,29 @@ const setReady = async () => {
   }
 }
 
-const startCollect = () => {
+const startCollect = (dueDateConfirmed = false) => {
   if (!order.value) return
+  if (isBeforeDueDate.value && !dueDateConfirmed) {
+    showEarlyHandOver.value = true
+    return
+  }
+  showEarlyHandOver.value = false
   if (order.value.balance_due > 0) showPayment.value = true
   else showHandOver.value = true
+}
+
+const editDraft = () => {
+  if (!order.value) return
+  emit('edit', order.value)
+}
+
+const discardDraft = async () => {
+  if (!order.value) return
+  try {
+    applyChange(await cancelOrder(order.value.id, t('orders.draft.discardReason'), null, 'orders.toasts.draftDiscarded'))
+    showDiscard.value = false
+  } catch {
+  }
 }
 
 const collect = async (payments: PaymentInput[]) => {
@@ -183,6 +210,7 @@ const callCustomer = () => {
         </div>
 
         <p v-if="order.note" class="rounded-md bg-muted/40 px-3 py-2 text-sm">{{ order.note }}</p>
+        <p v-if="isDraft" class="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">{{ t('orders.draft.notice') }}</p>
 
         <div v-if="justCollected && order.sale_id" class="flex flex-col items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-4 text-center">
           <CircleCheck class="size-8 text-emerald-600" />
@@ -219,7 +247,7 @@ const callCustomer = () => {
         <dl class="flex flex-col gap-1 text-sm">
           <div v-if="order.discount_total" class="flex justify-between text-muted-foreground"><dt>{{ t('sales.details.discounts') }}</dt><dd class="tabular-nums">−{{ formatMoney(order.discount_total) }}</dd></div>
           <div class="flex justify-between text-base font-semibold"><dt>{{ t('common.fields.total') }}</dt><dd class="tabular-nums">{{ formatMoney(order.total) }}</dd></div>
-          <div class="flex justify-between"><dt>{{ t('orders.detail.paidSoFar') }}</dt><dd class="tabular-nums">{{ formatMoney(order.deposit_total) }}</dd></div>
+          <div v-if="!isDraft" class="flex justify-between"><dt>{{ t('orders.detail.paidSoFar') }}</dt><dd class="tabular-nums">{{ formatMoney(order.deposit_total) }}</dd></div>
           <div v-if="isOpenOrReady" class="flex justify-between text-base font-bold" :class="order.balance_due ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'">
             <dt>{{ t('orders.detail.stillToPay') }}</dt><dd class="tabular-nums">{{ formatMoney(order.balance_due) }}</dd>
           </div>
@@ -248,19 +276,34 @@ const callCustomer = () => {
           <p v-if="order.cancel_reason" class="text-muted-foreground">{{ order.cancel_reason }}</p>
         </div>
 
+        <div v-if="isDraft" class="flex flex-col gap-2">
+          <Button v-if="canCreate('orders')" class="h-12 text-base" :disabled="saving" @click="editDraft">
+            <FilePen />
+            {{ t('orders.draft.edit') }}
+          </Button>
+          <Button v-if="canDelete('orders')" variant="outline" class="text-destructive hover:text-destructive" :disabled="saving" @click="showDiscard = true">
+            <Trash2 />
+            {{ t('orders.draft.discard') }}
+          </Button>
+        </div>
+
         <div v-if="isOpenOrReady" class="flex flex-col gap-2">
-          <Button v-if="canEdit('orders')" class="h-12 text-base" :disabled="saving" @click="startCollect">
+          <Button v-if="canEdit('orders') && order.balance_due > 0" class="h-12 text-base" :disabled="saving" @click="openDeposit">
+            <HandCoins />
+            {{ t('orders.detail.takePayment', { amount: formatMoney(order.balance_due) }) }}
+          </Button>
+          <Button v-else-if="canEdit('orders')" class="h-12 text-base" :disabled="saving" @click="startCollect()">
             <PackageCheck />
-            {{ order.balance_due ? t('orders.detail.collectAndPay', { amount: formatMoney(order.balance_due) }) : t('orders.detail.collect') }}
+            {{ t('orders.detail.collect') }}
           </Button>
           <div class="grid grid-cols-2 gap-2">
+            <Button v-if="canEdit('orders') && order.balance_due > 0" variant="outline" class="col-span-2" :disabled="saving" @click="startCollect()">
+              <PackageCheck />
+              {{ t('orders.detail.collectAndPay', { amount: formatMoney(order.balance_due) }) }}
+            </Button>
             <Button v-if="canEdit('orders') && order.status === 'open'" variant="outline" :disabled="saving" @click="setReady">
               <CircleCheck />
               {{ t('orders.detail.markReady') }}
-            </Button>
-            <Button v-if="canEdit('orders') && order.balance_due > 0" variant="outline" :disabled="saving" @click="openDeposit">
-              <HandCoins />
-              {{ t('orders.detail.addDeposit') }}
             </Button>
             <Button v-if="canDelete('orders')" variant="outline" class="text-destructive hover:text-destructive" :disabled="saving" @click="openCancel">
               <XCircle />
@@ -280,6 +323,32 @@ const callCustomer = () => {
         :confirm-label="t('orders.detail.collect')"
         @pay="collect"
       />
+
+      <AlertDialog :open="showEarlyHandOver" @update:open="isOpen => showEarlyHandOver = isOpen">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{{ t('orders.detail.earlyTitle', { date: order?.due_date ? dueDateLabel(order.due_date) : '' }) }}</AlertDialogTitle>
+            <AlertDialogDescription>{{ t('orders.detail.earlyDescription', { date: order?.due_date ? dueDateLabel(order.due_date) : '' }) }}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{{ t('common.actions.back') }}</AlertDialogCancel>
+            <AlertDialogAction @click.prevent="startCollect(true)">{{ t('orders.detail.earlyConfirm') }}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog :open="showDiscard" @update:open="isOpen => showDiscard = isOpen">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{{ t('orders.draft.discardTitle', { number: order?.number ?? '' }) }}</AlertDialogTitle>
+            <AlertDialogDescription>{{ t('orders.draft.discardDescription') }}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{{ t('common.actions.back') }}</AlertDialogCancel>
+            <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click.prevent="discardDraft">{{ t('orders.draft.discard') }}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog :open="showHandOver" @update:open="isOpen => showHandOver = isOpen">
         <AlertDialogContent>
@@ -302,7 +371,7 @@ const callCustomer = () => {
           </DialogHeader>
           <form class="flex flex-col gap-4" @submit.prevent="saveDeposit">
             <div class="flex flex-col gap-1.5">
-              <Label for="deposit-amount">{{ t('orders.fields.deposit', { currency: currencyCode() }) }}</Label>
+              <Label for="deposit-amount">{{ t('orders.fields.payment', { currency: currencyCode() }) }}</Label>
               <MoneyInput id="deposit-amount" v-model="depositText" class="h-11 text-lg tabular-nums" />
             </div>
             <PaymentMethodChoice v-model="depositMethod" />
