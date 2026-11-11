@@ -8,18 +8,21 @@
     "noMatch": "No order matches"
   },
   "status": {
+    "draft": "Drafts",
     "open": "Waiting",
     "ready": "Ready",
     "collected": "Collected",
     "cancelled": "Cancelled"
   },
   "statusOne": {
+    "draft": "Draft",
     "open": "Waiting",
     "ready": "Ready",
     "collected": "Collected",
     "cancelled": "Cancelled"
   },
   "empty": {
+    "draft": "No drafts",
     "open": "No orders waiting",
     "ready": "No orders ready for collection",
     "collected": "No collected orders yet",
@@ -35,7 +38,8 @@
     "dueDate": "Collect by",
     "products": "Products",
     "note": "Note",
-    "deposit": "Deposit ({currency})"
+    "deposit": "Deposit ({currency})",
+    "payment": "Amount ({currency})"
   },
   "new": {
     "description": "The goods are taken off the shelf now and kept for the customer.",
@@ -52,18 +56,20 @@
       "noProducts": "Add at least one product",
       "badQuantity": "Enter a whole number for {product}",
       "notEnough": "Only {quantity} {unit} of {product} in this shop"
-    }
+    },
+    "saveDraft": "Save as draft",
+    "depositDraftHint": "A draft keeps no stock aside and takes no deposit until you save it as an order."
   },
   "deposit": {
-    "description": "Still to pay: {amount}",
-    "save": "Save deposit",
+    "description": "Still to pay: {amount}. The order stays where it is until you hand it over.",
+    "save": "Save payment",
     "errors": {
       "badAmount": "Enter an amount more than zero",
       "tooMuch": "The deposit can't be more than {amount}"
     }
   },
   "paymentKind": {
-    "deposit": "Deposit",
+    "deposit": "Payment",
     "refund": "Handed back"
   },
   "detail": {
@@ -71,16 +77,20 @@
     "due": "Collect by {date}",
     "paidSoFar": "Paid so far",
     "stillToPay": "Still to pay",
-    "payments": "Deposits",
+    "payments": "Payments",
     "collect": "Hand over",
     "collectAndPay": "Hand over · take {amount}",
     "collectedNow": "Handed over. Receipt {receipt}",
     "collectedOn": "Collected on {date}",
     "cancelledBy": "Cancelled by {name} on {date}",
     "markReady": "Mark ready",
-    "addDeposit": "Add deposit",
+    "addDeposit": "Take payment",
     "handOverTitle": "Hand over this order?",
-    "handOverDescription": "It is fully paid. A sale and receipt will be made."
+    "handOverDescription": "It is fully paid. A sale and receipt will be made.",
+    "takePayment": "Take payment · {amount}",
+    "earlyTitle": "Hand over before {date}?",
+    "earlyDescription": "The customer asked to collect on {date}. Hand it over today anyway?",
+    "earlyConfirm": "Hand over today"
   },
   "cancel": {
     "button": "Cancel order",
@@ -101,13 +111,25 @@
     "orderLoadFailed": "Could not load this order",
     "created": "Order saved",
     "createFailed": "Could not save the order",
-    "depositAdded": "Deposit saved",
-    "depositFailed": "Could not save the deposit",
+    "depositAdded": "Payment saved",
+    "depositFailed": "Could not save the payment",
     "markedReady": "Order is ready",
     "readyFailed": "Could not mark the order ready",
     "collected": "Order handed over",
     "collectFailed": "Could not hand over the order",
     "cancelled": "Order cancelled",
-    "cancelFailed": "Could not cancel the order"
+    "cancelFailed": "Could not cancel the order",
+    "draftSaved": "Draft saved",
+    "draftDiscarded": "Draft discarded"
+  },
+  "draft": {
+    "editTitle": "Edit draft {number}",
+    "description": "Nothing is kept aside yet. Change anything, then save it as an order.",
+    "notice": "Draft: no stock is kept aside and no money is taken yet.",
+    "edit": "Continue editing",
+    "discard": "Discard draft",
+    "discardTitle": "Discard draft {number}?",
+    "discardDescription": "Nothing was kept aside or paid, so nothing else changes.",
+    "discardReason": "Draft discarded"
   }
 }

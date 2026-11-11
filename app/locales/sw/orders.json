@@ -8,18 +8,21 @@
     "noMatch": "Hakuna oda inayolingana"
   },
   "status": {
+    "draft": "Rasimu",
     "open": "Zinasubiri",
     "ready": "Tayari",
     "collected": "Zimechukuliwa",
     "cancelled": "Zimeghairiwa"
   },
   "statusOne": {
+    "draft": "Rasimu",
     "open": "Inasubiri",
     "ready": "Iko tayari",
     "collected": "Imechukuliwa",
     "cancelled": "Imeghairiwa"
   },
   "empty": {
+    "draft": "Hakuna rasimu",
     "open": "Hakuna oda zinazosubiri",
     "ready": "Hakuna oda zilizo tayari kuchukuliwa",
     "collected": "Bado hakuna oda zilizochukuliwa",
@@ -35,7 +38,8 @@
     "dueDate": "Achukue kabla ya",
     "products": "Bidhaa",
     "note": "Maelezo",
-    "deposit": "Malipo ya awali ({currency})"
+    "deposit": "Malipo ya awali ({currency})",
+    "payment": "Kiasi ({currency})"
   },
   "new": {
     "description": "Bidhaa zinatolewa kwenye stoku sasa na kuwekwa kwa ajili ya mteja.",
@@ -52,18 +56,20 @@
       "noProducts": "Ongeza angalau bidhaa moja",
       "badQuantity": "Weka namba kamili kwa {product}",
       "notEnough": "Kuna {quantity} {unit} tu za {product} kwenye duka hili"
-    }
+    },
+    "saveDraft": "Hifadhi kama rasimu",
+    "depositDraftHint": "Rasimu haiweki bidhaa pembeni wala kupokea malipo ya awali hadi uihifadhi kama oda."
   },
   "deposit": {
-    "description": "Kiasi kilichobaki: {amount}",
-    "save": "Hifadhi malipo ya awali",
+    "description": "Kiasi kilichobaki: {amount}. Oda inabaki ilipo hadi utakapoikabidhi.",
+    "save": "Hifadhi malipo",
     "errors": {
       "badAmount": "Weka kiasi kinachozidi sifuri",
       "tooMuch": "Malipo ya awali hayawezi kuzidi {amount}"
     }
   },
   "paymentKind": {
-    "deposit": "Malipo ya awali",
+    "deposit": "Malipo",
     "refund": "Yamerudishwa"
   },
   "detail": {
@@ -71,16 +77,20 @@
     "due": "Achukue kabla ya {date}",
     "paidSoFar": "Amelipa hadi sasa",
     "stillToPay": "Kiasi kilichobaki",
-    "payments": "Malipo ya awali",
+    "payments": "Malipo",
     "collect": "Kabidhi oda",
     "collectAndPay": "Kabidhi · pokea {amount}",
     "collectedNow": "Imekabidhiwa. Risiti {receipt}",
     "collectedOn": "Ilichukuliwa tarehe {date}",
     "cancelledBy": "Imeghairiwa na {name} tarehe {date}",
     "markReady": "Weka tayari",
-    "addDeposit": "Ongeza malipo ya awali",
+    "addDeposit": "Pokea malipo",
     "handOverTitle": "Kabidhi oda hii?",
-    "handOverDescription": "Imelipwa yote. Mauzo na risiti vitatengenezwa."
+    "handOverDescription": "Imelipwa yote. Mauzo na risiti vitatengenezwa.",
+    "takePayment": "Pokea malipo · {amount}",
+    "earlyTitle": "Kabidhi kabla ya {date}?",
+    "earlyDescription": "Mteja aliomba kuchukua tarehe {date}. Ukabidhi leo hata hivyo?",
+    "earlyConfirm": "Kabidhi leo"
   },
   "cancel": {
     "button": "Ghairi oda",
@@ -101,13 +111,25 @@
     "orderLoadFailed": "Imeshindwa kupakia oda hii",
     "created": "Oda imehifadhiwa",
     "createFailed": "Imeshindwa kuhifadhi oda",
-    "depositAdded": "Malipo ya awali yamehifadhiwa",
-    "depositFailed": "Imeshindwa kuhifadhi malipo ya awali",
+    "depositAdded": "Malipo yamehifadhiwa",
+    "depositFailed": "Imeshindwa kuhifadhi malipo",
     "markedReady": "Oda iko tayari",
     "readyFailed": "Imeshindwa kuweka oda tayari",
     "collected": "Oda imekabidhiwa",
     "collectFailed": "Imeshindwa kukabidhi oda",
     "cancelled": "Oda imeghairiwa",
-    "cancelFailed": "Imeshindwa kughairi oda"
+    "cancelFailed": "Imeshindwa kughairi oda",
+    "draftSaved": "Rasimu imehifadhiwa",
+    "draftDiscarded": "Rasimu imefutwa"
+  },
+  "draft": {
+    "editTitle": "Hariri rasimu {number}",
+    "description": "Bado hakuna kilichowekwa pembeni. Badilisha chochote, kisha ihifadhi kama oda.",
+    "notice": "Rasimu: bado hakuna bidhaa iliyowekwa pembeni wala malipo yaliyopokelewa.",
+    "edit": "Endelea kuhariri",
+    "discard": "Futa rasimu",
+    "discardTitle": "Futa rasimu {number}?",
+    "discardDescription": "Hakuna bidhaa iliyowekwa pembeni wala malipo, hivyo hakuna kingine kinachobadilika.",
+    "discardReason": "Rasimu imefutwa"
   }
 }
