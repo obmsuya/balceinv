@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { formatMessage } from '../app/utils/translate.ts'
 import type { Dictionaries, Dictionary } from '../app/utils/translate.ts'
 
-const localesDirectory = new URL('../app/locales/', import.meta.url).pathname
-const appDirectory = new URL('../app/', import.meta.url).pathname
+const localesDirectory = fileURLToPath(new URL('../app/locales/', import.meta.url))
+const appDirectory = fileURLToPath(new URL('../app/', import.meta.url))
 
 const loadLocale = (locale: string): Dictionary => {
   const dictionary: Dictionary = {}

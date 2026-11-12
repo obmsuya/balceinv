@@ -25,6 +25,7 @@ const pageOffset = ref(0)
 const showNewOrder = ref(false)
 const showDetails = ref(false)
 const openOrderId = ref<string | null>(null)
+const editingDraft = ref<Order | null>(null)
 
 const activeShopName = computed(() => user.value?.shops.find(shop => shop.id === user.value?.shop_id)?.name)
 
@@ -48,10 +49,22 @@ const openOrder = (orderId: string) => {
   showDetails.value = true
 }
 
-const showCreatedOrder = (createdOrder: Order) => {
-  if (activeStatus.value === 'open') reload()
-  else activeStatus.value = 'open'
-  openOrder(createdOrder.id)
+const startNewOrder = () => {
+  editingDraft.value = null
+  showNewOrder.value = true
+}
+
+const editDraft = (draftOrder: Order) => {
+  showDetails.value = false
+  editingDraft.value = draftOrder
+  showNewOrder.value = true
+}
+
+const showCreatedOrder = (savedOrder: Order) => {
+  const savedStatus = savedOrder.status === 'draft' ? 'draft' : 'open'
+  if (activeStatus.value === savedStatus) reload()
+  else activeStatus.value = savedStatus
+  openOrder(savedOrder.id)
 }
 
 const dueDateLabel = (dueDate: string): string => formatDate(`${dueDate}T00:00:00`)
@@ -66,7 +79,7 @@ onMounted(reload)
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{{ t('orders.page.title') }}</h1>
         <p class="mt-1 text-muted-foreground">{{ activeShopName ? t('orders.page.subtitleShop', { shop: activeShopName }) : t('orders.page.subtitle') }}</p>
       </div>
-      <Button v-if="canCreate('orders')" data-tour="orders-add" @click="showNewOrder = true">
+      <Button v-if="canCreate('orders')" data-tour="orders-add" @click="startNewOrder">
         <Plus />
         {{ t('orders.page.newOrder') }}
       </Button>
@@ -130,7 +143,7 @@ onMounted(reload)
       </CardContent>
     </Card>
 
-    <NewOrderDialog v-if="canCreate('orders')" v-model:open="showNewOrder" @created="showCreatedOrder" />
-    <OrderDetailsSheet v-model:open="showDetails" :order-id="openOrderId" @changed="reload" />
+    <NewOrderDialog v-if="canCreate('orders')" v-model:open="showNewOrder" :draft-order="editingDraft" @created="showCreatedOrder" />
+    <OrderDetailsSheet v-model:open="showDetails" :order-id="openOrderId" @changed="reload" @edit="editDraft" />
   </div>
 </template>

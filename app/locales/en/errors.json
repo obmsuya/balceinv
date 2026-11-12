@@ -91,6 +91,7 @@
   "already_voided": "This payment was already cancelled",
   "invalid_range": "Check the dates: the start must be before the end",
   "deposit_too_high": "The deposit can't be more than the order total",
+  "draft_deposit": "A draft takes no deposit. Save it as an order first.",
   "invalid_status": "This order can't do that any more. Refresh to see where it is.",
   "refund_method_required": "Choose how the deposit is handed back",
   "shop_not_found": "That shop was not found or is closed",

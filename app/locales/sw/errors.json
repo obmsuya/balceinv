@@ -91,6 +91,7 @@
   "already_voided": "Malipo haya yameshaghairiwa",
   "invalid_range": "Angalia tarehe: tarehe ya kuanzia iwe kabla ya tarehe ya mwisho",
   "deposit_too_high": "Malipo ya awali hayawezi kuzidi jumla ya oda",
+  "draft_deposit": "Rasimu haipokei malipo ya awali. Ihifadhi kama oda kwanza.",
   "invalid_status": "Oda hii haiwezi kufanya hivyo tena. Onyesha upya uone ilipofikia.",
   "refund_method_required": "Chagua jinsi malipo ya awali yatakavyorudishwa",
   "shop_not_found": "Duka hilo halijapatikana au limefungwa",

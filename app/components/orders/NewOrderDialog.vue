@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Handshake, Trash2, UserPlus, UserRound } from 'lucide-vue-next'
+import { FilePen, Handshake, Trash2, UserPlus, UserRound } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useDebounceFn } from '@vueuse/core'
 import HelpTip from '@/components/HelpTip.vue'
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import CustomerPicker from '@/components/customers/CustomerPicker.vue'
 import PaymentMethodChoice from '@/components/customers/PaymentMethodChoice.vue'
 import LineDiscountPopover from '@/components/pos/LineDiscountPopover.vue'
@@ -16,7 +17,7 @@ import WingaLineDialog from '@/components/pos/WingaLineDialog.vue'
 import StockProductSearch from '@/components/stock/StockProductSearch.vue'
 import type { CartCustomer } from '@/composables/useCart'
 import type { CustomerPaymentMethod } from '@/composables/useCustomers'
-import type { Order } from '@/composables/useOrders'
+import type { Order, OrderLine } from '@/composables/useOrders'
 import type { ManualDiscount, SaleQuote, WingaLineInput } from '@/composables/useSales'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
@@ -29,12 +30,14 @@ interface OrderRow {
   extra: ManualDiscount | null
 }
 
+const props = defineProps<{ draftOrder?: Order | null }>()
 const emit = defineEmits<{ created: [order: Order] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
-const { createOrder, saving } = useOrders()
+const { saveOrder, saving } = useOrders()
+const { findLevel } = useStock()
 const { quoteSale } = useSales()
 const { wingaOn } = useFeatures()
 const { hasPermission } = usePermissions()
@@ -51,6 +54,7 @@ const depositText = ref('')
 const depositMethod = ref<CustomerPaymentMethod | null>('cash')
 const showCustomerPicker = ref(false)
 const quotedTotal = ref<number | null>(null)
+const loadingDraft = ref(false)
 
 const chosenProductIds = computed(() => rows.value.map(row => row.level.product_id))
 
@@ -104,6 +108,42 @@ watch([orderItems, wingaRows], () => {
   refreshQuote()
 }, { deep: true })
 
+const amountEach = (amount: number, quantity: number): ManualDiscount | null => (amount > 0 ? { kind: 'amount', value: Math.max(Math.round(amount / quantity), 1) } : null)
+
+const levelForLine = async (orderLine: OrderLine): Promise<StockLevel> => {
+  const currentLevel = await findLevel(orderLine.product_id)
+  return currentLevel ?? {
+    product_id: orderLine.product_id,
+    parent_id: null,
+    name: orderLine.product_name,
+    variant_label: orderLine.variant_label,
+    sku: orderLine.sku,
+    unit: orderLine.unit,
+    category: null,
+    price: orderLine.unit_price - orderLine.extra_unit_amount,
+    cost_price: 0,
+    quantity: 0,
+    min_stock: 0,
+    status: 'out',
+  }
+}
+
+const fillFromDraft = async (draftOrder: Order) => {
+  loadingDraft.value = true
+  customer.value = { id: draftOrder.customer_id, name: draftOrder.customer_name, phone: draftOrder.customer_phone }
+  dueDate.value = draftOrder.due_date ?? ''
+  note.value = draftOrder.note ?? ''
+  const levels = await Promise.all(draftOrder.lines.map(levelForLine))
+  rows.value = draftOrder.lines.map((orderLine, lineIndex) => ({
+    level: levels[lineIndex]!,
+    quantityText: String(orderLine.quantity),
+    manualDiscount: amountEach(orderLine.manual_discount_amount, orderLine.quantity),
+    extra: amountEach(orderLine.extra_unit_amount, 1),
+  }))
+  wingaRows.value = (draftOrder.winga_lines ?? []).map(wingaLine => ({ name: wingaLine.name, quantity: wingaLine.quantity, unit_price: wingaLine.unit_price, winga_share: wingaLine.winga_share }))
+  loadingDraft.value = false
+}
+
 watch(open, isOpen => {
   if (!isOpen) return
   customer.value = null
@@ -115,13 +155,14 @@ watch(open, isOpen => {
   depositText.value = ''
   depositMethod.value = 'cash'
   quotedTotal.value = null
+  if (props.draftOrder) fillFromDraft(props.draftOrder)
 })
 
 const addRow = (level: StockLevel) => {
   rows.value.push({ level, quantityText: '1', manualDiscount: null, extra: null })
 }
 
-const submit = async () => {
+const submit = async (asDraft: boolean) => {
   if (!customer.value) {
     toast.error(t('orders.new.errors.chooseCustomer'))
     return
@@ -135,12 +176,12 @@ const submit = async () => {
     toast.error(t('orders.new.errors.badQuantity', { product: productLabel(badRow.level) }))
     return
   }
-  const shortRow = rows.value.find(row => (rowQuantity(row) ?? 0) > row.level.quantity)
+  const shortRow = asDraft ? undefined : rows.value.find(row => (rowQuantity(row) ?? 0) > row.level.quantity)
   if (shortRow) {
     toast.error(t('orders.new.errors.notEnough', { quantity: shortRow.level.quantity, unit: shortRow.level.unit, product: productLabel(shortRow.level) }))
     return
   }
-  const depositAmount = inputTextToMinor(depositText.value)
+  const depositAmount = asDraft ? null : inputTextToMinor(depositText.value)
   if (Number.isNaN(depositAmount)) {
     toast.error(t('orders.deposit.errors.badAmount'))
     return
@@ -150,15 +191,16 @@ const submit = async () => {
     return
   }
   try {
-    const createdOrder = await createOrder({
+    const savedOrder = await saveOrder({
       customer_id: customer.value.id,
       items: orderItems.value,
       winga_lines: wingaRows.value,
       due_date: dueDate.value || null,
       note: note.value.trim() || null,
       deposit: depositAmount ? { method: depositMethod.value ?? 'cash', amount: depositAmount } : null,
-    })
-    emit('created', createdOrder)
+      draft: asDraft,
+    }, props.draftOrder?.id ?? null)
+    emit('created', savedOrder)
     open.value = false
   } catch {
   }
@@ -169,11 +211,12 @@ const submit = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[92dvh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>{{ t('orders.page.newOrder') }}</DialogTitle>
-        <DialogDescription>{{ t('orders.new.description') }}</DialogDescription>
+        <DialogTitle>{{ draftOrder ? t('orders.draft.editTitle', { number: draftOrder.number }) : t('orders.page.newOrder') }}</DialogTitle>
+        <DialogDescription>{{ draftOrder ? t('orders.draft.description') : t('orders.new.description') }}</DialogDescription>
       </DialogHeader>
 
-      <form class="flex flex-col gap-4" @submit.prevent="submit">
+      <div v-if="loadingDraft" class="flex flex-col gap-2"><Skeleton v-for="skeletonRow in 3" :key="skeletonRow" class="h-12 w-full" /></div>
+      <form v-else class="flex flex-col gap-4" @submit.prevent="submit(false)">
         <div class="flex flex-col gap-1.5">
           <Label>{{ t('orders.fields.customer') }}</Label>
           <button
@@ -266,10 +309,15 @@ const submit = async () => {
           <Label for="order-deposit">{{ t('orders.fields.deposit', { currency: currencyCode() }) }}</Label>
           <MoneyInput id="order-deposit" v-model="depositText" placeholder="0" />
           <PaymentMethodChoice v-if="inputTextToMinor(depositText)" v-model="depositMethod" />
+          <p class="text-xs text-muted-foreground">{{ t('orders.new.depositDraftHint') }}</p>
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
+        <DialogFooter class="gap-2">
+          <Button type="button" variant="ghost" @click="open = false">{{ t('common.actions.cancel') }}</Button>
+          <Button type="button" variant="outline" :disabled="saving" @click="submit(true)">
+            <FilePen />
+            {{ t('orders.new.saveDraft') }}
+          </Button>
           <Button type="submit" :disabled="saving">{{ saving ? t('common.actions.saving') : t('orders.new.create') }}</Button>
         </DialogFooter>
       </form>

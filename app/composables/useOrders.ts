@@ -3,7 +3,7 @@ import { apiErrorMessage, t } from '~/utils/i18n'
 import type { CustomerPaymentMethod } from '~/composables/useCustomers'
 import type { ManualDiscount, PaymentInput, WingaLine, WingaLineInput } from '~/composables/useSales'
 
-export type OrderStatus = 'open' | 'ready' | 'collected' | 'cancelled'
+export type OrderStatus = 'draft' | 'open' | 'ready' | 'collected' | 'cancelled'
 
 export interface OrderLine {
   product_id: string
@@ -74,6 +74,7 @@ export interface NewOrderFields {
   due_date: string | null
   note: string | null
   deposit: OrderDeposit | null
+  draft: boolean
 }
 
 export interface OrderFilter {
@@ -97,7 +98,7 @@ interface Page<Item> {
 
 export const orderPageSize = 50
 
-export const orderStatuses: OrderStatus[] = ['open', 'ready', 'collected', 'cancelled']
+export const orderStatuses: OrderStatus[] = ['draft', 'open', 'ready', 'collected', 'cancelled']
 
 export const orderStatusLabel = (status: OrderStatus): string => t(`orders.status.${status}`)
 
@@ -135,10 +136,10 @@ export const useOrders = () => {
     }
   }
 
-  const changeOrder = async (path: string, body: object | undefined, successKey: string, failureKey: string): Promise<Order> => {
+  const changeOrder = async (path: string, body: object | undefined, successKey: string, failureKey: string, method: 'POST' | 'PUT' = 'POST'): Promise<Order> => {
     saving.value = true
     try {
-      const orderResponse = await apiFetch<ApiEnvelope<Order>>(path, { method: 'POST', body })
+      const orderResponse = await apiFetch<ApiEnvelope<Order>>(path, { method, body })
       toast.success(t(successKey))
       return orderResponse.data
     } catch (error: any) {
@@ -149,8 +150,11 @@ export const useOrders = () => {
     }
   }
 
-  const createOrder = (orderFields: NewOrderFields): Promise<Order> =>
-    changeOrder('/api/orders', orderFields, 'orders.toasts.created', 'orders.toasts.createFailed')
+  const saveOrder = (orderFields: NewOrderFields, draftId: string | null): Promise<Order> => {
+    const successKey = orderFields.draft ? 'orders.toasts.draftSaved' : 'orders.toasts.created'
+    if (draftId) return changeOrder(`/api/orders/${draftId}`, orderFields, successKey, 'orders.toasts.createFailed', 'PUT')
+    return changeOrder('/api/orders', orderFields, successKey, 'orders.toasts.createFailed')
+  }
 
   const addDeposit = (orderId: string, deposit: OrderDeposit): Promise<Order> =>
     changeOrder(`/api/orders/${orderId}/deposits`, deposit, 'orders.toasts.depositAdded', 'orders.toasts.depositFailed')
@@ -161,8 +165,8 @@ export const useOrders = () => {
   const collectOrder = (orderId: string, payments: PaymentInput[]): Promise<Order> =>
     changeOrder(`/api/orders/${orderId}/collect`, { payments }, 'orders.toasts.collected', 'orders.toasts.collectFailed')
 
-  const cancelOrder = (orderId: string, reason: string, refundMethod: CustomerPaymentMethod | null): Promise<Order> =>
-    changeOrder(`/api/orders/${orderId}/cancel`, { reason, refund_method: refundMethod ?? undefined }, 'orders.toasts.cancelled', 'orders.toasts.cancelFailed')
+  const cancelOrder = (orderId: string, reason: string, refundMethod: CustomerPaymentMethod | null, successKey = 'orders.toasts.cancelled'): Promise<Order> =>
+    changeOrder(`/api/orders/${orderId}/cancel`, { reason, refund_method: refundMethod ?? undefined }, successKey, 'orders.toasts.cancelFailed')
 
   return {
     orders,
@@ -171,7 +175,7 @@ export const useOrders = () => {
     saving,
     fetchOrders,
     fetchOrder,
-    createOrder,
+    saveOrder,
     addDeposit,
     markReady,
     collectOrder,
