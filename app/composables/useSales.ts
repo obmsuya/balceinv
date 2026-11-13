@@ -172,6 +172,7 @@ export interface SaleSummary {
   shop_name: string
   fiscal_status: FiscalStatus | null
   voided_at: string | null
+  refunded_total: number
   created_at: string
 }
 

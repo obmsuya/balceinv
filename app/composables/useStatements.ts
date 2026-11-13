@@ -5,7 +5,7 @@ import { activeLocale, apiErrorMessage, t } from '~/utils/i18n'
 
 export type StatementReport = 'overview' | 'profit-and-loss' | 'balance-sheet' | 'statement' | 'trial-balance' | 'vat'
 export type StatementFormat = 'pdf' | 'xlsx'
-export type SalesReport = 'summary' | 'daily' | 'products' | 'cashiers' | 'shops' | 'brk-extra'
+export type SalesReport = 'summary' | 'daily' | 'products' | 'cashiers' | 'shops' | 'brk-extra' | 'refunds'
 export type StockReport = 'inventory' | 'dead-stock'
 
 export interface StatementFilter {
