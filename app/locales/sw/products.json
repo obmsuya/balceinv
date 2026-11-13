@@ -4,6 +4,7 @@
     "subtitle": "Bidhaa zako, aina zake na nyongeza",
     "import": "Ingiza",
     "template": "Kiolezo",
+    "export": "Hamisha",
     "addProduct": "Ongeza bidhaa",
     "matchingProducts": "Bidhaa zinazolingana",
     "categories": "Makundi",
@@ -166,7 +167,9 @@
     "importFailed": "Imeshindwa kuingiza faili",
     "excelWorkbook": "Faili la Excel",
     "templateSaved": "Kiolezo kimehifadhiwa",
-    "templateFailed": "Imeshindwa kupakua kiolezo"
+    "templateFailed": "Imeshindwa kupakua kiolezo",
+    "exportSaved": "Bidhaa zimehifadhiwa kwenye Excel",
+    "exportFailed": "Imeshindwa kuhamisha bidhaa"
   },
   "addons": {
     "loadFailed": "Imeshindwa kupakia nyongeza",

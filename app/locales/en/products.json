@@ -4,6 +4,7 @@
     "subtitle": "Your items, variants and add-ons",
     "import": "Import",
     "template": "Template",
+    "export": "Export",
     "addProduct": "Add product",
     "matchingProducts": "Matching products",
     "categories": "Categories",
@@ -166,7 +167,9 @@
     "importFailed": "Failed to import the file",
     "excelWorkbook": "Excel Workbook",
     "templateSaved": "Template saved",
-    "templateFailed": "Failed to download the template"
+    "templateFailed": "Failed to download the template",
+    "exportSaved": "Products saved to Excel",
+    "exportFailed": "Failed to export the products"
   },
   "addons": {
     "loadFailed": "Failed to load add-ons",
