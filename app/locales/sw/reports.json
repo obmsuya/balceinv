@@ -109,7 +109,7 @@
     },
     "daily": {
       "title": "Mauzo kwa siku",
-      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na winga zikiwepo."
+      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na winga zikiwepo. Urejeshaji unatolewa siku ulipofanyika."
     },
     "products": {
       "title": "Bidhaa zilizouzwa",
@@ -122,6 +122,10 @@
     "brkExtra": {
       "title": "Winga na Ziada",
       "description": "Kila mstari wa Ziada na winga pamoja na risiti na mfanyakazi, kwa hesabu ya jioni na malipo."
+    },
+    "refunds": {
+      "title": "Urejeshaji wa pesa",
+      "description": "Kila urejeshaji uliofanyika katika kipindi pamoja na risiti, bidhaa, jinsi pesa ilivyorudishwa, aliyeufanya na sababu."
     },
     "shops": {
       "title": "Mauzo kwa duka",
