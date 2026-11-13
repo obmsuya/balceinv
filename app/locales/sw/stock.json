@@ -56,7 +56,13 @@
     "adjustment": "Marekebisho",
     "damage": "Imeharibika",
     "transfer_in": "Uhamisho (imeingia)",
-    "transfer_out": "Uhamisho (imetoka)"
+    "transfer_out": "Uhamisho (imetoka)",
+    "sale_refund": "Mteja amerudisha",
+    "sale_void": "Mauzo yamebatilishwa",
+    "order_reserved": "Imewekwa kwa oda",
+    "order_cancelled": "Oda imesitishwa",
+    "invoice_delivered": "Ankara imekabidhiwa",
+    "invoice_cancelled": "Ankara imesitishwa"
   },
   "adjust": {
     "description": "Kila badiliko linahifadhiwa kwenye historia ya stoku.",
