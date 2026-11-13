@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, Package, Plus, Search, Store, Tags, Trash2, Upload } from 'lucide-vue-next'
+import { Download, FileSpreadsheet, Package, Plus, Search, Store, Tags, Trash2, Upload } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { createColumns } from '@/components/products/columns'
@@ -49,6 +49,7 @@ const {
   setShopAvailability,
   restoreProduct,
   downloadTemplate,
+  exportProducts,
 } = useProducts()
 
 const searchText = ref('')
@@ -245,6 +246,10 @@ watch(() => route.query.view, async viewedProductId => {
         <Button v-if="canCreate('products')" variant="outline" @click="downloadTemplate">
           <Download />
           {{ t('products.page.template') }}
+        </Button>
+        <Button v-if="canCreate('products')" variant="outline" @click="exportProducts">
+          <FileSpreadsheet />
+          {{ t('products.page.export') }}
         </Button>
         <Button v-if="canCreate('products')" data-tour="products-add" @click="openForm('create', null, null)">
           <Plus />
