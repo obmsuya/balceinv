@@ -115,6 +115,7 @@ names. Add a row here before inventing a new term.
 | features (settings) | vipengele | |
 | order (customer or purchase) | oda | |
 | purchase order | oda kwa msambazaji | |
+| purchases (the menu for suppliers and what we buy) | manunuzi | |
 | deposit | malipo ya awali | |
 | credit sale / debt | mauzo ya mkopo / deni (madeni) | |
 | debtor (owes the shop) | mdaiwa | |

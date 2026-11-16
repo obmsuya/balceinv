@@ -19,7 +19,7 @@
     "settings": "Settings",
     "orders": "Orders",
     "customers": "Customers",
-    "suppliers": "Suppliers",
+    "suppliers": "Purchases",
     "money": "Cash flow",
     "invoices": "Invoices"
   },
