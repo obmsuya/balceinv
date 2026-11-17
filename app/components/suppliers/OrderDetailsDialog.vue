@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { Ban, FileDown, PackageCheck, Send, Share2 } from 'lucide-vue-next'
+import { Ban, FileDown, PackageCheck, Pencil, Send, Share2, Trash2 } from 'lucide-vue-next'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import OrderFormDialog from '@/components/suppliers/OrderFormDialog.vue'
 import ReasonDialog from '@/components/suppliers/ReasonDialog.vue'
 import StockArrivedDialog from '@/components/suppliers/StockArrivedDialog.vue'
 import type { PurchaseOrder } from '@/composables/useSuppliers'
@@ -18,13 +29,16 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { t, formatDate, formatDateTime } = useI18n()
 const { canCreate, canEdit, canDelete } = usePermissions()
-const { fetchOrder, sendOrder, cancelOrder, saving, downloadingOrder, downloadOrderPdf, shareOrderPdf } = useSuppliers()
+const { fetchOrder, sendOrder, cancelOrder, deleteOrder, saving, downloadingOrder, downloadOrderPdf, shareOrderPdf } = useSuppliers()
 
 const order = ref<PurchaseOrder | null>(null)
 const showCancel = ref(false)
 const showReceive = ref(false)
+const showEdit = ref(false)
+const showDelete = ref(false)
 
 const isOpenOrder = computed(() => order.value != null && !['received', 'cancelled'].includes(order.value.status))
+const isDraft = computed(() => order.value?.status === 'draft')
 
 const load = async () => {
   if (!props.orderId) return
@@ -54,6 +68,22 @@ const confirmCancel = async (reason: string) => {
     emit('changed')
   } catch {
   }
+}
+
+const confirmDelete = async () => {
+  if (!order.value) return
+  try {
+    await deleteOrder(order.value.id)
+    showDelete.value = false
+    open.value = false
+    emit('changed')
+  } catch {
+  }
+}
+
+const onEdited = (savedOrder: PurchaseOrder) => {
+  order.value = savedOrder
+  emit('changed')
 }
 
 const onReceived = async () => {
@@ -102,7 +132,9 @@ const onReceived = async () => {
 
         <div v-if="isOpenOrder" class="flex flex-wrap gap-2">
           <Button v-if="canCreate('purchases')" @click="showReceive = true"><PackageCheck /> {{ t('suppliers.orders.receive') }}</Button>
-          <Button v-if="order.status === 'draft' && canEdit('purchases')" variant="outline" :disabled="saving" @click="markSent"><Send /> {{ t('suppliers.orders.markSent') }}</Button>
+          <Button v-if="isDraft && canEdit('purchases')" variant="outline" @click="showEdit = true"><Pencil /> {{ t('suppliers.orders.edit') }}</Button>
+          <Button v-if="isDraft && canEdit('purchases')" variant="outline" :disabled="saving" @click="markSent"><Send /> {{ t('suppliers.orders.markSent') }}</Button>
+          <Button v-if="isDraft && canDelete('purchases')" variant="outline" class="text-destructive hover:text-destructive" @click="showDelete = true"><Trash2 /> {{ t('suppliers.orders.delete') }}</Button>
           <Button v-if="canDelete('purchases')" variant="outline" class="text-destructive hover:text-destructive" @click="showCancel = true"><Ban /> {{ t('suppliers.orders.cancel') }}</Button>
         </div>
       </div>
@@ -116,5 +148,18 @@ const onReceived = async () => {
       @confirm="confirmCancel"
     />
     <StockArrivedDialog v-model:open="showReceive" :order="order" @saved="onReceived" />
+    <OrderFormDialog v-model:open="showEdit" :draft-order="order" @saved="onEdited" />
+    <AlertDialog :open="showDelete" @update:open="isOpen => showDelete = isOpen">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{{ t('suppliers.orders.deleteTitle', { number: order?.order_number ?? '' }) }}</AlertDialogTitle>
+          <AlertDialogDescription>{{ t('suppliers.orders.deleteDescription') }}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{{ t('common.actions.back') }}</AlertDialogCancel>
+          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" :disabled="saving" @click.prevent="confirmDelete">{{ t('suppliers.orders.delete') }}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </Dialog>
 </template>
