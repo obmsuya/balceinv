@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input'
 import MoneyInput from '@/components/MoneyInput.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import type { PaymentMethod, Supplier } from '@/composables/useSuppliers'
+import type { PaymentMethod, Purchase, Supplier } from '@/composables/useSuppliers'
 import { dateToMoment, localDateText, paymentMethods } from '@/composables/useSuppliers'
 import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
 
-const props = defineProps<{ supplier?: Supplier | null }>()
+const props = defineProps<{ supplier?: Supplier | null; purchase?: Purchase | null }>()
 const emit = defineEmits<{ paid: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -26,19 +26,21 @@ const reference = ref('')
 const paidOn = ref(localDateText())
 
 const chosenSupplier = computed(() => props.supplier ?? suppliers.value.find(supplier => supplier.id === supplierId.value) ?? null)
+const payeeId = computed(() => props.purchase?.supplier_id ?? chosenSupplier.value?.id ?? null)
+const amountOwed = computed(() => props.purchase ? props.purchase.amount_due : chosenSupplier.value?.balance ?? 0)
 
 watch(open, async isOpen => {
   if (!isOpen) return
   supplierId.value = props.supplier?.id ?? ''
-  amountText.value = ''
+  amountText.value = props.purchase ? minorToInputText(props.purchase.amount_due) : ''
   method.value = 'cash'
   reference.value = ''
   paidOn.value = localDateText()
-  if (!props.supplier) suppliers.value = (await activeSupplierOptions()).filter(supplier => supplier.balance > 0)
+  if (!props.supplier && !props.purchase) suppliers.value = (await activeSupplierOptions()).filter(supplier => supplier.balance > 0)
 })
 
 const submit = async () => {
-  if (!chosenSupplier.value) {
+  if (!payeeId.value) {
     toast.error(t('suppliers.payments.errors.chooseSupplier'))
     return
   }
@@ -47,14 +49,14 @@ const submit = async () => {
     toast.error(t('suppliers.payments.errors.badAmount'))
     return
   }
-  if (amount > chosenSupplier.value.balance) {
-    toast.error(t('suppliers.payments.errors.tooMuch', { amount: formatMoney(Math.max(chosenSupplier.value.balance, 0)) }))
+  if (amount > amountOwed.value) {
+    toast.error(t('suppliers.payments.errors.tooMuch', { amount: formatMoney(Math.max(amountOwed.value, 0)) }))
     return
   }
   try {
     await paySupplier({
-      supplier_id: chosenSupplier.value.id,
-      purchase_id: null,
+      supplier_id: payeeId.value,
+      purchase_id: props.purchase?.id ?? null,
       amount,
       method: method.value,
       reference: reference.value.trim() || null,
@@ -72,11 +74,14 @@ const submit = async () => {
     <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-md">
       <DialogHeader>
         <DialogTitle>{{ t('suppliers.payments.payTitle') }}</DialogTitle>
-        <DialogDescription>{{ t('suppliers.payments.payDescription') }}</DialogDescription>
+        <DialogDescription>{{ purchase ? t('suppliers.payments.payPurchaseDescription', { number: purchase.purchase_number }) : t('suppliers.payments.payDescription') }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
-        <div v-if="!supplier" class="flex flex-col gap-1.5">
+        <p v-if="purchase" class="rounded-md bg-muted/40 px-3 py-2 text-sm">
+          {{ purchase.supplier_name }} · {{ t('suppliers.payments.stillOwedOn', { number: purchase.purchase_number, amount: formatMoney(purchase.amount_due) }) }}
+        </p>
+        <div v-else-if="!supplier" class="flex flex-col gap-1.5">
           <Label>{{ t('suppliers.arrived.supplier') }}</Label>
           <Select v-model="supplierId">
             <SelectTrigger class="w-full" :aria-label="t('suppliers.arrived.supplier')">
@@ -88,15 +93,15 @@ const submit = async () => {
           </Select>
           <p v-if="!suppliers.length" class="text-xs text-muted-foreground">{{ t('suppliers.payments.nobodyOwed') }}</p>
         </div>
-        <p v-if="chosenSupplier" class="rounded-md bg-muted/40 px-3 py-2 text-sm">
+        <p v-if="chosenSupplier && !purchase" class="rounded-md bg-muted/40 px-3 py-2 text-sm">
           {{ chosenSupplier.balance > 0 ? t('suppliers.list.owes', { amount: formatMoney(chosenSupplier.balance) }) : t('suppliers.list.settled') }}
         </p>
 
         <div class="flex flex-col gap-1.5">
           <Label for="pay-amount">{{ t('suppliers.payments.amount', { currency: currencyCode() }) }}</Label>
           <MoneyInput id="pay-amount" v-model="amountText" />
-          <Button v-if="chosenSupplier && chosenSupplier.balance > 0" variant="outline" size="sm" type="button" class="self-start" @click="amountText = minorToInputText(chosenSupplier.balance)">
-            {{ t('suppliers.payments.payAll') }}
+          <Button v-if="amountOwed > 0" variant="outline" size="sm" type="button" class="self-start" @click="amountText = minorToInputText(amountOwed)">
+            {{ purchase ? t('suppliers.payments.payRest') : t('suppliers.payments.payAll') }}
           </Button>
         </div>
         <div class="grid grid-cols-2 gap-4">

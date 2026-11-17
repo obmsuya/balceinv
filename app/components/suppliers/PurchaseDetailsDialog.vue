@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Ban } from 'lucide-vue-next'
+import { Ban, HandCoins, Pencil } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import PaySupplierDialog from '@/components/suppliers/PaySupplierDialog.vue'
 import ReasonDialog from '@/components/suppliers/ReasonDialog.vue'
 import type { Purchase } from '@/composables/useSuppliers'
 import { calendarDay } from '@/composables/useSuppliers'
@@ -17,17 +18,38 @@ const emit = defineEmits<{ changed: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 
 const { t, formatDate, formatDateTime } = useI18n()
-const { canDelete } = usePermissions()
+const StockArrivedDialog = defineAsyncComponent(() => import('@/components/suppliers/StockArrivedDialog.vue'))
+
+const { canDelete, canEdit } = usePermissions()
 const { fetchPurchase, cancelPurchase, saving } = useSuppliers()
 
 const purchase = ref<Purchase | null>(null)
 const showCancel = ref(false)
+const showEdit = ref(false)
+const showPay = ref(false)
+
+const canPay = computed(() => purchase.value?.status === 'received' && purchase.value.amount_due > 0 && purchase.value.supplier_id != null && canEdit('purchases'))
+const canChange = computed(() => purchase.value?.status === 'received' && canEdit('purchases'))
+
+const show = async (purchaseId: string) => {
+  purchase.value = null
+  purchase.value = await fetchPurchase(purchaseId)
+}
 
 watch([open, () => props.purchaseId], async ([isOpen]) => {
   if (!isOpen || !props.purchaseId) return
-  purchase.value = null
-  purchase.value = await fetchPurchase(props.purchaseId)
+  await show(props.purchaseId)
 })
+
+const onEdited = async (editedPurchase: Purchase) => {
+  await show(editedPurchase.id)
+  emit('changed')
+}
+
+const onPaid = async () => {
+  if (purchase.value) await show(purchase.value.id)
+  emit('changed')
+}
 
 const confirmCancel = async (reason: string) => {
   if (!purchase.value) return
@@ -46,7 +68,7 @@ const confirmCancel = async (reason: string) => {
       <DialogHeader>
         <DialogTitle class="flex flex-wrap items-center gap-2">
           {{ purchase?.purchase_number ?? t('suppliers.arrived.title') }}
-          <Badge v-if="purchase" :variant="purchase.status === 'cancelled' ? 'destructive' : 'secondary'">{{ t(`suppliers.status.${purchase.payment_status}`) }}</Badge>
+          <Badge v-if="purchase" :variant="purchase.status === 'cancelled' ? 'destructive' : 'secondary'">{{ purchase.replaced_by_id ? t('suppliers.purchases.edited') : t(`suppliers.status.${purchase.payment_status}`) }}</Badge>
         </DialogTitle>
         <DialogDescription v-if="purchase">
           {{ purchase.supplier_name ?? t('suppliers.arrived.noSupplier') }} · {{ purchase.shop_name }} · {{ formatDateTime(purchase.received_at) }}
@@ -55,9 +77,21 @@ const confirmCancel = async (reason: string) => {
 
       <Skeleton v-if="!purchase" class="h-32 w-full" />
       <div v-else class="flex flex-col gap-3 text-sm">
-        <p v-if="purchase.status === 'cancelled'" class="rounded-md bg-destructive/10 px-3 py-2 text-destructive">
+        <div v-if="purchase.replaced_by_id" class="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted/60 px-3 py-2">
+          <span>{{ t('suppliers.purchases.replacedBy', { number: purchase.replaced_by_number ?? '' }) }}</span>
+          <Button variant="outline" size="sm" @click="show(purchase.replaced_by_id)">{{ t('suppliers.purchases.openReplacement', { number: purchase.replaced_by_number ?? '' }) }}</Button>
+        </div>
+        <p v-else-if="purchase.status === 'cancelled'" class="rounded-md bg-destructive/10 px-3 py-2 text-destructive">
           {{ t('suppliers.purchases.cancelledBy', { name: purchase.cancelled_by_name ?? '—', reason: purchase.cancel_reason ?? '' }) }}
         </p>
+        <button
+          v-if="purchase.edited_from_id"
+          type="button"
+          class="self-start text-xs text-muted-foreground underline-offset-2 hover:underline"
+          @click="show(purchase.edited_from_id)"
+        >
+          {{ t('suppliers.purchases.editedFrom', { number: purchase.edited_from_number ?? '' }) }}
+        </button>
         <dl class="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
           <template v-if="purchase.supplier_invoice_number">
             <dt>{{ t('suppliers.arrived.invoiceNumber') }}</dt><dd class="text-foreground">{{ purchase.supplier_invoice_number }}</dd>
@@ -100,15 +134,19 @@ const confirmCancel = async (reason: string) => {
           <img :src="assetUrl(purchase.attachment_url) ?? undefined" :alt="t('suppliers.arrived.photo')" class="max-h-64 w-full rounded-md border object-contain">
         </a>
 
-        <Button
-          v-if="purchase.status === 'received' && canDelete('purchases')"
-          variant="outline"
-          class="self-start text-destructive hover:text-destructive"
-          @click="showCancel = true"
-        >
-          <Ban />
-          {{ t('suppliers.purchases.cancel') }}
-        </Button>
+        <div class="flex flex-wrap gap-2">
+          <Button v-if="canPay" @click="showPay = true"><HandCoins /> {{ t('suppliers.purchases.pay') }}</Button>
+          <Button v-if="canChange" variant="outline" @click="showEdit = true"><Pencil /> {{ t('suppliers.purchases.edit') }}</Button>
+          <Button
+            v-if="purchase.status === 'received' && canDelete('purchases')"
+            variant="outline"
+            class="text-destructive hover:text-destructive"
+            @click="showCancel = true"
+          >
+            <Ban />
+            {{ t('suppliers.purchases.cancel') }}
+          </Button>
+        </div>
       </div>
     </DialogContent>
     <ReasonDialog
@@ -119,5 +157,7 @@ const confirmCancel = async (reason: string) => {
       :busy="saving"
       @confirm="confirmCancel"
     />
+    <StockArrivedDialog v-model:open="showEdit" :edit-purchase="purchase" :show-details-after-save="false" @saved="onEdited" />
+    <PaySupplierDialog v-model:open="showPay" :purchase="purchase" @paid="onPaid" />
   </Dialog>
 </template>
