@@ -13,8 +13,10 @@ export interface ReportSummary {
   tax_total: number
   discount_total: number
   extra_total: number
-  winga_total: number
-  winga_share_total: number
+  brk_total: number
+  brk_share_total: number
+  brk_tax: number
+  brk_commission: number
   net_sales: number
   cost_total: number
   gross_profit: number
@@ -31,8 +33,9 @@ export interface ReportDay {
   cost_total: number
   gross_profit: number
   extra_total: number
-  winga_total: number
-  winga_share_total: number
+  brk_total: number
+  brk_share_total: number
+  brk_commission: number
 }
 
 export interface ReportProduct {

@@ -182,6 +182,7 @@ export interface SaleTotals {
   tax_total: number
   discount_total: number
   refund_total: number
+  brk_total: number
 }
 
 export interface SaleReceipt {
