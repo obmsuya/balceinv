@@ -6,6 +6,7 @@
   "sendWaiting": "Tuma zinazosubiri kwa EFD",
   "receiptNumber": "Namba ya risiti",
   "cards": {
+    "brkLine": "Winga: {amount}",
     "sales": "Mauzo",
     "takings": "Makusanyo",
     "taxIncluded": "Kodi iliyojumuishwa",
