@@ -114,7 +114,13 @@
       "noProducts": "Add at least one product",
       "badLine": "Check the quantity and cost for {product}",
       "badPaid": "The amount paid cannot be more than the total"
-    }
+    },
+    "editTitle": "Change {number}",
+    "editDescription": "Fix the products, quantities or costs. Stock moves only by the difference, and payments already made stay with it.",
+    "draftNotice": "Draft: nothing has gone into stock or what you owe yet.",
+    "saveDraft": "Save draft",
+    "saveChanges": "Save changes",
+    "paidSoFar": "Paid so far: {amount}. Pay the rest from the stock arrival after saving."
   },
   "status": {
     "paid": "Paid",
@@ -135,7 +141,19 @@
     "cancel": "Cancel stock arrived",
     "cancelTitle": "Cancel {number}?",
     "cancelDescription": "The stock is taken back out of the shop and any payment made with it is voided. This only works if the stock has not been sold.",
-    "cancelledBy": "Cancelled by {name}: {reason}"
+    "cancelledBy": "Cancelled by {name}: {reason}",
+    "edit": "Change",
+    "pay": "Pay",
+    "editedFrom": "Changed from {number}",
+    "replacedBy": "This was changed. The new one is {number}.",
+    "openReplacement": "Open {number}",
+    "edited": "Changed",
+    "drafts": "Drafts",
+    "draftLine": "Products: {count} · saved {date}",
+    "continueDraft": "Continue",
+    "deleteDraft": "Delete draft",
+    "deleteDraftTitle": "Delete this draft?",
+    "deleteDraftDescription": "Nothing went into stock from it, so nothing else changes."
   },
   "payments": {
     "empty": "No payments to suppliers yet.",
@@ -159,7 +177,10 @@
       "chooseSupplier": "Choose a supplier",
       "badAmount": "Enter an amount above zero",
       "tooMuch": "You only owe {amount}"
-    }
+    },
+    "payPurchaseDescription": "Pay for {number}. It lowers what you owe for this stock.",
+    "stillOwedOn": "Still to pay on {number}: {amount}",
+    "payRest": "Pay the rest"
   },
   "returns": {
     "title": "Return stock to {supplier}",
@@ -179,7 +200,6 @@
     "expectedTotal": "Expected total",
     "expectedDate": "Expected on (optional)",
     "expectedOn": "Expected {date}",
-    "sendNow": "Already sent to the supplier",
     "save": "Save order",
     "arrivedOf": "{received} of {ordered} {unit} arrived",
     "receive": "Receive stock",
@@ -195,7 +215,14 @@
       "cancelled": "Cancelled"
     },
     "pdf": "PDF",
-    "share": "Share"
+    "share": "Share",
+    "saveDraft": "Save draft",
+    "saveSent": "Save as sent",
+    "editTitle": "Change order {number}",
+    "edit": "Change",
+    "delete": "Delete",
+    "deleteTitle": "Delete order {number}?",
+    "deleteDescription": "This order was never sent, so it is removed completely."
   },
   "reason": {
     "label": "Why?",
@@ -238,6 +265,15 @@
     "orderCancelFailed": "Failed to cancel the order",
     "orderPdfSaved": "Order saved",
     "orderPdfSavedToShare": "Order saved. Send it from your files",
-    "orderPdfFailed": "The order could not be saved"
+    "orderPdfFailed": "The order could not be saved",
+    "purchaseChanged": "Saved as {number}. The old one stays in the history.",
+    "purchaseChangeFailed": "Failed to change the stock arrival",
+    "draftSaved": "Draft saved",
+    "draftSaveFailed": "Failed to save the draft",
+    "draftDeleted": "Draft deleted",
+    "draftDeleteFailed": "Failed to delete the draft",
+    "draftsFailed": "Failed to load drafts",
+    "orderDeleted": "Order deleted",
+    "orderDeleteFailed": "Failed to delete the order"
   }
 }

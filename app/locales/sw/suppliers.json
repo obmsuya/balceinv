@@ -114,7 +114,13 @@
       "noProducts": "Ongeza angalau bidhaa moja",
       "badLine": "Angalia idadi na bei ya {product}",
       "badPaid": "Kiasi ulicholipa hakiwezi kuzidi jumla"
-    }
+    },
+    "editTitle": "Hariri {number}",
+    "editDescription": "Rekebisha bidhaa, idadi au bei. Stoku inabadilika kwa tofauti tu, na malipo yaliyokwisha fanywa yanabaki nayo.",
+    "draftNotice": "Rasimu: bado hakuna kilichoingia kwenye stoku wala kwenye deni lako.",
+    "saveDraft": "Hifadhi rasimu",
+    "saveChanges": "Hifadhi mabadiliko",
+    "paidSoFar": "Umelipa hadi sasa: {amount}. Lipa kilichobaki kwenye stoku iliyofika baada ya kuhifadhi."
   },
   "status": {
     "paid": "Imelipwa",
@@ -135,7 +141,19 @@
     "cancel": "Ghairi stoku iliyofika",
     "cancelTitle": "Ghairi {number}?",
     "cancelDescription": "Stoku inatolewa dukani na malipo yaliyofanywa nayo yanabatilishwa. Inawezekana tu kama stoku haijauzwa.",
-    "cancelledBy": "Imeghairiwa na {name}: {reason}"
+    "cancelledBy": "Imeghairiwa na {name}: {reason}",
+    "edit": "Hariri",
+    "pay": "Lipa",
+    "editedFrom": "Imehaririwa kutoka {number}",
+    "replacedBy": "Hii ilihaririwa. Mpya ni {number}.",
+    "openReplacement": "Fungua {number}",
+    "edited": "Imehaririwa",
+    "drafts": "Rasimu",
+    "draftLine": "Bidhaa: {count} · imehifadhiwa {date}",
+    "continueDraft": "Endelea",
+    "deleteDraft": "Futa rasimu",
+    "deleteDraftTitle": "Futa rasimu hii?",
+    "deleteDraftDescription": "Hakuna kilichoingia kwenye stoku kutoka kwake, hivyo hakuna kingine kinachobadilika."
   },
   "payments": {
     "empty": "Bado hakuna malipo kwa wasambazaji.",
@@ -159,7 +177,10 @@
       "chooseSupplier": "Chagua msambazaji",
       "badAmount": "Andika kiasi zaidi ya sifuri",
       "tooMuch": "Unadaiwa {amount} tu"
-    }
+    },
+    "payPurchaseDescription": "Lipia {number}. Inapunguza deni lako la stoku hii.",
+    "stillOwedOn": "Bado kulipa kwa {number}: {amount}",
+    "payRest": "Lipa kilichobaki"
   },
   "returns": {
     "title": "Rudisha stoku kwa {supplier}",
@@ -179,7 +200,6 @@
     "expectedTotal": "Jumla inayotarajiwa",
     "expectedDate": "Inatarajiwa tarehe (si lazima)",
     "expectedOn": "Inatarajiwa {date}",
-    "sendNow": "Imeshatumwa kwa msambazaji",
     "save": "Hifadhi oda",
     "arrivedOf": "{received} kati ya {ordered} {unit} zimefika",
     "receive": "Pokea stoku",
@@ -195,7 +215,14 @@
       "cancelled": "Imeghairiwa"
     },
     "pdf": "PDF",
-    "share": "Tuma"
+    "share": "Tuma",
+    "saveDraft": "Hifadhi rasimu",
+    "saveSent": "Hifadhi kuwa imetumwa",
+    "editTitle": "Hariri oda {number}",
+    "edit": "Hariri",
+    "delete": "Futa",
+    "deleteTitle": "Futa oda {number}?",
+    "deleteDescription": "Oda hii haikutumwa, hivyo inaondolewa kabisa."
   },
   "reason": {
     "label": "Kwa nini?",
@@ -238,6 +265,15 @@
     "orderCancelFailed": "Imeshindwa kughairi oda",
     "orderPdfSaved": "Oda imehifadhiwa",
     "orderPdfSavedToShare": "Oda imehifadhiwa. Itume kutoka kwenye faili zako",
-    "orderPdfFailed": "Imeshindwa kuhifadhi oda"
+    "orderPdfFailed": "Imeshindwa kuhifadhi oda",
+    "purchaseChanged": "Imehifadhiwa kama {number}. Ya zamani inabaki kwenye historia.",
+    "purchaseChangeFailed": "Imeshindwa kuhariri stoku iliyofika",
+    "draftSaved": "Rasimu imehifadhiwa",
+    "draftSaveFailed": "Imeshindwa kuhifadhi rasimu",
+    "draftDeleted": "Rasimu imefutwa",
+    "draftDeleteFailed": "Imeshindwa kufuta rasimu",
+    "draftsFailed": "Imeshindwa kupakia rasimu",
+    "orderDeleted": "Oda imefutwa",
+    "orderDeleteFailed": "Imeshindwa kufuta oda"
   }
 }
