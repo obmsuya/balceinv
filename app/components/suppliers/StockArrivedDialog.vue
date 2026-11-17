@@ -10,37 +10,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import PhonePhotoDialog from '@/components/products/PhonePhotoDialog.vue'
 import StockProductSearch from '@/components/stock/StockProductSearch.vue'
+import PurchaseDetailsDialog from '@/components/suppliers/PurchaseDetailsDialog.vue'
 import type { StockLevel } from '@/composables/useStock'
 import { productLabel } from '@/composables/useStock'
 import { productImageLimitBytes } from '@/composables/useProducts'
 import { randomReference } from '@/composables/useCart'
-import type { InvoiceVat, PaymentMethod, Purchase, PurchaseOrder, Supplier } from '@/composables/useSuppliers'
+import type { ArrivedDraftPayload, ArrivedRow, InvoiceVat, PaymentMethod, Purchase, PurchaseDraft, PurchaseOrder, Supplier } from '@/composables/useSuppliers'
 import { dateToMoment, localDateText, paymentMethods } from '@/composables/useSuppliers'
 import { currencyCode, formatMoney, inputTextToMinor, minorToInputText } from '~/utils/money'
-
-interface ArrivedRow {
-  productId: string
-  label: string
-  sku: string
-  unit: string
-  currentCost: number
-  lastPaid: number | null
-  quantityText: string
-  costText: string
-}
 
 const noSupplier = 'none'
 const basisPoints = 10000
 
-const props = defineProps<{ supplierId?: string | null; order?: PurchaseOrder | null }>()
-const emit = defineEmits<{ saved: [purchase: Purchase] }>()
+const props = withDefaults(defineProps<{
+  supplierId?: string | null
+  order?: PurchaseOrder | null
+  editPurchase?: Purchase | null
+  draft?: PurchaseDraft<ArrivedDraftPayload> | null
+  showDetailsAfterSave?: boolean
+}>(), { supplierId: null, order: null, editPurchase: null, draft: null, showDetailsAfterSave: true })
+const emit = defineEmits<{ saved: [purchase: Purchase]; draftSaved: [] }>()
 
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
 const { user } = useAuth()
+const { canEdit } = usePermissions()
 const { suppliersOn, vatOn } = useFeatures()
-const { activeSupplierOptions, lastCost, vatRate, recordPurchase, saving } = useSuppliers()
+const { activeSupplierOptions, lastCost, vatRate, recordPurchase, updatePurchase, savePurchaseDraft, saving } = useSuppliers()
 
 const suppliers = ref<Supplier[]>([])
 const clientRef = ref('')
@@ -60,11 +57,18 @@ const photoFile = ref<File | null>(null)
 const photoPreview = ref<string | null>(null)
 const photoInput = ref<HTMLInputElement | null>(null)
 const showPhonePhoto = ref(false)
+const draftId = ref<string | null>(null)
+const draftOrderId = ref<string | null>(null)
+const savedPurchase = ref<Purchase | null>(null)
+const showSavedDetails = ref(false)
 
+const isEditing = computed(() => props.editPurchase != null)
+const orderId = computed(() => props.order?.id ?? draftOrderId.value)
 const hasSupplier = computed(() => supplierChoice.value !== noSupplier)
 const shops = computed(() => user.value?.shops ?? [])
 const chosenProductIds = computed(() => rows.value.map(row => row.productId))
-const isOrderLocked = computed(() => props.order != null)
+const isOrderLocked = computed(() => orderId.value != null || isEditing.value)
+const keepsArrivalDay = computed(() => props.editPurchase != null && arrivedOn.value === localDateText(new Date(props.editPurchase.received_at)))
 const vatChoices = computed<Array<{ value: InvoiceVat; label: string }>>(() => [
   { value: 'none', label: t('suppliers.arrived.vatNone') },
   { value: 'included', label: t('suppliers.arrived.vatIncluded') },
@@ -93,12 +97,67 @@ const onPhotoPicked = (event: Event) => {
   if (pickedFile) usePhoto(pickedFile)
 }
 
+const typedCost = (purchase: Purchase, line: NonNullable<Purchase['lines']>[number]): number =>
+  purchase.vat_total && purchase.prices_include_vat ? Math.round(line.line_total / line.quantity) : line.unit_cost
+
+const fillFromPurchase = (purchase: Purchase) => {
+  supplierChoice.value = purchase.supplier_id ?? noSupplier
+  shopId.value = purchase.shop_id
+  invoiceNumber.value = purchase.supplier_invoice_number ?? ''
+  invoiceDate.value = purchase.invoice_date ?? ''
+  arrivedOn.value = localDateText(new Date(purchase.received_at))
+  vatChoice.value = !purchase.vat_total ? 'none' : purchase.prices_include_vat ? 'included' : 'added'
+  note.value = purchase.note ?? ''
+  rows.value = (purchase.lines ?? []).map(purchaseLine => ({
+    productId: purchaseLine.product_id,
+    label: productLabel(purchaseLine),
+    sku: purchaseLine.sku,
+    unit: purchaseLine.unit,
+    currentCost: null,
+    lastPaid: null,
+    quantityText: String(purchaseLine.quantity),
+    costText: minorToInputText(typedCost(purchase, purchaseLine)),
+  }))
+}
+
+const fillFromDraft = (payload: ArrivedDraftPayload) => {
+  supplierChoice.value = payload.supplierChoice || noSupplier
+  shopId.value = payload.shopId || user.value?.shop_id || ''
+  draftOrderId.value = payload.orderId ?? null
+  invoiceNumber.value = payload.invoiceNumber ?? ''
+  invoiceDate.value = payload.invoiceDate ?? ''
+  arrivedOn.value = payload.arrivedOn || localDateText()
+  vatChoice.value = payload.vatChoice ?? 'none'
+  paidText.value = payload.paidText ?? ''
+  paymentMethod.value = payload.paymentMethod ?? 'cash'
+  paymentReference.value = payload.paymentReference ?? ''
+  note.value = payload.note ?? ''
+  rows.value = (payload.rows ?? []).map(row => ({ ...row }))
+}
+
+const draftPayload = (): ArrivedDraftPayload => ({
+  supplierChoice: supplierChoice.value,
+  shopId: shopId.value,
+  orderId: orderId.value,
+  invoiceNumber: invoiceNumber.value,
+  invoiceDate: invoiceDate.value,
+  arrivedOn: arrivedOn.value,
+  vatChoice: vatChoice.value,
+  paidText: paidText.value,
+  paymentMethod: paymentMethod.value,
+  paymentReference: paymentReference.value,
+  note: note.value,
+  rows: rows.value.map(row => ({ ...row })),
+})
+
 watch(open, async isOpen => {
   if (!isOpen) {
     clearPhoto()
     return
   }
   clientRef.value = randomReference()
+  draftId.value = props.draft?.id ?? null
+  draftOrderId.value = null
   supplierChoice.value = props.order?.supplier_id ?? props.supplierId ?? noSupplier
   shopId.value = props.order?.shop_id ?? user.value?.shop_id ?? ''
   invoiceNumber.value = ''
@@ -121,6 +180,8 @@ watch(open, async isOpen => {
       quantityText: String(orderLine.quantity_remaining),
       costText: minorToInputText(orderLine.expected_unit_cost || orderLine.cost_price),
     }))
+  if (props.editPurchase) fillFromPurchase(props.editPurchase)
+  else if (props.draft) fillFromDraft(props.draft.payload)
   suppliers.value = suppliersOn.value ? await activeSupplierOptions() : []
   taxRate.value = vatOn.value ? await vatRate() : 0
 })
@@ -169,6 +230,30 @@ const totals = computed(() => {
 
 const paidNow = computed(() => (hasSupplier.value ? inputTextToMinor(paidText.value) ?? 0 : totals.value.total))
 
+const saveDraft = async () => {
+  try {
+    const savedDraft = await savePurchaseDraft(draftId.value, {
+      shop_id: shopId.value || null,
+      supplier_id: hasSupplier.value ? supplierChoice.value : null,
+      purchase_order_id: orderId.value,
+      line_count: rows.value.length,
+      payload: { ...draftPayload() },
+    })
+    draftId.value = savedDraft.id
+    emit('draftSaved')
+    open.value = false
+  } catch {
+  }
+}
+
+const afterSave = (purchase: Purchase) => {
+  emit('saved', purchase)
+  open.value = false
+  savedPurchase.value = purchase
+  const leftToPay = purchase.amount_due > 0 && purchase.supplier_id != null
+  if (props.showDetailsAfterSave && leftToPay && canEdit('purchases')) showSavedDetails.value = true
+}
+
 const submit = async () => {
   if (!rows.value.length) {
     toast.error(t('suppliers.arrived.errors.noProducts'))
@@ -179,31 +264,38 @@ const submit = async () => {
     toast.error(t('suppliers.arrived.errors.badLine', { product: badRow.label }))
     return
   }
-  if (Number.isNaN(paidNow.value) || paidNow.value > totals.value.total) {
+  if (!isEditing.value && (Number.isNaN(paidNow.value) || paidNow.value > totals.value.total)) {
     toast.error(t('suppliers.arrived.errors.badPaid'))
     return
   }
-  try {
-    const savedPurchase = await recordPurchase({
+  const purchaseFields = {
       client_ref: clientRef.value,
       supplier_id: hasSupplier.value ? supplierChoice.value : null,
       shop_id: shopId.value || null,
-      purchase_order_id: props.order?.id ?? null,
+      purchase_order_id: orderId.value,
       supplier_invoice_number: invoiceNumber.value.trim() || null,
       invoice_date: invoiceDate.value || null,
-      received_at: dateToMoment(arrivedOn.value),
+      received_at: keepsArrivalDay.value ? props.editPurchase!.received_at : dateToMoment(arrivedOn.value),
       invoice_has_vat: vatChoice.value !== 'none',
       prices_include_vat: vatChoice.value === 'included',
-      amount_paid: paidNow.value,
+      amount_paid: isEditing.value ? 0 : paidNow.value,
       payment_method: paymentMethod.value,
       payment_reference: paymentReference.value.trim() || null,
       note: note.value.trim() || null,
+      draft_id: draftId.value,
       lines: rows.value.map(row => ({ product_id: row.productId, quantity: rowQuantity(row)!, unit_cost: rowCost(row)! })),
-    }, photoFile.value)
-    emit('saved', savedPurchase)
-    open.value = false
+  }
+  try {
+    const purchase = props.editPurchase
+      ? await updatePurchase(props.editPurchase.id, purchaseFields, photoFile.value)
+      : await recordPurchase(purchaseFields, photoFile.value)
+    afterSave(purchase)
   } catch {
   }
+}
+
+const onSavedDetailsChanged = () => {
+  if (savedPurchase.value) emit('saved', savedPurchase.value)
 }
 </script>
 
@@ -211,11 +303,16 @@ const submit = async () => {
   <Dialog v-model:open="open">
     <DialogContent class="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
       <DialogHeader>
-        <DialogTitle>{{ order ? t('suppliers.arrived.receiveTitle', { number: order.order_number }) : t('suppliers.arrived.title') }}</DialogTitle>
-        <DialogDescription>{{ t('suppliers.arrived.description') }}</DialogDescription>
+        <DialogTitle>
+          <template v-if="editPurchase">{{ t('suppliers.arrived.editTitle', { number: editPurchase.purchase_number }) }}</template>
+          <template v-else-if="order">{{ t('suppliers.arrived.receiveTitle', { number: order.order_number }) }}</template>
+          <template v-else>{{ t('suppliers.arrived.title') }}</template>
+        </DialogTitle>
+        <DialogDescription>{{ editPurchase ? t('suppliers.arrived.editDescription') : t('suppliers.arrived.description') }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
+        <p v-if="draftId" class="rounded-md bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">{{ t('suppliers.arrived.draftNotice') }}</p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div v-if="suppliersOn" class="flex flex-col gap-1.5">
             <Label>{{ t('suppliers.arrived.supplier') }}</Label>
@@ -227,6 +324,7 @@ const submit = async () => {
                 <SelectItem :value="noSupplier">{{ t('suppliers.arrived.noSupplier') }}</SelectItem>
                 <SelectItem v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</SelectItem>
                 <SelectItem v-if="order && !suppliers.some(supplier => supplier.id === order.supplier_id)" :value="order.supplier_id">{{ order.supplier_name }}</SelectItem>
+                <SelectItem v-if="editPurchase?.supplier_id && !suppliers.some(supplier => supplier.id === editPurchase?.supplier_id)" :value="editPurchase.supplier_id">{{ editPurchase.supplier_name }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -267,7 +365,7 @@ const submit = async () => {
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium">{{ row.label }}</p>
               <p class="text-xs text-muted-foreground tabular-nums">
-                {{ t('suppliers.arrived.costNow', { amount: formatMoney(row.currentCost) }) }}
+                <template v-if="row.currentCost != null">{{ t('suppliers.arrived.costNow', { amount: formatMoney(row.currentCost) }) }}</template>
                 <template v-if="row.lastPaid != null"> · {{ t('suppliers.arrived.lastPaid', { amount: formatMoney(row.lastPaid) }) }}</template>
               </p>
             </div>
@@ -305,7 +403,10 @@ const submit = async () => {
           <div class="flex justify-between font-semibold"><dt>{{ t('common.fields.total') }}</dt><dd class="tabular-nums">{{ formatMoney(totals.total) }}</dd></div>
         </dl>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <p v-if="editPurchase" class="rounded-md bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          {{ t('suppliers.arrived.paidSoFar', { amount: formatMoney(editPurchase.amount_paid) }) }}
+        </p>
+        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-1.5">
             <Label for="arrived-paid">{{ t('suppliers.arrived.paidNow', { currency: currencyCode() }) }}</Label>
             <MoneyInput v-if="hasSupplier" id="arrived-paid" v-model="paidText" placeholder="0" />
@@ -349,9 +450,11 @@ const submit = async () => {
 
       <DialogFooter>
         <Button variant="outline" @click="open = false">{{ t('common.actions.cancel') }}</Button>
-        <Button :disabled="saving" @click="submit">{{ t('suppliers.arrived.save') }}</Button>
+        <Button v-if="!editPurchase" variant="outline" :disabled="saving" @click="saveDraft">{{ t('suppliers.arrived.saveDraft') }}</Button>
+        <Button :disabled="saving" @click="submit">{{ editPurchase ? t('suppliers.arrived.saveChanges') : t('suppliers.arrived.save') }}</Button>
       </DialogFooter>
     </DialogContent>
     <PhonePhotoDialog v-model:open="showPhonePhoto" @photo="usePhoto" />
+    <PurchaseDetailsDialog v-if="showDetailsAfterSave" v-model:open="showSavedDetails" :purchase-id="savedPurchase?.id ?? null" @changed="onSavedDetailsChanged" />
   </Dialog>
 </template>
