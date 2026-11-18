@@ -178,6 +178,9 @@ onMounted(async () => {
                   <p class="flex flex-wrap items-center gap-1.5 font-mono text-sm font-medium">
                     {{ sale.receipt_number }}
                     <Badge v-if="sale.voided_at" variant="destructive" class="font-sans font-normal">{{ t('sales.void.badge') }}</Badge>
+                    <Badge v-else-if="sale.refunded_total" variant="outline" class="border-amber-500/40 font-sans font-normal text-amber-700 dark:text-amber-400">
+                      {{ sale.refunded_total >= sale.total ? t('sales.refund.badge') : t('sales.refund.partBadge', { amount: formatMoney(sale.refunded_total) }) }}
+                    </Badge>
                     <Badge v-if="sale.fiscal_status && sale.fiscal_status !== 'sent'" :variant="sale.fiscal_status === 'failed' ? 'destructive' : 'secondary'" class="font-sans font-normal">
                       {{ fiscalStatusLabel(sale.fiscal_status) }}
                     </Badge>

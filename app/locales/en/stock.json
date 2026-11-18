@@ -56,7 +56,13 @@
     "adjustment": "Correction",
     "damage": "Damaged",
     "transfer_in": "Transfer in",
-    "transfer_out": "Transfer out"
+    "transfer_out": "Transfer out",
+    "sale_refund": "Customer return",
+    "sale_void": "Sale voided",
+    "order_reserved": "Set aside for an order",
+    "order_cancelled": "Order cancelled",
+    "invoice_delivered": "Invoice delivered",
+    "invoice_cancelled": "Invoice cancelled"
   },
   "adjust": {
     "description": "Every change is kept in the stock history.",

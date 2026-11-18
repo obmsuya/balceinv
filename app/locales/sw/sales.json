@@ -103,7 +103,9 @@
     "historyTitle": "Imerudishwa {amount}",
     "restocked": "imerudi kwenye stoku",
     "notRestocked": "haikurudi kwenye stoku",
-    "cardLine": "Zilizorudishwa: {amount}"
+    "cardLine": "Zilizorudishwa: {amount}",
+    "badge": "Pesa imerudishwa",
+    "partBadge": "Imerudishwa {amount}"
   },
   "subtitleAllShops": "Risiti zote za maduka yako yote"
 }

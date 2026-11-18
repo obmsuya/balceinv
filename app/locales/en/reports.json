@@ -109,7 +109,7 @@
     },
     "daily": {
       "title": "Sales per day",
-      "description": "Every day in the period with its sales, takings, cost and profit, plus Extra and Brk when there are any."
+      "description": "Every day in the period with its sales, takings, cost and profit, plus Extra and Brk when there are any. Refunds come off the day they were given."
     },
     "products": {
       "title": "Products sold",
@@ -122,6 +122,10 @@
     "brkExtra": {
       "title": "Brk and Extra",
       "description": "Every Extra and Brk line with its receipt and staff member, for the evening count and paying out."
+    },
+    "refunds": {
+      "title": "Refunds",
+      "description": "Every refund given in the period with its receipt, the items, how the money went back, who gave it and why."
     },
     "shops": {
       "title": "Sales per shop",

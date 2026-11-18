@@ -103,7 +103,9 @@
     "historyTitle": "Refunded {amount}",
     "restocked": "back in stock",
     "notRestocked": "not back in stock",
-    "cardLine": "Refunds: {amount}"
+    "cardLine": "Refunds: {amount}",
+    "badge": "Refunded",
+    "partBadge": "Refunded {amount}"
   },
   "subtitleAllShops": "Every receipt from all your shops"
 }

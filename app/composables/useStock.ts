@@ -2,7 +2,7 @@ import { toast } from 'vue-sonner'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
 export type StockStatus = 'ok' | 'low' | 'out'
-export type MovementReason = 'opening' | 'sale' | 'return' | 'purchase' | 'adjustment' | 'damage' | 'transfer_in' | 'transfer_out'
+export type MovementReason = 'opening' | 'sale' | 'sale_refund' | 'sale_void' | 'return' | 'purchase' | 'adjustment' | 'damage' | 'transfer_in' | 'transfer_out' | 'order_reserved' | 'order_cancelled' | 'invoice_delivered' | 'invoice_cancelled'
 export type AdjustmentReason = 'purchase' | 'return' | 'adjustment' | 'damage'
 
 export interface StockLevel {
@@ -95,7 +95,7 @@ interface Page<Item> {
 
 export const stockPageSize = 50
 
-export const movementReasons: MovementReason[] = ['opening', 'sale', 'return', 'purchase', 'adjustment', 'damage', 'transfer_in', 'transfer_out']
+export const movementReasons: MovementReason[] = ['opening', 'sale', 'sale_refund', 'sale_void', 'return', 'purchase', 'adjustment', 'damage', 'transfer_in', 'transfer_out']
 
 export const movementReasonLabel = (reason: MovementReason): string => t(`stock.reasons.${reason}`)
 
