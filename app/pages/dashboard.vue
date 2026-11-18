@@ -34,6 +34,19 @@ const greeting = computed(() => {
 
 const today = computed(() => dashboard.value?.today ?? null)
 const salesChange = computed(() => dashboard.value ? percentChange(dashboard.value.today.total, dashboard.value.yesterday.total) : null)
+const salesTodayHint = computed(() => {
+  if (!today.value) return ''
+  const hintParts = [t('reports.counts.sales', { count: today.value.sale_count })]
+  if (today.value.brk_total) hintParts.push(t('dashboard.stats.brkHint', { amount: formatMoney(today.value.brk_total) }))
+  hintParts.push(t('dashboard.stats.vsYesterday'))
+  return hintParts.join(' · ')
+})
+const profitTodayHint = computed(() => {
+  if (!today.value) return ''
+  const margin = marginText(today.value.margin_basis_points)
+  if (!today.value.brk_commission) return t('dashboard.stats.profitHint', { margin })
+  return t('dashboard.stats.profitWithBrkHint', { margin, amount: formatMoney(today.value.brk_commission) })
+})
 const profitChange = computed(() => dashboard.value ? percentChange(dashboard.value.today.gross_profit, dashboard.value.yesterday.gross_profit) : null)
 const stockAlertCount = computed(() => (dashboard.value ? dashboard.value.stock.low_count + dashboard.value.stock.out_count : 0))
 
@@ -111,14 +124,14 @@ onUnmounted(() => {
         :title="t('dashboard.stats.salesToday')"
         :value="today ? formatMoney(today.total) : null"
         :change="salesChange"
-        :hint="today ? `${t('reports.counts.sales', { count: today.sale_count })} · ${t('dashboard.stats.vsYesterday')}` : ''"
+        :hint="salesTodayHint"
         :icon="Wallet"
       />
       <StatCard
         :title="t('dashboard.stats.profitToday')"
         :value="today ? formatMoney(today.gross_profit) : null"
         :change="profitChange"
-        :hint="today ? t('dashboard.stats.profitHint', { margin: marginText(today.margin_basis_points) }) : ''"
+        :hint="profitTodayHint"
         :icon="PiggyBank"
       />
       <StatCard

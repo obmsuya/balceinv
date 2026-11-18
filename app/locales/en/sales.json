@@ -6,6 +6,7 @@
   "sendWaiting": "Send waiting to EFD",
   "receiptNumber": "Receipt number",
   "cards": {
+    "brkLine": "Brk: {amount}",
     "sales": "Sales",
     "takings": "Takings",
     "taxIncluded": "Tax included",

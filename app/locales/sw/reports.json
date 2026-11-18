@@ -105,23 +105,23 @@
     "rankBy": "Panga kwa",
     "summary": {
       "title": "Ripoti ya mauzo",
-      "description": "Makusanyo, VAT, gharama na faida ghafi, na jinsi wateja walivyolipa, ikilinganishwa na kipindi kilichopita."
+      "description": "Makusanyo, VAT, gharama na faida ghafi ya bidhaa zako, kamisheni ya winga peke yake, na jinsi wateja walivyolipa, ikilinganishwa na kipindi kilichopita."
     },
     "daily": {
       "title": "Mauzo kwa siku",
-      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na winga zikiwepo. Urejeshaji unatolewa siku ulipofanyika."
+      "description": "Kila siku ya kipindi pamoja na mauzo, makusanyo, gharama na faida, na Ziada na winga pamoja na kamisheni yake zikiwepo. Urejeshaji unatolewa siku ulipofanyika."
     },
     "products": {
       "title": "Bidhaa zilizouzwa",
-      "description": "Idadi, makusanyo, gharama na faida ya kila bidhaa, zikipangwa unavyotaka."
+      "description": "Idadi, makusanyo, gharama na faida ya kila bidhaa yako, zikipangwa unavyotaka. Winga ziko kwenye Winga na Ziada."
     },
     "staff": {
       "title": "Mauzo kwa mfanyakazi",
-      "description": "Idadi ya mauzo ya kila mtu na kiasi alichokusanya, pamoja na Ziada na winga yake."
+      "description": "Idadi ya mauzo ya kila mtu na kiasi alichokusanya, pamoja na Ziada, winga na kamisheni ya winga yake."
     },
     "brkExtra": {
       "title": "Winga na Ziada",
-      "description": "Kila mstari wa Ziada na winga pamoja na risiti na mfanyakazi, kwa hesabu ya jioni na malipo."
+      "description": "Kila mstari wa Ziada na winga pamoja na risiti na mfanyakazi, kwa hesabu ya jioni na malipo, pamoja na kamisheni ya winga iliyobaki."
     },
     "refunds": {
       "title": "Urejeshaji wa pesa",
@@ -129,7 +129,7 @@
     },
     "shops": {
       "title": "Mauzo kwa duka",
-      "description": "Kila duka kando kwa kando: mauzo, makusanyo, VAT na faida."
+      "description": "Kila duka kando kwa kando: mauzo, makusanyo, VAT na faida, pamoja na kamisheni ya winga ikiwepo."
     },
     "stockOnHand": {
       "title": "Stoku iliyopo",

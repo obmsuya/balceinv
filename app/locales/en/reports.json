@@ -105,23 +105,23 @@
     "rankBy": "Rank by",
     "summary": {
       "title": "Sales report",
-      "description": "Takings, VAT, cost and gross profit, and how customers paid, compared with the previous period."
+      "description": "Takings, VAT, cost and gross profit on your own goods, Brk commission on its own, and how customers paid, compared with the previous period."
     },
     "daily": {
       "title": "Sales per day",
-      "description": "Every day in the period with its sales, takings, cost and profit, plus Extra and Brk when there are any. Refunds come off the day they were given."
+      "description": "Every day in the period with its sales, takings, cost and profit, plus Extra and Brk with its commission when there are any. Refunds come off the day they were given."
     },
     "products": {
       "title": "Products sold",
-      "description": "Each product's quantity, takings, cost and profit, ranked your way."
+      "description": "Each of your products' quantity, takings, cost and profit, ranked your way. Brk items are in Brk and Extra."
     },
     "staff": {
       "title": "Sales per staff member",
-      "description": "How many sales each person made and how much they took, plus their Extra and Brk."
+      "description": "How many sales each person made and how much they took, plus their Extra, Brk and Brk commission."
     },
     "brkExtra": {
       "title": "Brk and Extra",
-      "description": "Every Extra and Brk line with its receipt and staff member, for the evening count and paying out."
+      "description": "Every Extra and Brk line with its receipt and staff member, for the evening count and paying out, with the Brk commission kept."
     },
     "refunds": {
       "title": "Refunds",
@@ -129,7 +129,7 @@
     },
     "shops": {
       "title": "Sales per shop",
-      "description": "Each shop side by side: sales, takings, VAT and profit."
+      "description": "Each shop side by side: sales, takings, VAT and profit, with Brk commission when there is any."
     },
     "stockOnHand": {
       "title": "Stock on hand",

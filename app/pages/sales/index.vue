@@ -131,6 +131,7 @@ onMounted(async () => {
           <Skeleton v-if="!totals" class="h-7 w-24" />
           <p v-else class="text-xl font-bold tabular-nums sm:text-2xl">{{ formatMoney(totals.total) }}</p>
           <p v-if="totals?.refund_total" class="text-xs text-muted-foreground tabular-nums">{{ t('sales.refund.cardLine', { amount: formatMoney(totals.refund_total) }) }}</p>
+          <p v-if="totals?.brk_total" class="text-xs text-muted-foreground tabular-nums">{{ t('sales.cards.brkLine', { amount: formatMoney(totals.brk_total) }) }}</p>
         </CardContent>
       </Card>
       <Card>

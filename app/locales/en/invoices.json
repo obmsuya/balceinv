@@ -125,7 +125,7 @@
     },
     "chooseSupplier": "Choose a supplier",
     "pricesLocked": "Product prices come from your products. Change them with Discount or Extra.",
-    "brkHint": "Not your stock. The Brk share counts as cost.",
+    "brkHint": "Not your stock or your sales. Only the Brk commission counts as profit.",
     "lineNumber": "Line {line}"
   },
   "preview": {

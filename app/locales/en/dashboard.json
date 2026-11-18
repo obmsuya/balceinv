@@ -15,6 +15,8 @@
     "vsYesterday": "vs yesterday",
     "profitToday": "Profit today",
     "profitHint": "{margin} margin, after tax and cost",
+    "profitWithBrkHint": "{margin} margin on goods, plus {amount} Brk commission",
+    "brkHint": "Brk: {amount}",
     "thisMonth": "This month",
     "monthProfit": "{amount} profit",
     "stockAlerts": "Stock alerts",

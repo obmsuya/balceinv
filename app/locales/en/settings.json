@@ -209,7 +209,7 @@
       "invoices": "Invoices and quotations",
       "invoicesHelp": "Send branded invoices, proforma invoices, quotations and delivery notes, and track what is still owed. Needs Customers or Suppliers on.",
       "winga": "Brk lines",
-      "wingaHelp": "Brk (brokerage) lets the till and customer orders take a typed line for something that is not your stock. It counts in sales and the cash taken, takes nothing from stock, and the Brk share counts as cost. Customers see only the item name."
+      "wingaHelp": "Brk (brokerage) lets the till and customer orders take a typed line for something that is not your stock. It counts in the cash taken but not in your sales, takes nothing from stock, and only the Brk commission (the price less VAT less the Brk share) counts as profit. Customers see only the item name."
     },
     "accounting": {
       "title": "Accounting",

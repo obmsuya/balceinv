@@ -209,7 +209,7 @@
       "invoices": "Ankara na nukuu za bei",
       "invoicesHelp": "Tuma ankara zenye nembo yako, ankara za awali, nukuu za bei na hati za kupokelea, na fuatilia kinachodaiwa. Inahitaji Wateja au Wasambazaji kuwashwa.",
       "winga": "Mistari ya winga",
-      "wingaHelp": "Winga inaruhusu kaunta na oda za wateja kuandika mstari wa kitu ambacho si stoku yako. Unahesabiwa kwenye mauzo na pesa zilizopokelewa, haupunguzi stoku, na sehemu ya winga inahesabiwa kama gharama. Mteja anaona jina la kitu tu."
+      "wingaHelp": "Winga inaruhusu kaunta na oda za wateja kuandika mstari wa kitu ambacho si stoku yako. Unahesabiwa kwenye pesa zilizopokelewa lakini si kwenye mauzo yako, haupunguzi stoku, na kamisheni ya winga pekee (bei bila VAT, toa sehemu ya winga) inahesabiwa kama faida. Mteja anaona jina la kitu tu."
     },
     "accounting": {
       "title": "Uhasibu",
