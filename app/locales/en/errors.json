@@ -106,14 +106,14 @@
   "paid_more_than_total": "The amount paid cannot be more than the total",
   "purchase_not_found": "That stock arrival was not found",
   "already_cancelled": "This was already cancelled",
-  "stock_already_used": "Some of this stock was already sold or moved, so it cannot be cancelled",
+  "stock_already_used": "Some of this stock was already sold or moved, so it cannot be cancelled or lowered that much",
   "payment_not_found": "That payment was not found",
   "payment_already_voided": "This payment was already voided",
   "payment_locked": "Cancel the stock arrival to undo this payment",
   "return_not_found": "That return was not found",
   "order_not_found": "That order was not found",
   "order_closed": "This order is already fully received or cancelled",
-  "order_not_draft": "Only an order that was not sent can be marked as sent",
+  "order_not_draft": "Only an order that was not sent can be changed, sent or deleted",
   "order_supplier_mismatch": "The stock must come from the supplier on the order",
   "date_in_future": "The date cannot be in the future",
   "invalid_date": "A date is not valid",
@@ -182,5 +182,9 @@
   "winga_off": "Brk lines are turned off. Turn them on in Settings → Features.",
   "invalid_winga_line": "Give the Brk line a name, and keep the share within the line total.",
   "empty_sale": "Add at least one item.",
-  "invalid_reset_code": "The code is wrong or has expired. Ask for a new one."
+  "invalid_reset_code": "The code is wrong or has expired. Ask for a new one.",
+  "order_has_deliveries": "Stock already arrived against this order, so it cannot be deleted. Cancel it instead",
+  "paid_more_than_due": "That is more than is still owed on this stock arrival",
+  "draft_not_found": "This draft was already deleted",
+  "invalid_draft": "The draft could not be saved"
 }

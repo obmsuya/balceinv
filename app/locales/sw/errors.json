@@ -106,14 +106,14 @@
   "paid_more_than_total": "Kiasi ulicholipa hakiwezi kuzidi jumla",
   "purchase_not_found": "Stoku hiyo iliyofika haijapatikana",
   "already_cancelled": "Hii ilishaghairiwa",
-  "stock_already_used": "Sehemu ya stoku hii imeshauzwa au kuhamishwa, kwa hiyo haiwezi kughairiwa",
+  "stock_already_used": "Sehemu ya stoku hii imekwisha uzwa au kuhamishwa, hivyo haiwezi kughairiwa au kupunguzwa kiasi hicho",
   "payment_not_found": "Malipo hayo hayajapatikana",
   "payment_already_voided": "Malipo haya yalishabatilishwa",
   "payment_locked": "Ghairi stoku iliyofika ili kutendua malipo haya",
   "return_not_found": "Stoku iliyorudishwa haijapatikana",
   "order_not_found": "Oda hiyo haijapatikana",
   "order_closed": "Oda hii imeshapokelewa yote au imeghairiwa",
-  "order_not_draft": "Oda ambayo haijatumwa tu ndiyo inaweza kuwekwa kuwa imetumwa",
+  "order_not_draft": "Oda ambayo haijatumwa tu ndiyo inaweza kuhaririwa, kutumwa au kufutwa",
   "order_supplier_mismatch": "Stoku lazima itoke kwa msambazaji wa oda",
   "date_in_future": "Tarehe haiwezi kuwa ya baadaye",
   "invalid_date": "Tarehe moja si sahihi",
@@ -182,5 +182,9 @@
   "winga_off": "Mistari ya winga imezimwa. Iwashe kwenye Mipangilio → Vipengele.",
   "invalid_winga_line": "Ipe mstari wa winga jina, na sehemu isizidi jumla ya mstari.",
   "empty_sale": "Ongeza angalau bidhaa moja.",
-  "invalid_reset_code": "Namba si sahihi au imeisha muda. Omba mpya."
+  "invalid_reset_code": "Namba si sahihi au imeisha muda. Omba mpya.",
+  "order_has_deliveries": "Stoku imekwisha fika kwa oda hii, hivyo haiwezi kufutwa. Ighairi badala yake",
+  "paid_more_than_due": "Hiki ni zaidi ya kinachodaiwa kwenye stoku hii iliyofika",
+  "draft_not_found": "Rasimu hii ilikwisha futwa",
+  "invalid_draft": "Rasimu haikuweza kuhifadhiwa"
 }

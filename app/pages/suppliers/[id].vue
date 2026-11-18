@@ -280,7 +280,7 @@ onMounted(reloadAll)
 
       <SupplierFormDialog v-model:open="showEdit" :supplier="supplier" @saved="reloadAll" />
       <PaySupplierDialog v-model:open="showPay" :supplier="supplier" @paid="reloadAll" />
-      <StockArrivedDialog v-model:open="showArrived" :supplier-id="supplier.id" @saved="reloadAll" />
+      <StockArrivedDialog v-model:open="showArrived" :supplier-id="supplier.id" @saved="reloadAll" @draft-saved="purchasesPanel?.reload()" />
       <ReturnStockDialog v-model:open="showReturn" :supplier="supplier" @returned="reloadAll" />
       <OrderFormDialog v-if="purchaseOrdersOn" v-model:open="showOrderForm" :supplier="supplier" @saved="reloadAll" />
       <InvoiceEditorDialog v-if="canBillSupplier" v-model:open="showInvoiceEditor" preset-kind="supplier_invoice" :preset-supplier-id="supplierId" @saved="reloadAll" @issued="reloadAll" />

@@ -191,7 +191,7 @@ onMounted(reloadAll)
     </Card>
 
     <SupplierFormDialog v-model:open="showSupplierForm" :supplier="null" @saved="reloadAll" />
-    <StockArrivedDialog v-model:open="showArrived" @saved="reloadAll" />
+    <StockArrivedDialog v-model:open="showArrived" @saved="reloadAll" @draft-saved="purchasesPanel?.reload()" />
     <PaySupplierDialog v-model:open="showPay" @paid="reloadAll" />
     <OrderFormDialog v-if="purchaseOrdersOn" v-model:open="showOrderForm" @saved="reloadAll" />
   </div>

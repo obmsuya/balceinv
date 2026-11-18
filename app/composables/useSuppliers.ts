@@ -138,8 +138,61 @@ export interface Purchase {
   cancelled_by_name: string | null
   cancelled_at: string | null
   cancel_reason: string | null
+  replaced_by_id: string | null
+  replaced_by_number: string | null
+  edited_from_id: string | null
+  edited_from_number: string | null
   lines?: PurchaseLine[]
   payments?: SupplierPayment[]
+}
+
+export interface PurchaseDraft<Payload = Record<string, unknown>> {
+  id: string
+  shop_id: string
+  shop_name: string
+  supplier_id: string | null
+  supplier_name: string | null
+  purchase_order_id: string | null
+  purchase_order_number: string | null
+  line_count: number
+  payload: Payload
+  created_by_name: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ArrivedRow {
+  productId: string
+  label: string
+  sku: string
+  unit: string
+  currentCost: number | null
+  lastPaid: number | null
+  quantityText: string
+  costText: string
+}
+
+export interface ArrivedDraftPayload {
+  supplierChoice: string
+  shopId: string
+  orderId: string | null
+  invoiceNumber: string
+  invoiceDate: string
+  arrivedOn: string
+  vatChoice: InvoiceVat
+  paidText: string
+  paymentMethod: PaymentMethod
+  paymentReference: string
+  note: string
+  rows: ArrivedRow[]
+}
+
+export interface PurchaseDraftFields {
+  shop_id: string | null
+  supplier_id: string | null
+  purchase_order_id: string | null
+  line_count: number
+  payload: object
 }
 
 export interface PurchaseFields {
@@ -156,6 +209,7 @@ export interface PurchaseFields {
   payment_method: PaymentMethod
   payment_reference: string | null
   note: string | null
+  draft_id?: string | null
   lines: Array<{ product_id: string; quantity: number; unit_cost: number }>
 }
 
@@ -420,6 +474,65 @@ export const useSuppliers = () => {
     }
   }
 
+  const updatePurchase = async (purchaseId: string, fields: PurchaseFields, photoFile: File | null): Promise<Purchase> => {
+    saving.value = true
+    try {
+      const updateResponse = await apiFetch<ApiEnvelope<Purchase>>(`/api/purchases/${purchaseId}`, { method: 'PUT', body: fields })
+      toast.success(t('suppliers.toasts.purchaseChanged', { number: updateResponse.data.purchase_number }))
+      if (!photoFile) return updateResponse.data
+      try {
+        return await attachInvoicePhoto(updateResponse.data.id, photoFile)
+      } catch (photoError: any) {
+        toast.error(apiErrorMessage(photoError, 'suppliers.toasts.photoFailed'))
+        return updateResponse.data
+      }
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.purchaseChangeFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
+  const listPurchaseDrafts = async (supplierId?: string): Promise<PurchaseDraft[]> => {
+    try {
+      const draftResponse = await apiFetch<ApiEnvelope<PurchaseDraft[]>>('/api/purchase-drafts', { query: { supplier_id: supplierId || undefined } })
+      return draftResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.draftsFailed'))
+      return []
+    }
+  }
+
+  const savePurchaseDraft = async (draftId: string | null, fields: PurchaseDraftFields): Promise<PurchaseDraft> => {
+    saving.value = true
+    try {
+      const saveResponse = draftId
+        ? await apiFetch<ApiEnvelope<PurchaseDraft>>(`/api/purchase-drafts/${draftId}`, { method: 'PUT', body: fields })
+        : await apiFetch<ApiEnvelope<PurchaseDraft>>('/api/purchase-drafts', { method: 'POST', body: fields })
+      toast.success(t('suppliers.toasts.draftSaved'))
+      return saveResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.draftSaveFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
+  const deletePurchaseDraft = async (draftId: string): Promise<void> => {
+    saving.value = true
+    try {
+      await apiFetch(`/api/purchase-drafts/${draftId}`, { method: 'DELETE' })
+      toast.success(t('suppliers.toasts.draftDeleted'))
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.draftDeleteFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
   const cancelPurchase = async (purchaseId: string, reason: string): Promise<Purchase> => {
     saving.value = true
     try {
@@ -529,6 +642,33 @@ export const useSuppliers = () => {
     }
   }
 
+  const updateOrder = async (orderId: string, fields: OrderFields): Promise<PurchaseOrder> => {
+    saving.value = true
+    try {
+      const updateResponse = await apiFetch<ApiEnvelope<PurchaseOrder>>(`/api/purchase-orders/${orderId}`, { method: 'PUT', body: fields })
+      toast.success(t('suppliers.toasts.orderSaved', { number: updateResponse.data.order_number }))
+      return updateResponse.data
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.orderSaveFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
+  const deleteOrder = async (orderId: string): Promise<void> => {
+    saving.value = true
+    try {
+      await apiFetch(`/api/purchase-orders/${orderId}`, { method: 'DELETE' })
+      toast.success(t('suppliers.toasts.orderDeleted'))
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'suppliers.toasts.orderDeleteFailed'))
+      throw error
+    } finally {
+      saving.value = false
+    }
+  }
+
   const orderPdfBytes = async (orderId: string): Promise<Uint8Array> => {
     const documentBytes = await apiFetch<ArrayBuffer>(`/api/purchase-orders/${orderId}/document`, {
       query: { format: 'pdf' },
@@ -610,6 +750,10 @@ export const useSuppliers = () => {
     lastCost,
     vatRate,
     recordPurchase,
+    updatePurchase,
+    listPurchaseDrafts,
+    savePurchaseDraft,
+    deletePurchaseDraft,
     cancelPurchase,
     listPayments,
     paySupplier,
@@ -618,6 +762,8 @@ export const useSuppliers = () => {
     listOrders,
     fetchOrder,
     createOrder,
+    updateOrder,
+    deleteOrder,
     sendOrder,
     cancelOrder,
   }
