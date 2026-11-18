@@ -1,5 +1,6 @@
 import { toast } from 'vue-sonner'
 import { saveFile } from '~/utils/download'
+import { localDateText } from '@/composables/useSuppliers'
 import { apiErrorMessage, t } from '~/utils/i18n'
 
 export interface ProductBarcode {
@@ -367,6 +368,21 @@ export const useProducts = () => {
     }
   }
 
+  const exportProducts = async (): Promise<void> => {
+    try {
+      const workbookBytes = await apiFetch<ArrayBuffer>('/api/products/export', {
+        responseType: 'arrayBuffer',
+      })
+      const savedName = await saveFile(new Uint8Array(workbookBytes), `products-${localDateText()}.xlsx`, {
+        name: t('products.toasts.excelWorkbook'),
+        extensions: ['xlsx'],
+      })
+      if (savedName) toast.success(t('products.toasts.exportSaved'), { description: savedName })
+    } catch (error: any) {
+      toast.error(apiErrorMessage(error, 'products.toasts.exportFailed'))
+    }
+  }
+
   return {
     deleting,
     deleteProducts,
@@ -389,5 +405,6 @@ export const useProducts = () => {
     restoreProduct,
     importProducts,
     downloadTemplate,
+    exportProducts,
   }
 }
