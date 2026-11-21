@@ -27,6 +27,8 @@
     "discounts": "Punguzo",
     "includesTax": "Inajumuisha kodi ({rate}%)",
     "change": "Chenji",
+    "depositPaid": "Malipo ya awali ({method})",
+    "paidNow": "Umelipa sasa ({method})",
     "attempts": {
       "one": "Jaribio {count}",
       "other": "Majaribio {count}"

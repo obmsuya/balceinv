@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Sale } from '@/composables/useSales'
-import { fiscalStatusLabel, paymentMethodLabel } from '@/composables/useSales'
+import { fiscalStatusLabel, paidAtCounter, paymentMethodLabel } from '@/composables/useSales'
 import { formatMoney } from '~/utils/money'
 
 const props = defineProps<{ saleId: string | null }>()
@@ -135,7 +135,8 @@ const printReceipt = () => {
           <div v-if="sale.discount_total" class="flex justify-between text-muted-foreground"><dt>{{ t('sales.details.discounts') }}</dt><dd class="tabular-nums">−{{ formatMoney(sale.discount_total) }}</dd></div>
           <div class="flex justify-between text-base font-semibold"><dt>{{ t('common.fields.total') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.total) }}</dd></div>
           <div class="flex justify-between text-xs text-muted-foreground"><dt>{{ t('sales.details.includesTax', { rate: formatNumber(sale.tax_rate_basis_points / 100) }) }}</dt><dd class="tabular-nums">{{ formatMoney(sale.tax_total) }}</dd></div>
-          <div v-for="payment in sale.payments" :key="payment.method" class="flex justify-between"><dt>{{ paymentMethodLabel(payment.method) }}</dt><dd class="tabular-nums">{{ formatMoney(payment.amount) }}</dd></div>
+          <div v-for="deposit in sale.deposit_payments ?? []" :key="`deposit-${deposit.method}`" class="flex justify-between"><dt>{{ t('sales.details.depositPaid', { method: paymentMethodLabel(deposit.method) }) }}</dt><dd class="tabular-nums">{{ formatMoney(deposit.amount) }}</dd></div>
+          <div v-for="payment in paidAtCounter(sale)" :key="payment.method" class="flex justify-between"><dt>{{ sale.deposit_payments?.length ? t('sales.details.paidNow', { method: paymentMethodLabel(payment.method) }) : paymentMethodLabel(payment.method) }}</dt><dd class="tabular-nums">{{ formatMoney(payment.amount) }}</dd></div>
           <div v-if="sale.change_given" class="flex justify-between"><dt>{{ t('sales.details.change') }}</dt><dd class="tabular-nums">{{ formatMoney(sale.change_given) }}</dd></div>
         </dl>
         <p v-if="sale.note" class="rounded-md bg-muted/40 px-3 py-2 text-sm">{{ sale.note }}</p>

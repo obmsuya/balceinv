@@ -6,6 +6,8 @@
   "total": "Total",
   "tax": "Includes VAT",
   "paid": "Paid",
+  "depositPaid": "Deposit paid earlier",
+  "paidNow": "Paid now",
   "change": "Change",
   "tin": "TIN",
   "wholesale": "wholesale",

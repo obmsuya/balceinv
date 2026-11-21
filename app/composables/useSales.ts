@@ -128,6 +128,7 @@ export interface Sale {
   items: SaleLine[]
   winga_lines: WingaLine[]
   payments: PaymentInput[]
+  deposit_payments?: PaymentInput[]
   fiscal: SaleFiscal | null
   voided_at: string | null
   void_reason: string | null
@@ -226,6 +227,14 @@ interface Page<Item> {
 }
 
 export const salePageSize = 50
+
+export const paidAtCounter = (sale: Pick<Sale, 'payments' | 'deposit_payments'>): PaymentInput[] => {
+  const depositByMethod = new Map<string, number>()
+  for (const deposit of sale.deposit_payments ?? []) depositByMethod.set(deposit.method, (depositByMethod.get(deposit.method) ?? 0) + deposit.amount)
+  return sale.payments
+    .map(payment => ({ ...payment, amount: payment.amount - (depositByMethod.get(payment.method) ?? 0) }))
+    .filter(payment => payment.amount > 0)
+}
 
 export const paymentMethodLabel = (method: PaymentMethod): string => t(`sales.paymentMethods.${method}`)
 
