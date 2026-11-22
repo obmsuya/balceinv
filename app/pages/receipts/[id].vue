@@ -2,7 +2,7 @@
 import { Printer } from 'lucide-vue-next'
 import QRCode from 'qrcode'
 import { Button } from '@/components/ui/button'
-import type { SaleReceipt } from '@/composables/useSales'
+import { paidAtCounter, type SaleReceipt } from '@/composables/useSales'
 import { assetUrl } from '~/composables/useSettings'
 import { apiErrorMessage, translateIn } from '~/utils/i18n'
 import { intlLocaleFor, isLocale } from '~/utils/translate'
@@ -40,7 +40,8 @@ const money = (minorUnits: number): string => {
 
 const soldAt = computed(() => receipt.value ? new Intl.DateTimeFormat(receiptIntlLocale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(receipt.value.sale.created_at)) : '')
 
-const paidPayments = computed(() => receipt.value?.sale.payments.filter(payment => payment.method !== 'credit') ?? [])
+const depositPayments = computed(() => receipt.value?.sale.deposit_payments ?? [])
+const paidPayments = computed(() => receipt.value ? paidAtCounter(receipt.value.sale).filter(payment => payment.method !== 'credit') : [])
 
 const printNow = () => window.print()
 
@@ -137,8 +138,12 @@ onMounted(async () => {
         <span>{{ money(receipt.sale.tax_total) }}</span>
       </div>
       <div class="my-2 border-t border-dashed border-black" />
+      <div v-for="deposit in depositPayments" :key="`deposit-${deposit.method}`" class="flex justify-between">
+        <span>{{ label('depositPaid') }} ({{ label(`paymentMethods.${deposit.method}`) }})</span>
+        <span>{{ money(deposit.amount) }}</span>
+      </div>
       <div v-for="payment in paidPayments" :key="payment.method" class="flex justify-between">
-        <span>{{ label('paid') }} ({{ label(`paymentMethods.${payment.method}`) }})</span>
+        <span>{{ label(depositPayments.length ? 'paidNow' : 'paid') }} ({{ label(`paymentMethods.${payment.method}`) }})</span>
         <span>{{ money(payment.amount) }}</span>
       </div>
       <div v-if="receipt.sale.change_given" class="flex justify-between font-bold"><span>{{ label('change') }}</span><span>{{ money(receipt.sale.change_given) }}</span></div>

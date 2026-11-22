@@ -27,6 +27,8 @@
     "discounts": "Discounts",
     "includesTax": "Includes tax ({rate}%)",
     "change": "Change",
+    "depositPaid": "Deposit paid earlier ({method})",
+    "paidNow": "Paid now ({method})",
     "attempts": {
       "one": "{count} attempt",
       "other": "{count} attempts"

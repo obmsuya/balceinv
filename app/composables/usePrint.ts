@@ -53,10 +53,19 @@ export const usePrint = () => {
     const receiptUrl = `/receipts/${saleId}${printAtOnce ? '?print=1' : ''}`
     if (isTauri()) {
       const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow')
-      new WebviewWindow(`receipt-${Date.now()}`, { url: receiptUrl, title: t('receipt.receipt'), width: 420, height: 720 })
+      const receiptWindow = new WebviewWindow(`receipt-${Date.now()}`, {
+        url: receiptUrl,
+        title: t('receipt.receipt'),
+        width: 420,
+        height: 720,
+        center: true,
+        focus: true,
+        alwaysOnTop: true,
+      })
+      receiptWindow.once('tauri://created', () => receiptWindow.setFocus())
       return
     }
-    window.open(receiptUrl, '_blank', 'width=420,height=720')
+    window.open(receiptUrl, '_blank', 'width=420,height=720')?.focus()
   }
 
   const printSaleReceipt = async (saleId: string, openDrawer = false): Promise<void> => {
